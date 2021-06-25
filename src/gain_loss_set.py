@@ -1,0 +1,206 @@
+# Copyright 2021 eprbell
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from typing import Dict, List, Optional, cast
+
+from abstract_entry import AbstractEntry
+from abstract_entry_set import AbstractEntrySet
+from abstract_transaction import AbstractTransaction
+from configuration import Configuration
+from gain_loss import GainLoss
+from in_transaction import InTransaction
+from rp2_error import RP2TypeError, RP2ValueError
+
+
+class GainLossSet(AbstractEntrySet):
+    def __init__(
+        self,
+        configuration: Configuration,
+        asset: str,
+    ) -> None:
+        super().__init__(configuration, "MIXED", asset)
+        self.__taxable_events_to_fraction: Dict[GainLoss, int] = {}
+        self.__from_lots_to_fraction: Dict[GainLoss, int] = {}
+        self.__taxable_events_to_number_of_fractions: Dict[AbstractTransaction, int] = {}
+        self.__from_lots_to_number_of_fractions: Dict[InTransaction, int] = {}
+
+    @classmethod
+    def type_check(cls, name: str, instance: "GainLossSet") -> "GainLossSet":
+        Configuration.type_check_parameter_name(name)
+        if not isinstance(instance, cls):
+            raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
+        return instance
+
+    def add_entry(self, entry: AbstractEntry) -> None:
+        GainLoss.type_check("entry", entry)
+        super().add_entry(entry)
+
+    def get_taxable_event_fraction(self, entry: GainLoss) -> float:
+        self._validate_entry(entry)
+        self._check_sort()
+        return self.__taxable_events_to_fraction[entry]
+
+    def get_from_lot_fraction(self, entry: GainLoss) -> float:
+        self._validate_entry(entry)
+        self._check_sort()
+        return self.__from_lots_to_fraction[entry]
+
+    def get_taxable_event_number_of_fractions(self, transaction: AbstractTransaction) -> int:
+        AbstractTransaction.type_check("transaction", transaction)
+        if not transaction in self.__taxable_events_to_number_of_fractions:
+            raise RP2ValueError(f"Unknown transaction:\n{transaction}")
+        self._check_sort()
+        return self.__taxable_events_to_number_of_fractions[transaction]
+
+    def get_from_lot_number_of_fractions(self, transaction: InTransaction) -> int:
+        InTransaction.type_check("transaction", transaction)
+        if not transaction in self.__from_lots_to_number_of_fractions:
+            raise RP2ValueError(f"Unknown transaction:\n{transaction}")
+        self._check_sort()
+        return self.__from_lots_to_number_of_fractions[transaction]
+
+    def _validate_entry(self, entry: AbstractEntry) -> None:
+        GainLoss.type_check("entry", entry)
+        super()._validate_entry(entry)
+
+    def _sort_entries(self) -> None:
+        super()._sort_entries()
+        entry: AbstractEntry
+        gain_loss: Optional[GainLoss] = None
+        parent: Optional[GainLoss]
+        current_taxable_event_amount: float = 0
+        current_from_lot_amount: float = 0
+        current_taxable_event_fraction: int = 0
+        current_from_lot_fraction: int = 0
+        last_gain_loss_with_from_lot = None
+        for entry in self._entry_list:
+            gain_loss = cast(GainLoss, entry)
+            # Access the parent directly via _entry_to_parent because using the get_parent()
+            # accessor would cause _sort_entries to be called in an infinite recursive loop
+            parent = cast(Optional[GainLoss], self._entry_to_parent[gain_loss])
+            if gain_loss.from_lot:
+                # Needed for final housekeeping outside this loop
+                last_gain_loss_with_from_lot = gain_loss
+            if gain_loss.from_lot and parent and parent.from_lot:
+                # Ensure entry and parent are not EARN transactions (they don't have a from_lot)
+                if gain_loss.from_lot.timestamp < parent.from_lot.timestamp:
+                    # Ensure timestamp of from lot is >= timestamp of its parent.
+                    raise RP2ValueError(
+                        f"Date of from_lot entry at line {gain_loss.from_lot.line}" f" is < the date of its parent at line {parent.from_lot.line}: {gain_loss}"
+                    )
+
+            current_taxable_event_amount = round(current_taxable_event_amount + gain_loss.crypto_amount, Configuration.NUMERIC_PRECISION)
+            self.__taxable_events_to_fraction[gain_loss] = current_taxable_event_fraction
+            if current_taxable_event_amount == gain_loss.taxable_event.crypto_balance_change:
+                # Expected amount reached: reset both fraction and amount
+                if gain_loss.taxable_event in self.__taxable_events_to_number_of_fractions:
+                    raise RP2ValueError(f"Taxable event crypto amount already exhausted for {gain_loss.taxable_event}")
+                self.__taxable_events_to_number_of_fractions[gain_loss.taxable_event] = current_taxable_event_fraction + 1
+                current_taxable_event_fraction = 0
+                current_taxable_event_amount = 0
+            elif current_taxable_event_amount < gain_loss.taxable_event.crypto_balance_change:
+                current_taxable_event_fraction += 1
+            else:
+                raise RP2ValueError(
+                    f"Current taxable event amount ({current_taxable_event_amount})"
+                    f" exceeds crypto balance change of taxable event ({gain_loss.taxable_event.crypto_balance_change})"
+                    f". {gain_loss}"
+                )
+
+            if gain_loss.from_lot:
+                current_from_lot_amount += gain_loss.crypto_amount
+                self.__from_lots_to_fraction[gain_loss] = current_from_lot_fraction
+                if current_from_lot_amount == gain_loss.from_lot.crypto_balance_change:
+                    # Expected amount reached: reset both fraction and amount
+                    if gain_loss.from_lot in self.__from_lots_to_number_of_fractions:
+                        raise RP2ValueError(f"From-lot crypto amount already exhausted for {gain_loss.from_lot}")
+                    self.__from_lots_to_number_of_fractions[gain_loss.from_lot] = current_from_lot_fraction + 1
+                    current_from_lot_fraction = 0
+                    current_from_lot_amount = 0
+                elif current_from_lot_amount < gain_loss.from_lot.crypto_balance_change:
+                    current_from_lot_fraction += 1
+                else:
+                    raise RP2ValueError(
+                        f"Current from-lot amount exceeded crypto balance change of from-lot {gain_loss.from_lot.crypto_balance_change}"
+                        f" by {current_from_lot_amount}. {gain_loss}"
+                    )
+
+        # Final housekeeping
+        if last_gain_loss_with_from_lot:
+            # Update fractions for last transaction that is not exhausted (if any)
+            if current_taxable_event_amount > 0:
+                if last_gain_loss_with_from_lot.taxable_event in self.__taxable_events_to_number_of_fractions:
+                    raise RP2ValueError(f"Taxable event crypto amount already exhausted for {last_gain_loss_with_from_lot.taxable_event}")
+                self.__taxable_events_to_number_of_fractions[last_gain_loss_with_from_lot.taxable_event] = current_taxable_event_fraction
+
+            if last_gain_loss_with_from_lot.from_lot and current_from_lot_amount > 0:
+                if last_gain_loss_with_from_lot.from_lot in self.__from_lots_to_number_of_fractions:
+                    raise RP2ValueError(f"From-lot crypto amount already exhausted for {last_gain_loss_with_from_lot.from_lot}")
+                self.__from_lots_to_number_of_fractions[last_gain_loss_with_from_lot.from_lot] = current_from_lot_fraction
+
+    def __str__(self) -> str:
+        output: List[str] = []
+        output.append(f"{type(self).__name__}:")
+        output.append(f"  configuration={self._configuration.configuration_path}")
+        output.append(f"  asset={self.asset}")
+        output.append("  entries=")
+        for entry in self:
+            parent: Optional[AbstractEntry]
+            gain_loss: GainLoss = cast(GainLoss, entry)
+            # TODO: Is there a better option here than replacing spaces?
+            output.append("    " + str(entry).replace("  ", "      "))
+            parent = self.get_parent(entry)
+            output.append(
+                f"      taxable_event_fraction={self.get_taxable_event_fraction(gain_loss) + 1} of "
+                f"{self.get_taxable_event_number_of_fractions(gain_loss.taxable_event)}"
+            )
+            if gain_loss.from_lot:
+                output.append(
+                    f"      from_lot_fraction={self.get_from_lot_fraction(gain_loss) + 1} of " f"{self.get_from_lot_number_of_fractions(gain_loss.from_lot)}"
+                )
+            output.append(f"      parent={parent.id if parent else None}")
+        return "\n".join(output)
+
+    def __repr__(self) -> str:
+        output: List[str] = []
+        output.append(f"{type(self).__name__}(")
+        output.append(f"configuration={repr(self._configuration.configuration_path)}")
+        output.append(f", asset={repr(self.asset)}")
+        output.append(", entries=[")
+        count: int = 0
+        for entry in self:
+            parent: Optional[AbstractEntry]
+            gain_loss: GainLoss = cast(GainLoss, entry)
+            if count > 0:
+                output.append(", ")
+            entry_string = repr(entry)
+            # Remove trailing ')' to add set-specific information like parent
+            if entry_string[-1] != ")":
+                raise Exception("Internal error: repr() of transaction doesn't end with ')'")
+            output.append(entry_string[:-1])
+            parent = self.get_parent(entry)
+            output.append(
+                f", taxable_event_fraction={self.get_taxable_event_fraction(gain_loss) + 1} of "
+                f"{self.get_taxable_event_number_of_fractions(gain_loss.taxable_event)}"
+            )
+            if gain_loss.from_lot:
+                output.append(
+                    f", from_lot_fraction={self.get_from_lot_fraction(gain_loss) + 1} of " f"{self.get_from_lot_number_of_fractions(gain_loss.from_lot)}"
+                )
+            output.append(f", parent={parent.id if parent else None}")
+            # Add back trailing ')'
+            output.append(")")
+            count += 1
+        output.append("]")
+        return "".join(output)
