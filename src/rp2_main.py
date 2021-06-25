@@ -22,7 +22,7 @@ from typing import Dict, List
 
 from abstract_generator import AbstractGenerator
 from computed_data import ComputedData
-from configuration import Configuration
+from configuration import Configuration, VERSION
 from input_data import InputData
 from logger import LOG_FILE, LOGGER
 from ods_parser import parse_ods
@@ -141,6 +141,13 @@ def _setup_argument_parser() -> ArgumentParser:
         help="Generate report up to the given YEAR",
         metavar="YEAR",
         type=int,
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        action='version',
+        version=f"RP2 {VERSION} (https://github.com/eprbell/rp2)",
+        help="Print RP2 version",
     )
     parser.add_argument(
         "configuration_file",
