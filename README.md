@@ -3,6 +3,7 @@
 ## Table of Contents
 * **[Introduction](#introduction)**
 * **[License](#license)**
+* **[Download](#download)**
 * **[Installation](#installation)**
   * [Ubuntu Linux](#installation-on-ubuntu-linux)
   * [macOS](#installation-on-macos)
@@ -16,7 +17,7 @@
 * **[Documentation](#documentation)**
 
 ## Introduction
-Calculating crytpocurrency-related taxes can be a daunting and error-prone task, especially if many transactions and multiple exchanges are involved. RP2 makes this process easier. It reads as input a spreadsheet containing crypto transactions, divided in three tables (one per direction):
+Calculating crytpocurrency-related taxes can be a daunting and error-prone task, especially if many transactions and multiple exchanges are involved. [RP2](https://github.com/eprbell/rp2) makes this process easier. It reads as input a spreadsheet containing crypto transactions, divided in three tables (one per direction):
 * in (buy, earn),
 * out (sell, gift, donate),
 * intra (move across accounts).
@@ -29,6 +30,9 @@ RP2 offers no guarantee of correctness: always verify results with the help of a
 
 ## License
 RP2 is released under the terms of Apache License Version 2.0. For more information see [LICENSE](LICENSE) or http://www.apache.org/licenses/LICENSE-2.0.
+
+## Download
+The latest version of RP2 can be downloaded at: https://github.com/eprbell/rp2
 
 ## Installation
 RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.8.0 or greater.
