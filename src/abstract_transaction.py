@@ -18,7 +18,7 @@ from typing import Any, Callable, List, Optional
 from abstract_entry import AbstractEntry
 from configuration import Configuration
 from entry_types import TransactionType
-from rp2_error import RP2TypeError, RP2ValueError
+from rp2_error import RP2TypeError
 
 
 class AbstractTransaction(AbstractEntry):
