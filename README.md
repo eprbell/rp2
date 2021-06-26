@@ -26,7 +26,7 @@ It then calculates long/short capital gains, cost bases, balances, average price
 
 RP2 has a programmable plugin architecture for output generators: currently only US-specific plugins are available, but the architecture makes it possible to contribute additional output generators for different countries or for different US-based cases.
 
-RP2 offers no guarantee of correctness: always verify results with the help of a tax professional.
+**IMPORTANT DISCLAIMER**: RP2 offers no guarantee of correctness, so always verify results with the help of a tax professional.
 
 ## License
 RP2 is released under the terms of Apache License Version 2.0. For more information see [LICENSE](LICENSE) or http://www.apache.org/licenses/LICENSE-2.0.
@@ -49,7 +49,7 @@ Then install RP2 Python package requirements:
 cd <rp2_directory>
 make
 ```
-### Installation on macOS 
+### Installation on macOS
 First make sure [Homebrew](https://brew.sh) is installed, then open a terminal window and enter the following commands:
 ```
 brew update
@@ -62,7 +62,7 @@ cd <rp2_directory>
 make
 ```
 ### Installation on Windows 10
-First make sure [Python](https://python.org) 3.8 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following commands: 
+First make sure [Python](https://python.org) 3.8 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following commands:
 ```
 python -m pip install virtualenv
 cd <rp2_directory>
@@ -85,7 +85,7 @@ python -m pip install -r requirements.txt
 * make
 
 ## Running
-RP2 receives as input a .ods spreadsheet file (containing crypto transactions) and a JSON config file (describing the format of the spreadsheet file). These files are described in detail in the [Input Files](doc/input_files.md) section of the documentation.
+RP2 receives as input a user-prepared .ods spreadsheet file (containing crypto transactions) and a JSON config file (describing the format of the spreadsheet file). The formats of these files are described in detail in the [Input Files](doc/input_files.md) section of the documentation.
 
 Examples of an input spreadsheet and its respective config file:
 * [input/crypto_example.ods](input/crypto_example.ods)
