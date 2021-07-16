@@ -17,7 +17,7 @@
 * **[Documentation](#documentation)**
 
 ## Introduction
-Calculating crytpocurrency-related taxes can be a daunting and error-prone task, especially if many transactions and multiple exchanges are involved. [RP2](https://github.com/eprbell/rp2) makes this process easier. It reads as input a spreadsheet containing crypto transactions, divided in three tables (one per direction):
+Calculating crytpocurrency-related taxes can be a daunting and error-prone task, especially if many transactions and multiple exchanges are involved. [RP2](https://github.com/eprbell/rp2) makes this process easier and provides privacy (your transaction information doesn't leave your computer). It reads as input a spreadsheet containing crypto transactions, divided in three tables (one per direction):
 * in (buy, earn),
 * out (sell, gift, donate),
 * intra (move across accounts).
