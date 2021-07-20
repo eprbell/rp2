@@ -24,7 +24,7 @@ RP2 is a privacy-focused, free, open-source cryptocurrency tax calculator. Calcu
 
 It then calculates long/short capital gains, cost bases, balances, average price and in/out lot relationships and fractions and generates output spreadsheets. It supports the FIFO accounting method.
 
-RP2 prioritizes user privacy and stores crypto transaction information locally on the user's computer (transaction information is never sent anywhere else).
+RP2 prioritizes user privacy: it stores crypto transaction information locally on the user's computer and doesn't send transaction information anywhere else.
 
 RP2 has a programmable plugin architecture for output generators: currently only US-specific plugins are available, but the architecture makes it possible to contribute additional output generators for different countries or for different US-based cases.
 
