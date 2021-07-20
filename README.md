@@ -28,7 +28,7 @@ RP2 prioritizes user privacy: it stores crypto transaction information locally o
 
 RP2 has a programmable plugin architecture for output generators: currently only US-specific plugins are available, but the architecture makes it possible to contribute additional output generators for different countries or for different US-based cases.
 
-**IMPORTANT DISCLAIMER**: RP2 offers no guarantee of correctness, so always verify results with the help of a tax professional.
+**IMPORTANT DISCLAIMER**: RP2 offers no guarantee of correctness: always verify results with the help of a tax professional.
 
 ## License
 RP2 is released under the terms of Apache License Version 2.0. For more information see [LICENSE](LICENSE) or http://www.apache.org/licenses/LICENSE-2.0.
