@@ -24,7 +24,7 @@ from jsonschema import validate  # type: ignore
 from configuration_schema import CONFIGURATION_SCHEMA
 from rp2_error import RP2TypeError, RP2ValueError
 
-VERSION: str = "0.1.1"
+VERSION: str = "0.1.2"
 
 class AccountingMethod(Enum):
     FIFO: str = "fifo"
