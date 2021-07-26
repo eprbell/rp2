@@ -1,11 +1,24 @@
 # Input Files: ODS Spreadsheet and Config File
-RP2 receives as input a spreadsheet file and a config file. The user fills the input spreadsheet with crypto transactions using records from exchanges and wallets. The user also writes a config file (they can use [crypto_example.config](config/crypto_example.config) as boilerplate) describing the format and structure of the spreadsheet file:
+RP2 reads as input two user-prepared files:
+- an ODS-format spreadsheet (containing crypto transactions)
+- a JSON config (describing the format of the spreadsheet file).
+
+The user fills the input spreadsheet with crypto transactions using records from exchanges and wallets. The user also writes the config file (or they can use [crypto_example.config](config/crypto_example.config) as-is or as boilerplate) describing the format and structure of the spreadsheet file:
 - meaning of columns,
 - cryptocurrencies used,
 - exchanges used,
 - account owners.
 
 See [crypto_example.ods](input/crypto_example.ods) and [crypto_example.config](config/crypto_example.config) to learn more.
+
+## The Config File
+The config file tells RP2 how to interpret the input spreadsheet. It is in JSON format and contains the following sections:
+* **in_header**: JSON object containing parameter-position value pairs for **IN**-transactions. Position 0 corresponds to column A in the input spreadsheet, 1 to B, etc.
+* **out_header**: JSON object containing parameter-position value pairs for **OUT**-transactions. Position 0 corresponds to column A in the input spreadsheet, 1 to B, etc.
+* **intra_header**: JSON object containing parameter-position value pairs for **INTRA**-transactions. Position 0 corresponds to column A in the input spreadsheet, 1 to B, etc.
+* **assets**: JSON array containing a list of valid cryptocurrencies (references to cryptocurrencies not listed here will cause an error)
+* **exchanges**: JSON array containing a list of valid exchanges and wallets (references to exchanges or wallets not listed here will cause an error)
+* **holders**: JSON array containing a list of valid account and wallet owners (references to holders not listed here will cause an error). Multiple holders can be used by people who file taxes together.
 
 ## The Input Spreadsheet
 The input spreadsheet is in .ods format and contains one or more sheets. Each sheet is named after one cryptocurrency and contains all transactions denominated in it (allowed cryptocurrencies are defined in the **assets** section of the config file). Each sheet is composed of up to 3 tables:
@@ -69,12 +82,3 @@ Here's an example of an input spreadheet with 2 sheets: one for BTC and one for 
 * **crypto_sent**: how much of the given cryptocurrency was sent with the transaction
 * **crypto_received**: how much of the given cryptocurrency was received with the transaction
 * **notes** (optional): description of the transaction
-
-## The Config File
-The config file tells RP2 how to interpret the input spreadsheet. It is in JSON format and contains the following sections:
-* **in_header**: JSON object containing parameter-position value pairs for **IN**-transactions. Position 0 corresponds to column A in the input spreadsheet, 1 to B, etc.
-* **out_header**: JSON object containing parameter-position value pairs for **OUT**-transactions. Position 0 corresponds to column A in the input spreadsheet, 1 to B, etc.
-* **intra_header**: JSON object containing parameter-position value pairs for **INTRA**-transactions. Position 0 corresponds to column A in the input spreadsheet, 1 to B, etc.
-* **assets**: JSON array containing a list of valid cryptocurrencies (references to cryptocurrencies not listed here will cause an error)
-* **exchanges**: JSON array containing a list of valid exchanges and wallets (references to exchanges or wallets not listed here will cause an error)
-* **holders**: JSON array containing a list of valid account and wallet owners (references to holders not listed here will cause an error). Multiple holders can be used by people who file taxes together.

@@ -22,7 +22,7 @@ RP2 is a privacy-focused, free, open-source cryptocurrency tax calculator. Calcu
 * out (sell, gift, donate),
 * intra (move across accounts).
 
-It then calculates long/short capital gains, cost bases, balances, average price and in/out lot relationships and fractions and generates output spreadsheets. It supports the FIFO accounting method.
+It then calculates long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions and generates output spreadsheets. It supports the FIFO accounting method.
 
 RP2 prioritizes user privacy: it stores crypto transaction information locally on the user's computer and doesn't send transaction information anywhere else.
 
@@ -87,11 +87,17 @@ python -m pip install -r requirements.txt
 * make
 
 ## Running
-RP2 receives as input a user-prepared .ods spreadsheet file (containing crypto transactions) and a JSON config file (describing the format of the spreadsheet file). The formats of these files are described in detail in the [Input Files](doc/input_files.md) section of the documentation.
+RP2 reads as input two user-prepared files:
+- an ODS-format spreadsheet (containing crypto transactions)
+- a JSON config (describing the format of the spreadsheet file).
+
+The formats of these files are described in detail in the [Input Files](doc/input_files.md) section of the documentation.
 
 Examples of an input spreadsheet and its respective config file:
 * [input/crypto_example.ods](input/crypto_example.ods)
-* [config/crypto_example.config](config/crypto_example.config)
+* [config/crypto_example.config](config/crypto_example.config). If desired, this config file can be used as-is as a ready-made format for the spreadsheet.
+
+RP2 generates output files based on the received input. The output files contain information on long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. They are described in detail in the [Output Files](doc/output_files.md) section of the documentation.
 
 ### Running on Linux, macOS and Other Unix-like Systems
 
