@@ -41,7 +41,12 @@ class Generator(AbstractODTGenerator):
 
         output_file: Any
         output_file_path: str
-        output_file, output_file_path = self._initialize_output_file(output_dir_path, output_file_prefix, self.OUTPUT_FILE, self.TEMPLATE_SHEETS_TO_KEEP)
+        output_file, output_file_path = self._initialize_output_file(
+            output_dir_path=output_dir_path,
+            output_file_prefix=output_file_prefix,
+            output_file_name=self.OUTPUT_FILE,
+            template_sheets_to_keep=self.TEMPLATE_SHEETS_TO_KEEP,
+        )
 
         sheet: Any = output_file.sheets["mock_8949"]
         sheet.append_rows(self.MIN_ROWS)
