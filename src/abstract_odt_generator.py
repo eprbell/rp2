@@ -91,7 +91,7 @@ class AbstractODTGenerator(AbstractGenerator):  # pylint: disable=W0223
 
         style_name = f"{visual_style}_{data_style}"
         sheet[row_index, column_index].set_value(value)
-        self._apply_style_to_cell(sheet, row_index, column_index, style_name)
+        self._apply_style_to_cell(sheet=sheet, row_index=row_index, column_index=column_index, style_name=style_name)
 
     def _fill_header(self, title: str, header: List[Tuple[str, str]], sheet: Any, row_index: int, column_index: int) -> int:
 
