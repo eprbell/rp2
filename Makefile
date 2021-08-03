@@ -31,7 +31,7 @@ run: $(VENV)/bin/activate
 	bin/rp2.py -o output/ -p test_data_ config/test_data.config input/test_data.ods
 	bin/rp2.py -o output/ -p crypto_example_ config/crypto_example.config input/crypto_example.ods
 
-test: $(VENV)/bin/activate $(TESTS)
+check: $(VENV)/bin/activate $(TESTS)
 	$(foreach file, \
 	  $(TESTS), \
 	  echo; echo "Testing $(file)..."; \
@@ -46,7 +46,7 @@ lint: $(VENV)/bin/activate $(BIN) $(PLUGINS) $(SRC) $(TESTS)
 	)
 
 # Don't typecheck files in $(BIN) because they perform a version check
-# and are written using basic language features (no type hints) to ensure 
+# and are written using basic language features (no type hints) to ensure
 # they parse and run correctly on old versions of the interpreter.
 typecheck: $(VENV)/bin/activate $(PLUGINS) $(SRC) $(TESTS)
 	$(foreach file, \

@@ -138,10 +138,10 @@ The development and testing workflows are supported only on Linux and macOS (not
 Here are the relevant make targets:
 * `make`: installs package requirements
 * `make archive`: creates a .zip file with the contents of the RP2 directory
+* `make check`: runs all RP2 unit tests
 * `make clean`: removes the virtual environment, logs, outputs, caches, etc.
 * `make lint`: analyzes all Python sources with Pylint
 * `make reformat`: formats all Python sources using Black
-* `make test`: runs all RP2 unit tests
 * `make typecheck`: analyzes all Python sources with Mypy static type checker
 
 Logs are stored in the `log` directory. To generate debug logs, prepend the command line with `LOG_LEVEL=DEBUG`, e.g.:
