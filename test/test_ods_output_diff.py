@@ -22,7 +22,9 @@ class TestODSOutputDiff(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         # Generate output to compare with golden files
-        run(["make", "run"], check=True)
+        run(["rm", "-rf", "log/", "output/"], check=True)
+        run(["bin/rp2.py", "-o", "output/", "-p", "test_data_", "config/test_data.config", "input/test_data.ods"], check=True)
+        run(["bin/rp2.py", "-o", "output/", "-p", "crypto_example_", "config/crypto_example.config", "input/crypto_example.ods"], check=True)
 
     def setUp(self) -> None:
         self.maxDiff = None
