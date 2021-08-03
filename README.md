@@ -13,7 +13,7 @@
   * [Linux, macOS and Other Unix-like Systems](#running-on-linux-macos-and-other-unix-like-systems)
   * [Windows 10](#running-on-windows-10)
 * **[Development And Testing](#development-and-testing)**
-* **[Contributing](#contributing)**
+* **[Contributing And Reporting Bugs](#contributing-and-reporting-bugs)**
 * **[Documentation](#documentation)**
 
 ## Introduction
@@ -149,8 +149,8 @@ Logs are stored in the `log` directory. To generate debug logs, prepend the comm
 LOG_LEVEL=DEBUG bin/rp2.py -o output -p crypto_example_ config/crypto_example.config input/crypto_example.ods
 ```
 
-## Contributing
-Feel free to submit pull requests and submit bugs via Issue Tracker. For pull requests, please follow the PEP 8 coding standard (which is enforced by the `reformat` make target) and make sure your code doesn't trigger new issues with the following make targets:
+## Contributing And Reporting Bugs
+Feel free to submit bugs via Issue Tracker or pull requests. For pull requests, please follow the PEP 8 coding standard (which is enforced by the `reformat` make target) and make sure your code doesn't trigger new issues with the following make targets:
 ```
 make lint reformat test typecheck
 ```
