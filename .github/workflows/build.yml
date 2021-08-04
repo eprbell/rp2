@@ -1,4 +1,4 @@
-name: Build And Test [Python 3.6, 3.7, 3.8, 3.9]
+name: Build And Test [Python 3.4, 3.6, 3.7, 3.8, 3.9]
 
 on: [push, pull_request]
 
@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.4, 3.6, 3.7, 3.8, 3.9]
 
     steps:
       - uses: actions/checkout@v2
