@@ -68,7 +68,7 @@ def ods_diff(file1_path: str, file2_path: str) -> str:
     contents1: List[str] = []
     contents2: List[str] = []
     for sheet1 in file1.sheets:
-        if not sheet1.name in file2.sheets.names():
+        if sheet1.name not in file2.sheets.names():
             contents2.append(f"{sheet1.name}: sheet not found in '{file2_path}'")
             continue
         sheet2 = file2.sheets[sheet1.name]
@@ -85,7 +85,7 @@ def ods_diff(file1_path: str, file2_path: str) -> str:
                 contents2.append(_row_as_string(row2))
 
     for sheet2 in file2.sheets:
-        if not sheet2.name in file1.sheets.names():
+        if sheet2.name not in file1.sheets.names():
             contents1.append(f"{sheet2.name}: sheet not found in '{file1_path}'")
 
     return "\n".join(unified_diff(contents1, contents2, lineterm=""))

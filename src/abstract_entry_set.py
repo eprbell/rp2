@@ -101,7 +101,7 @@ class AbstractEntrySet:
 
     def _validate_entry(self, entry: AbstractEntry) -> None:
         AbstractEntry.type_check("entry", entry)
-        if not entry in self._entry_set:
+        if entry not in self._entry_set:
             raise RP2ValueError(f"Unknown entry:\n{entry}")
 
     def get_parent(self, entry: AbstractEntry) -> Optional[AbstractEntry]:
