@@ -22,13 +22,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8 pytest
           pip install -r requirements.txt
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            echo "PYTHONPATH=.\plugin;.\src;.\test" >> $GITHUB_ENV
-            echo "MYPYPATH=.\plugin;.\src;.\test;.\stubs" >> $GITHUB_ENV
-          else
-            echo "PYTHONPATH=./plugin:./src:./test" >> $GITHUB_ENV
-            echo "MYPYPATH=./plugin:./src:./test:./stubs" >> $GITHUB_ENV
-          fi
+      - name: Setup environment for Windows
+        if: runner.os == 'Windows'
+          echo "PYTHONPATH=.\plugin;.\src;.\test" >> $GITHUB_ENV
+          echo "MYPYPATH=.\plugin;.\src;.\test;.\stubs" >> $GITHUB_ENV
+      - name: Setup environment for Linux/Mac
+        if: runner.os != 'Windows'
+          echo "PYTHONPATH=./plugin:./src:./test" >> $GITHUB_ENV
+          echo "MYPYPATH=./plugin:./src:./test:./stubs" >> $GITHUB_ENV
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
