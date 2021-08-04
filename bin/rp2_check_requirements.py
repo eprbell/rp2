@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import platform
+import os
 import sys
 
 MINIMUM_VERSION = (3, 8, 0)
@@ -34,7 +34,8 @@ def check_requirements():
     # to avoid problems with earlier versions of the interpreter.
     from shutil import which
 
-    if which("virtualenv") is None:
+    # virtualenv is needed only when running from the makefile. Running outside the makefile doesn't necessarily need virtualenv (e.g. Github servers)
+    if "RP2_MAKEFILE" in os.environ and which("virtualenv") is None:
         return "virtualenv not found: please install it."
 
     if which("pip3") is None:

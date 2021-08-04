@@ -18,6 +18,7 @@ SRC := $(wildcard src/*.py)
 TESTS := $(wildcard test/test_*.py)
 PYTHONPATH := $(CURDIR)/plugin:$(CURDIR)/src:$(CURDIR)/test
 VENV := .venv
+RP2_MAKEFILE := 1
 
 all: $(VENV)/bin/activate
 
