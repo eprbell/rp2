@@ -34,7 +34,7 @@ def check_requirements():
     # to avoid problems with earlier versions of the interpreter.
     from shutil import which
 
-    # virtualenv is needed only when running from the makefile. Running outside the makefile doesn't necessarily need virtualenv (e.g. Github servers)
+    # virtualenv is required by the RP2 makefile. When RP2 is ran outside the makefile, it doesn't necessarily need virtualenv (e.g. Github servers)
     if "RP2_MAKEFILE" in os.environ and which("virtualenv") is None:
         return "virtualenv not found: please install it."
 
