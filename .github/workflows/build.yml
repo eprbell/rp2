@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: [3.7, 3.8, 3.9]
 
     steps:
@@ -22,8 +22,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8 pytest
           pip install -r requirements.txt
-          echo "PYTHONPATH=./plugin/:./src/:./test/" >> $GITHUB_ENV
-          echo "MYPYPATH=./plugin/:./src/:./test/:./stubs/" >> $GITHUB_ENV
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            echo "PYTHONPATH=.\plugin;.\src;.\test" >> $GITHUB_ENV
+            echo "MYPYPATH=.\plugin;.\src;.\test;.\stubs" >> $GITHUB_ENV
+          else
+            echo "PYTHONPATH=./plugin:./src:./test" >> $GITHUB_ENV
+            echo "MYPYPATH=./plugin:./src:./test:./stubs" >> $GITHUB_ENV
+          fi
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
