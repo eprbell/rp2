@@ -17,7 +17,7 @@
 import os
 import sys
 
-MINIMUM_VERSION = (3, 8, 0)
+MINIMUM_VERSION = (3, 6, 0)
 
 # This code performs a Python version check: it's written using basic language features (e.g. no type hints, no f-strings,
 # etc.) to ensure it parses and runs correctly on old versions of the interpreter.
