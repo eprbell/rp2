@@ -39,7 +39,7 @@ RP2 is released under the terms of Apache License Version 2.0. For more informat
 The latest version of RP2 can be downloaded at: https://github.com/eprbell/rp2
 
 ## Installation
-RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.6.0 or greater.
+RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.7.0 or greater.
 
 ### Installation on Ubuntu Linux
 First make sure Python, pip and virtualenv are installed. If not, open a terminal window and enter the following commands:
@@ -66,7 +66,7 @@ cd <rp2_directory>
 make
 ```
 ### Installation on Windows 10
-First make sure [Python](https://python.org) 3.6 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following commands:
+First make sure [Python](https://python.org) 3.7 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following commands:
 ```
 python -m pip install virtualenv
 cd <rp2_directory>
@@ -81,7 +81,7 @@ python -m pip install -r requirements.txt
 
 ### Installation on Other Unix-like Systems
 * install GNU make
-* install python 3.6 or greater
+* install python 3.7 or greater
 * install pip3
 * install virtualenv
 * update PATH variable, if needed
