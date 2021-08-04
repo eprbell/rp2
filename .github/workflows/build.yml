@@ -24,10 +24,12 @@ jobs:
           pip install -r requirements.txt
       - name: Setup environment for Windows
         if: runner.os == 'Windows'
+        run:
           echo "PYTHONPATH=.\plugin;.\src;.\test" >> $GITHUB_ENV
           echo "MYPYPATH=.\plugin;.\src;.\test;.\stubs" >> $GITHUB_ENV
       - name: Setup environment for Linux/Mac
         if: runner.os != 'Windows'
+        run:
           echo "PYTHONPATH=./plugin:./src:./test" >> $GITHUB_ENV
           echo "MYPYPATH=./plugin:./src:./test:./stubs" >> $GITHUB_ENV
       - name: Lint with flake8
