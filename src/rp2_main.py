@@ -30,6 +30,7 @@ from tax_engine import compute_tax
 
 OUTPUT_PACKAGE = "output"
 
+
 def rp2_main() -> None:
 
     args: Namespace

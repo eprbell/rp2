@@ -39,6 +39,7 @@ def _row_as_string(row: Any) -> str:
 
     return ",".join(values)
 
+
 def _parse_cell_value(cell: Any) -> Any:
     value: Any
     try:
@@ -50,6 +51,7 @@ def _parse_cell_value(cell: Any) -> Any:
         value = cell.value
 
     return value
+
 
 def ods_diff(file1_path: str, file2_path: str) -> str:
 
