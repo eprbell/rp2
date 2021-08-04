@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import shutil
 import unittest
 from subprocess import run
 
@@ -22,7 +23,8 @@ class TestODSOutputDiff(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         # Generate output to compare with golden files
-        run(["rm", "-rf", "log/", "output/"], check=True)
+        shutil.rmtree('./log')
+        shutil.rmtree('./output')
         run(["python3", "bin/rp2.py", "-o", "./output/", "-p", "test_data_", "./config/test_data.config", "./input/test_data.ods"], check=True)
         run(["python3", "bin/rp2.py", "-o", "./output/", "-p", "crypto_example_", "./config/crypto_example.config", "./input/crypto_example.ods"], check=True)
 
