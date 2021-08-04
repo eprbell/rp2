@@ -22,6 +22,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8 pytest
           pip install -r requirements.txt
+          echo "PYTHONPATH=./plugin/:./src/:./test/" >> $GITHUB_ENV
+          echo "MYPYPATH=./plugin/:./src/:./test/:./stubs/" >> $GITHUB_ENV
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
@@ -30,7 +32,7 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=160 --statistics
       - name: Typecheck with mypy
         run: |
-          MYPYPATH=./plugin/:./src/:./test/:./stubs mypy plugin/*/*.py src/*.py test/*.py
+          mypy plugin/*/*.py src/*.py test/*.py
       - name: Test with pytest
         run: |
-          PYTHONPATH=./plugin/:./src/:./test/ pytest
+          pytest
