@@ -58,14 +58,14 @@ class GainLossSet(AbstractEntrySet):
 
     def get_taxable_event_number_of_fractions(self, transaction: AbstractTransaction) -> int:
         AbstractTransaction.type_check("transaction", transaction)
-        if not transaction in self.__taxable_events_to_number_of_fractions:
+        if transaction not in self.__taxable_events_to_number_of_fractions:
             raise RP2ValueError(f"Unknown transaction:\n{transaction}")
         self._check_sort()
         return self.__taxable_events_to_number_of_fractions[transaction]
 
     def get_from_lot_number_of_fractions(self, transaction: InTransaction) -> int:
         InTransaction.type_check("transaction", transaction)
-        if not transaction in self.__from_lots_to_number_of_fractions:
+        if transaction not in self.__from_lots_to_number_of_fractions:
             raise RP2ValueError(f"Unknown transaction:\n{transaction}")
         self._check_sort()
         return self.__from_lots_to_number_of_fractions[transaction]

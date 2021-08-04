@@ -40,7 +40,7 @@ def parse_ods(configuration: Configuration, asset: str, input_file_path: str) ->
         raise RP2ValueError(f"Error: {input_file_path} does not exist")
 
     input_file: Any = ezodf.opendoc(input_file_path)
-    if not asset in input_file.sheets.names():
+    if asset not in input_file.sheets.names():
         raise RP2ValueError(f"Error: sheet {asset} does not exist in {input_file_path}")
     input_sheet: Any = input_file.sheets[asset]
 
