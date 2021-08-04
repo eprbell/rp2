@@ -10,10 +10,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: [3.7, 3.8, 3.9]
-
     env:
-      PYTHONPATH: ./plugin:./src:./test
-      MYPYPATH: ./plugin:./src:./test:./stubs
+      PYTHONPATH: plugin:src:test
+      MYPYPATH: plugin:src:test:stubs
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -28,8 +27,8 @@ jobs:
       - name: Additional environment setup
         if: runner.os == 'Windows'
         run:
-          echo "PYTHONPATH=.\plugin;.\src;.\test" >> $env:GITHUB_ENV
-          echo "MYPYPATH=.\plugin;.\src;.\test;.\stubs" >> $env:GITHUB_ENV
+          echo "PYTHONPATH=plugin;src;test" >> $env:GITHUB_ENV
+          echo "MYPYPATH=plugin;src;test;stubs" >> $env:GITHUB_ENV
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
