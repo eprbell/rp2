@@ -11,6 +11,9 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: [3.7, 3.8, 3.9]
 
+    env:
+      echo PYTHONPATH=./plugin:./src:./test
+      echo MYPYPATH=./plugin:./src:./test:./stubs
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -22,8 +25,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8 pytest
           pip install -r requirements.txt
-          echo "PYTHONPATH=./plugin:./src:./test" >> $GITHUB_ENV
-          echo "MYPYPATH=./plugin:./src:./test:./stubs" >> $GITHUB_ENV
       - name: Additional environment setup
         if: runner.os == 'Windows'
         run:
