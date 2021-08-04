@@ -26,6 +26,7 @@ from rp2_error import RP2TypeError, RP2ValueError
 
 VERSION: str = "0.1.2"
 
+
 class AccountingMethod(Enum):
     FIFO: str = "fifo"
     LIFO: str = "lifo"
