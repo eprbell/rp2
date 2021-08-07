@@ -146,7 +146,7 @@ def _setup_argument_parser() -> ArgumentParser:
     parser.add_argument(
         "-v",
         "--version",
-        action='version',
+        action="version",
         version=f"RP2 {VERSION} (https://github.com/eprbell/rp2)",
         help="Print RP2 version",
     )
