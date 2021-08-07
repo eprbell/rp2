@@ -38,10 +38,10 @@ class Balance:
         self.__asset: str = configuration.type_check_asset("asset", asset)
         self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
         self.__holder: str = configuration.type_check_holder("holder", holder)
-        self.__final_balance: float = configuration.type_check_float("final_balance", final_balance)
-        self.__acquired_balance: float = configuration.type_check_float("acquired_balance", acquired_balance)
-        self.__sent_balance: float = configuration.type_check_float("sent_balance", sent_balance)
-        self.__received_balance: float = configuration.type_check_float("received_balance", received_balance)
+        self.__final_balance: float = round(configuration.type_check_float("final_balance", final_balance), Configuration.NUMERIC_PRECISION)
+        self.__acquired_balance: float = round(configuration.type_check_float("acquired_balance", acquired_balance), Configuration.NUMERIC_PRECISION)
+        self.__sent_balance: float = round(configuration.type_check_float("sent_balance", sent_balance), Configuration.NUMERIC_PRECISION)
+        self.__received_balance: float = round(configuration.type_check_float("received_balance", received_balance), Configuration.NUMERIC_PRECISION)
 
     def __str__(self) -> str:
         return (
