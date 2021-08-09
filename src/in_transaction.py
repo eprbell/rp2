@@ -72,25 +72,25 @@ class InTransaction(AbstractTransaction):
             raise RP2ValueError(f"{self.asset} {type(self).__name__} at line {self.line} ({self.timestamp}): invalid transaction type {self.transaction_type}")
 
         # If the values provided by the exchange doesn't match the computed one, log a warning.
-        if round(self.__crypto_in * self.spot_price, Configuration.USD_PRECISION) != round(self.__usd_in_no_fee, Configuration.USD_PRECISION):
+        if not Configuration.is_equal_within_precision(self.__crypto_in * self.spot_price, self.__usd_in_no_fee, Configuration.USD_PRECISION):
             LOGGER.warning(
                 "%s %s at line %d (%s): crypto_in * spot_price != usd_in_no_fee: %f != %f",
                 self.asset,
                 type(self).__name__,
                 self.line,
                 self.timestamp,
-                round(self.__crypto_in * self.spot_price, Configuration.USD_PRECISION),
-                round(self.__usd_in_no_fee, Configuration.USD_PRECISION),
+                self.__crypto_in * self.spot_price,
+                self.__usd_in_no_fee,
             )
-        if round(self.__usd_in_with_fee, Configuration.USD_PRECISION) != round(self.__usd_in_no_fee + self.__usd_fee, Configuration.USD_PRECISION):
+        if not Configuration.is_equal_within_precision(self.__usd_in_with_fee, self.__usd_in_no_fee + self.__usd_fee, Configuration.USD_PRECISION):
             LOGGER.warning(
                 "%s %s at line %d (%s): usd_in_with_fee != usd_in_no_fee + usd_fee: %f != %f",
                 self.asset,
                 type(self).__name__,
                 self.line,
                 self.timestamp,
-                round(self.__usd_in_with_fee, Configuration.USD_PRECISION),
-                round(self.__usd_in_no_fee + self.__usd_fee, Configuration.USD_PRECISION),
+                self.__usd_in_with_fee,
+                self.__usd_in_no_fee + self.__usd_fee,
             )
 
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
