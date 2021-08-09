@@ -53,6 +53,10 @@ class Configuration:
             raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
         return instance
 
+    @classmethod
+    def is_equal_within_precision(cls, n1: float, n2: float, precision: int) -> bool:
+        return round(n1 - n2, precision) == 0
+
     def __init__(
         self,
         configuration_path: str,
