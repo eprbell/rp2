@@ -107,21 +107,7 @@ def _populate_gain_and_loss(configuration: Configuration, input_data: InputData,
                 taxable_event_amount = taxable_event.crypto_taxable_amount
                 continue
 
-            if taxable_event_amount < from_lot_amount:
-                gain_loss = GainLoss(
-                    configuration,
-                    taxable_event_amount,
-                    taxable_event,
-                    from_lot,
-                )
-                gain_loss_set.add_entry(gain_loss)
-                from_lot_amount = round(
-                    from_lot_amount - taxable_event_amount,
-                    Configuration.NUMERIC_PRECISION,
-                )
-                taxable_event = next(taxable_event_iterator)
-                taxable_event_amount = taxable_event.crypto_taxable_amount
-            elif taxable_event_amount == from_lot_amount:
+            if Configuration.is_equal_within_precision(taxable_event_amount, from_lot_amount, Configuration.NUMERIC_PRECISION):
                 gain_loss = GainLoss(
                     configuration,
                     taxable_event_amount,
@@ -133,6 +119,17 @@ def _populate_gain_and_loss(configuration: Configuration, input_data: InputData,
                 taxable_event_amount = taxable_event.crypto_taxable_amount
                 from_lot = next(from_lot_iterator)
                 from_lot_amount = from_lot.crypto_in
+            elif taxable_event_amount < from_lot_amount:
+                gain_loss = GainLoss(
+                    configuration,
+                    taxable_event_amount,
+                    taxable_event,
+                    from_lot,
+                )
+                gain_loss_set.add_entry(gain_loss)
+                from_lot_amount = from_lot_amount - taxable_event_amount
+                taxable_event = next(taxable_event_iterator)
+                taxable_event_amount = taxable_event.crypto_taxable_amount
             else:  # taxable_amount > from_lot_amount
                 gain_loss = GainLoss(
                     configuration,
@@ -141,10 +138,7 @@ def _populate_gain_and_loss(configuration: Configuration, input_data: InputData,
                     from_lot,
                 )
                 gain_loss_set.add_entry(gain_loss)
-                taxable_event_amount = round(
-                    taxable_event_amount - from_lot_amount,
-                    Configuration.NUMERIC_PRECISION,
-                )
+                taxable_event_amount = taxable_event_amount - from_lot_amount
                 from_lot = next(from_lot_iterator)
                 from_lot_amount = from_lot.crypto_in
     except StopIteration as exception:
@@ -197,11 +191,6 @@ def _populate_yearly_gain_loss_list(input_data: InputData, gain_loss_set: GainLo
         usd_taxable_amount_total += yearly_gain_loss.usd_amount
         cost_basis_total += yearly_gain_loss.usd_cost_basis
         gain_loss_total += yearly_gain_loss.usd_gain_loss
-
-    crypto_taxable_amount_total = round(crypto_taxable_amount_total, Configuration.NUMERIC_PRECISION)
-    usd_taxable_amount_total = round(usd_taxable_amount_total, Configuration.NUMERIC_PRECISION)
-    cost_basis_total = round(cost_basis_total, Configuration.NUMERIC_PRECISION)
-    gain_loss_total = round(gain_loss_total, Configuration.NUMERIC_PRECISION)
 
     _verify_computation(input_data, crypto_taxable_amount_total, usd_taxable_amount_total, cost_basis_total, gain_loss_total)
 
@@ -261,33 +250,30 @@ def _verify_computation(
         crypto_in_amount_total += in_transaction.crypto_in
         cost_basis_total_verify += in_transaction.usd_in_with_fee
 
-    crypto_taxable_amount_total_verify = round(crypto_taxable_amount_total_verify, Configuration.NUMERIC_PRECISION)
-    usd_taxable_amount_total_verify = round(usd_taxable_amount_total_verify, Configuration.NUMERIC_PRECISION)
-    cost_basis_total_verify = round(cost_basis_total_verify, Configuration.NUMERIC_PRECISION)
-    gain_loss_total_verify = round(usd_taxable_amount_total_verify - cost_basis_total_verify, Configuration.NUMERIC_PRECISION)
+    gain_loss_total_verify = usd_taxable_amount_total_verify - cost_basis_total_verify
 
-    if crypto_taxable_amount_total != crypto_taxable_amount_total_verify:
+    if not Configuration.is_equal_within_precision(crypto_taxable_amount_total, crypto_taxable_amount_total_verify, Configuration.NUMERIC_PRECISION):
         LOGGER.warning(
             "%s: total crypto taxable amount incongruence detected: %f != %f",
             input_data.asset,
             crypto_taxable_amount_total,
             crypto_taxable_amount_total_verify,
         )
-    if usd_taxable_amount_total != usd_taxable_amount_total_verify:
+    if not Configuration.is_equal_within_precision(usd_taxable_amount_total, usd_taxable_amount_total_verify, Configuration.NUMERIC_PRECISION):
         LOGGER.warning(
             "%s: total usd taxable amount incongruence detected: %f != %f",
             input_data.asset,
             usd_taxable_amount_total,
             usd_taxable_amount_total_verify,
         )
-    if cost_basis_total != cost_basis_total_verify:
+    if not Configuration.is_equal_within_precision(cost_basis_total, cost_basis_total_verify, Configuration.NUMERIC_PRECISION):
         LOGGER.warning(
             "%s: cost basis incongruence detected: %f != %f",
             input_data.asset,
             cost_basis_total,
             cost_basis_total_verify,
         )
-    if gain_loss_total != gain_loss_total_verify:
+    if not Configuration.is_equal_within_precision(gain_loss_total, gain_loss_total_verify, Configuration.NUMERIC_PRECISION):
         LOGGER.warning(
             "%s: total gain/loss incongruence detected: %f != %f",
             input_data.asset,
