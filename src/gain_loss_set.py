@@ -20,6 +20,7 @@ from abstract_transaction import AbstractTransaction
 from configuration import Configuration
 from gain_loss import GainLoss
 from in_transaction import InTransaction
+from logger import LOGGER
 from rp2_error import RP2TypeError, RP2ValueError
 
 
@@ -75,6 +76,7 @@ class GainLossSet(AbstractEntrySet):
         super()._validate_entry(entry)
 
     def _sort_entries(self) -> None:
+        LOGGER.debug("Sort Gain-Loss Set:")
         super()._sort_entries()
         entry: AbstractEntry
         gain_loss: Optional[GainLoss] = None
@@ -83,7 +85,7 @@ class GainLossSet(AbstractEntrySet):
         current_from_lot_amount: float = 0
         current_taxable_event_fraction: int = 0
         current_from_lot_fraction: int = 0
-        last_gain_loss_with_from_lot = None
+        last_gain_loss_with_from_lot: Optional[GainLoss] = None
         for entry in self._entry_list:
             gain_loss = cast(GainLoss, entry)
             # Access the parent directly via _entry_to_parent because using the get_parent()
@@ -100,16 +102,35 @@ class GainLossSet(AbstractEntrySet):
                         f"Date of from_lot entry at line {gain_loss.from_lot.line}" f" is < the date of its parent at line {parent.from_lot.line}: {gain_loss}"
                     )
 
-            current_taxable_event_amount = round(current_taxable_event_amount + gain_loss.crypto_amount, Configuration.NUMERIC_PRECISION)
+            current_taxable_event_amount += gain_loss.crypto_amount
             self.__taxable_events_to_fraction[gain_loss] = current_taxable_event_fraction
-            if current_taxable_event_amount == gain_loss.taxable_event.crypto_balance_change:
+            if Configuration.is_equal_within_precision(
+                current_taxable_event_amount,
+                gain_loss.taxable_event.crypto_balance_change,
+                Configuration.NUMERIC_PRECISION,
+            ):
                 # Expected amount reached: reset both fraction and amount
                 if gain_loss.taxable_event in self.__taxable_events_to_number_of_fractions:
                     raise RP2ValueError(f"Taxable event crypto amount already exhausted for {gain_loss.taxable_event}")
                 self.__taxable_events_to_number_of_fractions[gain_loss.taxable_event] = current_taxable_event_fraction + 1
+                LOGGER.debug(
+                    "%s (%d - %d): current amount == taxable event (%.16f)",
+                    gain_loss.id,
+                    current_from_lot_fraction,
+                    current_taxable_event_fraction,
+                    current_taxable_event_amount,
+                )
                 current_taxable_event_fraction = 0
                 current_taxable_event_amount = 0
             elif current_taxable_event_amount < gain_loss.taxable_event.crypto_balance_change:
+                LOGGER.debug(
+                    "%s (%d - %d): current amount < taxable event (%.16f < %.16f)",
+                    gain_loss.id,
+                    current_from_lot_fraction,
+                    current_taxable_event_fraction,
+                    current_taxable_event_amount,
+                    gain_loss.taxable_event.crypto_balance_change,
+                )
                 current_taxable_event_fraction += 1
             else:
                 raise RP2ValueError(
@@ -121,19 +142,35 @@ class GainLossSet(AbstractEntrySet):
             if gain_loss.from_lot:
                 current_from_lot_amount += gain_loss.crypto_amount
                 self.__from_lots_to_fraction[gain_loss] = current_from_lot_fraction
-                if current_from_lot_amount == gain_loss.from_lot.crypto_balance_change:
+                if Configuration.is_equal_within_precision(current_from_lot_amount, gain_loss.from_lot.crypto_balance_change, Configuration.NUMERIC_PRECISION):
                     # Expected amount reached: reset both fraction and amount
                     if gain_loss.from_lot in self.__from_lots_to_number_of_fractions:
                         raise RP2ValueError(f"From-lot crypto amount already exhausted for {gain_loss.from_lot}")
                     self.__from_lots_to_number_of_fractions[gain_loss.from_lot] = current_from_lot_fraction + 1
+                    LOGGER.debug(
+                        "%s (%d - %d): current amount == from-lot (%.16f)",
+                        gain_loss.id,
+                        current_from_lot_fraction,
+                        current_taxable_event_fraction,
+                        current_from_lot_amount,
+                    )
                     current_from_lot_fraction = 0
                     current_from_lot_amount = 0
                 elif current_from_lot_amount < gain_loss.from_lot.crypto_balance_change:
+                    LOGGER.debug(
+                        "%s (%d - %d): current amount < from-lot (%.16f < %.16f)",
+                        gain_loss.id,
+                        current_from_lot_fraction,
+                        current_taxable_event_fraction,
+                        current_from_lot_amount,
+                        gain_loss.from_lot.crypto_balance_change,
+                    )
                     current_from_lot_fraction += 1
                 else:
                     raise RP2ValueError(
-                        f"Current from-lot amount exceeded crypto balance change of from-lot {gain_loss.from_lot.crypto_balance_change}"
-                        f" by {current_from_lot_amount}. {gain_loss}"
+                        f"Current from-lot amount ({current_from_lot_amount}) "
+                        f"exceeded crypto balance change of from-lot ({gain_loss.from_lot.crypto_balance_change})"
+                        f". {gain_loss}"
                     )
 
         # Final housekeeping
