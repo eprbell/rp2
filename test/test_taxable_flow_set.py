@@ -263,12 +263,12 @@ class TestGainLossSet(unittest.TestCase):
     def test_bad_gain_loss_set(self) -> None:
         gain_loss_set: GainLossSet
         asset: str = "B4"
-        gain_losss: List[GainLoss] = self._create_transactions(asset)
-        gain_loss1: GainLoss = gain_losss[0]
-        gain_loss2: GainLoss = gain_losss[1]
+        gain_losses: List[GainLoss] = self._create_transactions(asset)
+        gain_loss1: GainLoss = gain_losses[0]
+        gain_loss2: GainLoss = gain_losses[1]
         in3: InTransaction = gain_loss1.from_lot  # type: ignore
         out15: OutTransaction = cast(OutTransaction, gain_loss1.taxable_event)
-        out14: OutTransaction = cast(OutTransaction, gain_losss[3].taxable_event)
+        out14: OutTransaction = cast(OutTransaction, gain_losses[3].taxable_event)
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
             # Bad configuration
@@ -399,7 +399,7 @@ class TestGainLossSet(unittest.TestCase):
             gain_loss_set.add_entry(GainLoss(self._configuration, 0.1, out15, in_transaction))
             for gain_loss in gain_loss_set:
                 pass
-        with self.assertRaisesRegex(RP2ValueError, "Current from-lot amount exceeded crypto balance change of from-lot .* by .* GainLoss"):
+        with self.assertRaisesRegex(RP2ValueError, "Current from-lot amount .* exceeded crypto balance change of from-lot .* GainLoss"):
             gain_loss_set = GainLossSet(self._configuration, asset)
             out_transaction: OutTransaction = OutTransaction(
                 self._configuration,
