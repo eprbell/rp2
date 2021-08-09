@@ -22,7 +22,7 @@ from typing import Dict, List
 
 from abstract_generator import AbstractGenerator
 from computed_data import ComputedData
-from configuration import Configuration, VERSION
+from configuration import VERSION, Configuration
 from input_data import InputData
 from logger import LOG_FILE, LOGGER
 from ods_parser import parse_ods
