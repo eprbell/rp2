@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from datetime import datetime
+from decimal import Decimal
 from typing import Optional, cast
 
 from abstract_entry import AbstractEntry
@@ -20,6 +21,7 @@ from abstract_transaction import AbstractTransaction
 from configuration import Configuration
 from entry_types import TransactionType
 from in_transaction import InTransaction
+from rp2_decimal import ZERO
 from rp2_error import RP2TypeError, RP2ValueError
 
 
@@ -27,7 +29,7 @@ class GainLoss(AbstractEntry):
     def __init__(
         self,
         configuration: Configuration,
-        crypto_amount: float,
+        crypto_amount: Decimal,
         taxable_event: AbstractTransaction,
         from_lot: Optional[InTransaction],
     ) -> None:
@@ -38,7 +40,7 @@ class GainLoss(AbstractEntry):
 
         super().__init__(configuration, taxable_event.asset)
 
-        self.__crypto_amount: float = configuration.type_check_positive_float("crypto_amount", crypto_amount, non_zero=True)
+        self.__crypto_amount: Decimal = configuration.type_check_positive_decimal("crypto_amount", crypto_amount, non_zero=True)
 
         if taxable_event.transaction_type != TransactionType.EARN:
             if from_lot is None:
@@ -127,54 +129,54 @@ class GainLoss(AbstractEntry):
         return self.__from_lot
 
     @property
-    def crypto_amount(self) -> float:
+    def crypto_amount(self) -> Decimal:
         return self.__crypto_amount
 
     @property
-    def crypto_balance_change(self) -> float:
+    def crypto_balance_change(self) -> Decimal:
         return self.crypto_amount
 
     @property
-    def usd_balance_change(self) -> float:
+    def usd_balance_change(self) -> Decimal:
         return self.taxable_event.usd_balance_change
 
     @property
-    def taxable_event_usd_amount_with_fee_fraction(self) -> float:
+    def taxable_event_usd_amount_with_fee_fraction(self) -> Decimal:
         # We don't simply multiply by taxable_event_fraction_percentage to avoid potential precision loss with small percentages
         return (self.taxable_event.usd_taxable_amount * self.crypto_amount) / self.taxable_event.crypto_balance_change
 
     @property
-    def from_lot_usd_amount_with_fee_fraction(self) -> float:
+    def from_lot_usd_amount_with_fee_fraction(self) -> Decimal:
         if not self.from_lot:
-            return 0
+            return ZERO
         # We don't simply multiply by from_lot_fraction_percentage to avoid potential precision loss with small percentages
         return (self.from_lot.usd_in_with_fee * self.crypto_amount) / self.from_lot.crypto_balance_change
 
     @property
-    def taxable_event_fraction_percentage(self) -> float:
+    def taxable_event_fraction_percentage(self) -> Decimal:
         return self.crypto_amount / self.taxable_event.crypto_balance_change
 
     @property
-    def from_lot_fraction_percentage(self) -> float:
+    def from_lot_fraction_percentage(self) -> Decimal:
         if not self.from_lot:
             # Earn taxable events don't have a from_lot
             if self.taxable_event.transaction_type != TransactionType.EARN:
                 raise Exception("Internal error: from lot is None but taxable event is not of type EARN")
-            return 0
+            return ZERO
         return self.crypto_amount / self.from_lot.crypto_balance_change
 
     @property
-    def usd_cost_basis(self) -> float:
+    def usd_cost_basis(self) -> Decimal:
         if not self.from_lot:
             # Earn taxable events don't have a from_lot and their cost basis is 0
             if self.taxable_event.transaction_type != TransactionType.EARN:
                 raise Exception("Internal error: from lot is None but taxable event is not of type EARN")
-            return 0
+            return ZERO
         # We don't simply multiply by from_lot_fraction_percentage to avoid potential precision loss with small percentages
         return (self.from_lot.usd_in_with_fee * self.crypto_amount) / self.from_lot.crypto_balance_change
 
     @property
-    def usd_gain(self) -> float:
+    def usd_gain(self) -> Decimal:
         return self.taxable_event_usd_amount_with_fee_fraction - self.usd_cost_basis
 
     def is_long_term_capital_gains(self) -> bool:
