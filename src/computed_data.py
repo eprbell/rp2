@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from dataclasses import InitVar, dataclass
+from decimal import Decimal
 from typing import List
 
 from balance import BalanceSet
@@ -30,20 +31,20 @@ class YearlyGainLoss:
     asset: str
     transaction_type: TransactionType
     is_long_term: bool
-    crypto_amount: float
-    usd_amount: float
-    usd_cost_basis: float
-    usd_gain_loss: float
+    crypto_amount: Decimal
+    usd_amount: Decimal
+    usd_cost_basis: Decimal
+    usd_gain_loss: Decimal
 
     def __post_init__(self) -> None:
         Configuration.type_check_positive_int("year", self.year)
         Configuration.type_check_string("asset", self.asset)
         TransactionType.type_check("transaction_type", self.transaction_type)
         Configuration.type_check_bool("is_long_term", self.is_long_term)
-        Configuration.type_check_float("crypto_amount", self.crypto_amount)
-        Configuration.type_check_float("usd_amount", self.usd_amount)
-        Configuration.type_check_float("usd_cost_basis", self.usd_cost_basis)
-        Configuration.type_check_float("usd_gain_loss", self.usd_gain_loss)
+        Configuration.type_check_decimal("crypto_amount", self.crypto_amount)
+        Configuration.type_check_decimal("usd_amount", self.usd_amount)
+        Configuration.type_check_decimal("usd_cost_basis", self.usd_cost_basis)
+        Configuration.type_check_decimal("usd_gain_loss", self.usd_gain_loss)
 
     def __lt__(self, other: "YearlyGainLoss") -> bool:
         return self.year < other.year
@@ -56,7 +57,7 @@ class ComputedData:
     gain_loss_set: GainLossSet
     balance_set: BalanceSet
     yearly_gain_loss_list: List[YearlyGainLoss]
-    price_per_unit: float
+    price_per_unit: Decimal
     input_data: InitVar[InputData]
 
     @classmethod
@@ -74,7 +75,7 @@ class ComputedData:
         if not isinstance(self.yearly_gain_loss_list, List):
             raise RP2TypeError(f"Parameter 'yearly_gain_loss_list' is not of type List: {self.yearly_gain_loss_list}")
         InputData.type_check("input_data", input_data)
-        Configuration.type_check_positive_float("price_per_unit", self.price_per_unit)
+        Configuration.type_check_positive_decimal("price_per_unit", self.price_per_unit)
 
         self.__in_transaction_set: TransactionSet = input_data.in_transaction_set
         self.__out_transaction_set: TransactionSet = input_data.out_transaction_set
