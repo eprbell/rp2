@@ -163,8 +163,8 @@ def _process_constructor_argument_pack(
             # It would be ideal to pass a string directly to the RP2Decimal constructor for maximum precision, but due to ezodf limitations we
             # cannot get the string representation directly from the spreadsheet (see the comment on cell format inside parse_ods() for more
             # detail), so at parse time we have to get the float value from the cell. Here we convert the float to string, which allows us to
-            # initialize a maximum-precision Decimal.
-            argument_pack[numeric_parameter] = RP2Decimal(f"{value:.8f}") if value is not None else None
+            # initialize a maximum-precision Decimal (11 decimal digits is enough precision for millisats).
+            argument_pack[numeric_parameter] = RP2Decimal(f"{value:.11f}") if value is not None else None
 
     return argument_pack
 
