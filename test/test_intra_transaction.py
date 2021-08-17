@@ -20,6 +20,7 @@ from configuration import Configuration
 from entry_types import TransactionType
 from in_transaction import InTransaction
 from intra_transaction import IntraTransaction
+from rp2_decimal import RP2Decimal
 from rp2_error import RP2TypeError, RP2ValueError
 
 
@@ -43,14 +44,14 @@ class TestIntraTransaction(unittest.TestCase):
             "Bob",
             "BlockFi",
             "Alice",
-            1000.0,
-            2.0002,
-            1.9998,
+            RP2Decimal("1000.0"),
+            RP2Decimal("2.0002"),
+            RP2Decimal("1.9998"),
         )
 
         IntraTransaction.type_check("my_instance", intra_transaction)
         self.assertTrue(intra_transaction.is_taxable())
-        self.assertEqual(0.4, intra_transaction.usd_taxable_amount)
+        self.assertEqual(RP2Decimal("0.4"), intra_transaction.usd_taxable_amount)
         self.assertEqual(19, intra_transaction.line)
         self.assertEqual(2021, intra_transaction.timestamp.year)
         self.assertEqual(1, intra_transaction.timestamp.month)
@@ -66,13 +67,13 @@ class TestIntraTransaction(unittest.TestCase):
         self.assertEqual("BlockFi", intra_transaction.to_exchange)
         self.assertEqual("Alice", intra_transaction.to_holder)
         self.assertEqual(TransactionType.MOVE, intra_transaction.transaction_type)
-        self.assertEqual(1000, intra_transaction.spot_price)
-        self.assertEqual(2.0002, intra_transaction.crypto_sent)
-        self.assertEqual(1.9998, intra_transaction.crypto_received)
-        self.assertEqual(0.0004, intra_transaction.crypto_fee)
-        self.assertEqual(0.4, intra_transaction.usd_fee)
-        self.assertEqual(0.0004, intra_transaction.crypto_balance_change)
-        self.assertEqual(0.4, intra_transaction.usd_balance_change)
+        self.assertEqual(RP2Decimal("1000"), intra_transaction.spot_price)
+        self.assertEqual(RP2Decimal("2.0002"), intra_transaction.crypto_sent)
+        self.assertEqual(RP2Decimal("1.9998"), intra_transaction.crypto_received)
+        self.assertEqual(RP2Decimal("0.0004"), intra_transaction.crypto_fee)
+        self.assertEqual(RP2Decimal("0.4"), intra_transaction.usd_fee)
+        self.assertEqual(RP2Decimal("0.0004"), intra_transaction.crypto_balance_change)
+        self.assertEqual(RP2Decimal("0.4"), intra_transaction.usd_balance_change)
 
         self.assertEqual(
             str(intra_transaction),
@@ -148,18 +149,18 @@ class TestIntraTransaction(unittest.TestCase):
             "Bob",
             "Coinbase",
             "Alice",
-            100.0,
-            30,
-            30,
+            RP2Decimal("100.0"),
+            RP2Decimal("30"),
+            RP2Decimal("30"),
         )
         self.assertFalse(intra_transaction.is_taxable())
-        self.assertEqual(intra_transaction.usd_taxable_amount, 0)
+        self.assertEqual(RP2Decimal("0"), intra_transaction.usd_taxable_amount)
         self.assertEqual("B2", intra_transaction.asset)
         self.assertEqual(TransactionType.MOVE, intra_transaction.transaction_type)
-        self.assertEqual(0, intra_transaction.crypto_fee)
-        self.assertEqual(0, intra_transaction.usd_fee)
-        self.assertEqual(0, intra_transaction.crypto_balance_change)
-        self.assertEqual(0.0, intra_transaction.usd_balance_change)
+        self.assertEqual(RP2Decimal("0"), intra_transaction.crypto_fee)
+        self.assertEqual(RP2Decimal("0"), intra_transaction.usd_fee)
+        self.assertEqual(RP2Decimal("-0"), intra_transaction.crypto_balance_change)
+        self.assertEqual(RP2Decimal("0.0"), intra_transaction.usd_balance_change)
 
         self.assertEqual(
             str(intra_transaction),
@@ -191,9 +192,9 @@ class TestIntraTransaction(unittest.TestCase):
             "Bob",
             "BlockFi",
             "Alice",
-            1000.0,
-            2.0002,
-            1.9998,
+            RP2Decimal("1000.0"),
+            RP2Decimal("2.0002"),
+            RP2Decimal("1.9998"),
         )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'indent' has non-integer value"):
             intra_transaction.to_string(None, repr_format=False, extra_data=["foobar", "qwerty"])  # type: ignore
@@ -211,7 +212,19 @@ class TestIntraTransaction(unittest.TestCase):
             IntraTransaction.type_check("my_instance", None)  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'my_instance' is not of type IntraTransaction: InTransaction"):
             IntraTransaction.type_check(
-                "my_instance", InTransaction(self._configuration, 45, "2021-01-12T11:51:38Z", "B1", "BlockFi", "Bob", "BUY", 10000, 1, 0)
+                "my_instance",
+                InTransaction(
+                    self._configuration,
+                    45,
+                    "2021-01-12T11:51:38Z",
+                    "B1",
+                    "BlockFi",
+                    "Bob",
+                    "BUY",
+                    RP2Decimal("10000"),
+                    RP2Decimal("1"),
+                    RP2Decimal("0")
+                )
             )
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
@@ -225,9 +238,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
             # Bad configuration
@@ -240,9 +253,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'line' has non-positive value .*"):
             # Bad line
@@ -255,9 +268,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'line' has non-integer value .*"):
             # Bad line
@@ -270,9 +283,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'timestamp' has non-string value .*"):
             # Bad timestamp
@@ -285,9 +298,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'timestamp' value has no timezone info: .*"):
             # Bad timestamp
@@ -300,9 +313,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'asset' value is not known: .*"):
             # Bad asset
@@ -315,9 +328,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'asset' has non-string value .*"):
             # Bad asset
@@ -330,9 +343,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'from_exchange' value is not known: .*"):
             # Bad from exchange
@@ -345,9 +358,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_exchange' has non-string value .*"):
             # Bad from exchange
@@ -360,9 +373,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'from_holder' value is not known: .*"):
             # Bad from holder
@@ -375,9 +388,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_holder' has non-string value .*"):
             # Bad from holder
@@ -390,9 +403,9 @@ class TestIntraTransaction(unittest.TestCase):
                 None,  # type: ignore
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'to_exchange' value is not known: .*"):
             # Bad to exchange
@@ -405,9 +418,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "",
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'to_exchange' has non-string value .*"):
             # Bad to exchange
@@ -420,9 +433,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 None,  # type: ignore
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'to_holder' value is not known: .*"):
             # Bad to holder
@@ -435,9 +448,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "A lice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'to_holder' has non-string value .*"):
             # Bad to holder
@@ -450,9 +463,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 1111,  # type: ignore
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'spot_price' has non-positive value .*"):
             # Bad spot price
@@ -465,11 +478,11 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                -1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("-1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'spot_price' has non-numeric value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'spot_price' has non-Decimal value .*"):
             # Bad spot price
             IntraTransaction(
                 self._configuration,
@@ -481,8 +494,8 @@ class TestIntraTransaction(unittest.TestCase):
                 "BlockFi",
                 "Alice",
                 "1000",  # type: ignore
-                2.0002,
-                1.9998,
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_sent' has zero value"):
             # Bad crypto sent
@@ -495,9 +508,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                0,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("0"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_sent' has non-positive value .*"):
             # Bad crypto sent
@@ -510,11 +523,11 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                -2,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("-2"),
+                RP2Decimal("1.9998"),
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_sent' has non-numeric value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_sent' has non-Decimal value .*"):
             # Bad crypto sent
             IntraTransaction(
                 self._configuration,
@@ -525,11 +538,11 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
+                RP2Decimal("1000.0"),
                 None,  # type: ignore
-                1.9998,
+                RP2Decimal("1.9998"),
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_sent' has non-numeric value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_sent' has non-Decimal value .*"):
             # Bad crypto sent
             IntraTransaction(
                 self._configuration,
@@ -540,9 +553,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
+                RP2Decimal("1000.0"),
                 "-2.0002",  # type: ignore
-                1.9998,
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_received' has non-positive value .*"):
             # Bad crypto received
@@ -555,11 +568,11 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                -2,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("-2"),
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_received' has non-numeric value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_received' has non-Decimal value .*"):
             # Bad crypto received
             IntraTransaction(
                 self._configuration,
@@ -570,11 +583,11 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
                 None,  # type: ignore
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_received' has non-numeric value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_received' has non-Decimal value .*"):
             # Bad crypto received
             IntraTransaction(
                 self._configuration,
@@ -585,8 +598,8 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
                 (1, 2, 3),  # type: ignore
             )
 
@@ -601,9 +614,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Bob",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_sent' has non-positive value .*"):
             # Crypto sent < 0
@@ -616,9 +629,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                -2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("-2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_sent' has zero value"):
             # Crypto sent == 0
@@ -631,9 +644,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                0,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("0"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_received' has non-positive value .*"):
             # Crypto received < 0
@@ -646,9 +659,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                -1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("-1.9998"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'notes' has non-string value .*"):
             # Bad notes
@@ -661,9 +674,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
                 notes=1111,  # type: ignore
             )
         with self.assertRaisesRegex(RP2ValueError, ".*IntraTransaction at line .*: from/to exchanges/holders are the same: sending to self"):
@@ -677,9 +690,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Alice",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
         with self.assertRaisesRegex(RP2ValueError, ".*IntraTransaction at line.*crypto sent < crypto received"):
             # Crypto sent < crypto received
@@ -692,9 +705,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                1.0002,
-                2.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("1.0002"),
+                RP2Decimal("2.9998"),
             )
 
 

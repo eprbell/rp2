@@ -21,8 +21,8 @@ from configuration import Configuration
 from entry_types import TransactionType
 from intra_transaction import IntraTransaction
 from out_transaction import OutTransaction
+from rp2_decimal import RP2Decimal
 from rp2_error import RP2TypeError, RP2ValueError
-
 
 class TestOutTransaction(unittest.TestCase):
     _configuration: Configuration
@@ -43,15 +43,15 @@ class TestOutTransaction(unittest.TestCase):
             "Coinbase Pro",
             "Bob",
             "SELL",
-            900.9,
-            2.2,
-            0.01,
+            RP2Decimal("900.9"),
+            RP2Decimal("2.2"),
+            RP2Decimal("0.01"),
         )
         OutTransaction.type_check("my_instance", out_transaction)
 
         self.assertTrue(out_transaction.is_taxable())
-        self.assertEqual(1990.989, out_transaction.usd_taxable_amount)
-        self.assertEqual(2.21, out_transaction.crypto_taxable_amount)
+        self.assertEqual(RP2Decimal("1990.989"), out_transaction.usd_taxable_amount)
+        self.assertEqual(RP2Decimal("2.21"), out_transaction.crypto_taxable_amount)
         self.assertEqual(38, out_transaction.line)
         self.assertEqual(2020, out_transaction.timestamp.year)
         self.assertEqual(6, out_transaction.timestamp.month)
@@ -64,10 +64,10 @@ class TestOutTransaction(unittest.TestCase):
         self.assertEqual("Coinbase Pro", out_transaction.exchange)
         self.assertEqual("Bob", out_transaction.holder)
         self.assertEqual(TransactionType.SELL, out_transaction.transaction_type)
-        self.assertEqual(900.9, out_transaction.spot_price)
-        self.assertEqual(2.2, out_transaction.crypto_out_no_fee)
-        self.assertEqual(2.21, out_transaction.crypto_balance_change)
-        self.assertEqual(1990.989, out_transaction.usd_balance_change)
+        self.assertEqual(RP2Decimal("900.9"), out_transaction.spot_price)
+        self.assertEqual(RP2Decimal("2.2"), out_transaction.crypto_out_no_fee)
+        self.assertEqual(RP2Decimal("2.21"), out_transaction.crypto_balance_change)
+        self.assertEqual(RP2Decimal("1990.989"), out_transaction.usd_balance_change)
 
         self.assertEqual(
             str(out_transaction),
@@ -130,9 +130,9 @@ class TestOutTransaction(unittest.TestCase):
             "Coinbase Pro",
             "Bob",
             "SELL",
-            900.9,
-            2.2,
-            0.01,
+            RP2Decimal("900.9"),
+            RP2Decimal("2.2"),
+            RP2Decimal("0.01"),
         )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'indent' has non-integer value"):
             out_transaction.to_string(None, repr_format=False, extra_data=["foobar", "qwerty"])  # type: ignore
@@ -150,7 +150,19 @@ class TestOutTransaction(unittest.TestCase):
             OutTransaction.type_check("my_instance", None)  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'my_instance' is not of type OutTransaction: IntraTransaction"):
             OutTransaction.type_check(
-                "my_instance", IntraTransaction(self._configuration, 45, "2021-01-12T11:51:38Z", "B1", "BlockFi", "Bob", "Coinbase", "Alice", 10000, 1, 1)
+                "my_instance", IntraTransaction(
+                    self._configuration,
+                    45,
+                    "2021-01-12T11:51:38Z",
+                    "B1",
+                    "BlockFi",
+                    "Bob",
+                    "Coinbase",
+                    "Alice",
+                    RP2Decimal("10000"),
+                    RP2Decimal("1"),
+                    RP2Decimal("1")
+                )
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
             # Bad configuration
@@ -162,9 +174,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "GIFT",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
             # Bad configuration
@@ -176,9 +188,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'line' has non-positive value .*"):
             # Bad line
@@ -190,9 +202,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "GIFT",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'line' has non-integer value .*"):
             # Bad line
@@ -204,9 +216,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'timestamp' has non-string value .*"):
             # Bad timestamp
@@ -218,9 +230,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "gIfT",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'timestamp' value has no timezone info: .*"):
             # Bad timestamp
@@ -232,9 +244,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "selL",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'timestamp' has non-string value .*"):
             # Bad timestamp
@@ -246,9 +258,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "GIFT",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'asset' value is not known: .*"):
             # Bad asset
@@ -260,9 +272,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'asset' has non-string value .*"):
             # Bad asset
@@ -274,9 +286,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'exchange' value is not known: .*"):
             # Bad exchange
@@ -288,9 +300,9 @@ class TestOutTransaction(unittest.TestCase):
                 "CoinbasE Pro",
                 "Bob",
                 "SELL",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'exchange' has non-string value .*"):
             # Bad exchange
@@ -302,9 +314,9 @@ class TestOutTransaction(unittest.TestCase):
                 None,  # type: ignore
                 "Bob",
                 "SELL",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'holder' value is not known: .*"):
             # Bad holder
@@ -316,9 +328,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "foobar",
                 "SELL",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'holder' has non-string value .*"):
             # Bad holder
@@ -330,9 +342,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 None,  # type: ignore
                 "SELL",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2ValueError, ".*OutTransaction at line.*invalid transaction type .*"):
             # Bad transaction type
@@ -344,9 +356,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "Buy",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2ValueError, ".*OutTransaction at line.*invalid transaction type .*"):
             # Bad transaction type
@@ -358,9 +370,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "eArN",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter .* has invalid transaction type value: .*"):
             # Bad transaction type
@@ -372,9 +384,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "BEND",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter .* has non-string value .*"):
             # Bad transaction type
@@ -386,9 +398,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 None,  # type: ignore
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2ValueError, "OutTransaction at line.*parameter 'spot_price' cannot be 0"):
             # Bad spot price
@@ -400,9 +412,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                0,
-                2.2,
-                0,
+                RP2Decimal("0"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'spot_price' has non-positive value .*"):
             # Bad spot price
@@ -414,11 +426,11 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                -900.9,
-                2.2,
-                0,
+                RP2Decimal("-900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'spot_price' has non-numeric value ,*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'spot_price' has non-Decimal value ,*"):
             # Bad spot price
             OutTransaction(
                 self._configuration,
@@ -429,8 +441,8 @@ class TestOutTransaction(unittest.TestCase):
                 "Bob",
                 "GIFT",
                 None,  # type: ignore
-                2.2,
-                0,
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_out_no_fee' has zero value"):
             # Bad crypto out no fee
@@ -442,9 +454,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "GIFT",
-                900.9,
-                0,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("0"),
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_out_no_fee' has non-positive value .*"):
             # Bad crypto out no fee
@@ -456,11 +468,11 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                900.9,
-                -2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("-2.2"),
+                RP2Decimal("0"),
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_out_no_fee' has non-numeric value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_out_no_fee' has non-Decimal value .*"):
             # Bad crypto out no fee
             OutTransaction(
                 self._configuration,
@@ -470,9 +482,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                900.9,
+                RP2Decimal("900.9"),
                 None,  # type: ignore
-                0,
+                RP2Decimal("0"),
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_fee' has non-positive value .*"):
             # Bad crypto fee
@@ -484,11 +496,11 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                900.9,
-                2.2,
-                -0.1,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("-0.1"),
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_fee' has non-numeric value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_fee' has non-Decimal value .*"):
             # Bad crypto fee
             OutTransaction(
                 self._configuration,
@@ -498,8 +510,8 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                900.9,
-                2.2,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
                 "foobar",  # type: ignore
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'usd_out_no_fee' has non-positive value .*"):
@@ -512,12 +524,12 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                900.9,
-                2.2,
-                0,
-                usd_out_no_fee=-0.1,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
+                usd_out_no_fee=RP2Decimal("-0.1"),
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'usd_out_no_fee' has non-numeric value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'usd_out_no_fee' has non-Decimal value .*"):
             # Bad usd_out_no_fee
             OutTransaction(
                 self._configuration,
@@ -527,9 +539,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
                 usd_out_no_fee="foobar",  # type: ignore
             )
 
@@ -543,13 +555,13 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                900.9,
-                2.2,
-                0,
-                usd_out_no_fee=1800,
-                usd_fee=-10,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
+                usd_out_no_fee=RP2Decimal("1800"),
+                usd_fee=RP2Decimal("-10"),
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'usd_fee' has non-numeric value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'usd_fee' has non-Decimal value .*"):
             # Bad usd fee
             OutTransaction(
                 self._configuration,
@@ -559,10 +571,10 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                900.9,
-                2.2,
-                0,
-                usd_out_no_fee=1800,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
+                usd_out_no_fee=RP2Decimal("1800"),
                 usd_fee="foobar",  # type: ignore
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'notes' has non-string value .*"):
@@ -575,9 +587,9 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
                 notes=(1, 2, 3),  # type: ignore
             )
 
@@ -590,10 +602,10 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                900.9,
-                2.2,
-                0.1,
-                2.2,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0.1"),
+                RP2Decimal("2.2"),
             )
             self.assertTrue(re.search("crypto_out_with_fee != crypto_out_no_fee.*crypto_fee:.*", log.output[0]))  # type: ignore
         with self.assertLogs(level="WARNING") as log:
@@ -605,11 +617,11 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "SELL",
-                900.9,
-                2.2,
-                0.1,
-                usd_out_no_fee=1981.98,
-                usd_fee=5.9,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0.1"),
+                usd_out_no_fee=RP2Decimal("1981.98"),
+                usd_fee=RP2Decimal("5.9"),
             )
             self.assertTrue(re.search("crypto_fee.*spot_price.*!= usd_fee.*:.*", log.output[0]))  # type: ignore
         with self.assertLogs(level="WARNING") as log:
@@ -621,11 +633,11 @@ class TestOutTransaction(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "GIFT",
-                900.9,
-                2.2,
-                0.1,
-                usd_out_no_fee=1081.98,
-                usd_fee=90.09,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0.1"),
+                usd_out_no_fee=RP2Decimal("1081.98"),
+                usd_fee=RP2Decimal("90.09"),
             )
             self.assertTrue(re.search("crypto_out_no_fee.*spot_price.*!= usd_out_no_fee.*:.*", log.output[0]))  # type: ignore
 
