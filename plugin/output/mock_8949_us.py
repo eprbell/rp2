@@ -70,8 +70,8 @@ class Generator(AbstractODTGenerator):
         border_suffix: str = "_border"
         for entry in gain_loss_set:
             gain_loss: GainLoss = cast(GainLoss, entry)
-            current_taxable_event_fraction: float = gain_loss_set.get_taxable_event_fraction(gain_loss) + 1
-            total_taxable_event_fractions: float = gain_loss_set.get_taxable_event_number_of_fractions(gain_loss.taxable_event)
+            current_taxable_event_fraction: int = gain_loss_set.get_taxable_event_fraction(gain_loss) + 1
+            total_taxable_event_fractions: int = gain_loss_set.get_taxable_event_number_of_fractions(gain_loss.taxable_event)
             transaction_type: str = (
                 f"{self._get_table_type_from_transaction(gain_loss.taxable_event)} / " f"{gain_loss.taxable_event.transaction_type.value.upper()}"
             )
@@ -99,8 +99,8 @@ class Generator(AbstractODTGenerator):
             self._fill_cell(sheet, row_index, 13, gain_loss.taxable_event.timestamp, visual_style=taxable_event_note_vs)
 
             if gain_loss.from_lot:
-                current_from_lot_fraction: float = gain_loss_set.get_from_lot_fraction(gain_loss) + 1
-                total_from_lot_fractions: float = gain_loss_set.get_from_lot_number_of_fractions(gain_loss.from_lot)
+                current_from_lot_fraction: int = gain_loss_set.get_from_lot_fraction(gain_loss) + 1
+                total_from_lot_fractions: int = gain_loss_set.get_from_lot_number_of_fractions(gain_loss.from_lot)
                 from_lot_note: str = (
                     f"{current_from_lot_fraction}/"
                     f"{total_from_lot_fractions}: "
