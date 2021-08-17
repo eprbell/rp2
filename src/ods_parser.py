@@ -143,7 +143,7 @@ def _get_decimal_constructor_argument_names(class_name: str) -> List[str]:
         raise Exception(f"Internal error: class {class_name} is not a subclass of AbstractTransaction")
     arg_spec = inspect.getfullargspec(class_to_inspect.__init__)
     for parameter_name, parameter_type in arg_spec.annotations.items():
-        if parameter_type == Decimal or parameter_type == Optional[Decimal]:
+        if parameter_type in [Decimal, Optional[Decimal]]:
             result.append(parameter_name)
     return result
 
