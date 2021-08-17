@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import inspect
+
+from decimal import Decimal
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -23,7 +27,9 @@ from entry_types import EntrySetType
 from in_transaction import InTransaction
 from input_data import InputData
 from intra_transaction import IntraTransaction
+from logger import LOGGER
 from out_transaction import OutTransaction
+from rp2_decimal import RP2Decimal
 from rp2_error import RP2ValueError
 from transaction_set import TransactionSet
 
@@ -56,7 +62,17 @@ def parse_ods(configuration: Configuration, asset: str, input_file_path: str) ->
     row: Any = None
     for i, row in enumerate(input_sheet.rows()):
         cell0_value: str = row[0].value
+        # The numeric elements of the row_values list are used to initialize Decimal instances. In theory we could collect string representations
+        # from numeric strings using the plaintext() method of Cell, but this doesn't work well because of an ezodf limitation: such strings are
+        # affected by the format of their cell (so they may be less precise than their real value, depending on cell format), so as a workaround
+        # we read the value attribute which returns a float. In theory this could cause precision loss, but in reality most of the input data from
+        # wallets / exchanges is very low-precision, so using a float is almost always adequate. The only exception would be if a wallet / exchange
+        # input data had numbers with more than CRYPTO_DECIMALS (defined in rp2_decimal.py) decimal digits, which is quite uncommon: in this case
+        # RP2 would still work, but it would have a little precision loss on these high-precision numbers. Also read the comments in
+        # _process_constructor_argument_pack().
         row_values: List[Any] = [cell.value for cell in row]
+        LOGGER.debug("parsing row: {}".format(row_values))
+
         transaction: AbstractTransaction
         if current_table_type is not None:
             # Inside a table
@@ -116,6 +132,43 @@ def parse_ods(configuration: Configuration, asset: str, input_file_path: str) ->
     return InputData(asset, transaction_sets[EntrySetType.IN], transaction_sets[EntrySetType.OUT], transaction_sets[EntrySetType.INTRA])
 
 
+# Returns all numeric parameters of the constructor: used in construction of __init__ argument pack to parse such parameters as decimals
+@lru_cache(maxsize=None, typed=False)
+def _get_decimal_constructor_argument_names(class_name: str) -> List[str]:
+    result: List[str] = []
+    class_to_inspect: Any
+    if class_name not in globals():
+        raise Exception(f"Internal error: couldn't find class {class_name}")
+    class_to_inspect = globals()[class_name]
+    if not issubclass(class_to_inspect, AbstractTransaction):
+        raise Exception(f"Internal error: class {class_name} is not a subclass of AbstractTransaction")
+    arg_spec = inspect.getfullargspec(class_to_inspect.__init__)
+    for parameter_name, parameter_type in arg_spec.annotations.items():
+        if parameter_type == Decimal or parameter_type == Optional[Decimal]:
+            result.append(parameter_name)
+    return result
+
+# Add configuration and line to argument pack and turn floats to strings to maximize decimal precision. See comment inside the function.
+def _process_constructor_argument_pack(
+    configuration: Configuration,
+    argument_pack: Dict[str, Any],
+    line: int,
+    class_name: str,
+) -> Dict[str, Any]:
+    argument_pack.update({"configuration": configuration, "line": line})
+    numeric_parameters: List[str] = _get_decimal_constructor_argument_names(class_name)
+    for numeric_parameter in numeric_parameters:
+        if numeric_parameter in argument_pack:
+            value: Optional[float] = argument_pack[numeric_parameter]
+            # It would be ideal to pass a string directly to the RP2Decimal constructor for maximum precision, but due to ezodf limitations we
+            # cannot get the string representation directly from the spreadsheet (see the comment on cell format inside parse_ods() for more
+            # detail), so at parse time we have to get the float value from the cell. Here we convert the float to string, which allows us to
+            # initialize a maximum-precision Decimal.
+            argument_pack[numeric_parameter] = RP2Decimal(f"{value:.8f}") if value is not None else None
+
+    return argument_pack
+
+
 def _create_transaction(
     configuration: Configuration,
     entry_set_type: EntrySetType,
@@ -127,15 +180,15 @@ def _create_transaction(
     configuration.type_check_line("line", line)
     if entry_set_type == EntrySetType.IN:
         argument_pack: Dict[str, Any] = configuration.get_in_table_constructor_argument_pack(row_values)
-        argument_pack.update({"configuration": configuration, "line": line})
+        argument_pack = _process_constructor_argument_pack(configuration, argument_pack, line, "InTransaction")
         transaction = InTransaction(**argument_pack)
     elif entry_set_type == EntrySetType.OUT:
         argument_pack = configuration.get_out_table_constructor_argument_pack(row_values)
-        argument_pack.update({"configuration": configuration, "line": line})
+        argument_pack = _process_constructor_argument_pack(configuration, argument_pack, line, "OutTransaction")
         transaction = OutTransaction(**argument_pack)
     elif entry_set_type == EntrySetType.INTRA:
         argument_pack = configuration.get_intra_table_constructor_argument_pack(row_values)
-        argument_pack.update({"configuration": configuration, "line": line})
+        argument_pack = _process_constructor_argument_pack(configuration, argument_pack, line, "IntraTransaction")
         transaction = IntraTransaction(**argument_pack)
     return transaction
 
@@ -165,7 +218,7 @@ def _is_table_end(cell_value: str) -> bool:
 
 
 def _is_empty(cell_value: str) -> bool:
-    return cell_value is None
+    return cell_value is None or cell_value == ""
 
 
 def main() -> None:
