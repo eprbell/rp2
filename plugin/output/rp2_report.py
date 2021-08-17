@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from decimal import Decimal
 from typing import Any, Dict, List, Optional, Set, Tuple, cast
 
 import ezodf
@@ -124,6 +125,7 @@ _GAIN_LOSS_DETAIL_HEADER_NAMES: List[Tuple[str, str]] = [
     ("In Lot Fraction", "Description"),
 ]
 
+_ZERO: Decimal = Decimal(0)
 
 class Generator(AbstractODTGenerator):
 
@@ -232,7 +234,7 @@ class Generator(AbstractODTGenerator):
 
         in_transaction_index: int = row_index
         entry: AbstractEntry
-        crypto_in_running_sum: float = 0
+        crypto_in_running_sum: Decimal = _ZERO
         year: int = 0
         visual_style: str
         for entry in in_transaction_set:
@@ -258,7 +260,7 @@ class Generator(AbstractODTGenerator):
             row_index += 1
 
         current_from_lot: Optional[AbstractTransaction] = None
-        current_from_lot_percentage: float = 0
+        current_from_lot_percentage: Decimal = _ZERO
         year = 0
         border_suffix: str = ""
         for entry in gain_loss_set:
@@ -270,7 +272,7 @@ class Generator(AbstractODTGenerator):
                     year, border_suffix = self.__get_border_style(current_from_lot.timestamp.year, year)
                     self._fill_cell(sheet, in_transaction_index, 0, 1, data_style="percent", visual_style="from_lot" + border_suffix)
                     in_transaction_index += 1
-                    current_from_lot_percentage = 0
+                    current_from_lot_percentage = _ZERO
                 current_from_lot = gain_loss.from_lot
             current_from_lot_percentage += gain_loss.from_lot_fraction_percentage
         if current_from_lot:
@@ -283,8 +285,8 @@ class Generator(AbstractODTGenerator):
         row_index = self._fill_header("Out-Flow Detail", _OUT_HEADER_NAMES, sheet, row_index, 1)
 
         entry: AbstractEntry
-        crypto_out_running_sum: float = 0
-        crypto_fee_running_sum: float = 0
+        crypto_out_running_sum: Decimal = _ZERO
+        crypto_fee_running_sum: Decimal = _ZERO
         year: int = 0
         for entry in out_transaction_set:
             transaction: OutTransaction = cast(OutTransaction, entry)
@@ -316,7 +318,7 @@ class Generator(AbstractODTGenerator):
         row_index = self._fill_header("Intra-Flow Detail", _INTRA_HEADER_NAMES, sheet, row_index, 1)
 
         entry: AbstractEntry
-        crypto_fee_running_sum: float = 0
+        crypto_fee_running_sum: Decimal = _ZERO
         year: int = 0
         for entry in intra_transaction_set:
             transaction: IntraTransaction = cast(IntraTransaction, entry)
@@ -366,8 +368,8 @@ class Generator(AbstractODTGenerator):
     def __generate_account_balances(self, sheet: Any, balance_set: BalanceSet, row_index: int) -> int:
         row_index = self._fill_header("Account Balances", _BALANCE_HEADER_NAMES, sheet, row_index, 0)
 
-        totals: Dict[str, float] = dict()
-        value: float
+        totals: Dict[str, Decimal] = dict()
+        value: Decimal
         for balance in balance_set:
             self._fill_cell(sheet, row_index, 0, balance.exchange, visual_style="bold", data_style="default")
             self._fill_cell(sheet, row_index, 1, balance.holder, visual_style="bold", data_style="default")
@@ -376,7 +378,7 @@ class Generator(AbstractODTGenerator):
             self._fill_cell(sheet, row_index, 4, balance.sent_balance, data_style="crypto")
             self._fill_cell(sheet, row_index, 5, balance.received_balance, data_style="crypto")
             self._fill_cell(sheet, row_index, 6, balance.final_balance, visual_style="bold", data_style="crypto")
-            value = totals.setdefault(balance.holder, 0)
+            value = totals.setdefault(balance.holder, _ZERO)
             value += balance.final_balance
             totals[balance.holder] = value
             row_index += 1
@@ -399,7 +401,7 @@ class Generator(AbstractODTGenerator):
 
         return row_index
 
-    def __generate_average_price_per_unit(self, sheet: Any, asset: str, price_per_unit: float, row_index: int) -> int:
+    def __generate_average_price_per_unit(self, sheet: Any, asset: str, price_per_unit: Decimal, row_index: int) -> int:
         self._fill_cell(sheet, row_index, 0, "Average Price", visual_style="title")
         self._fill_cell(sheet, row_index + 1, 0, "Average Price", visual_style="header")
         self._fill_cell(sheet, row_index + 2, 0, f"Paid Per 1 {asset}", visual_style="header")
@@ -413,7 +415,7 @@ class Generator(AbstractODTGenerator):
 
         taxable_event_style_modifier: str = ""
         from_lot_style_modifier: str = ""
-        crypto_amount_running_sum: float = 0
+        crypto_amount_running_sum: Decimal = _ZERO
         year: int = 0
         for entry in gain_loss_set:
             gain_loss: GainLoss = cast(GainLoss, entry)
@@ -422,8 +424,8 @@ class Generator(AbstractODTGenerator):
             transparent_style: str = f"transparent{border_suffix}"
             taxable_event_style: str = f"taxable_event{taxable_event_style_modifier}{border_suffix}"
             highlighted_style: str = f"highlighted{border_suffix}"
-            current_taxable_event_fraction: float = gain_loss_set.get_taxable_event_fraction(gain_loss) + 1
-            total_taxable_event_fractions: float = gain_loss_set.get_taxable_event_number_of_fractions(gain_loss.taxable_event)
+            current_taxable_event_fraction: int = gain_loss_set.get_taxable_event_fraction(gain_loss) + 1
+            total_taxable_event_fractions: int = gain_loss_set.get_taxable_event_number_of_fractions(gain_loss.taxable_event)
             transaction_type: str = (
                 f"{self._get_table_type_from_transaction(gain_loss.taxable_event)} / " f"{gain_loss.taxable_event.transaction_type.value.upper()}"
             )
@@ -452,8 +454,8 @@ class Generator(AbstractODTGenerator):
 
             from_lot_style: str = f"from_lot{from_lot_style_modifier}{border_suffix}"
             if gain_loss.from_lot:
-                current_from_lot_fraction: float = gain_loss_set.get_from_lot_fraction(gain_loss) + 1
-                total_from_lot_fractions: float = gain_loss_set.get_from_lot_number_of_fractions(gain_loss.from_lot)
+                current_from_lot_fraction: int = gain_loss_set.get_from_lot_fraction(gain_loss) + 1
+                total_from_lot_fractions: int = gain_loss_set.get_from_lot_number_of_fractions(gain_loss.from_lot)
                 from_lot_note: str = (
                     f"{current_from_lot_fraction}/"
                     f"{total_from_lot_fractions}: "
@@ -464,7 +466,7 @@ class Generator(AbstractODTGenerator):
                 self._fill_cell(sheet, row_index, 11, gain_loss.from_lot.timestamp, visual_style=from_lot_style)
                 self._fill_cell(sheet, row_index, 12, gain_loss.from_lot_fraction_percentage, visual_style=from_lot_style, data_style="percent")
                 self._fill_cell(sheet, row_index, 13, gain_loss.from_lot_usd_amount_with_fee_fraction, visual_style=from_lot_style, data_style="usd")
-                usd_fee_fraction: float = gain_loss.from_lot.usd_fee * gain_loss.from_lot_fraction_percentage
+                usd_fee_fraction: Decimal = gain_loss.from_lot.usd_fee * gain_loss.from_lot_fraction_percentage
                 self._fill_cell(sheet, row_index, 14, usd_fee_fraction, visual_style=from_lot_style, data_style="usd")
                 self._fill_cell(sheet, row_index, 15, gain_loss.usd_cost_basis, visual_style=highlighted_style, data_style="usd")
                 self._fill_cell(sheet, row_index, 16, gain_loss.from_lot.spot_price, visual_style=from_lot_style, data_style="usd")
