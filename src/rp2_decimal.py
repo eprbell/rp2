@@ -16,7 +16,7 @@ from decimal import Decimal, FloatOperation, getcontext
 
 from rp2_error import RP2TypeError
 
-CRYPTO_DECIMALS: int = 8
+CRYPTO_DECIMALS: int = 13
 CRYPTO_DECIMAL_MASK: Decimal = Decimal("1." + "0" * int(CRYPTO_DECIMALS))
 
 USD_DECIMALS: int = 2
