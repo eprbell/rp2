@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from decimal import Decimal
 from typing import Dict, Iterable, Iterator, List, Set, Tuple, cast
 
 from abstract_entry import AbstractEntry
@@ -27,6 +28,7 @@ from input_data import InputData
 from intra_transaction import IntraTransaction
 from logger import LOGGER
 from out_transaction import OutTransaction
+from rp2_decimal import ZERO
 from rp2_error import RP2ValueError
 from transaction_set import TransactionSet
 
@@ -43,13 +45,13 @@ def compute_tax(configuration: Configuration, input_data: InputData) -> Computed
 
     yearly_gain_loss_list: List[YearlyGainLoss] = _populate_yearly_gain_loss_list(input_data, gain_loss_set)
 
-    crypto_in_running_sum: float = 0
-    usd_in_with_fee_running_sum: float = 0
+    crypto_in_running_sum: Decimal = ZERO
+    usd_in_with_fee_running_sum: Decimal = ZERO
     for entry in input_data.in_transaction_set:
         transaction: InTransaction = cast(InTransaction, entry)
         crypto_in_running_sum += transaction.crypto_in
         usd_in_with_fee_running_sum += transaction.usd_in_with_fee
-    price_per_unit: float = usd_in_with_fee_running_sum / crypto_in_running_sum
+    price_per_unit: Decimal = usd_in_with_fee_running_sum / crypto_in_running_sum
 
     return ComputedData(
         input_data.asset,
@@ -90,9 +92,9 @@ def _populate_gain_and_loss(configuration: Configuration, input_data: InputData,
     try:
         gain_loss: GainLoss
         taxable_event: AbstractTransaction = next(taxable_event_iterator)
-        taxable_event_amount: float = taxable_event.crypto_taxable_amount
+        taxable_event_amount: Decimal = taxable_event.crypto_taxable_amount
         from_lot: InTransaction = next(from_lot_iterator)
-        from_lot_amount: float = from_lot.crypto_in
+        from_lot_amount: Decimal = from_lot.crypto_in
 
         while True:
             if taxable_event.transaction_type == TransactionType.EARN:
@@ -107,7 +109,7 @@ def _populate_gain_and_loss(configuration: Configuration, input_data: InputData,
                 taxable_event_amount = taxable_event.crypto_taxable_amount
                 continue
 
-            if Configuration.is_equal_within_precision(taxable_event_amount, from_lot_amount, Configuration.NUMERIC_PRECISION):
+            if taxable_event_amount == from_lot_amount:
                 gain_loss = GainLoss(
                     configuration,
                     taxable_event_amount,
@@ -147,22 +149,25 @@ def _populate_gain_and_loss(configuration: Configuration, input_data: InputData,
 
 
 def _populate_yearly_gain_loss_list(input_data: InputData, gain_loss_set: GainLossSet) -> List[YearlyGainLoss]:
-    summaries: Dict[Tuple[int, str, TransactionType, bool], Tuple[float, float, float, float]] = dict()
+    # TODO: use data structures instead of tuples
+    summaries: Dict[Tuple[int, str, TransactionType, bool], Tuple[Decimal, Decimal, Decimal, Decimal]] = dict()
     entry: AbstractEntry
     key: Tuple[int, str, TransactionType, bool]  # year, asset, transaction_type, capitaly gains type
     for entry in gain_loss_set:
         gain_loss: GainLoss = cast(GainLoss, entry)
-        crypto_amount: float
-        usd_amount: float
-        usd_cost_basis: float
-        usd_gain_loss: float
+        crypto_amount: Decimal
+        usd_amount: Decimal
+        usd_cost_basis: Decimal
+        usd_gain_loss: Decimal
         key = (
             gain_loss.taxable_event.timestamp.year,
             gain_loss.asset,
             gain_loss.taxable_event.transaction_type,
             gain_loss.is_long_term_capital_gains(),
         )
-        (crypto_amount, usd_amount, usd_cost_basis, usd_gain_loss) = summaries.setdefault(key, (0, 0, 0, 0))
+        (crypto_amount, usd_amount, usd_cost_basis, usd_gain_loss) = summaries.setdefault(
+            key, (ZERO, ZERO, ZERO, ZERO)
+        )
         crypto_amount += gain_loss.crypto_amount
         usd_amount += gain_loss.taxable_event_usd_amount_with_fee_fraction
         usd_cost_basis += gain_loss.usd_cost_basis
@@ -170,11 +175,11 @@ def _populate_yearly_gain_loss_list(input_data: InputData, gain_loss_set: GainLo
         summaries[key] = (crypto_amount, usd_amount, usd_cost_basis, usd_gain_loss)
 
     yearly_gain_loss_set: Set[YearlyGainLoss] = set()
-    value: Tuple[float, float, float, float]  # crypto_amount, usd_amount, usd_cost_basis, usd_gain_loss
-    crypto_taxable_amount_total: float = 0
-    usd_taxable_amount_total: float = 0
-    cost_basis_total: float = 0
-    gain_loss_total: float = 0
+    value: Tuple[Decimal, Decimal, Decimal, Decimal]  # crypto_amount, usd_amount, usd_cost_basis, usd_gain_loss
+    crypto_taxable_amount_total: Decimal = ZERO
+    usd_taxable_amount_total: Decimal = ZERO
+    cost_basis_total: Decimal = ZERO
+    gain_loss_total: Decimal = ZERO
     for (key, value) in summaries.items():
         yearly_gain_loss: YearlyGainLoss = YearlyGainLoss(
             year=key[0],
@@ -209,19 +214,19 @@ def _yearly_gain_loss_sort_criteria(yearly_gain_loss: YearlyGainLoss) -> str:
 # Internal sanity check
 def _verify_computation(
     input_data: InputData,
-    crypto_taxable_amount_total: float,
-    usd_taxable_amount_total: float,
-    cost_basis_total: float,
-    gain_loss_total: float,
+    crypto_taxable_amount_total: Decimal,
+    usd_taxable_amount_total: Decimal,
+    cost_basis_total: Decimal,
+    gain_loss_total: Decimal,
 ) -> None:
     # Internal sanity check: ensure the sum total of gains and losses from taxable flows matches the one
     # from taxable events and InTransactions
-    usd_taxable_amount_total_verify: float = 0
-    cost_basis_total_verify: float = 0
-    crypto_sold_amount_total_verify: float = 0
-    crypto_earned_amount_total_verify: float = 0
-    crypto_taxable_amount_total_verify: float = 0
-    gain_loss_total_verify: float = 0
+    usd_taxable_amount_total_verify: Decimal = ZERO
+    cost_basis_total_verify: Decimal = ZERO
+    crypto_sold_amount_total_verify: Decimal = ZERO
+    crypto_earned_amount_total_verify: Decimal = ZERO
+    crypto_taxable_amount_total_verify: Decimal = ZERO
+    gain_loss_total_verify: Decimal = ZERO
     # Compute USD and crypto total taxable amount
     for entry in input_data.in_transaction_set:
         in_transaction: InTransaction = cast(InTransaction, entry)
@@ -239,11 +244,11 @@ def _verify_computation(
     crypto_taxable_amount_total_verify = crypto_sold_amount_total_verify + crypto_earned_amount_total_verify
 
     # Compute cost basis
-    crypto_in_amount_total: float = 0
+    crypto_in_amount_total: Decimal = ZERO
     for entry in input_data.in_transaction_set:
         in_transaction = cast(InTransaction, entry)
         if crypto_in_amount_total + in_transaction.crypto_in > crypto_sold_amount_total_verify:
-            crypto_in_amount: float = crypto_sold_amount_total_verify - crypto_in_amount_total
+            crypto_in_amount: Decimal = crypto_sold_amount_total_verify - crypto_in_amount_total
             crypto_in_amount_total += crypto_in_amount
             cost_basis_total_verify += (crypto_in_amount / in_transaction.crypto_in) * in_transaction.usd_in_with_fee
             break
@@ -252,28 +257,28 @@ def _verify_computation(
 
     gain_loss_total_verify = usd_taxable_amount_total_verify - cost_basis_total_verify
 
-    if not Configuration.is_equal_within_precision(crypto_taxable_amount_total, crypto_taxable_amount_total_verify, Configuration.NUMERIC_PRECISION):
+    if crypto_taxable_amount_total != crypto_taxable_amount_total_verify:
         LOGGER.warning(
             "%s: total crypto taxable amount incongruence detected: %f != %f",
             input_data.asset,
             crypto_taxable_amount_total,
             crypto_taxable_amount_total_verify,
         )
-    if not Configuration.is_equal_within_precision(usd_taxable_amount_total, usd_taxable_amount_total_verify, Configuration.NUMERIC_PRECISION):
+    if usd_taxable_amount_total != usd_taxable_amount_total_verify:
         LOGGER.warning(
             "%s: total usd taxable amount incongruence detected: %f != %f",
             input_data.asset,
             usd_taxable_amount_total,
             usd_taxable_amount_total_verify,
         )
-    if not Configuration.is_equal_within_precision(cost_basis_total, cost_basis_total_verify, Configuration.NUMERIC_PRECISION):
+    if cost_basis_total != cost_basis_total_verify:
         LOGGER.warning(
             "%s: cost basis incongruence detected: %f != %f",
             input_data.asset,
             cost_basis_total,
             cost_basis_total_verify,
         )
-    if not Configuration.is_equal_within_precision(gain_loss_total, gain_loss_total_verify, Configuration.NUMERIC_PRECISION):
+    if gain_loss_total != gain_loss_total_verify:
         LOGGER.warning(
             "%s: total gain/loss incongruence detected: %f != %f",
             input_data.asset,
