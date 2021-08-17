@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from decimal import Decimal
 from typing import Dict, List, Optional, Tuple, cast
 
 from configuration import Configuration
@@ -19,6 +20,7 @@ from in_transaction import InTransaction
 from input_data import InputData
 from intra_transaction import IntraTransaction
 from out_transaction import OutTransaction
+from rp2_decimal import ZERO
 from rp2_error import RP2TypeError
 
 
@@ -29,19 +31,19 @@ class Balance:
         asset: str,
         exchange: str,
         holder: str,
-        final_balance: float,
-        acquired_balance: float,
-        sent_balance: float,
-        received_balance: float,
+        final_balance: Decimal,
+        acquired_balance: Decimal,
+        sent_balance: Decimal,
+        received_balance: Decimal,
     ) -> None:
         Configuration.type_check("configuration", configuration)
         self.__asset: str = configuration.type_check_asset("asset", asset)
         self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
         self.__holder: str = configuration.type_check_holder("holder", holder)
-        self.__final_balance: float = round(configuration.type_check_float("final_balance", final_balance), Configuration.NUMERIC_PRECISION)
-        self.__acquired_balance: float = round(configuration.type_check_float("acquired_balance", acquired_balance), Configuration.NUMERIC_PRECISION)
-        self.__sent_balance: float = round(configuration.type_check_float("sent_balance", sent_balance), Configuration.NUMERIC_PRECISION)
-        self.__received_balance: float = round(configuration.type_check_float("received_balance", received_balance), Configuration.NUMERIC_PRECISION)
+        self.__final_balance: Decimal = configuration.type_check_decimal("final_balance", final_balance)
+        self.__acquired_balance: Decimal = configuration.type_check_decimal("acquired_balance", acquired_balance)
+        self.__sent_balance: Decimal = configuration.type_check_decimal("sent_balance", sent_balance)
+        self.__received_balance: Decimal = configuration.type_check_decimal("received_balance", received_balance)
 
     def __str__(self) -> str:
         return (
@@ -80,19 +82,19 @@ class Balance:
         return self.__holder
 
     @property
-    def final_balance(self) -> float:
+    def final_balance(self) -> Decimal:
         return self.__final_balance
 
     @property
-    def acquired_balance(self) -> float:
+    def acquired_balance(self) -> Decimal:
         return self.__acquired_balance
 
     @property
-    def sent_balance(self) -> float:
+    def sent_balance(self) -> Decimal:
         return self.__sent_balance
 
     @property
-    def received_balance(self) -> float:
+    def received_balance(self) -> Decimal:
         return self.__received_balance
 
 
@@ -109,10 +111,10 @@ class BalanceSet:
         self.__asset: str = configuration.type_check_asset("in_transaction_set.asset", input_data.asset)
         self._balances: List[Balance] = []
 
-        acquired_balances: Dict[Tuple[str, str], float] = {}
-        sent_balances: Dict[Tuple[str, str], float] = {}
-        received_balances: Dict[Tuple[str, str], float] = {}
-        final_balances: Dict[Tuple[str, str], float] = {}
+        acquired_balances: Dict[Tuple[str, str], Decimal] = {}
+        sent_balances: Dict[Tuple[str, str], Decimal] = {}
+        received_balances: Dict[Tuple[str, str], Decimal] = {}
+        final_balances: Dict[Tuple[str, str], Decimal] = {}
 
         from_account: Tuple[str, str]
         to_account: Tuple[str, str]
@@ -147,9 +149,9 @@ class BalanceSet:
                 exchange,
                 holder,
                 final_balance,
-                acquired_balances.get((exchange, holder), 0),
-                sent_balances.get((exchange, holder), 0),
-                received_balances.get((exchange, holder), 0),
+                acquired_balances.get((exchange, holder), ZERO),
+                sent_balances.get((exchange, holder), ZERO),
+                received_balances.get((exchange, holder), ZERO),
             )
             self._balances.append(balance)
 
