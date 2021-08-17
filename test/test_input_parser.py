@@ -24,6 +24,7 @@ from input_data import InputData
 from intra_transaction import IntraTransaction
 from ods_parser import parse_ods
 from out_transaction import OutTransaction
+from rp2_decimal import RP2Decimal
 from rp2_error import RP2Error, RP2TypeError, RP2ValueError
 from transaction_set import TransactionSet
 
@@ -81,20 +82,20 @@ class TestInputParser(unittest.TestCase):
             TransactionType.BUY,
             TransactionType.BUY,
         ]
-        spot_prices: List[float] = [11000, 12000, 13000, 14000, 15000]
-        usd_taxable_amounts: List[float] = [0, 24000, 39000, 0, 0]
-        crypto_balance_changes: List[float] = [1, 2, 3, 4, 5]
-        usd_balance_changes: List[float] = [11100, 24000, 39000, 56400, 75500]
+        spot_prices: List[RP2Decimal] = [RP2Decimal(s) for s in ["11000", "12000", "13000", "14000", "15000"]]
+        usd_taxable_amounts: List[RP2Decimal] = [RP2Decimal(s) for s in ["0", "24000", "39000", "0", "0"]]
+        crypto_balance_changes: List[RP2Decimal] = [RP2Decimal(s) for s in ["1", "2", "3", "4", "5"]]
+        usd_balance_changes: List[RP2Decimal] = [RP2Decimal(s) for s in ["11100", "24000", "39000", "56400", "75500"]]
         is_taxable_values: List[bool] = [False, True, True, False, False]
 
         count: int = 0
         line: int
         timestamp: str
         transaction_type: TransactionType
-        spot_price: float
-        usd_taxable_amount: float
-        crypto_balance_change: float
-        usd_balance_change: float
+        spot_price: RP2Decimal
+        usd_taxable_amount: RP2Decimal
+        crypto_balance_change: RP2Decimal
+        usd_balance_change: RP2Decimal
         is_taxable: bool
 
         transaction: Optional[InTransaction] = None
@@ -152,20 +153,20 @@ class TestInputParser(unittest.TestCase):
             TransactionType.DONATE,
             TransactionType.SELL,
         ]
-        spot_prices = [11200, 12200, 14200, 14300, 20200]
-        usd_taxable_amounts: List[float] = [2240, 12200, 71000, 54197, 40602.0]
-        crypto_balance_changes: List[float] = [0.2, 1, 5, 3.79, 2.01]
-        usd_balance_changes: List[float] = [2240, 12200, 71000, 54197, 40602.0]
+        spot_prices: List[RP2Decimal] = [RP2Decimal(d) for d in ["11200", "12200", "14200", "14300", "20200"]]
+        usd_taxable_amounts: List[RP2Decimal] = [RP2Decimal(d) for d in ["2240", "12200", "71000", "54197", "40602.0"]]
+        crypto_balance_changes: List[RP2Decimal] = [RP2Decimal(d) for d in ["0.2", "1", "5", "3.79", "2.01"]]
+        usd_balance_changes: List[RP2Decimal] = [RP2Decimal(d) for d in ["2240", "12200", "71000", "54197", "40602.0"]]
         is_taxable_values: List[bool] = [True, True, True, True, True]
 
         count: int = 0
         line: int
         timestamp: str
         transaction_type: TransactionType
-        spot_price: float
-        usd_taxable_amount: float
-        crypto_balance_change: float
-        usd_balance_change: float
+        spot_price: RP2Decimal
+        usd_taxable_amount: RP2Decimal
+        crypto_balance_change: RP2Decimal
+        usd_balance_change: RP2Decimal
         is_taxable: bool
 
         transaction: Optional[OutTransaction] = None
@@ -222,20 +223,20 @@ class TestInputParser(unittest.TestCase):
             TransactionType.MOVE,
             TransactionType.MOVE,
         ]
-        spot_prices = [11400, 0, 14400, 21400]
-        usd_taxable_amounts: List[float] = [114, 0, 288, 856]
-        crypto_balance_changes: List[float] = [0.01, 0, 0.02, 0.04]
-        usd_balance_changes: List[float] = [114, 0, 288, 856]
+        spot_prices: List[RP2Decimal] = [RP2Decimal(d) for d in ["11400", "0", "14400", "21400"]]
+        usd_taxable_amounts: List[RP2Decimal] = [RP2Decimal(d) for d in ["114", "0", "288", "856"]]
+        crypto_balance_changes: List[RP2Decimal] = [RP2Decimal(d) for d in ["0.01", "0", "0.02", "0.04"]]
+        usd_balance_changes: List[RP2Decimal] = [RP2Decimal(d) for d in ["114", "0", "288", "856"]]
         is_taxable_values: List[bool] = [True, False, True, True]
 
         count: int = 0
         line: int
         timestamp: str
         transaction_type: TransactionType
-        spot_price: float
-        usd_taxable_amount: float
-        crypto_balance_change: float
-        usd_balance_change: float
+        spot_price: RP2Decimal
+        usd_taxable_amount: RP2Decimal
+        crypto_balance_change: RP2Decimal
+        usd_balance_change: RP2Decimal
         is_taxable: bool
 
         transaction: Optional[IntraTransaction] = None

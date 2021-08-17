@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import unittest
+
 from typing import List, Optional, cast
 
 from dateutil.parser import parse
@@ -24,6 +25,7 @@ from entry_types import EntrySetType, TransactionType
 from in_transaction import InTransaction
 from intra_transaction import IntraTransaction
 from out_transaction import OutTransaction
+from rp2_decimal import RP2Decimal
 from rp2_error import RP2TypeError, RP2ValueError
 from transaction_set import TransactionSet
 
@@ -58,11 +60,11 @@ class TestTransactionSet(unittest.TestCase):
             "Coinbase",
             "Alice",
             "bUy",
-            1000,
-            3.0002,
-            20,
-            3000.2,
-            3020.2,
+            RP2Decimal("1000"),
+            RP2Decimal("3.0002"),
+            RP2Decimal("20"),
+            RP2Decimal("3000.2"),
+            RP2Decimal("3020.2"),
         )
         transaction_set.add_entry(t3)
 
@@ -74,11 +76,11 @@ class TestTransactionSet(unittest.TestCase):
             "BlockFi",
             "Bob",
             "eaRn",
-            1000.0,
-            2.0002,
-            0,
-            2000.2,
-            2000.2,
+            RP2Decimal("1000.0"),
+            RP2Decimal("2.0002"),
+            RP2Decimal("0"),
+            RP2Decimal("2000.2"),
+            RP2Decimal("2000.2"),
         )
         transaction_set.add_entry(t2)
 
@@ -102,9 +104,9 @@ class TestTransactionSet(unittest.TestCase):
             "Coinbase Pro",
             "Bob",
             "SeLL",
-            900.9,
-            2.2,
-            0,
+            RP2Decimal("900.9"),
+            RP2Decimal("2.2"),
+            RP2Decimal("0"),
         )
         transaction_set.add_entry(t1)
 
@@ -117,9 +119,9 @@ class TestTransactionSet(unittest.TestCase):
             "Bob",
             "BlockFi",
             "Alice",
-            1000.0,
-            2.0002,
-            1.9998,
+            RP2Decimal("1000.0"),
+            RP2Decimal("2.0002"),
+            RP2Decimal("1.9998"),
         )
         transaction_set.add_entry(t5)
 
@@ -132,9 +134,9 @@ class TestTransactionSet(unittest.TestCase):
             "Bob",
             "Coinbase",
             "Alice",
-            100.0,
-            30,
-            30,
+            RP2Decimal("100.0"),
+            RP2Decimal("30"),
+            RP2Decimal("30"),
         )
         transaction_set.add_entry(t4)
 
@@ -164,30 +166,18 @@ class TestTransactionSet(unittest.TestCase):
             TransactionType.MOVE,
             TransactionType.MOVE,
         ]
-        usd_taxable_amounts: List[float] = [1981.98, 2000.2, 0, 0, 0.4]
-        crypto_balance_changes: List[float] = [
-            2.2,
-            2.0002,
-            3.0002,
-            0,
-            0.0004,
-        ]
-        usd_balance_changes: List[float] = [
-            1981.98,
-            2000.2,
-            3020.2,
-            0,
-            0.4,
-        ]
+        usd_taxable_amounts: List[RP2Decimal] = [RP2Decimal(s) for s in ["1981.98", "2000.2", "0", "0", "0.4"]]
+        crypto_balance_changes: List[RP2Decimal] = [RP2Decimal(s) for s in ["2.2", "2.0002", "3.0002", "0", "0.0004"]]
+        usd_balance_changes: List[RP2Decimal] = [RP2Decimal(s) for s in ["1981.98", "2000.2", "3020.2", "0", "0.4"]]
 
         count = 0
         expected_transaction: AbstractTransaction
         parent: AbstractTransaction
         line: int
         transaction_type: TransactionType
-        usd_taxable_amount: float
-        crypto_balance_change: float
-        usd_balance_change: float
+        usd_taxable_amount: RP2Decimal
+        crypto_balance_change: RP2Decimal
+        usd_balance_change: RP2Decimal
         for (  # type: ignore
             transaction,
             expected_transaction,
@@ -270,9 +260,9 @@ class TestTransactionSet(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "sELl",
-                900.9,
-                2.2,
-                0,
+                RP2Decimal("900.9"),
+                RP2Decimal("2.2"),
+                RP2Decimal("0"),
             )
             in_transaction_set.add_entry(t1)
         with self.assertRaisesRegex(RP2TypeError, "Attempting to add a .* to a set of type OUT"):
@@ -286,9 +276,9 @@ class TestTransactionSet(unittest.TestCase):
                 "Bob",
                 "BlockFi",
                 "Alice",
-                1000.0,
-                2.0002,
-                1.9998,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("1.9998"),
             )
             out_transaction_set.add_entry(t2)
         with self.assertRaisesRegex(RP2TypeError, "Attempting to add a .* to a set of type INTRA"):
@@ -301,11 +291,11 @@ class TestTransactionSet(unittest.TestCase):
                 "BlockFi",
                 "Bob",
                 "eaRn",
-                1000.0,
-                2.0002,
-                0,
-                2000.2,
-                2000.2,
+                RP2Decimal("1000.0"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("0"),
+                RP2Decimal("2000.2"),
+                RP2Decimal("2000.2"),
             )
             intra_transaction_set.add_entry(t3)
 

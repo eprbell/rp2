@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import unittest
+
 from typing import List, cast
 
 from rp2_test_output import RP2_TEST_OUTPUT
@@ -23,6 +24,7 @@ from gain_loss_set import GainLossSet
 from in_transaction import InTransaction
 from intra_transaction import IntraTransaction
 from out_transaction import OutTransaction
+from rp2_decimal import RP2Decimal
 from rp2_error import RP2TypeError, RP2ValueError
 
 
@@ -46,9 +48,9 @@ class TestGainLossSet(unittest.TestCase):
             "Coinbase",
             "Bob",
             "BUY",
-            11000,
-            1,
-            100.00,
+            RP2Decimal("11000"),
+            RP2Decimal("1"),
+            RP2Decimal("100.00"),
         )
         in2: InTransaction = InTransaction(
             self._configuration,
@@ -58,9 +60,9 @@ class TestGainLossSet(unittest.TestCase):
             "BlockFi",
             "Bob",
             "EARN",
-            12000.0,
-            2.0,
-            0,
+            RP2Decimal("12000.0"),
+            RP2Decimal("2.0"),
+            RP2Decimal("0"),
         )
         in6: InTransaction = InTransaction(
             self._configuration,
@@ -70,9 +72,9 @@ class TestGainLossSet(unittest.TestCase):
             "BlockFi",
             "Bob",
             "EARN",
-            13000.0,
-            3,
-            0,
+            RP2Decimal("13000.0"),
+            RP2Decimal("3"),
+            RP2Decimal("0"),
         )
         in5: InTransaction = InTransaction(
             self._configuration,
@@ -82,9 +84,9 @@ class TestGainLossSet(unittest.TestCase):
             "Coinbase",
             "Bob",
             "BUY",
-            14000.0,
-            4.0,
-            400,
+            RP2Decimal("14000.0"),
+            RP2Decimal("4.0"),
+            RP2Decimal("400"),
         )
         in4: InTransaction = InTransaction(
             self._configuration,
@@ -94,9 +96,9 @@ class TestGainLossSet(unittest.TestCase):
             "Coinbase",
             "Bob",
             "BUY",
-            15000.0,
-            5.0,
-            500,
+            RP2Decimal("15000.0"),
+            RP2Decimal("5.0"),
+            RP2Decimal("500"),
         )
         out15: OutTransaction = OutTransaction(
             self._configuration,
@@ -106,9 +108,9 @@ class TestGainLossSet(unittest.TestCase):
             "Coinbase",
             "Bob",
             "SELL",
-            11200.0,
-            0.2,
-            0,
+            RP2Decimal("11200.0"),
+            RP2Decimal("0.2"),
+            RP2Decimal("0"),
         )
         out14: OutTransaction = OutTransaction(
             self._configuration,
@@ -118,9 +120,9 @@ class TestGainLossSet(unittest.TestCase):
             "Coinbase",
             "Bob",
             "SELL",
-            12200.0,
-            1.0,
-            0,
+            RP2Decimal("12200.0"),
+            RP2Decimal("1.0"),
+            RP2Decimal("0"),
         )
         out16: OutTransaction = OutTransaction(
             self._configuration,
@@ -130,9 +132,9 @@ class TestGainLossSet(unittest.TestCase):
             "BlockFi",
             "Bob",
             "GIFT",
-            14200.00,
-            5.0,
-            0,
+            RP2Decimal("14200.00"),
+            RP2Decimal("5.0"),
+            RP2Decimal("0"),
         )
         out12: OutTransaction = OutTransaction(
             self._configuration,
@@ -142,9 +144,9 @@ class TestGainLossSet(unittest.TestCase):
             "Coinbase",
             "Bob",
             "DONATE",
-            14300,
-            3.79,
-            0,
+            RP2Decimal("14300"),
+            RP2Decimal("3.79"),
+            RP2Decimal("0"),
         )
         out13: OutTransaction = OutTransaction(
             self._configuration,
@@ -154,9 +156,9 @@ class TestGainLossSet(unittest.TestCase):
             "Coinbase",
             "Bob",
             "SELL",
-            20200.00,
-            2,
-            0.01,
+            RP2Decimal("20200.00"),
+            RP2Decimal("2"),
+            RP2Decimal("0.01"),
         )
         intra25: IntraTransaction = IntraTransaction(
             self._configuration,
@@ -167,9 +169,9 @@ class TestGainLossSet(unittest.TestCase):
             "Bob",
             "BlockFi",
             "Bob",
-            11400.0,
-            0.1,
-            0.09,
+            RP2Decimal("11400.0"),
+            RP2Decimal("0.1"),
+            RP2Decimal("0.09"),
         )
         intra24: IntraTransaction = IntraTransaction(
             self._configuration,
@@ -180,9 +182,9 @@ class TestGainLossSet(unittest.TestCase):
             "Bob",
             "Kraken",
             "Alice",
-            14400.0,
-            0.2,
-            0.18,
+            RP2Decimal("14400.0"),
+            RP2Decimal("0.2"),
+            RP2Decimal("0.18"),
         )
         intra22: IntraTransaction = IntraTransaction(
             self._configuration,
@@ -193,57 +195,57 @@ class TestGainLossSet(unittest.TestCase):
             "Bob",
             "Kraken",
             "Alice",
-            21400.0,
-            0.5,
-            0.46,
+            RP2Decimal("21400.0"),
+            RP2Decimal("0.5"),
+            RP2Decimal("0.46"),
         )
         result: List[GainLoss]
         if asset == "B1":
             # In transactions only
             result = [
-                GainLoss(self._configuration, 2, in2, None),
-                GainLoss(self._configuration, 3, in6, None),
+                GainLoss(self._configuration, RP2Decimal("2"), in2, None),
+                GainLoss(self._configuration, RP2Decimal("3"), in6, None),
             ]
         elif asset == "B2":
             # In and out transactions only
             result = [
-                GainLoss(self._configuration, 0.2, out15, in3),
-                GainLoss(self._configuration, 2, in2, None),
-                GainLoss(self._configuration, 0.8, out14, in3),
-                GainLoss(self._configuration, 0.20, out14, in2),
-                GainLoss(self._configuration, 3, in6, None),
-                GainLoss(self._configuration, 1.8, out16, in2),
-                GainLoss(self._configuration, 3, out16, in6),
-                GainLoss(self._configuration, 0.2, out16, in5),
-                GainLoss(self._configuration, 3.79, out12, in5),  # ==
-                GainLoss(self._configuration, 0.01, out13, in5),
-                GainLoss(self._configuration, 2.0, out13, in4),
+                GainLoss(self._configuration, RP2Decimal("0.2"), out15, in3),
+                GainLoss(self._configuration, RP2Decimal("2"), in2, None),
+                GainLoss(self._configuration, RP2Decimal("0.8"), out14, in3),
+                GainLoss(self._configuration, RP2Decimal("0.20"), out14, in2),
+                GainLoss(self._configuration, RP2Decimal("3"), in6, None),
+                GainLoss(self._configuration, RP2Decimal("1.8"), out16, in2),
+                GainLoss(self._configuration, RP2Decimal("3"), out16, in6),
+                GainLoss(self._configuration, RP2Decimal("0.2"), out16, in5),
+                GainLoss(self._configuration, RP2Decimal("3.79"), out12, in5),  # ==
+                GainLoss(self._configuration, RP2Decimal("0.01"), out13, in5),
+                GainLoss(self._configuration, RP2Decimal("2.0"), out13, in4),
             ]
         elif asset == "B3":
             # In and intra transactions only
             result = [
-                GainLoss(self._configuration, 0.01, intra25, in3),
-                GainLoss(self._configuration, 2, in2, None),
-                GainLoss(self._configuration, 3, in6, None),
-                GainLoss(self._configuration, 0.02, intra24, in3),
-                GainLoss(self._configuration, 0.04, intra22, in3),
+                GainLoss(self._configuration, RP2Decimal("0.01"), intra25, in3),
+                GainLoss(self._configuration, RP2Decimal("2"), in2, None),
+                GainLoss(self._configuration, RP2Decimal("3"), in6, None),
+                GainLoss(self._configuration, RP2Decimal("0.02"), intra24, in3),
+                GainLoss(self._configuration, RP2Decimal("0.04"), intra22, in3),
             ]
         else:  # asset == "B4", "BTC" or others
             result = [
                 # All transactions
-                GainLoss(self._configuration, 0.2, out15, in3),
-                GainLoss(self._configuration, 0.01, intra25, in3),
-                GainLoss(self._configuration, 2, in2, None),
-                GainLoss(self._configuration, 0.79, out14, in3),
-                GainLoss(self._configuration, 0.21, out14, in2),
-                GainLoss(self._configuration, 3, in6, None),
-                GainLoss(self._configuration, 1.79, out16, in2),
-                GainLoss(self._configuration, 3, out16, in6),
-                GainLoss(self._configuration, 0.21, out16, in5),
-                GainLoss(self._configuration, 3.79, out12, in5),  # ==
-                GainLoss(self._configuration, 0.02, intra24, in4),
-                GainLoss(self._configuration, 2.01, out13, in4),
-                GainLoss(self._configuration, 0.04, intra22, in4),
+                GainLoss(self._configuration, RP2Decimal("0.2"), out15, in3),
+                GainLoss(self._configuration, RP2Decimal("0.01"), intra25, in3),
+                GainLoss(self._configuration, RP2Decimal("2"), in2, None),
+                GainLoss(self._configuration, RP2Decimal("0.79"), out14, in3),
+                GainLoss(self._configuration, RP2Decimal("0.21"), out14, in2),
+                GainLoss(self._configuration, RP2Decimal("3"), in6, None),
+                GainLoss(self._configuration, RP2Decimal("1.79"), out16, in2),
+                GainLoss(self._configuration, RP2Decimal("3"), out16, in6),
+                GainLoss(self._configuration, RP2Decimal("0.21"), out16, in5),
+                GainLoss(self._configuration, RP2Decimal("3.79"), out12, in5),  # ==
+                GainLoss(self._configuration, RP2Decimal("0.02"), intra24, in4),
+                GainLoss(self._configuration, RP2Decimal("2.01"), out13, in4),
+                GainLoss(self._configuration, RP2Decimal("0.04"), intra22, in4),
             ]
 
         return result
@@ -342,12 +344,12 @@ class TestGainLossSet(unittest.TestCase):
                 "Coinbase",
                 "Bob",
                 "EARN",
-                12000.0,
-                2.0,
-                0,
+                RP2Decimal("12000.0"),
+                RP2Decimal("2.0"),
+                RP2Decimal("0"),
             )
-            gain_loss_set.add_entry(GainLoss(self._configuration, 0.2, out15, in_transaction))
-            gain_loss_set.add_entry(GainLoss(self._configuration, 0.01, out14, in3))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.2"), out15, in_transaction))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.01"), out14, in3))
             for gain_loss in gain_loss_set:
                 pass
         with self.assertRaisesRegex(RP2ValueError, "Entry already added: GainLoss"):
@@ -356,8 +358,8 @@ class TestGainLossSet(unittest.TestCase):
             gain_loss_set.add_entry(gain_loss1)
         with self.assertRaisesRegex(RP2ValueError, "Taxable event crypto amount already exhausted for OutTransaction"):
             gain_loss_set = GainLossSet(self._configuration, asset)
-            gain_loss_set.add_entry(GainLoss(self._configuration, 0.2, out15, in3))
-            gain_loss_set.add_entry(GainLoss(self._configuration, 0.2, out15, in3))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.2"), out15, in3))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.2"), out15, in3))
             for gain_loss in gain_loss_set:
                 pass
         with self.assertRaisesRegex(RP2ValueError, "From-lot crypto amount already exhausted for InTransaction"):
@@ -370,12 +372,12 @@ class TestGainLossSet(unittest.TestCase):
                 "Coinbase",
                 "Bob",
                 "BUY",
-                11000,
-                0.1,
-                100.00,
+                RP2Decimal("11000"),
+                RP2Decimal("0.1"),
+                RP2Decimal("100.00"),
             )
-            gain_loss_set.add_entry(GainLoss(self._configuration, 0.1, out15, in_transaction))
-            gain_loss_set.add_entry(GainLoss(self._configuration, 0.1, out15, in_transaction))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.1"), out15, in_transaction))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.1"), out15, in_transaction))
             for gain_loss in gain_loss_set:
                 pass
         with self.assertRaisesRegex(RP2ValueError, "Current taxable event amount .* exceeds crypto balance change of taxable event .* GainLoss"):
@@ -388,15 +390,15 @@ class TestGainLossSet(unittest.TestCase):
                 "Coinbase Pro",
                 "Bob",
                 "BuY",
-                10000,
-                2.0002,
-                20,
-                20002,
-                20022,
+                RP2Decimal("10000"),
+                RP2Decimal("2.0002"),
+                RP2Decimal("20"),
+                RP2Decimal("20002"),
+                RP2Decimal("20022"),
             )
-            gain_loss_set.add_entry(GainLoss(self._configuration, 0.1, out15, in_transaction))
-            gain_loss_set.add_entry(GainLoss(self._configuration, 0.05, out15, in_transaction))
-            gain_loss_set.add_entry(GainLoss(self._configuration, 0.1, out15, in_transaction))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.1"), out15, in_transaction))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.05"), out15, in_transaction))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.1"), out15, in_transaction))
             for gain_loss in gain_loss_set:
                 pass
         with self.assertRaisesRegex(RP2ValueError, "Current from-lot amount .* exceeded crypto balance change of from-lot .* GainLoss"):
@@ -409,13 +411,13 @@ class TestGainLossSet(unittest.TestCase):
                 "Coinbase",
                 "Bob",
                 "GIFT",
-                11200.0,
-                2,
-                0,
+                RP2Decimal("11200.0"),
+                RP2Decimal("2"),
+                RP2Decimal("0"),
             )
-            gain_loss_set.add_entry(GainLoss(self._configuration, 0.5, out_transaction, in3))
-            gain_loss_set.add_entry(GainLoss(self._configuration, 0.25, out_transaction, in3))
-            gain_loss_set.add_entry(GainLoss(self._configuration, 0.5, out_transaction, in3))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.5"), out_transaction, in3))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.25"), out_transaction, in3))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.5"), out_transaction, in3))
             for gain_loss in gain_loss_set:
                 pass
 
