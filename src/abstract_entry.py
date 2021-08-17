@@ -40,6 +40,18 @@ class AbstractEntry:
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
         raise NotImplementedError("Abstract method")
 
+    # Used for hashing but there are not enough attributes in this class, so the method is abstract.
+    def __eq__(self, other: object) -> bool:
+        raise NotImplementedError("Abstract method")
+
+    # Used for hashing but there are not enough attributes in this class, so the method is abstract.
+    def __ne__(self, other: object) -> bool:
+        raise NotImplementedError("Abstract method")
+
+    # Used for hashing but there are not enough attributes in this class, so the method is abstract.
+    def __hash__(self) -> int:
+        raise NotImplementedError("Abstract method")
+
     @property
     def configuration(self) -> Configuration:
         return self.__configuration
@@ -49,7 +61,7 @@ class AbstractEntry:
         return self.__asset
 
     @property
-    def id(self) -> str:  # pylint: disable=C0103
+    def identifier(self) -> str:  # pylint: disable=C0103
         raise NotImplementedError("Abstract property")
 
     @property

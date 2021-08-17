@@ -12,13 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
 from decimal import Decimal
-from typing import Dict, List, Optional, Tuple, cast
+from typing import Dict, List, Optional, cast
 
 from configuration import Configuration
 from in_transaction import InTransaction
 from input_data import InputData
 from intra_transaction import IntraTransaction
+from logger import LOGGER
 from out_transaction import OutTransaction
 from rp2_decimal import ZERO
 from rp2_error import RP2TypeError
@@ -98,7 +100,20 @@ class Balance:
         return self.__received_balance
 
 
+@dataclass(frozen=True, eq=True)
+class Account:
+    exchange: str
+    holder: str
+
 class BalanceSet:
+
+    @classmethod
+    def type_check(cls, name: str, instance: "BalanceSet") -> "BalanceSet":
+        Configuration.type_check_parameter_name(name)
+        if not isinstance(instance, cls):
+            raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
+        return instance
+
     def __init__(
         self,
         configuration: Configuration,
@@ -111,58 +126,53 @@ class BalanceSet:
         self.__asset: str = configuration.type_check_asset("in_transaction_set.asset", input_data.asset)
         self._balances: List[Balance] = []
 
-        acquired_balances: Dict[Tuple[str, str], Decimal] = {}
-        sent_balances: Dict[Tuple[str, str], Decimal] = {}
-        received_balances: Dict[Tuple[str, str], Decimal] = {}
-        final_balances: Dict[Tuple[str, str], Decimal] = {}
+        acquired_balances: Dict[Account, Decimal] = {}
+        sent_balances: Dict[Account, Decimal] = {}
+        received_balances: Dict[Account, Decimal] = {}
+        final_balances: Dict[Account, Decimal] = {}
 
-        from_account: Tuple[str, str]
-        to_account: Tuple[str, str]
+        from_account: Account
+        to_account: Account
 
         # Balances for bought and earned currency
         for transaction in self.__input_data.in_transaction_set:
             in_transaction: InTransaction = cast(InTransaction, transaction)
-            to_account = (in_transaction.exchange, in_transaction.holder)
+            to_account = Account(in_transaction.exchange, in_transaction.holder)
             acquired_balances[to_account] = acquired_balances.get(to_account, 0) + in_transaction.crypto_in
             final_balances[to_account] = final_balances.get(to_account, 0) + in_transaction.crypto_in
 
-        # Balances for sent and received currency
+        # Balances for currency that is moved across accounts
         for transaction in self.__input_data.intra_transaction_set:
             intra_transaction: IntraTransaction = cast(IntraTransaction, transaction)
-            from_account = (intra_transaction.from_exchange, intra_transaction.from_holder)
-            to_account = (intra_transaction.to_exchange, intra_transaction.to_holder)
+            from_account = Account(intra_transaction.from_exchange, intra_transaction.from_holder)
+            to_account = Account(intra_transaction.to_exchange, intra_transaction.to_holder)
             sent_balances[from_account] = sent_balances.get(from_account, 0) + intra_transaction.crypto_sent
             received_balances[to_account] = received_balances.get(to_account, 0) + intra_transaction.crypto_received
             final_balances[from_account] = final_balances.get(from_account, 0) - intra_transaction.crypto_sent
             final_balances[to_account] = final_balances.get(to_account, 0) + intra_transaction.crypto_received
 
+        # Balances for sold and gifted currency
         for transaction in self.__input_data.out_transaction_set:
             out_transaction: OutTransaction = cast(OutTransaction, transaction)
-            from_account = (out_transaction.exchange, out_transaction.holder)
+            from_account = Account(out_transaction.exchange, out_transaction.holder)
             sent_balances[from_account] = sent_balances.get(from_account, 0) + out_transaction.crypto_out_no_fee + out_transaction.crypto_fee
             final_balances[from_account] = final_balances.get(from_account, 0) - out_transaction.crypto_out_no_fee - out_transaction.crypto_fee
 
-        for (exchange, holder), final_balance in final_balances.items():
+        for account, final_balance in final_balances.items():
             balance = Balance(
                 configuration,
                 self.__asset,
-                exchange,
-                holder,
+                account.exchange,
+                account.holder,
                 final_balance,
-                acquired_balances.get((exchange, holder), ZERO),
-                sent_balances.get((exchange, holder), ZERO),
-                received_balances.get((exchange, holder), ZERO),
+                acquired_balances.get(account, ZERO),
+                sent_balances.get(account, ZERO),
+                received_balances.get(account, ZERO),
             )
+            LOGGER.debug("created balance: {}".format(balance))
             self._balances.append(balance)
 
         self._balances.sort(key=_balance_sort_key)
-
-    @classmethod
-    def type_check(cls, name: str, instance: "BalanceSet") -> "BalanceSet":
-        Configuration.type_check_parameter_name(name)
-        if not isinstance(instance, cls):
-            raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
-        return instance
 
     def __str__(self) -> str:
         output: List[str] = []

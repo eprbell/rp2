@@ -48,6 +48,25 @@ class AbstractTransaction(AbstractEntry):
             raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
         return instance
 
+    # Experimental hash implementation
+    def __eq__(self, other: object) -> bool:
+        if not other:
+            return False
+        if not isinstance(other, AbstractTransaction):
+            raise RP2TypeError(f"Operand has non-AbstractTransaction value {repr(other)}")
+        # Since there are no cross-asset transactions, line is enough to uniquely identify a transaction
+        result: bool = self.line == other.line
+        if result != (id(self) == id(other)):
+            raise Exception("Internal error: inconsistency in identity logic")
+        return result
+
+    def __ne__(self, other: object) -> bool:
+        return not self.__eq__(other)
+
+    def __hash__(self) -> int:
+        # Since there are no cross-asset transactions, line is enough to uniquely identify a transaction
+        return hash(self.line)
+
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
         padding: str
         output: List[str] = []
@@ -79,7 +98,7 @@ class AbstractTransaction(AbstractEntry):
         return separator.join(output)
 
     @property
-    def id(self) -> str:
+    def identifier(self) -> str:
         return str(self.line)
 
     @property

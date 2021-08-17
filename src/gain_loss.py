@@ -26,6 +26,7 @@ from rp2_error import RP2TypeError, RP2ValueError
 
 
 class GainLoss(AbstractEntry):
+
     def __init__(
         self,
         configuration: Configuration,
@@ -75,12 +76,33 @@ class GainLoss(AbstractEntry):
             raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
         return instance
 
+    # Experimental hash implementation
+    def __eq__(self, other: object) -> bool:
+        if not other:
+            return False
+        if not isinstance(other, GainLoss):
+            raise RP2TypeError(f"Operand has non-GainLoss value {repr(other)}")
+        self_from_lot_line: Optional[int] = self.from_lot.line if self.from_lot else None
+        other_from_lot_line: Optional[int] = other.from_lot.line if other.from_lot else None
+        # Since there are no cross-asset transactions, line is enough to uniquely identify a transaction and a gain-loss instance
+        result: bool = self.taxable_event.line == other.taxable_event.line and self_from_lot_line == other_from_lot_line
+        if result != (id(self) == id(other)):
+            raise Exception("Internal error: inconsistency in identity logic")
+        return result
+
+    def __ne__(self, other: object) -> bool:
+        return not self.__eq__(other)
+
+    def __hash__(self) -> int:
+        # Since there are no cross-asset transactions, line is enough to uniquely identify a transaction and a gain-loss instance
+        return hash((self.taxable_event.line, self.from_lot.line if self.from_lot else None))
+
     def __str__(self) -> str:
         return (
             "{}:\n  id={}\n  crypto_amount={:.8f}\n  usd_cost_basis={:.4f}\n  usd_gain={:.4f}\n  is_long_term_capital_gains={}\n  taxable_event_usd_amount_with_fee_fraction={:.4f}\n  taxable_event_fraction_percentage={:.4%}\n  taxable_event={}\n  from_lot_usd_amount_with_fee_fraction={:.4f}\n  from_lot_fraction_percentage={:.4%}\n  from_lot={}"
         ).format(
             type(self).__name__,
-            repr(self.id),
+            repr(self.identifier),
             self.crypto_amount,
             self.usd_cost_basis,
             self.usd_gain,
@@ -96,7 +118,7 @@ class GainLoss(AbstractEntry):
     def __repr__(self) -> str:
         return (
             f"{type(self).__name__}"
-            f"(id={repr(self.id)}, "
+            f"(id={repr(self.identifier)}, "
             f"crypto_amount={self.crypto_amount:.8f}, "
             f"usd_cost_basis={self.usd_cost_basis:.4f}, "
             f"usd_gain={self.usd_gain:.4f}, "
@@ -110,7 +132,7 @@ class GainLoss(AbstractEntry):
         )
 
     @property
-    def id(self) -> str:
+    def identifier(self) -> str:
         if not self.from_lot:
             # EARN taxable event doesn't have from lot
             return f"{self.taxable_event.line}->None"

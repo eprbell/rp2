@@ -113,7 +113,7 @@ class GainLossSet(AbstractEntrySet):
                 self.__taxable_events_to_number_of_fractions[gain_loss.taxable_event] = current_taxable_event_fraction + 1
                 LOGGER.debug(
                     "%s (%d - %d): current amount == taxable event (%.16f)",
-                    gain_loss.id,
+                    gain_loss.identifier,
                     current_from_lot_fraction,
                     current_taxable_event_fraction,
                     current_taxable_event_amount,
@@ -123,7 +123,7 @@ class GainLossSet(AbstractEntrySet):
             elif current_taxable_event_amount < gain_loss.taxable_event.crypto_balance_change:
                 LOGGER.debug(
                     "%s (%d - %d): current amount < taxable event (%.16f < %.16f)",
-                    gain_loss.id,
+                    gain_loss.identifier,
                     current_from_lot_fraction,
                     current_taxable_event_fraction,
                     current_taxable_event_amount,
@@ -133,7 +133,7 @@ class GainLossSet(AbstractEntrySet):
             else:
                 raise RP2ValueError(
                     f"Current taxable event amount ({current_taxable_event_amount})"
-                    f" exceeds crypto balance change of taxable event ({gain_loss.taxable_event.crypto_balance_change})"
+                    f" exceeded crypto balance change of taxable event ({gain_loss.taxable_event.crypto_balance_change})"
                     f". {gain_loss}"
                 )
 
@@ -147,7 +147,7 @@ class GainLossSet(AbstractEntrySet):
                     self.__from_lots_to_number_of_fractions[gain_loss.from_lot] = current_from_lot_fraction + 1
                     LOGGER.debug(
                         "%s (%d - %d): current amount == from-lot (%.16f)",
-                        gain_loss.id,
+                        gain_loss.identifier,
                         current_from_lot_fraction,
                         current_taxable_event_fraction,
                         current_from_lot_amount,
@@ -157,7 +157,7 @@ class GainLossSet(AbstractEntrySet):
                 elif current_from_lot_amount < gain_loss.from_lot.crypto_balance_change:
                     LOGGER.debug(
                         "%s (%d - %d): current amount < from-lot (%.16f < %.16f)",
-                        gain_loss.id,
+                        gain_loss.identifier,
                         current_from_lot_fraction,
                         current_taxable_event_fraction,
                         current_from_lot_amount,
@@ -204,7 +204,7 @@ class GainLossSet(AbstractEntrySet):
                 output.append(
                     f"      from_lot_fraction={self.get_from_lot_fraction(gain_loss) + 1} of " f"{self.get_from_lot_number_of_fractions(gain_loss.from_lot)}"
                 )
-            output.append(f"      parent={parent.id if parent else None}")
+            output.append(f"      parent={parent.identifier if parent else None}")
         return "\n".join(output)
 
     def __repr__(self) -> str:
@@ -233,7 +233,7 @@ class GainLossSet(AbstractEntrySet):
                 output.append(
                     f", from_lot_fraction={self.get_from_lot_fraction(gain_loss) + 1} of " f"{self.get_from_lot_number_of_fractions(gain_loss.from_lot)}"
                 )
-            output.append(f", parent={parent.id if parent else None}")
+            output.append(f", parent={parent.identifier if parent else None}")
             # Add back trailing ')'
             output.append(")")
             count += 1
