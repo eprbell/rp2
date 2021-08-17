@@ -19,8 +19,7 @@ from typing import Any, List
 
 import ezodf
 
-from configuration import Configuration
-
+from rp2_decimal import CRYPTO_DECIMALS
 
 def _row_as_string(row: Any) -> str:
     values: List[str] = []
@@ -44,7 +43,7 @@ def _parse_cell_value(cell: Any) -> Any:
     value: Any
     try:
         if cell.value or cell.value == 0:
-            value = round(float(cell.value), Configuration.NUMERIC_PRECISION)
+            value = round(float(cell.value), CRYPTO_DECIMALS)
             if value == -0.0:
                 value = 0
         else:
