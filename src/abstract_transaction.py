@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from datetime import datetime
+from decimal import Decimal
 from typing import Any, Callable, List, Optional
 
 from abstract_entry import AbstractEntry
@@ -29,7 +30,7 @@ class AbstractTransaction(AbstractEntry):
         timestamp: str,
         asset: str,
         transaction_type: str,
-        spot_price: float,
+        spot_price: Decimal,
         notes: Optional[str] = None,
     ) -> None:
         super().__init__(configuration, asset)
@@ -37,7 +38,7 @@ class AbstractTransaction(AbstractEntry):
         self.__line: int = configuration.type_check_line("line", line)
         self.__timestamp: datetime = configuration.type_check_timestamp_from_string("timestamp", timestamp)
         self.__transaction_type: TransactionType = TransactionType.type_check_from_string("transaction_type", transaction_type)
-        self.__spot_price: float = configuration.type_check_positive_float("spot_price", spot_price)
+        self.__spot_price: Decimal = configuration.type_check_positive_decimal("spot_price", spot_price)
         self.__notes = configuration.type_check_string("notes", notes) if notes else ""
 
     @classmethod
@@ -94,7 +95,7 @@ class AbstractTransaction(AbstractEntry):
         return self.__transaction_type
 
     @property
-    def spot_price(self) -> float:
+    def spot_price(self) -> Decimal:
         return self.__spot_price
 
     @property
@@ -102,11 +103,11 @@ class AbstractTransaction(AbstractEntry):
         return self.__notes
 
     @property
-    def crypto_taxable_amount(self) -> float:
+    def crypto_taxable_amount(self) -> Decimal:
         raise NotImplementedError("Abstract property")
 
     @property
-    def usd_taxable_amount(self) -> float:
+    def usd_taxable_amount(self) -> Decimal:
         raise NotImplementedError("Abstract property")
 
     def is_taxable(self) -> bool:
