@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from datetime import datetime
+from decimal import Decimal
 from typing import List, Optional
 
 from configuration import Configuration
@@ -57,10 +58,10 @@ class AbstractEntry:
 
     # How much crypto was gained / lost with this entry
     @property
-    def crypto_balance_change(self) -> float:
+    def crypto_balance_change(self) -> Decimal:
         raise NotImplementedError("Abstract property")
 
     # How much usd was gained / lost with this entry
     @property
-    def usd_balance_change(self) -> float:
+    def usd_balance_change(self) -> Decimal:
         raise NotImplementedError("Abstract property")
