@@ -23,6 +23,7 @@ import jsonschema  # type: ignore
 from dateutil.tz import tzoffset, tzutc
 
 from configuration import AccountingMethod, Configuration
+from rp2_decimal import RP2Decimal
 from rp2_error import RP2TypeError, RP2ValueError
 
 
@@ -440,6 +441,37 @@ class TestConfiguration(unittest.TestCase):
             self._configuration.type_check_positive_float("my_float", -5.5)
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'my_float' has zero value"):
             self._configuration.type_check_positive_float("my_float", 0, non_zero=True)
+
+    def test_rp2_decimal(self) -> None:
+        n1: RP2Decimal = RP2Decimal("0.2")
+        n2: RP2Decimal = RP2Decimal("0.2")
+        n3: RP2Decimal = RP2Decimal("0.20000000000001")
+        n4: RP2Decimal = RP2Decimal("0.2000000000001")
+
+        self.assertTrue(n1 == n2)
+        self.assertTrue(n1 == n3)
+        self.assertFalse(n1 == n4)
+
+        self.assertFalse(n1 != n2)
+        self.assertFalse(n1 != n3)
+        self.assertTrue(n1 != n4)
+
+        self.assertFalse(n1 > n2)
+        self.assertFalse(n1 > n3)
+        self.assertFalse(n1 > n4)
+
+        self.assertTrue(n1 >= n2)
+        self.assertTrue(n1 >= n3)
+        self.assertFalse(n1 >= n4)
+
+        self.assertFalse(n1 < n2)
+        self.assertFalse(n1 < n3)
+        self.assertTrue(n1 < n4)
+
+        self.assertTrue(n1 <= n2)
+        self.assertTrue(n1 <= n3)
+        self.assertTrue(n1 <= n4)
+
 
     def test_bool(self) -> None:
         self.assertEqual(True, self._configuration.type_check_bool("my_bool", True))
