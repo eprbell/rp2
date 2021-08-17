@@ -14,6 +14,7 @@
 
 import json
 from datetime import datetime
+from decimal import Decimal
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
@@ -22,9 +23,10 @@ from dateutil.parser import parse
 from jsonschema import validate  # type: ignore
 
 from configuration_schema import CONFIGURATION_SCHEMA
+from rp2_decimal import ZERO
 from rp2_error import RP2TypeError, RP2ValueError
 
-VERSION: str = "0.2.0"
+VERSION: str = "0.4.0"
 
 
 class AccountingMethod(Enum):
@@ -43,19 +45,12 @@ class AccountingMethod(Enum):
 
 class Configuration:
 
-    NUMERIC_PRECISION = 10
-    USD_PRECISION = 2
-
     @classmethod
     def type_check(cls, name: str, instance: "Configuration") -> "Configuration":
         cls.type_check_parameter_name(name)
         if not isinstance(instance, cls):
             raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
         return instance
-
-    @classmethod
-    def is_equal_within_precision(cls, n1: float, n2: float, precision: int) -> bool:
-        return round(n1 - n2, precision) == 0
 
     def __init__(
         self,
@@ -135,6 +130,7 @@ class Configuration:
                 f"{self.__configuration_path} is {max_column + 1}"
             )
         pack: Dict[str, Any] = {argument: data[position] for argument, position in header.items()}
+
         return pack
 
     def get_in_table_constructor_argument_pack(self, data: List[Any]) -> Dict[str, Any]:
@@ -207,7 +203,7 @@ class Configuration:
     def type_check_string(cls, name: str, value: str) -> str:
         cls.type_check_parameter_name(name)
         if not isinstance(value, str):
-            raise RP2TypeError(f"Parameter '{name}' has non-string value {value}")
+            raise RP2TypeError(f"Parameter '{name}' has non-string value {repr(value)}")
         return value
 
     @classmethod
@@ -223,7 +219,7 @@ class Configuration:
     def type_check_int(cls, name: str, value: int) -> int:
         cls.type_check_parameter_name(name)
         if not isinstance(value, int):
-            raise RP2TypeError(f"Parameter '{name}' has non-integer value {value}")
+            raise RP2TypeError(f"Parameter '{name}' has non-integer value {repr(value)}")
         return value
 
     @classmethod
@@ -239,12 +235,28 @@ class Configuration:
     def type_check_float(cls, name: str, value: float) -> float:
         cls.type_check_parameter_name(name)
         if not isinstance(value, (int, float)):
-            raise RP2TypeError(f"Parameter '{name}' has non-numeric value {value}")
+            raise RP2TypeError(f"Parameter '{name}' has non-numeric value {repr(value)}")
         return value
 
     @classmethod
     def type_check_bool(cls, name: str, value: bool) -> bool:
         cls.type_check_parameter_name(name)
         if not isinstance(value, bool):
-            raise RP2TypeError(f"Parameter '{name}' has non-bool value {value}")
+            raise RP2TypeError(f"Parameter '{name}' has non-bool value {repr(value)}")
+        return value
+
+    @classmethod
+    def type_check_positive_decimal(cls, name: str, value: Decimal, non_zero: bool = False) -> Decimal:
+        result: Decimal = cls.type_check_decimal(name, value)
+        if result < ZERO:
+            raise RP2ValueError(f"Parameter '{name}' has non-positive value {value}")
+        if non_zero and result == ZERO:
+            raise RP2ValueError(f"Parameter '{name}' has zero value")
+        return result
+
+    @classmethod
+    def type_check_decimal(cls, name: str, value: Decimal) -> Decimal:
+        cls.type_check_parameter_name(name)
+        if not isinstance(value, Decimal):
+            raise RP2TypeError(f"Parameter '{name}' has non-Decimal value {repr(value)}")
         return value
