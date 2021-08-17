@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from decimal import Decimal
 from typing import Any, Callable, List, Optional
 
 from abstract_transaction import AbstractTransaction
 from configuration import Configuration
+from rp2_decimal import ZERO
 from rp2_error import RP2TypeError, RP2ValueError
 
 
@@ -30,23 +32,25 @@ class IntraTransaction(AbstractTransaction):
         from_holder: str,
         to_exchange: str,
         to_holder: str,
-        spot_price: Optional[float],
-        crypto_sent: float,
-        crypto_received: float,
+        spot_price: Optional[Decimal],
+        crypto_sent: Decimal,
+        crypto_received: Decimal,
         notes: Optional[str] = None,
     ) -> None:
         if spot_price is None:
             # Sometimes, when fee is 0 in IntraTransactions, exchanges don't provide the spot_price: this is OK because
             # if the fee is 0, spot price isn't needed. In this case spot price is assigned 0.
-            spot_price = 0.0
+            spot_price = ZERO
         super().__init__(configuration, line, timestamp, asset, "MOVE", spot_price, notes)
 
         self.__from_exchange: str = configuration.type_check_exchange("from_exchange", from_exchange)
         self.__from_holder: str = configuration.type_check_holder("from_holder", from_holder)
         self.__to_exchange: str = configuration.type_check_exchange("to_exchange", to_exchange)
         self.__to_holder: str = configuration.type_check_holder("to_holder", to_holder)
-        self.__crypto_sent: float = configuration.type_check_positive_float("crypto_sent", crypto_sent, non_zero=True)
-        self.__crypto_received: float = configuration.type_check_positive_float("crypto_received", crypto_received)
+        self.__crypto_sent: Decimal = configuration.type_check_positive_decimal("crypto_sent", crypto_sent, non_zero=True)
+        self.__crypto_received: Decimal = configuration.type_check_positive_decimal("crypto_received", crypto_received)
+        self.__crypto_fee: Decimal
+        self.__usd_fee: Decimal
 
         if self.__from_exchange == self.__to_exchange and self.__from_holder == self.__to_holder:
             raise RP2ValueError(
@@ -55,8 +59,8 @@ class IntraTransaction(AbstractTransaction):
         if self.__crypto_sent < self.__crypto_received:
             raise RP2ValueError(f"{self.asset} {type(self).__name__} at line {self.line} ({self.timestamp}): crypto sent < crypto received")
 
-        self.__crypto_fee = round(self.__crypto_sent - self.__crypto_received, Configuration.NUMERIC_PRECISION)
-        self.__usd_fee = round(self.__crypto_fee * self.spot_price, Configuration.NUMERIC_PRECISION)
+        self.__crypto_fee = self.__crypto_sent - self.__crypto_received
+        self.__usd_fee = self.__crypto_fee * self.spot_price
 
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
         self.configuration.type_check_positive_int("indent", indent)
@@ -110,35 +114,35 @@ class IntraTransaction(AbstractTransaction):
         return self.__to_holder
 
     @property
-    def crypto_sent(self) -> float:
+    def crypto_sent(self) -> Decimal:
         return self.__crypto_sent
 
     @property
-    def crypto_received(self) -> float:
+    def crypto_received(self) -> Decimal:
         return self.__crypto_received
 
     @property
-    def crypto_fee(self) -> float:
+    def crypto_fee(self) -> Decimal:
         return self.__crypto_fee
 
     @property
-    def usd_fee(self) -> float:
+    def usd_fee(self) -> Decimal:
         return self.__usd_fee
 
     @property
-    def crypto_taxable_amount(self) -> float:
+    def crypto_taxable_amount(self) -> Decimal:
         return self.crypto_fee
 
     @property
-    def usd_taxable_amount(self) -> float:
+    def usd_taxable_amount(self) -> Decimal:
         return self.usd_fee
 
     @property
-    def crypto_balance_change(self) -> float:
+    def crypto_balance_change(self) -> Decimal:
         return self.crypto_fee
 
     @property
-    def usd_balance_change(self) -> float:
+    def usd_balance_change(self) -> Decimal:
         return self.usd_fee
 
     def is_taxable(self) -> bool:

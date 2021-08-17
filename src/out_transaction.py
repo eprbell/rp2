@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from decimal import Decimal
 from typing import Any, Callable, List, Optional
 
 from abstract_transaction import AbstractTransaction
 from configuration import Configuration
 from entry_types import TransactionType
 from logger import LOGGER
+from rp2_decimal import RP2Decimal, USD_DECIMAL_MASK, ZERO
 from rp2_error import RP2TypeError, RP2ValueError
 
 
@@ -31,49 +33,49 @@ class OutTransaction(AbstractTransaction):
         exchange: str,
         holder: str,
         transaction_type: str,
-        spot_price: float,
-        crypto_out_no_fee: float,
-        crypto_fee: float,
-        crypto_out_with_fee: Optional[float] = None,
-        usd_out_no_fee: Optional[float] = None,
-        usd_fee: Optional[float] = None,
+        spot_price: Decimal,
+        crypto_out_no_fee: Decimal,
+        crypto_fee: Decimal,
+        crypto_out_with_fee: Optional[Decimal] = None,
+        usd_out_no_fee: Optional[Decimal] = None,
+        usd_fee: Optional[Decimal] = None,
         notes: Optional[str] = None,
     ) -> None:
         super().__init__(configuration, line, timestamp, asset, transaction_type, spot_price, notes)
 
         self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
         self.__holder: str = configuration.type_check_holder("holder", holder)
-        self.__crypto_out_no_fee: float = configuration.type_check_positive_float("crypto_out_no_fee", crypto_out_no_fee, non_zero=True)
-        self.__crypto_fee: float = configuration.type_check_positive_float("crypto_fee", crypto_fee)
+        self.__crypto_out_no_fee: Decimal = configuration.type_check_positive_decimal("crypto_out_no_fee", crypto_out_no_fee, non_zero=True)
+        self.__crypto_fee: Decimal = configuration.type_check_positive_decimal("crypto_fee", crypto_fee)
+        self.__usd_out_with_fee: Decimal
+        self.__usd_out_no_fee: Decimal
 
         # Crypto out with fee is optional. It can be derived from crypto out (no fee) and crypto fee, however some exchanges
         # provide it anyway. If it is provided use it as given by the exchange, if not compute it.
         if crypto_out_with_fee is None:
             self.__crypto_out_with_fee = self.__crypto_out_no_fee + self.crypto_fee
         else:
-            self.__crypto_out_with_fee = configuration.type_check_positive_float("crypto_out_with_fee", crypto_out_with_fee, non_zero=True)
+            self.__crypto_out_with_fee = configuration.type_check_positive_decimal("crypto_out_with_fee", crypto_out_with_fee, non_zero=True)
 
         # USD out without fee and usd fee are optional. They can be derived from crypto out (no fee), spot price and crypto fee,
         # however some exchanges provide them anyway. If they are provided use them as given by the exchange, if not compute them.
-        self.__usd_out_no_fee: float
-        self.__usd_out_with_fee: float
         if usd_out_no_fee is None:
             self.__usd_out_no_fee = self.__crypto_out_no_fee * self.spot_price
         else:
-            self.__usd_out_no_fee = configuration.type_check_positive_float("usd_out_no_fee", usd_out_no_fee, non_zero=True)
+            self.__usd_out_no_fee = configuration.type_check_positive_decimal("usd_out_no_fee", usd_out_no_fee, non_zero=True)
         if usd_fee is None:
             self.__usd_fee = self.__crypto_fee * self.spot_price
         else:
-            self.__usd_fee = configuration.type_check_positive_float("usd_fee", usd_fee)
+            self.__usd_fee = configuration.type_check_positive_decimal("usd_fee", usd_fee)
         self.__usd_out_with_fee = self.__usd_out_no_fee + self.__usd_fee
 
-        if spot_price == 0:
+        if spot_price == ZERO:
             raise RP2ValueError(f"{self.asset} {type(self).__name__} at line {self.line} ({self.timestamp}): parameter 'spot_price' cannot be 0")
         if self.transaction_type != TransactionType.DONATE and self.transaction_type != TransactionType.GIFT and self.transaction_type != TransactionType.SELL:
             raise RP2ValueError(f"{self.asset} {type(self).__name__} at line {self.line} ({self.timestamp}): invalid transaction type {self.transaction_type}")
 
         # If the values provided by the exchange doesn't match the computed one, log a warning.
-        if not Configuration.is_equal_within_precision(self.__crypto_out_with_fee, self.__crypto_out_no_fee + self.__crypto_fee, Configuration.USD_PRECISION):
+        if not RP2Decimal.is_equal_within_precision(self.__crypto_out_with_fee, self.__crypto_out_no_fee + self.__crypto_fee, USD_DECIMAL_MASK):
             LOGGER.warning(
                 "%s %s at line %d (%s): crypto_out_with_fee != crypto_out_no_fee + crypto_fee: %f != %f",
                 self.asset,
@@ -84,7 +86,7 @@ class OutTransaction(AbstractTransaction):
                 self.__crypto_out_no_fee + self.__crypto_fee,
             )
 
-        if not Configuration.is_equal_within_precision(self.__crypto_fee * self.spot_price, self.__usd_fee, Configuration.USD_PRECISION):
+        if not RP2Decimal.is_equal_within_precision(self.__crypto_fee * self.spot_price, self.__usd_fee, USD_DECIMAL_MASK):
             LOGGER.warning(
                 "%s %s at line %d (%s): crypto_fee * spot_price != usd_fee: %f != %f",
                 self.asset,
@@ -95,7 +97,7 @@ class OutTransaction(AbstractTransaction):
                 self.__usd_fee,
             )
 
-        if not Configuration.is_equal_within_precision(self.__crypto_out_no_fee * self.spot_price, self.__usd_out_no_fee, Configuration.USD_PRECISION):
+        if not RP2Decimal.is_equal_within_precision(self.__crypto_out_no_fee * self.spot_price, self.__usd_out_no_fee, USD_DECIMAL_MASK):
             LOGGER.warning(
                 "%s %s at line %d (%s): crypto_out_no_fee * spot_price != usd_out_no_fee: %f != %f",
                 self.asset,
@@ -146,43 +148,43 @@ class OutTransaction(AbstractTransaction):
         return self.__holder
 
     @property
-    def crypto_out_no_fee(self) -> float:
+    def crypto_out_no_fee(self) -> Decimal:
         return self.__crypto_out_no_fee
 
     @property
-    def crypto_out_with_fee(self) -> float:
+    def crypto_out_with_fee(self) -> Decimal:
         return self.__crypto_out_with_fee
 
     @property
-    def crypto_fee(self) -> float:
+    def crypto_fee(self) -> Decimal:
         return self.__crypto_fee
 
     @property
-    def usd_out_no_fee(self) -> float:
+    def usd_out_no_fee(self) -> Decimal:
         return self.__usd_out_no_fee
 
     @property
-    def usd_out_with_fee(self) -> float:
+    def usd_out_with_fee(self) -> Decimal:
         return self.__usd_out_with_fee
 
     @property
-    def usd_fee(self) -> float:
+    def usd_fee(self) -> Decimal:
         return self.__usd_fee
 
     @property
-    def crypto_taxable_amount(self) -> float:
+    def crypto_taxable_amount(self) -> Decimal:
         return self.crypto_balance_change
 
     @property
-    def usd_taxable_amount(self) -> float:
+    def usd_taxable_amount(self) -> Decimal:
         return self.usd_balance_change
 
     @property
-    def crypto_balance_change(self) -> float:
+    def crypto_balance_change(self) -> Decimal:
         return self.crypto_out_with_fee
 
     @property
-    def usd_balance_change(self) -> float:
+    def usd_balance_change(self) -> Decimal:
         return self.usd_out_with_fee
 
     def is_taxable(self) -> bool:
