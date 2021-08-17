@@ -165,9 +165,7 @@ def _populate_yearly_gain_loss_list(input_data: InputData, gain_loss_set: GainLo
             gain_loss.taxable_event.transaction_type,
             gain_loss.is_long_term_capital_gains(),
         )
-        (crypto_amount, usd_amount, usd_cost_basis, usd_gain_loss) = summaries.setdefault(
-            key, (ZERO, ZERO, ZERO, ZERO)
-        )
+        (crypto_amount, usd_amount, usd_cost_basis, usd_gain_loss) = summaries.setdefault(key, (ZERO, ZERO, ZERO, ZERO))
         crypto_amount += gain_loss.crypto_amount
         usd_amount += gain_loss.taxable_event_usd_amount_with_fee_fraction
         usd_cost_basis += gain_loss.usd_cost_basis

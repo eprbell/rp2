@@ -16,11 +16,12 @@ from decimal import Decimal, FloatOperation, getcontext
 
 from rp2_error import RP2TypeError
 
-CRYPTO_DECIMALS: int = 13
+CRYPTO_DECIMALS: int = 8
 CRYPTO_DECIMAL_MASK: Decimal = Decimal("1." + "0" * int(CRYPTO_DECIMALS))
 
 USD_DECIMALS: int = 2
 USD_DECIMAL_MASK: Decimal = Decimal("1." + "0" * int(USD_DECIMALS))
+
 
 class RP2Decimal(Decimal):
 
@@ -62,5 +63,6 @@ class RP2Decimal(Decimal):
         if not isinstance(other, Decimal):
             raise RP2TypeError(f"Second operand of < has non-Decimal value {other}")
         return not self.__ge__(other)
+
 
 ZERO: RP2Decimal = RP2Decimal("0")

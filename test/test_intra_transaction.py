@@ -214,17 +214,8 @@ class TestIntraTransaction(unittest.TestCase):
             IntraTransaction.type_check(
                 "my_instance",
                 InTransaction(
-                    self._configuration,
-                    45,
-                    "2021-01-12T11:51:38Z",
-                    "B1",
-                    "BlockFi",
-                    "Bob",
-                    "BUY",
-                    RP2Decimal("10000"),
-                    RP2Decimal("1"),
-                    RP2Decimal("0")
-                )
+                    self._configuration, 45, "2021-01-12T11:51:38Z", "B1", "BlockFi", "Bob", "BUY", RP2Decimal("10000"), RP2Decimal("1"), RP2Decimal("0")
+                ),
             )
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):

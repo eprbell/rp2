@@ -472,7 +472,6 @@ class TestConfiguration(unittest.TestCase):
         self.assertTrue(n1 <= n3)
         self.assertTrue(n1 <= n4)
 
-
     def test_bool(self) -> None:
         self.assertEqual(True, self._configuration.type_check_bool("my_bool", True))
         self.assertEqual(False, self._configuration.type_check_bool("my_bool", False))

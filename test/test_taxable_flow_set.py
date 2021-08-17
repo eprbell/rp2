@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import unittest
-
 from typing import List, cast
 
 from rp2_test_output import RP2_TEST_OUTPUT

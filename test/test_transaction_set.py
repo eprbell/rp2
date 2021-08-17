@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import unittest
-
 from typing import List, Optional, cast
 
 from dateutil.parser import parse

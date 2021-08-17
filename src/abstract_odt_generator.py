@@ -28,7 +28,6 @@ from rp2_error import RP2TypeError
 
 
 class AbstractODTGenerator(AbstractGenerator):  # pylint: disable=W0223
-
     @staticmethod
     def _initialize_output_file(
         output_dir_path: str,

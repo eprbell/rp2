@@ -19,7 +19,7 @@ from abstract_transaction import AbstractTransaction
 from configuration import Configuration
 from entry_types import TransactionType
 from logger import LOGGER
-from rp2_decimal import RP2Decimal, USD_DECIMAL_MASK, ZERO
+from rp2_decimal import USD_DECIMAL_MASK, ZERO, RP2Decimal
 from rp2_error import RP2TypeError, RP2ValueError
 
 

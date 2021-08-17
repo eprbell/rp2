@@ -44,7 +44,6 @@ class AccountingMethod(Enum):
 
 
 class Configuration:
-
     @classmethod
     def type_check(cls, name: str, instance: "Configuration") -> "Configuration":
         cls.type_check_parameter_name(name)

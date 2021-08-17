@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import inspect
-
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
@@ -147,6 +146,7 @@ def _get_decimal_constructor_argument_names(class_name: str) -> List[str]:
         if parameter_type == Decimal or parameter_type == Optional[Decimal]:
             result.append(parameter_name)
     return result
+
 
 # Add configuration and line to argument pack and turn floats to strings to maximize decimal precision. See comment inside the function.
 def _process_constructor_argument_pack(

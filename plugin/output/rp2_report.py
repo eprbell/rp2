@@ -127,6 +127,7 @@ _GAIN_LOSS_DETAIL_HEADER_NAMES: List[Tuple[str, str]] = [
 
 _ZERO: Decimal = Decimal(0)
 
+
 class Generator(AbstractODTGenerator):
 
     MIN_ROWS: int = 40

@@ -231,7 +231,7 @@ class TestInTransaction(unittest.TestCase):
                     RP2Decimal("10000"),
                     RP2Decimal("1"),
                     RP2Decimal("0"),
-                )
+                ),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
             # Bad configuration

@@ -24,6 +24,7 @@ from out_transaction import OutTransaction
 from rp2_decimal import RP2Decimal
 from rp2_error import RP2TypeError, RP2ValueError
 
+
 class TestOutTransaction(unittest.TestCase):
     _configuration: Configuration
 
@@ -150,7 +151,8 @@ class TestOutTransaction(unittest.TestCase):
             OutTransaction.type_check("my_instance", None)  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'my_instance' is not of type OutTransaction: IntraTransaction"):
             OutTransaction.type_check(
-                "my_instance", IntraTransaction(
+                "my_instance",
+                IntraTransaction(
                     self._configuration,
                     45,
                     "2021-01-12T11:51:38Z",
@@ -161,8 +163,8 @@ class TestOutTransaction(unittest.TestCase):
                     "Alice",
                     RP2Decimal("10000"),
                     RP2Decimal("1"),
-                    RP2Decimal("1")
-                )
+                    RP2Decimal("1"),
+                ),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
             # Bad configuration
