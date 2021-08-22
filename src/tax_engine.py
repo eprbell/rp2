@@ -283,11 +283,3 @@ def _verify_computation(
             gain_loss_total,
             gain_loss_total_verify,
         )
-
-
-def main() -> None:
-    pass
-
-
-if __name__ == "__main__":
-    main()
