@@ -270,6 +270,7 @@ class TestGainLossSet(unittest.TestCase):
         in3: InTransaction = gain_loss1.from_lot  # type: ignore
         out15: OutTransaction = cast(OutTransaction, gain_loss1.taxable_event)
         out14: OutTransaction = cast(OutTransaction, gain_losses[3].taxable_event)
+        out16: OutTransaction = cast(OutTransaction, gain_losses[6].taxable_event)
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
             # Bad configuration
@@ -358,65 +359,37 @@ class TestGainLossSet(unittest.TestCase):
         with self.assertRaisesRegex(RP2ValueError, "Taxable event crypto amount already exhausted for OutTransaction"):
             gain_loss_set = GainLossSet(self._configuration, asset)
             gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.2"), out15, in3))
-            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.2"), out15, in3))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.2"), out15, in_transaction))
             for gain_loss in gain_loss_set:
                 pass
         with self.assertRaisesRegex(RP2ValueError, "From-lot crypto amount already exhausted for InTransaction"):
             gain_loss_set = GainLossSet(self._configuration, asset)
-            in_transaction = InTransaction(
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("1"), out14, in3))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("1"), out16, in3))
+            for gain_loss in gain_loss_set:
+                pass
+        with self.assertRaisesRegex(RP2ValueError, "Current taxable event amount .* exceeded crypto balance change of taxable event .* GainLoss"):
+            gain_loss_set = GainLossSet(self._configuration, asset)
+            in_transaction2: InTransaction = InTransaction(
                 self._configuration,
-                10,
-                "2020-01-01 08:41:00.000000 +0000",
+                2,
+                "2020-01-01 03:18:00.000000 +0000",
                 asset,
                 "Coinbase",
                 "Bob",
-                "BUY",
-                RP2Decimal("11000"),
+                "EARN",
+                RP2Decimal("12000.0"),
                 RP2Decimal("0.1"),
-                RP2Decimal("100.00"),
+                RP2Decimal("0"),
             )
-            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.1"), out15, in_transaction))
-            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.1"), out15, in_transaction))
-            for gain_loss in gain_loss_set:
-                pass
-        with self.assertRaisesRegex(RP2ValueError, "Current taxable event amount .* exceeds crypto balance change of taxable event .* GainLoss"):
-            gain_loss_set = GainLossSet(self._configuration, asset)
-            in_transaction = InTransaction(
-                self._configuration,
-                10,
-                "2020-01-02T08:42:43.882Z",
-                asset,
-                "Coinbase Pro",
-                "Bob",
-                "BuY",
-                RP2Decimal("10000"),
-                RP2Decimal("2.0002"),
-                RP2Decimal("20"),
-                RP2Decimal("20002"),
-                RP2Decimal("20022"),
-            )
-            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.1"), out15, in_transaction))
-            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.05"), out15, in_transaction))
-            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.1"), out15, in_transaction))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.1"), out15, in_transaction2))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.2"), out15, in3))
             for gain_loss in gain_loss_set:
                 pass
         with self.assertRaisesRegex(RP2ValueError, "Current from-lot amount .* exceeded crypto balance change of from-lot .* GainLoss"):
             gain_loss_set = GainLossSet(self._configuration, asset)
-            out_transaction: OutTransaction = OutTransaction(
-                self._configuration,
-                15,
-                "2020-01-11 11:15:00.000000 +0000",
-                asset,
-                "Coinbase",
-                "Bob",
-                "GIFT",
-                RP2Decimal("11200.0"),
-                RP2Decimal("2"),
-                RP2Decimal("0"),
-            )
-            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.5"), out_transaction, in3))
-            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.25"), out_transaction, in3))
-            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.5"), out_transaction, in3))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.2"), out15, in3))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("1"), out14, in3))
             for gain_loss in gain_loss_set:
                 pass
 
