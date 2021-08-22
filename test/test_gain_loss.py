@@ -61,7 +61,7 @@ class TestGainLoss(unittest.TestCase):
         )
         self._in_buy3 = InTransaction(
             self._configuration,
-            11,
+            12,
             "2020-04-27T03:28:47Z",
             "B1",
             "Coinbase Pro",
@@ -205,6 +205,27 @@ class TestGainLoss(unittest.TestCase):
             repr(flow),
             "GainLoss(id='30->10', crypto_amount=0.00100000, usd_cost_basis=10.0100, usd_gain=2.4900, is_long_term_capital_gains=True, taxable_event_usd_amount_with_fee_fraction=12.5000, taxable_event_fraction_percentage=10.0000%, taxable_event=IntraTransaction(line=30, timestamp='2021-03-10 11:18:58.000000 -0004', asset='B1', from_exchange='Coinbase Pro', from_holder='Bob', to_exchange='BlockFi', to_holder='Alice', transaction_type=<TransactionType.MOVE: 'move'>, spot_price=12500.0000, crypto_sent=0.40000000, crypto_received=0.39000000, crypto_fee=0.01000000, usd_fee=125.0000, is_taxable=True, usd_taxable_amount=125.0000), from_lot_usd_amount_with_fee_fraction=10.0100, from_lot_fraction_percentage=0.0500%, from_lot=InTransaction(line=10, timestamp='2020-01-02 08:42:43.882000 +0000', asset='B1', exchange='Coinbase Pro', holder='Bob', transaction_type=<TransactionType.BUY: 'buy'>, spot_price=10000.0000, crypto_in=2.00020000, usd_fee=20.0000, usd_in_no_fee=20002.0000, usd_in_with_fee=20022.0000, is_taxable=False, usd_taxable_amount=0.0000))",
         )
+
+    def test_gain_loss_equality_and_hashing(self) -> None:
+        gain_loss: GainLoss = GainLoss(self._configuration, RP2Decimal("0.001"), self._intra, self._in_buy)
+        gain_loss2: GainLoss = GainLoss(self._configuration, RP2Decimal("0.001"), self._intra, self._in_buy)
+        gain_loss3: GainLoss = GainLoss(self._configuration, RP2Decimal("0.001"), self._intra, self._in_buy2)
+        gain_loss4: GainLoss = GainLoss(self._configuration, RP2Decimal("0.001"), self._out, self._in_buy)
+        gain_loss5: GainLoss = GainLoss(self._configuration, RP2Decimal("0.001"), self._out, self._in_buy2)
+        gain_loss6: GainLoss = GainLoss(self._configuration, RP2Decimal("0.1"), self._in_earn, None)
+        self.assertEqual(gain_loss, gain_loss)
+        self.assertEqual(gain_loss, gain_loss2)
+        self.assertNotEqual(gain_loss, gain_loss3)
+        self.assertNotEqual(gain_loss, gain_loss4)
+        self.assertNotEqual(gain_loss, gain_loss5)
+        self.assertNotEqual(gain_loss, gain_loss6)
+        self.assertEqual(hash(gain_loss), hash(gain_loss))
+        self.assertEqual(hash(gain_loss), hash(gain_loss2))
+        # These hashes would only be equal in case of hash collision (possible but very unlikey).
+        self.assertNotEqual(hash(gain_loss), hash(gain_loss3))
+        self.assertNotEqual(hash(gain_loss), hash(gain_loss4))
+        self.assertNotEqual(hash(gain_loss), hash(gain_loss5))
+        self.assertNotEqual(hash(gain_loss), hash(gain_loss6))
 
     def test_bad_gain_loss(self) -> None:
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
