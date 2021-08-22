@@ -56,8 +56,6 @@ class AbstractTransaction(AbstractEntry):
             raise RP2TypeError(f"Operand has non-AbstractTransaction value {repr(other)}")
         # Since there are no cross-asset transactions, line is enough to uniquely identify a transaction
         result: bool = self.line == other.line
-        if result != (id(self) == id(other)):
-            raise Exception("Internal error: inconsistency in identity logic")
         return result
 
     def __ne__(self, other: object) -> bool:

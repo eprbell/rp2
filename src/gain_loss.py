@@ -86,8 +86,6 @@ class GainLoss(AbstractEntry):
         other_from_lot_line: Optional[int] = other.from_lot.line if other.from_lot else None
         # Since there are no cross-asset transactions, line is enough to uniquely identify a transaction and a gain-loss instance
         result: bool = self.taxable_event.line == other.taxable_event.line and self_from_lot_line == other_from_lot_line
-        if result != (id(self) == id(other)):
-            raise Exception("Internal error: inconsistency in identity logic")
         return result
 
     def __ne__(self, other: object) -> bool:
