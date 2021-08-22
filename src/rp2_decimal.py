@@ -36,32 +36,26 @@ class RP2Decimal(Decimal):
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Decimal):
-            raise RP2TypeError(f"Second operand of == has non-Decimal value {other}")
+            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
         return (self - other).quantize(CRYPTO_DECIMAL_MASK).__eq__(ZERO)
 
     def __ne__(self, other: object) -> bool:
-        if not isinstance(other, Decimal):
-            raise RP2TypeError(f"Second operand of != has non-Decimal value {other}")
         return not self.__eq__(other)
 
     def __ge__(self, other: object) -> bool:
         if not isinstance(other, Decimal):
-            raise RP2TypeError(f"Second operand of >= has non-Decimal value {other}")
+            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
         return (self - other).quantize(CRYPTO_DECIMAL_MASK).__ge__(ZERO)
 
     def __gt__(self, other: object) -> bool:
         if not isinstance(other, Decimal):
-            raise RP2TypeError(f"Second operand of > has non-Decimal value {other}")
+            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
         return (self - other).quantize(CRYPTO_DECIMAL_MASK).__gt__(ZERO)
 
     def __le__(self, other: object) -> bool:
-        if not isinstance(other, Decimal):
-            raise RP2TypeError(f"Second operand of <= has non-Decimal value {other}")
         return not self.__gt__(other)
 
     def __lt__(self, other: object) -> bool:
-        if not isinstance(other, Decimal):
-            raise RP2TypeError(f"Second operand of < has non-Decimal value {other}")
         return not self.__ge__(other)
 
 
