@@ -53,7 +53,6 @@ class TestTransactionSet(unittest.TestCase):
 
         t3: InTransaction = InTransaction(
             self._configuration,
-            30,
             "1/8/2021 8:42:43.883 -04:00",
             "B1",
             "Coinbase",
@@ -64,12 +63,12 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("20"),
             RP2Decimal("3000.2"),
             RP2Decimal("3020.2"),
+            unique_id=30,
         )
         transaction_set.add_entry(t3)
 
         t2: InTransaction = InTransaction(
             self._configuration,
-            20,
             "2021-01-02T08:42:43.882Z",
             "B1",
             "BlockFi",
@@ -80,6 +79,7 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("0"),
             RP2Decimal("2000.2"),
             RP2Decimal("2000.2"),
+            unique_id=20,
         )
         transaction_set.add_entry(t2)
 
@@ -97,7 +97,6 @@ class TestTransactionSet(unittest.TestCase):
 
         t1: OutTransaction = OutTransaction(
             self._configuration,
-            10,
             "6/1/2020 3:59:59 -04:00",
             "B1",
             "Coinbase Pro",
@@ -106,12 +105,12 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("900.9"),
             RP2Decimal("2.2"),
             RP2Decimal("0"),
+            unique_id=10,
         )
         transaction_set.add_entry(t1)
 
         t5: IntraTransaction = IntraTransaction(
             self._configuration,
-            50,
             "2021-04-02T08:42:43.882Z",
             "B1",
             "Coinbase Pro",
@@ -121,12 +120,12 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
             RP2Decimal("1.9998"),
+            unique_id=50,
         )
         transaction_set.add_entry(t5)
 
         t4: IntraTransaction = IntraTransaction(
             self._configuration,
-            40,
             "2021-03-28T08:42:43.882Z",
             "B1",
             "Coinbase",
@@ -136,13 +135,14 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("100.0"),
             RP2Decimal("30"),
             RP2Decimal("30"),
+            unique_id=40,
         )
         transaction_set.add_entry(t4)
 
         self.assertEqual(transaction_set.entry_set_type, EntrySetType.MIXED)
         self.assertEqual(transaction_set.asset, "B1")
 
-        lines: List[int] = [10, 20, 30, 40, 50]
+        unique_ids: List[str] = ["10", "20", "30", "40", "50"]
         transactions: List[AbstractTransaction] = [t1, t2, t3, t4, t5]
         parents: List[Optional[AbstractTransaction]] = [
             None,
@@ -172,7 +172,7 @@ class TestTransactionSet(unittest.TestCase):
         count = 0
         expected_transaction: AbstractTransaction
         parent: AbstractTransaction
-        line: int
+        unique_id: str
         transaction_type: TransactionType
         usd_taxable_amount: RP2Decimal
         crypto_balance_change: RP2Decimal
@@ -181,7 +181,7 @@ class TestTransactionSet(unittest.TestCase):
             transaction,
             expected_transaction,
             parent,
-            line,
+            unique_id,
             timestamp,
             transaction_type,
             usd_taxable_amount,
@@ -191,7 +191,7 @@ class TestTransactionSet(unittest.TestCase):
             transaction_set,
             transactions,
             parents,
-            lines,
+            unique_ids,
             timestamps,
             transaction_types,
             usd_taxable_amounts,
@@ -200,7 +200,7 @@ class TestTransactionSet(unittest.TestCase):
         ):
             self.assertEqual(transaction, expected_transaction)
             self.assertEqual(transaction_set.get_parent(transaction), parent)
-            self.assertEqual(transaction.line, line)
+            self.assertEqual(transaction.unique_id, unique_id)
             self.assertEqual(transaction.timestamp, parse(timestamp))
             self.assertEqual(transaction.transaction_type, transaction_type)
             self.assertEqual(transaction.asset, "B1")
@@ -216,7 +216,6 @@ class TestTransactionSet(unittest.TestCase):
 
         in_transaction = InTransaction(
             self._configuration,
-            20,
             "2021-01-02T08:42:43.882Z",
             "B1",
             "BlockFi",
@@ -227,11 +226,11 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("0"),
             RP2Decimal("2000.2"),
             RP2Decimal("2000.2"),
+            unique_id=20,
         )
         # Different instance with same contents as in_transaction
         in_transaction2 = InTransaction(
             self._configuration,
-            20,
             "2021-01-02T08:42:43.882Z",
             "B1",
             "BlockFi",
@@ -242,10 +241,10 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("0"),
             RP2Decimal("2000.2"),
             RP2Decimal("2000.2"),
+            unique_id=20,
         )
         out_transaction = OutTransaction(
             self._configuration,
-            10,
             "6/1/2020 3:59:59 -04:00",
             "B1",
             "Coinbase Pro",
@@ -254,10 +253,10 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("900.9"),
             RP2Decimal("2.2"),
             RP2Decimal("0"),
+            unique_id=10,
         )
         intra_transaction = IntraTransaction(
             self._configuration,
-            50,
             "2021-04-02T08:42:43.882Z",
             "B1",
             "Coinbase Pro",
@@ -267,6 +266,7 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
             RP2Decimal("1.9998"),
+            unique_id=50,
         )
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
