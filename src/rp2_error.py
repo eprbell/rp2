@@ -16,9 +16,9 @@ from typing import Optional
 
 
 class RP2Error(Exception):
-    def __init__(self, message: str, line: Optional[int] = None) -> None:
-        self.__message = message if line is None else "{}: {}".format(line, message)
-        self.__line = line
+    def __init__(self, message: str, unique_id: Optional[int] = None) -> None:
+        self.__message = message if unique_id is None else f"{unique_id}: {message}"
+        self.__unique_id = unique_id
         super().__init__(self.__message)
 
     def __repr__(self) -> str:
@@ -29,8 +29,8 @@ class RP2Error(Exception):
         return self.__message
 
     @property
-    def line(self) -> Optional[int]:
-        return self.__line
+    def unique_id(self) -> Optional[int]:
+        return self.__unique_id
 
 
 class RP2TypeError(RP2Error):
