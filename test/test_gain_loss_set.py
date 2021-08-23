@@ -82,7 +82,6 @@ class TestGainLossSet(unittest.TestCase):
     def _initialize_transactions(cls, asset: str) -> None:
         cls._in3[asset] = InTransaction(
             cls._configuration,
-            3,
             "2020-01-01 08:41:00.000000 +0000",
             asset,
             "Coinbase",
@@ -91,10 +90,10 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("11000"),
             RP2Decimal("1"),
             RP2Decimal("100.00"),
+            unique_id=3,
         )
         cls._in2[asset] = InTransaction(
             cls._configuration,
-            2,
             "2020-02-01 11:18:00.000000 +0000",
             asset,
             "BlockFi",
@@ -103,10 +102,10 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("12000.0"),
             RP2Decimal("2.0"),
             RP2Decimal("0"),
+            unique_id=2,
         )
         cls._in6[asset] = InTransaction(
             cls._configuration,
-            6,
             "2020-03-01 09:45:00.000000 +0000",
             asset,
             "BlockFi",
@@ -115,10 +114,10 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("13000.0"),
             RP2Decimal("3"),
             RP2Decimal("0"),
+            unique_id=6,
         )
         cls._in5[asset] = InTransaction(
             cls._configuration,
-            5,
             "2020-04-01T09:45Z",
             asset,
             "Coinbase",
@@ -127,10 +126,10 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("14000.0"),
             RP2Decimal("4.0"),
             RP2Decimal("400"),
+            unique_id=5,
         )
         cls._in4[asset] = InTransaction(
             cls._configuration,
-            4,
             "2020-05-01T14:03Z",
             asset,
             "Coinbase",
@@ -139,10 +138,10 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("15000.0"),
             RP2Decimal("5.0"),
             RP2Decimal("500"),
+            unique_id=4,
         )
         cls._out15[asset] = OutTransaction(
             cls._configuration,
-            15,
             "2020-01-11 11:15:00.000000 +0000",
             asset,
             "Coinbase",
@@ -151,10 +150,10 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("11200.0"),
             RP2Decimal("0.2"),
             RP2Decimal("0"),
+            unique_id=15,
         )
         cls._out14[asset] = OutTransaction(
             cls._configuration,
-            14,
             "2020-02-11 19:58:00.000000 +0000",
             asset,
             "Coinbase",
@@ -163,10 +162,10 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("12200.0"),
             RP2Decimal("1.0"),
             RP2Decimal("0"),
+            unique_id=14,
         )
         cls._out16[asset] = OutTransaction(
             cls._configuration,
-            16,
             "2020-04-11 07:10:00.000000 +0000",
             asset,
             "BlockFi",
@@ -175,10 +174,10 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("14200.00"),
             RP2Decimal("5.0"),
             RP2Decimal("0"),
+            unique_id=16,
         )
         cls._out12[asset] = OutTransaction(
             cls._configuration,
-            12,
             "2020-04-12 17:50:00.000000 +0000",
             asset,
             "Coinbase",
@@ -187,10 +186,10 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("14300"),
             RP2Decimal("3.79"),
             RP2Decimal("0"),
+            unique_id=12,
         )
         cls._out13[asset] = OutTransaction(
             cls._configuration,
-            13,
             "2021-06-11 05:31:00.000000 +0000",
             asset,
             "Coinbase",
@@ -199,10 +198,10 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("20200.00"),
             RP2Decimal("2"),
             RP2Decimal("0.01"),
+            unique_id=13,
         )
         cls._intra25[asset] = IntraTransaction(
             cls._configuration,
-            25,
             "2020-01-21 18:33:14.342000 +0000",
             asset,
             "Coinbase",
@@ -212,10 +211,10 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("11400.0"),
             RP2Decimal("0.1"),
             RP2Decimal("0.09"),
+            unique_id=25,
         )
         cls._intra24[asset] = IntraTransaction(
             cls._configuration,
-            24,
             "2020-05-21 12:58:10.000000 +0000",
             asset,
             "Coinbase",
@@ -225,10 +224,10 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("14400.0"),
             RP2Decimal("0.2"),
             RP2Decimal("0.18"),
+            unique_id=24,
         )
         cls._intra22[asset] = IntraTransaction(
             cls._configuration,
-            22,
             "2021-07-21 10:02:02.000000 +0000",
             asset,
             "Coinbase",
@@ -238,6 +237,7 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("21400.0"),
             RP2Decimal("0.5"),
             RP2Decimal("0.46"),
+            unique_id=22,
         )
         cls._gain_loss_set[asset] = GainLossSet(cls._configuration, asset)
         if asset == "B1":
@@ -364,11 +364,10 @@ class TestGainLossSet(unittest.TestCase):
         with self.assertRaisesRegex(RP2ValueError, "Unknown transaction:.*"):
             # Bad get_taxable_event_fractions parameter
             gain_loss_set.get_from_lot_number_of_fractions(in3)
-        with self.assertRaisesRegex(RP2ValueError, "Date of from_lot entry at line .* is < the date of its parent at line .*"):
+        with self.assertRaisesRegex(RP2ValueError, "Date of from_lot entry .*id.* is < the date of its parent .*id.*"):
             gain_loss_set = GainLossSet(self._configuration, asset)
             in_transaction_test: InTransaction = InTransaction(
                 self._configuration,
-                2,
                 "2020-01-05 11:18:00.000000 +0000",
                 asset,
                 "Coinbase",
@@ -377,6 +376,7 @@ class TestGainLossSet(unittest.TestCase):
                 RP2Decimal("12000.0"),
                 RP2Decimal("2.0"),
                 RP2Decimal("0"),
+                unique_id=2,
             )
             gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.2"), out15, in_transaction_test))
             gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.01"), out14, in3))

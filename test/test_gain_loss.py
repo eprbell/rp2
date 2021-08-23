@@ -35,7 +35,6 @@ class TestGainLoss(unittest.TestCase):
 
         self._in_buy = InTransaction(
             self._configuration,
-            10,
             "2020-01-02T08:42:43.882Z",
             "B1",
             "Coinbase Pro",
@@ -46,10 +45,10 @@ class TestGainLoss(unittest.TestCase):
             RP2Decimal("20"),
             RP2Decimal("20002"),
             RP2Decimal("20022"),
+            unique_id=10,
         )
         self._in_buy2 = InTransaction(
             self._configuration,
-            11,
             "2020-01-12T17:33:18Z",
             "B1",
             "Coinbase Pro",
@@ -58,10 +57,10 @@ class TestGainLoss(unittest.TestCase):
             RP2Decimal("10500"),
             RP2Decimal("0.8"),
             RP2Decimal("10"),
+            unique_id=11,
         )
         self._in_buy3 = InTransaction(
             self._configuration,
-            12,
             "2020-04-27T03:28:47Z",
             "B1",
             "Coinbase Pro",
@@ -70,10 +69,10 @@ class TestGainLoss(unittest.TestCase):
             RP2Decimal("1300"),
             RP2Decimal("1.5"),
             RP2Decimal("20"),
+            unique_id=12,
         )
         self._in_earn = InTransaction(
             self._configuration,
-            14,
             "2020-02-21T13:14:08 -00:04",
             "B1",
             "BlockFi",
@@ -82,10 +81,10 @@ class TestGainLoss(unittest.TestCase):
             RP2Decimal("11000"),
             RP2Decimal("0.1"),
             RP2Decimal("0"),
+            unique_id=14,
         )
         self._out: OutTransaction = OutTransaction(
             self._configuration,
-            20,
             "3/3/2020 3:59:59 -04:00",
             "B1",
             "Coinbase Pro",
@@ -94,10 +93,10 @@ class TestGainLoss(unittest.TestCase):
             RP2Decimal("12000"),
             RP2Decimal("0.2"),
             RP2Decimal("0"),
+            unique_id=20,
         )
         self._intra: IntraTransaction = IntraTransaction(
             self._configuration,
-            30,
             "2021-03-10T11:18:58 -00:04",
             "B1",
             "Coinbase Pro",
@@ -107,6 +106,7 @@ class TestGainLoss(unittest.TestCase):
             RP2Decimal("12500.0"),
             RP2Decimal("0.4"),
             RP2Decimal("0.39"),
+            unique_id=30,
         )
 
     def test_good_earn_gain_loss(self) -> None:
@@ -120,7 +120,7 @@ class TestGainLoss(unittest.TestCase):
         self.assertEqual(
             str(flow),
             """GainLoss:
-  id='14->None'
+  id=14->None
   crypto_amount=0.10000000
   usd_cost_basis=0.0000
   usd_gain=1100.0000
@@ -128,7 +128,7 @@ class TestGainLoss(unittest.TestCase):
   taxable_event_usd_amount_with_fee_fraction=1100.0000
   taxable_event_fraction_percentage=100.0000%
   taxable_event=InTransaction:
-    line=14
+    id=14
     timestamp=2020-02-21 13:14:08.000000 -0004
     asset=B1
     exchange=BlockFi
@@ -147,7 +147,7 @@ class TestGainLoss(unittest.TestCase):
         )
         self.assertEqual(
             repr(flow),
-            "GainLoss(id='14->None', crypto_amount=0.10000000, usd_cost_basis=0.0000, usd_gain=1100.0000, is_long_term_capital_gains=False, taxable_event_usd_amount_with_fee_fraction=1100.0000, taxable_event_fraction_percentage=100.0000%, taxable_event=InTransaction(line=14, timestamp='2020-02-21 13:14:08.000000 -0004', asset='B1', exchange='BlockFi', holder='Bob', transaction_type=<TransactionType.EARN: 'earn'>, spot_price=11000.0000, crypto_in=0.10000000, usd_fee=0.0000, usd_in_no_fee=1100.0000, usd_in_with_fee=1100.0000, is_taxable=True, usd_taxable_amount=1100.0000), from_lot_usd_amount_with_fee_fraction=0.0000, from_lot_fraction_percentage=0.0000%, from_lot=None)",
+            "GainLoss(id='14->None', crypto_amount=0.10000000, usd_cost_basis=0.0000, usd_gain=1100.0000, is_long_term_capital_gains=False, taxable_event_usd_amount_with_fee_fraction=1100.0000, taxable_event_fraction_percentage=100.0000%, taxable_event=InTransaction(id='14', timestamp='2020-02-21 13:14:08.000000 -0004', asset='B1', exchange='BlockFi', holder='Bob', transaction_type=<TransactionType.EARN: 'earn'>, spot_price=11000.0000, crypto_in=0.10000000, usd_fee=0.0000, usd_in_no_fee=1100.0000, usd_in_with_fee=1100.0000, is_taxable=True, usd_taxable_amount=1100.0000), from_lot_usd_amount_with_fee_fraction=0.0000, from_lot_fraction_percentage=0.0000%, from_lot=None)",
         )
 
     def test_good_non_earn_gain_loss(self) -> None:
@@ -161,7 +161,7 @@ class TestGainLoss(unittest.TestCase):
         self.assertEqual(
             str(flow),
             """GainLoss:
-  id='30->10'
+  id=30->10
   crypto_amount=0.00100000
   usd_cost_basis=10.0100
   usd_gain=2.4900
@@ -169,7 +169,7 @@ class TestGainLoss(unittest.TestCase):
   taxable_event_usd_amount_with_fee_fraction=12.5000
   taxable_event_fraction_percentage=10.0000%
   taxable_event=IntraTransaction:
-    line=30
+    id=30
     timestamp=2021-03-10 11:18:58.000000 -0004
     asset=B1
     from_exchange=Coinbase Pro
@@ -187,7 +187,7 @@ class TestGainLoss(unittest.TestCase):
   from_lot_usd_amount_with_fee_fraction=10.0100
   from_lot_fraction_percentage=0.0500%
   from_lot=InTransaction:
-    line=10
+    id=10
     timestamp=2020-01-02 08:42:43.882000 +0000
     asset=B1
     exchange=Coinbase Pro
@@ -203,7 +203,7 @@ class TestGainLoss(unittest.TestCase):
         )
         self.assertEqual(
             repr(flow),
-            "GainLoss(id='30->10', crypto_amount=0.00100000, usd_cost_basis=10.0100, usd_gain=2.4900, is_long_term_capital_gains=True, taxable_event_usd_amount_with_fee_fraction=12.5000, taxable_event_fraction_percentage=10.0000%, taxable_event=IntraTransaction(line=30, timestamp='2021-03-10 11:18:58.000000 -0004', asset='B1', from_exchange='Coinbase Pro', from_holder='Bob', to_exchange='BlockFi', to_holder='Alice', transaction_type=<TransactionType.MOVE: 'move'>, spot_price=12500.0000, crypto_sent=0.40000000, crypto_received=0.39000000, crypto_fee=0.01000000, usd_fee=125.0000, is_taxable=True, usd_taxable_amount=125.0000), from_lot_usd_amount_with_fee_fraction=10.0100, from_lot_fraction_percentage=0.0500%, from_lot=InTransaction(line=10, timestamp='2020-01-02 08:42:43.882000 +0000', asset='B1', exchange='Coinbase Pro', holder='Bob', transaction_type=<TransactionType.BUY: 'buy'>, spot_price=10000.0000, crypto_in=2.00020000, usd_fee=20.0000, usd_in_no_fee=20002.0000, usd_in_with_fee=20022.0000, is_taxable=False, usd_taxable_amount=0.0000))",
+            "GainLoss(id='30->10', crypto_amount=0.00100000, usd_cost_basis=10.0100, usd_gain=2.4900, is_long_term_capital_gains=True, taxable_event_usd_amount_with_fee_fraction=12.5000, taxable_event_fraction_percentage=10.0000%, taxable_event=IntraTransaction(id='30', timestamp='2021-03-10 11:18:58.000000 -0004', asset='B1', from_exchange='Coinbase Pro', from_holder='Bob', to_exchange='BlockFi', to_holder='Alice', transaction_type=<TransactionType.MOVE: 'move'>, spot_price=12500.0000, crypto_sent=0.40000000, crypto_received=0.39000000, crypto_fee=0.01000000, usd_fee=125.0000, is_taxable=True, usd_taxable_amount=125.0000), from_lot_usd_amount_with_fee_fraction=10.0100, from_lot_fraction_percentage=0.0500%, from_lot=InTransaction(id='10', timestamp='2020-01-02 08:42:43.882000 +0000', asset='B1', exchange='Coinbase Pro', holder='Bob', transaction_type=<TransactionType.BUY: 'buy'>, spot_price=10000.0000, crypto_in=2.00020000, usd_fee=20.0000, usd_in_no_fee=20002.0000, usd_in_with_fee=20022.0000, is_taxable=False, usd_taxable_amount=0.0000))",
         )
 
     def test_gain_loss_equality_and_hashing(self) -> None:
@@ -300,7 +300,6 @@ class TestGainLoss(unittest.TestCase):
             # Mix different assets (B1 and B2) in the same GainLoss
             in_transaction: InTransaction = InTransaction(
                 self._configuration,
-                11,
                 "2019-04-27T03:28:47Z",
                 "B2",
                 "Coinbase Pro",
@@ -309,6 +308,7 @@ class TestGainLoss(unittest.TestCase):
                 RP2Decimal("1300"),
                 RP2Decimal("1.5"),
                 RP2Decimal("20"),
+                unique_id=11,
             )
             GainLoss(self._configuration, RP2Decimal("0.1"), self._out, in_transaction)
 
