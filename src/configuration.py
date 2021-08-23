@@ -26,7 +26,7 @@ from configuration_schema import CONFIGURATION_SCHEMA
 from rp2_decimal import ZERO
 from rp2_error import RP2TypeError, RP2ValueError
 
-VERSION: str = "0.4.0"
+VERSION: str = "0.5.0"
 
 
 class AccountingMethod(Enum):

@@ -1,4 +1,4 @@
-# RP2 v0.4.0
+# RP2 v0.5.0
 
 ## Table of Contents
 * **[Introduction](#introduction)**
