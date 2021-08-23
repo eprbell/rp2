@@ -122,6 +122,51 @@ class TestOutTransaction(unittest.TestCase):
             ),
         )
 
+    def test_out_transaction_equality_and_hashing(self) -> None:
+        out_transaction: OutTransaction = OutTransaction(
+            self._configuration,
+            38,
+            "6/1/2020 3:59:59 -04:00",
+            "B1",
+            "Coinbase Pro",
+            "Bob",
+            "SELL",
+            RP2Decimal("900.9"),
+            RP2Decimal("2.2"),
+            RP2Decimal("0.01"),
+        )
+        out_transaction2: OutTransaction = OutTransaction(
+            self._configuration,
+            38,
+            "6/1/2020 3:59:59 -04:00",
+            "B1",
+            "Coinbase Pro",
+            "Bob",
+            "SELL",
+            RP2Decimal("900.9"),
+            RP2Decimal("2.2"),
+            RP2Decimal("0.01"),
+        )
+        out_transaction3: OutTransaction = OutTransaction(
+            self._configuration,
+            7,
+            "6/1/2020 3:59:59 -04:00",
+            "B1",
+            "Coinbase Pro",
+            "Bob",
+            "SELL",
+            RP2Decimal("900.9"),
+            RP2Decimal("2.2"),
+            RP2Decimal("0.01"),
+        )
+        self.assertEqual(out_transaction, out_transaction)
+        self.assertEqual(out_transaction, out_transaction2)
+        self.assertNotEqual(out_transaction, out_transaction3)
+        self.assertEqual(hash(out_transaction), hash(out_transaction))
+        self.assertEqual(hash(out_transaction), hash(out_transaction2))
+        # These hashes would only be equal in case of hash collision (possible but very unlikey)
+        self.assertNotEqual(hash(out_transaction), hash(out_transaction3))
+
     def test_bad_to_string(self) -> None:
         out_transaction: OutTransaction = OutTransaction(
             self._configuration,

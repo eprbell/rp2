@@ -182,6 +182,54 @@ class TestIntraTransaction(unittest.TestCase):
   usd_taxable_amount=0.0000""",
         )
 
+    def test_intra_transaction_equality_and_hashing(self) -> None:
+        intra_transaction: IntraTransaction = IntraTransaction(
+            self._configuration,
+            19,
+            "2021-01-02T08:42:43.882Z",
+            "B2",
+            "Coinbase",
+            "Bob",
+            "Coinbase",
+            "Alice",
+            RP2Decimal("100.0"),
+            RP2Decimal("30"),
+            RP2Decimal("30"),
+        )
+        intra_transaction2: IntraTransaction = IntraTransaction(
+            self._configuration,
+            19,
+            "2021-01-02T08:42:43.882Z",
+            "B2",
+            "Coinbase",
+            "Bob",
+            "Coinbase",
+            "Alice",
+            RP2Decimal("100.0"),
+            RP2Decimal("30"),
+            RP2Decimal("30"),
+        )
+        intra_transaction3: IntraTransaction = IntraTransaction(
+            self._configuration,
+            11,
+            "2021-01-02T08:42:43.882Z",
+            "B2",
+            "Coinbase",
+            "Bob",
+            "Coinbase",
+            "Alice",
+            RP2Decimal("100.0"),
+            RP2Decimal("30"),
+            RP2Decimal("30"),
+        )
+        self.assertEqual(intra_transaction, intra_transaction)
+        self.assertEqual(intra_transaction, intra_transaction2)
+        self.assertNotEqual(intra_transaction, intra_transaction3)
+        self.assertEqual(hash(intra_transaction), hash(intra_transaction))
+        self.assertEqual(hash(intra_transaction), hash(intra_transaction2))
+        # These hashes would only be equal in case of hash collision (possible but very unlikey)
+        self.assertNotEqual(hash(intra_transaction), hash(intra_transaction3))
+
     def test_bad_to_string(self) -> None:
         intra_transaction: IntraTransaction = IntraTransaction(
             self._configuration,

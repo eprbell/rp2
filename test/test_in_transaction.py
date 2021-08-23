@@ -188,6 +188,57 @@ class TestInTransaction(unittest.TestCase):
   usd_taxable_amount=0.0000""",
         )
 
+    def test_in_transaction_equality_and_hashing(self) -> None:
+        in_transaction: InTransaction = InTransaction(
+            self._configuration,
+            19,
+            "2021-01-02T08:42:43.882Z",
+            "B1",
+            "BlockFi",
+            "Bob",
+            "eaRn",
+            RP2Decimal("1000.0"),
+            RP2Decimal("2.0002"),
+            RP2Decimal("0"),
+            RP2Decimal("2000.2"),
+            RP2Decimal("2000.2"),
+        )
+        in_transaction2: InTransaction = InTransaction(
+            self._configuration,
+            19,
+            "2021-01-02T08:42:43.882Z",
+            "B1",
+            "BlockFi",
+            "Bob",
+            "eaRn",
+            RP2Decimal("1000.0"),
+            RP2Decimal("2.0002"),
+            RP2Decimal("0"),
+            RP2Decimal("2000.2"),
+            RP2Decimal("2000.2"),
+        )
+        in_transaction3: InTransaction = InTransaction(
+            self._configuration,
+            20,
+            "2021-01-02T08:42:43.882Z",
+            "B1",
+            "BlockFi",
+            "Bob",
+            "eaRn",
+            RP2Decimal("1000.0"),
+            RP2Decimal("2.0002"),
+            RP2Decimal("0"),
+            RP2Decimal("2000.2"),
+            RP2Decimal("2000.2"),
+        )
+        self.assertEqual(in_transaction, in_transaction)
+        self.assertEqual(in_transaction, in_transaction2)
+        self.assertNotEqual(in_transaction, in_transaction3)
+        self.assertEqual(hash(in_transaction), hash(in_transaction))
+        self.assertEqual(hash(in_transaction), hash(in_transaction2))
+        # These hashes would only be equal in case of hash collision (possible but very unlikey)
+        self.assertNotEqual(hash(in_transaction), hash(in_transaction3))
+
     def test_bad_to_string(self) -> None:
         in_transaction: InTransaction = InTransaction(
             self._configuration,
