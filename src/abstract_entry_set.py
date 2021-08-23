@@ -50,7 +50,7 @@ class AbstractEntrySet:
         for entry in self:
             parent: Optional[AbstractEntry]
             parent = self.get_parent(entry)
-            output.append(entry.to_string(indent=2, repr_format=False, extra_data=[f"parent={str(parent.identifier if parent else None)}"]))
+            output.append(entry.to_string(indent=2, repr_format=False, extra_data=[f"parent={str(parent.unique_id if parent else None)}"]))
         return "\n".join(output)
 
     def __repr__(self) -> str:
@@ -63,7 +63,7 @@ class AbstractEntrySet:
         for entry in self:
             parent: Optional[AbstractEntry]
             parent = self.get_parent(entry)
-            output.append(entry.to_string(indent=2, repr_format=True, extra_data=[f"parent={repr(parent.identifier if parent else None)}"]))
+            output.append(entry.to_string(indent=2, repr_format=True, extra_data=[f"parent={repr(parent.unique_id if parent else None)}"]))
         output.append("]")
         output.append(")")
         return "".join(output)

@@ -61,7 +61,7 @@ class AbstractEntry:
         return self.__asset
 
     @property
-    def identifier(self) -> str:  # pylint: disable=C0103
+    def unique_id(self) -> str:  # pylint: disable=C0103
         raise NotImplementedError("Abstract property")
 
     @property
