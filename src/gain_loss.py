@@ -82,25 +82,27 @@ class GainLoss(AbstractEntry):
             return False
         if not isinstance(other, GainLoss):
             raise RP2TypeError(f"Operand has non-GainLoss value {repr(other)}")
-        self_from_lot_line: Optional[int] = self.from_lot.line if self.from_lot else None
-        other_from_lot_line: Optional[int] = other.from_lot.line if other.from_lot else None
-        # Since there are no cross-asset transactions, line is enough to uniquely identify a transaction and a gain-loss instance
-        result: bool = self.taxable_event.line == other.taxable_event.line and self_from_lot_line == other_from_lot_line
+        self_from_lot_unique_id: Optional[str] = self.from_lot.unique_id if self.from_lot else None
+        other_from_lot_unique_id: Optional[str] = other.from_lot.unique_id if other.from_lot else None
+        # By definition, unique_id can uniquely identify a transaction: this works even if it's the ODS line from the spreadsheet,
+        # since there are no cross-asset transactions (so a spreadsheet line points to a unique transaction for that asset).
+        result: bool = self.taxable_event.unique_id == other.taxable_event.unique_id and self_from_lot_unique_id == other_from_lot_unique_id
         return result
 
     def __ne__(self, other: object) -> bool:
         return not self.__eq__(other)
 
     def __hash__(self) -> int:
-        # Since there are no cross-asset transactions, line is enough to uniquely identify a transaction and a gain-loss instance
-        return hash((self.taxable_event.line, self.from_lot.line if self.from_lot else None))
+        # By definition, unique_id can uniquely identify a transaction: this works even if it's the ODS line from the spreadsheet,
+        # since there are no cross-asset transactions (so a spreadsheet line points to a unique transaction for that asset).
+        return hash((self.taxable_event.unique_id, self.from_lot.unique_id if self.from_lot else None))
 
     def __str__(self) -> str:
         return (
             "{}:\n  id={}\n  crypto_amount={:.8f}\n  usd_cost_basis={:.4f}\n  usd_gain={:.4f}\n  is_long_term_capital_gains={}\n  taxable_event_usd_amount_with_fee_fraction={:.4f}\n  taxable_event_fraction_percentage={:.4%}\n  taxable_event={}\n  from_lot_usd_amount_with_fee_fraction={:.4f}\n  from_lot_fraction_percentage={:.4%}\n  from_lot={}"
         ).format(
             type(self).__name__,
-            repr(self.identifier),
+            str(self.unique_id),
             self.crypto_amount,
             self.usd_cost_basis,
             self.usd_gain,
@@ -116,7 +118,7 @@ class GainLoss(AbstractEntry):
     def __repr__(self) -> str:
         return (
             f"{type(self).__name__}"
-            f"(id={repr(self.identifier)}, "
+            f"(id={repr(self.unique_id)}, "
             f"crypto_amount={self.crypto_amount:.8f}, "
             f"usd_cost_basis={self.usd_cost_basis:.4f}, "
             f"usd_gain={self.usd_gain:.4f}, "
@@ -130,11 +132,11 @@ class GainLoss(AbstractEntry):
         )
 
     @property
-    def identifier(self) -> str:
+    def unique_id(self) -> str:
         if not self.from_lot:
             # EARN taxable event doesn't have from lot
-            return f"{self.taxable_event.line}->None"
-        return f"{self.taxable_event.line}->{self.from_lot.line}"
+            return f"{self.taxable_event.unique_id}->None"
+        return f"{self.taxable_event.unique_id}->{self.from_lot.unique_id}"
 
     @property
     def timestamp(self) -> datetime:
