@@ -26,19 +26,19 @@ class AbstractTransaction(AbstractEntry):
     def __init__(
         self,
         configuration: Configuration,
-        line: int,
         timestamp: str,
         asset: str,
         transaction_type: str,
         spot_price: Decimal,
+        unique_id: Optional[int] = None,
         notes: Optional[str] = None,
     ) -> None:
         super().__init__(configuration, asset)
 
-        self.__line: int = configuration.type_check_line("line", line)
         self.__timestamp: datetime = configuration.type_check_timestamp_from_string("timestamp", timestamp)
         self.__transaction_type: TransactionType = TransactionType.type_check_from_string("transaction_type", transaction_type)
         self.__spot_price: Decimal = configuration.type_check_positive_decimal("spot_price", spot_price)
+        self.__unique_id: int = configuration.type_check_unique_id("unique_id", unique_id) if unique_id is not None else id(self)
         self.__notes = configuration.type_check_string("notes", notes) if notes else ""
 
     @classmethod
@@ -54,16 +54,18 @@ class AbstractTransaction(AbstractEntry):
             return False
         if not isinstance(other, AbstractTransaction):
             raise RP2TypeError(f"Operand has non-AbstractTransaction value {repr(other)}")
-        # Since there are no cross-asset transactions, line is enough to uniquely identify a transaction
-        result: bool = self.line == other.line
+        # By definition, unique_id can uniquely identify a transaction: this works even if it's the ODS line from the spreadsheet,
+        # since there are no cross-asset transactions (so a spreadsheet line points to a unique transaction for that asset).
+        result: bool = self.unique_id == other.unique_id
         return result
 
     def __ne__(self, other: object) -> bool:
         return not self.__eq__(other)
 
     def __hash__(self) -> int:
-        # Since there are no cross-asset transactions, line is enough to uniquely identify a transaction
-        return hash(self.line)
+        # By definition, unique_id can uniquely identify a transaction: this works even if it's the ODS line from the spreadsheet,
+        # since there are no cross-asset transactions (so a spreadsheet line points to a unique transaction for that asset).
+        return hash(self.unique_id)
 
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
         padding: str
@@ -75,13 +77,13 @@ class AbstractTransaction(AbstractEntry):
             padding = ""
             separator = ", "
             stringify = repr
-            output.append(f"{'  ' * indent}{type(self).__name__}(line={stringify(self.line)}")
+            output.append(f"{'  ' * indent}{type(self).__name__}(id={stringify(self.unique_id)}")
         else:
             padding = "  " * (indent)
             separator = "\n  "
             stringify = str
             output.append(f"{padding}{type(self).__name__}:")
-            output.append(f"{padding}line={stringify(self.line)}")  # type: ignore
+            output.append(f"{padding}id={stringify(self.unique_id)}")  # type: ignore
 
         output.append(f"{padding}timestamp={stringify(self.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f %z'))}")
         output.append(f"{padding}asset={stringify(self.asset)}")
@@ -96,12 +98,8 @@ class AbstractTransaction(AbstractEntry):
         return separator.join(output)
 
     @property
-    def identifier(self) -> str:
-        return str(self.line)
-
-    @property
-    def line(self) -> int:
-        return self.__line
+    def unique_id(self) -> str:
+        return str(self.__unique_id)
 
     @property
     def timestamp(self) -> datetime:
