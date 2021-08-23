@@ -213,6 +213,62 @@ class TestTransactionSet(unittest.TestCase):
         self.assertTrue(str(transaction_set).startswith("TransactionSet:\n  configuration=./config/test_data.config\n  entry_set_type=EntrySetType.MIXED"))
 
     def test_bad_transaction_set(self) -> None:
+
+        in_transaction = InTransaction(
+            self._configuration,
+            20,
+            "2021-01-02T08:42:43.882Z",
+            "B1",
+            "BlockFi",
+            "Bob",
+            "eaRn",
+            RP2Decimal("1000.0"),
+            RP2Decimal("2.0002"),
+            RP2Decimal("0"),
+            RP2Decimal("2000.2"),
+            RP2Decimal("2000.2"),
+        )
+        # Different instance with same contents as in_transaction
+        in_transaction2 = InTransaction(
+            self._configuration,
+            20,
+            "2021-01-02T08:42:43.882Z",
+            "B1",
+            "BlockFi",
+            "Bob",
+            "eaRn",
+            RP2Decimal("1000.0"),
+            RP2Decimal("2.0002"),
+            RP2Decimal("0"),
+            RP2Decimal("2000.2"),
+            RP2Decimal("2000.2"),
+        )
+        out_transaction = OutTransaction(
+            self._configuration,
+            10,
+            "6/1/2020 3:59:59 -04:00",
+            "B1",
+            "Coinbase Pro",
+            "Bob",
+            "sELl",
+            RP2Decimal("900.9"),
+            RP2Decimal("2.2"),
+            RP2Decimal("0"),
+        )
+        intra_transaction = IntraTransaction(
+            self._configuration,
+            50,
+            "2021-04-02T08:42:43.882Z",
+            "B1",
+            "Coinbase Pro",
+            "Bob",
+            "BlockFi",
+            "Alice",
+            RP2Decimal("1000.0"),
+            RP2Decimal("2.0002"),
+            RP2Decimal("1.9998"),
+        )
+
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
             # Bad configuration
             TransactionSet(None, "IN", "B1")  # type: ignore
@@ -251,52 +307,13 @@ class TestTransactionSet(unittest.TestCase):
 
         with self.assertRaisesRegex(RP2TypeError, "Attempting to add a .* to a set of type IN"):
             # Transaction add type mismatch
-            t1 = OutTransaction(
-                self._configuration,
-                10,
-                "6/1/2020 3:59:59 -04:00",
-                "B1",
-                "Coinbase Pro",
-                "Bob",
-                "sELl",
-                RP2Decimal("900.9"),
-                RP2Decimal("2.2"),
-                RP2Decimal("0"),
-            )
-            in_transaction_set.add_entry(t1)
+            in_transaction_set.add_entry(out_transaction)
         with self.assertRaisesRegex(RP2TypeError, "Attempting to add a .* to a set of type OUT"):
             # Transaction add type mismatch
-            t2 = IntraTransaction(
-                self._configuration,
-                50,
-                "2021-04-02T08:42:43.882Z",
-                "B1",
-                "Coinbase Pro",
-                "Bob",
-                "BlockFi",
-                "Alice",
-                RP2Decimal("1000.0"),
-                RP2Decimal("2.0002"),
-                RP2Decimal("1.9998"),
-            )
-            out_transaction_set.add_entry(t2)
+            out_transaction_set.add_entry(intra_transaction)
         with self.assertRaisesRegex(RP2TypeError, "Attempting to add a .* to a set of type INTRA"):
             # Transaction add type mismatch
-            t3 = InTransaction(
-                self._configuration,
-                20,
-                "2021-01-02T08:42:43.882Z",
-                "B1",
-                "BlockFi",
-                "Bob",
-                "eaRn",
-                RP2Decimal("1000.0"),
-                RP2Decimal("2.0002"),
-                RP2Decimal("0"),
-                RP2Decimal("2000.2"),
-                RP2Decimal("2000.2"),
-            )
-            intra_transaction_set.add_entry(t3)
+            intra_transaction_set.add_entry(in_transaction)
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'entry' is not of type AbstractTransaction: .*"):
             # Bad get_parent parameter
@@ -306,13 +323,21 @@ class TestTransactionSet(unittest.TestCase):
             in_transaction_set.get_parent(1111)  # type: ignore
         with self.assertRaisesRegex(RP2ValueError, "Unknown entry:.*"):
             # Unknown get_parent parameter
-            in_transaction_set.get_parent(t1)
+            in_transaction_set.get_parent(out_transaction)
         with self.assertRaisesRegex(RP2ValueError, "Unknown entry:.*"):
             # Unknown get_parent parameter
-            out_transaction_set.get_parent(t2)
+            out_transaction_set.get_parent(intra_transaction)
         with self.assertRaisesRegex(RP2ValueError, "Unknown entry:.*"):
             # Unknown get_parent parameter
-            intra_transaction_set.get_parent(t3)
+            intra_transaction_set.get_parent(in_transaction)
+        with self.assertRaisesRegex(RP2ValueError, "Entry already added: InTransaction"):
+            in_transaction_set = TransactionSet(self._configuration, "IN", "B1")
+            in_transaction_set.add_entry(in_transaction)
+            in_transaction_set.add_entry(in_transaction)
+        with self.assertRaisesRegex(RP2ValueError, "Entry already added: InTransaction"):
+            in_transaction_set = TransactionSet(self._configuration, "IN", "B1")
+            in_transaction_set.add_entry(in_transaction)
+            in_transaction_set.add_entry(in_transaction2)
 
 
 if __name__ == "__main__":
