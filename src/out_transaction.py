@@ -27,7 +27,6 @@ class OutTransaction(AbstractTransaction):
     def __init__(
         self,
         configuration: Configuration,
-        line: int,
         timestamp: str,
         asset: str,
         exchange: str,
@@ -39,9 +38,10 @@ class OutTransaction(AbstractTransaction):
         crypto_out_with_fee: Optional[Decimal] = None,
         usd_out_no_fee: Optional[Decimal] = None,
         usd_fee: Optional[Decimal] = None,
+        unique_id: Optional[int] = None,
         notes: Optional[str] = None,
     ) -> None:
-        super().__init__(configuration, line, timestamp, asset, transaction_type, spot_price, notes)
+        super().__init__(configuration, timestamp, asset, transaction_type, spot_price, unique_id, notes)
 
         self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
         self.__holder: str = configuration.type_check_holder("holder", holder)
@@ -70,17 +70,17 @@ class OutTransaction(AbstractTransaction):
         self.__usd_out_with_fee = self.__usd_out_no_fee + self.__usd_fee
 
         if spot_price == ZERO:
-            raise RP2ValueError(f"{self.asset} {type(self).__name__} at line {self.line} ({self.timestamp}): parameter 'spot_price' cannot be 0")
+            raise RP2ValueError(f"{self.asset} {type(self).__name__}, id {self.unique_id} ({self.timestamp}): parameter 'spot_price' cannot be 0")
         if self.transaction_type != TransactionType.DONATE and self.transaction_type != TransactionType.GIFT and self.transaction_type != TransactionType.SELL:
-            raise RP2ValueError(f"{self.asset} {type(self).__name__} at line {self.line} ({self.timestamp}): invalid transaction type {self.transaction_type}")
+            raise RP2ValueError(f"{self.asset} {type(self).__name__}, id {self.unique_id} ({self.timestamp}): invalid transaction type {self.transaction_type}")
 
         # If the values provided by the exchange doesn't match the computed one, log a warning.
         if not RP2Decimal.is_equal_within_precision(self.__crypto_out_with_fee, self.__crypto_out_no_fee + self.__crypto_fee, USD_DECIMAL_MASK):
             LOGGER.warning(
-                "%s %s at line %d (%s): crypto_out_with_fee != crypto_out_no_fee + crypto_fee: %f != %f",
+                "%s %s, id %s (%s): crypto_out_with_fee != crypto_out_no_fee + crypto_fee: %f != %f",
                 self.asset,
                 type(self).__name__,
-                self.line,
+                self.unique_id,
                 self.timestamp,
                 self.__crypto_out_with_fee,
                 self.__crypto_out_no_fee + self.__crypto_fee,
@@ -88,10 +88,10 @@ class OutTransaction(AbstractTransaction):
 
         if not RP2Decimal.is_equal_within_precision(self.__crypto_fee * self.spot_price, self.__usd_fee, USD_DECIMAL_MASK):
             LOGGER.warning(
-                "%s %s at line %d (%s): crypto_fee * spot_price != usd_fee: %f != %f",
+                "%s %s, id %s (%s): crypto_fee * spot_price != usd_fee: %f != %f",
                 self.asset,
                 type(self).__name__,
-                self.line,
+                self.unique_id,
                 self.timestamp,
                 self.__crypto_fee * self.spot_price,
                 self.__usd_fee,
@@ -99,10 +99,10 @@ class OutTransaction(AbstractTransaction):
 
         if not RP2Decimal.is_equal_within_precision(self.__crypto_out_no_fee * self.spot_price, self.__usd_out_no_fee, USD_DECIMAL_MASK):
             LOGGER.warning(
-                "%s %s at line %d (%s): crypto_out_no_fee * spot_price != usd_out_no_fee: %f != %f",
+                "%s %s, id %s (%s): crypto_out_no_fee * spot_price != usd_out_no_fee: %f != %f",
                 self.asset,
                 type(self).__name__,
-                self.line,
+                self.unique_id,
                 self.timestamp,
                 self.__crypto_out_no_fee * self.spot_price,
                 self.__usd_out_no_fee,

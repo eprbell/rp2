@@ -25,7 +25,6 @@ class IntraTransaction(AbstractTransaction):
     def __init__(
         self,
         configuration: Configuration,
-        line: int,
         timestamp: str,
         asset: str,
         from_exchange: str,
@@ -35,13 +34,14 @@ class IntraTransaction(AbstractTransaction):
         spot_price: Optional[Decimal],
         crypto_sent: Decimal,
         crypto_received: Decimal,
+        unique_id: Optional[int] = None,
         notes: Optional[str] = None,
     ) -> None:
         if spot_price is None:
             # Sometimes, when fee is 0 in IntraTransactions, exchanges don't provide the spot_price: this is OK because
             # if the fee is 0, spot price isn't needed. In this case spot price is assigned 0.
             spot_price = ZERO
-        super().__init__(configuration, line, timestamp, asset, "MOVE", spot_price, notes)
+        super().__init__(configuration, timestamp, asset, "MOVE", spot_price, unique_id, notes)
 
         self.__from_exchange: str = configuration.type_check_exchange("from_exchange", from_exchange)
         self.__from_holder: str = configuration.type_check_holder("from_holder", from_holder)
@@ -54,10 +54,10 @@ class IntraTransaction(AbstractTransaction):
 
         if self.__from_exchange == self.__to_exchange and self.__from_holder == self.__to_holder:
             raise RP2ValueError(
-                f"{self.asset} {type(self).__name__} at line {self.line} ({self.timestamp}): from/to exchanges/holders are the same: sending to self"
+                f"{self.asset} {type(self).__name__}, id {self.unique_id} ({self.timestamp}): from/to exchanges/holders are the same: sending to self"
             )
         if self.__crypto_sent < self.__crypto_received:
-            raise RP2ValueError(f"{self.asset} {type(self).__name__} at line {self.line} ({self.timestamp}): crypto sent < crypto received")
+            raise RP2ValueError(f"{self.asset} {type(self).__name__}, id {self.unique_id} ({self.timestamp}): crypto sent < crypto received")
 
         self.__crypto_fee = self.__crypto_sent - self.__crypto_received
         self.__usd_fee = self.__crypto_fee * self.spot_price
