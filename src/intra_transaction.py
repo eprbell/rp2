@@ -146,4 +146,4 @@ class IntraTransaction(AbstractTransaction):
         return self.usd_fee
 
     def is_taxable(self) -> bool:
-        return self.usd_fee > 0
+        return self.usd_fee > ZERO
