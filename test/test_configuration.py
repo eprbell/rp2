@@ -23,7 +23,7 @@ import jsonschema  # type: ignore
 from dateutil.tz import tzoffset, tzutc
 
 from configuration import AccountingMethod, Configuration
-from rp2_decimal import RP2Decimal
+from rp2_decimal import ZERO, RP2Decimal
 from rp2_error import RP2TypeError, RP2ValueError
 
 
@@ -443,34 +443,30 @@ class TestConfiguration(unittest.TestCase):
             self._configuration.type_check_positive_float("my_float", 0, non_zero=True)
 
     def test_rp2_decimal(self) -> None:
-        n1: RP2Decimal = RP2Decimal("0.2")
-        n2: RP2Decimal = RP2Decimal("0.2")
-        n3: RP2Decimal = RP2Decimal("0.20000000000001")
-        n4: RP2Decimal = RP2Decimal("0.2000000000001")
+        minus_one: RP2Decimal = RP2Decimal("-1")
+        one: RP2Decimal = RP2Decimal("1")
 
-        self.assertTrue(n1 == n2)
-        self.assertTrue(n1 == n3)
-        self.assertFalse(n1 == n4)
+        self.assertEqual(minus_one, self._configuration.type_check_decimal("minus_one", minus_one))
+        self.assertEqual(one, self._configuration.type_check_positive_decimal("one", one))
 
-        self.assertFalse(n1 != n2)
-        self.assertFalse(n1 != n3)
-        self.assertTrue(n1 != n4)
+        with self.assertRaisesRegex(RP2TypeError, "Parameter name is not a string: .*"):
+            self._configuration.type_check_decimal(None, one)  # type: ignore
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'my_decimal' has non-Decimal value .*"):
+            self._configuration.type_check_decimal("my_decimal", None)  # type: ignore
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'my_decimal' has non-Decimal value .*"):
+            self._configuration.type_check_decimal("my_decimal", "5.5")  # type: ignore
 
-        self.assertFalse(n1 > n2)
-        self.assertFalse(n1 > n3)
-        self.assertFalse(n1 > n4)
+        with self.assertRaisesRegex(RP2TypeError, "Parameter name is not a string: .*"):
+            self._configuration.type_check_positive_decimal(None, one)  # type: ignore
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'my_decimal' has non-Decimal value .*"):
+            self._configuration.type_check_positive_decimal("my_decimal", None)  # type: ignore
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'my_decimal' has non-Decimal value .*"):
+            self._configuration.type_check_positive_decimal("my_decimal", "5.5")  # type: ignore
+        with self.assertRaisesRegex(RP2ValueError, "Parameter 'my_decimal' has non-positive value .*"):
+            self._configuration.type_check_positive_decimal("my_decimal", minus_one)
+        with self.assertRaisesRegex(RP2ValueError, "Parameter 'my_decimal' has zero value"):
+            self._configuration.type_check_positive_decimal("my_decimal", ZERO, non_zero=True)
 
-        self.assertTrue(n1 >= n2)
-        self.assertTrue(n1 >= n3)
-        self.assertFalse(n1 >= n4)
-
-        self.assertFalse(n1 < n2)
-        self.assertFalse(n1 < n3)
-        self.assertTrue(n1 < n4)
-
-        self.assertTrue(n1 <= n2)
-        self.assertTrue(n1 <= n3)
-        self.assertTrue(n1 <= n4)
 
     def test_bool(self) -> None:
         self.assertEqual(True, self._configuration.type_check_bool("my_bool", True))
