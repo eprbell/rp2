@@ -26,13 +26,13 @@ USD_DECIMAL_MASK: Decimal = Decimal("1." + "0" * int(USD_DECIMALS))
 class RP2Decimal(Decimal):
 
     # RP2Decimal initialization code. In Python there is no static constructor: the closest alternative is to add static initialization code
-    # directly inside the class. Use arbitrarily high precision (sextillion + CRYPTO_DECIMALS decimal digits)
-    getcontext().prec = CRYPTO_DECIMALS + 21
+    # directly inside the class. Use arbitrarily high precision (quintillion + CRYPTO_DECIMALS digits)
+    getcontext().prec = CRYPTO_DECIMALS + 18
     getcontext().traps[FloatOperation] = True
 
     @classmethod
     def is_equal_within_precision(cls, n1: Decimal, n2: Decimal, precision_mask: Decimal) -> bool:
-        return (n1 - n2).quantize(precision_mask) == 0
+        return (n1 - n2).quantize(precision_mask) == ZERO
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Decimal):
@@ -57,6 +57,43 @@ class RP2Decimal(Decimal):
 
     def __lt__(self, other: object) -> bool:
         return not self.__ge__(other)
+
+    def __add__(self, other: object) -> "RP2Decimal":
+        if not isinstance(other, Decimal):
+            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
+        return RP2Decimal(Decimal.__add__(self, other))
+
+    def __sub__(self, other: object) -> "RP2Decimal":
+        if not isinstance(other, Decimal):
+            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
+        return RP2Decimal(Decimal.__sub__(self, other))
+
+    def __mul__(self, other: object) -> "RP2Decimal":
+        if not isinstance(other, Decimal):
+            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
+        return RP2Decimal(Decimal.__mul__(self, other))
+
+    def __truediv__(self, other: object) -> "RP2Decimal":
+        if not isinstance(other, Decimal):
+            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
+        return RP2Decimal(Decimal.__truediv__(self, other))
+
+    def __floordiv__(self, other: object) -> "RP2Decimal":
+        if not isinstance(other, Decimal):
+            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
+        return RP2Decimal(Decimal.__floordiv__(self, other))
+
+    def __pow__(self, other: object, modulo: object=None) -> "RP2Decimal":
+        if not isinstance(other, Decimal):
+            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
+        if not isinstance(modulo, Decimal):
+            raise RP2TypeError(f"Modulo has non-Decimal value {repr(other)}")
+        return RP2Decimal(Decimal.__pow__(self, other, modulo))
+
+    def __mod__(self, other: object) -> "RP2Decimal":
+        if not isinstance(other, Decimal):
+            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
+        return RP2Decimal(Decimal.__mod__(self, other))
 
 
 ZERO: RP2Decimal = RP2Decimal("0")
