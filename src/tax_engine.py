@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
 from decimal import Decimal
-from typing import Dict, Iterable, Iterator, List, Set, Tuple, cast
+from typing import Dict, Iterable, Iterator, List, Set, cast
 
 from abstract_entry import AbstractEntry
 from abstract_transaction import AbstractTransaction
@@ -37,13 +38,14 @@ def compute_tax(configuration: Configuration, input_data: InputData) -> Computed
     Configuration.type_check("configuration", configuration)
     InputData.type_check("input_data", input_data)
 
-    gain_loss_set: GainLossSet = GainLossSet(configuration, input_data.asset)
     taxable_event_set: TransactionSet = _create_taxable_event_set(configuration, input_data)
-    _populate_gain_and_loss(configuration, input_data, taxable_event_set, gain_loss_set)
-
+    LOGGER.debug("%s: Created taxable event set", input_data.asset)
+    gain_loss_set: GainLossSet = _create_gain_and_loss_set(configuration, input_data, taxable_event_set)
+    LOGGER.debug("%s: Created gain-loss set", input_data.asset)
     balance_set: BalanceSet = BalanceSet(configuration, input_data)
-
-    yearly_gain_loss_list: List[YearlyGainLoss] = _populate_yearly_gain_loss_list(input_data, gain_loss_set)
+    LOGGER.debug("%s: Created balance set", input_data.asset)
+    yearly_gain_loss_list: List[YearlyGainLoss] = _create_yearly_gain_loss_list(input_data, gain_loss_set)
+    LOGGER.debug("%s: Created yearly gain-loss list", input_data.asset)
 
     crypto_in_running_sum: Decimal = ZERO
     usd_in_with_fee_running_sum: Decimal = ZERO
@@ -52,6 +54,7 @@ def compute_tax(configuration: Configuration, input_data: InputData) -> Computed
         crypto_in_running_sum += transaction.crypto_in
         usd_in_with_fee_running_sum += transaction.usd_in_with_fee
     price_per_unit: Decimal = usd_in_with_fee_running_sum / crypto_in_running_sum
+    LOGGER.debug("%s: Created price per unit", input_data.asset)
 
     return ComputedData(
         input_data.asset,
@@ -82,12 +85,16 @@ def _create_taxable_event_set(configuration: Configuration, input_data: InputDat
     return taxable_event_set
 
 
-def _populate_gain_and_loss(configuration: Configuration, input_data: InputData, taxable_event_set: TransactionSet, gain_loss_set: GainLossSet) -> None:
+def _create_gain_and_loss_set(configuration: Configuration, input_data: InputData, taxable_event_set: TransactionSet) -> GainLossSet:
+
+    gain_loss_set: GainLossSet = GainLossSet(configuration, input_data.asset)
 
     taxable_event_iterator: Iterator[AbstractTransaction] = iter(
         cast(Iterable[AbstractTransaction], taxable_event_set)
     )  # pylint disable=unsubscriptable-object
-    from_lot_iterator: Iterator[InTransaction] = iter(cast(Iterable[InTransaction], input_data.in_transaction_set))  # pylint disable=E1136
+    from_lot_iterator: Iterator[InTransaction] = iter(
+        cast(Iterable[InTransaction], input_data.in_transaction_set)
+    )  # pylint disable=E1136
 
     try:
         gain_loss: GainLoss
@@ -98,47 +105,28 @@ def _populate_gain_and_loss(configuration: Configuration, input_data: InputData,
 
         while True:
             if taxable_event.transaction_type == TransactionType.EARN:
-                gain_loss = GainLoss(
-                    configuration,
-                    taxable_event_amount,
-                    taxable_event,
-                    None,
-                )
+                # Handle EARN transactions first
+                gain_loss = GainLoss(configuration, taxable_event_amount, taxable_event, None)
                 gain_loss_set.add_entry(gain_loss)
                 taxable_event = next(taxable_event_iterator)
                 taxable_event_amount = taxable_event.crypto_taxable_amount
                 continue
 
             if taxable_event_amount == from_lot_amount:
-                gain_loss = GainLoss(
-                    configuration,
-                    taxable_event_amount,
-                    taxable_event,
-                    from_lot,
-                )
+                gain_loss = GainLoss(configuration, taxable_event_amount, taxable_event, from_lot)
                 gain_loss_set.add_entry(gain_loss)
                 taxable_event = next(taxable_event_iterator)
                 taxable_event_amount = taxable_event.crypto_taxable_amount
                 from_lot = next(from_lot_iterator)
                 from_lot_amount = from_lot.crypto_in
             elif taxable_event_amount < from_lot_amount:
-                gain_loss = GainLoss(
-                    configuration,
-                    taxable_event_amount,
-                    taxable_event,
-                    from_lot,
-                )
+                gain_loss = GainLoss(configuration, taxable_event_amount, taxable_event, from_lot)
                 gain_loss_set.add_entry(gain_loss)
                 from_lot_amount = from_lot_amount - taxable_event_amount
                 taxable_event = next(taxable_event_iterator)
                 taxable_event_amount = taxable_event.crypto_taxable_amount
             else:  # taxable_amount > from_lot_amount
-                gain_loss = GainLoss(
-                    configuration,
-                    from_lot_amount,
-                    taxable_event,
-                    from_lot,
-                )
+                gain_loss = GainLoss(configuration, from_lot_amount, taxable_event, from_lot)
                 gain_loss_set.add_entry(gain_loss)
                 taxable_event_amount = taxable_event_amount - from_lot_amount
                 from_lot = next(from_lot_iterator)
@@ -147,47 +135,57 @@ def _populate_gain_and_loss(configuration: Configuration, input_data: InputData,
         if cast(Iterator[InTransaction], exception.value) == from_lot_iterator:
             raise RP2ValueError("Total in-transaction value < total taxable entries") from None
 
+    return gain_loss_set
 
-def _populate_yearly_gain_loss_list(input_data: InputData, gain_loss_set: GainLossSet) -> List[YearlyGainLoss]:
-    # TODO: use data structures instead of tuples
-    summaries: Dict[Tuple[int, str, TransactionType, bool], Tuple[Decimal, Decimal, Decimal, Decimal]] = dict()
+@dataclass(frozen=True, eq=True)
+class _YearlyGainLossId:
+    year: int
+    asset: str
+    transaction_type: TransactionType
+    is_long_term_capital_gains: bool
+
+# Frozen and eq are not set because we don't need to hash instances and we need to modify fields (see _create_yearly_gain_loss_list)
+@dataclass
+class _YearlyGainLossAmounts:
+    crypto_amount: Decimal
+    usd_amount: Decimal
+    usd_cost_basis: Decimal
+    usd_gain_loss: Decimal
+
+def _create_yearly_gain_loss_list(input_data: InputData, gain_loss_set: GainLossSet) -> List[YearlyGainLoss]:
+    summaries: Dict[_YearlyGainLossId, _YearlyGainLossAmounts] = dict()
     entry: AbstractEntry
-    key: Tuple[int, str, TransactionType, bool]  # year, asset, transaction_type, capitaly gains type
+    key: _YearlyGainLossId
+    value: _YearlyGainLossAmounts
     for entry in gain_loss_set:
         gain_loss: GainLoss = cast(GainLoss, entry)
-        crypto_amount: Decimal
-        usd_amount: Decimal
-        usd_cost_basis: Decimal
-        usd_gain_loss: Decimal
-        key = (
+        key = _YearlyGainLossId(
             gain_loss.taxable_event.timestamp.year,
             gain_loss.asset,
             gain_loss.taxable_event.transaction_type,
             gain_loss.is_long_term_capital_gains(),
         )
-        (crypto_amount, usd_amount, usd_cost_basis, usd_gain_loss) = summaries.setdefault(key, (ZERO, ZERO, ZERO, ZERO))
-        crypto_amount += gain_loss.crypto_amount
-        usd_amount += gain_loss.taxable_event_usd_amount_with_fee_fraction
-        usd_cost_basis += gain_loss.usd_cost_basis
-        usd_gain_loss += gain_loss.usd_gain
-        summaries[key] = (crypto_amount, usd_amount, usd_cost_basis, usd_gain_loss)
+        value = summaries.setdefault(key, _YearlyGainLossAmounts(ZERO, ZERO, ZERO, ZERO))
+        value.crypto_amount += gain_loss.crypto_amount
+        value.usd_amount += gain_loss.taxable_event_usd_amount_with_fee_fraction
+        value.usd_cost_basis += gain_loss.usd_cost_basis
+        value.usd_gain_loss += gain_loss.usd_gain
 
     yearly_gain_loss_set: Set[YearlyGainLoss] = set()
-    value: Tuple[Decimal, Decimal, Decimal, Decimal]  # crypto_amount, usd_amount, usd_cost_basis, usd_gain_loss
     crypto_taxable_amount_total: Decimal = ZERO
     usd_taxable_amount_total: Decimal = ZERO
     cost_basis_total: Decimal = ZERO
     gain_loss_total: Decimal = ZERO
     for (key, value) in summaries.items():
         yearly_gain_loss: YearlyGainLoss = YearlyGainLoss(
-            year=key[0],
-            asset=key[1],
-            transaction_type=key[2],
-            is_long_term=key[3],
-            crypto_amount=value[0],
-            usd_amount=value[1],
-            usd_cost_basis=value[2],
-            usd_gain_loss=value[3],
+            year=key.year,
+            asset=key.asset,
+            transaction_type=key.transaction_type,
+            is_long_term_capital_gains=key.is_long_term_capital_gains,
+            crypto_amount=value.crypto_amount,
+            usd_amount=value.usd_amount,
+            usd_cost_basis=value.usd_cost_basis,
+            usd_gain_loss=value.usd_gain_loss,
         )
         yearly_gain_loss_set.add(yearly_gain_loss)
         crypto_taxable_amount_total += yearly_gain_loss.crypto_amount
@@ -199,17 +197,15 @@ def _populate_yearly_gain_loss_list(input_data: InputData, gain_loss_set: GainLo
 
     return list(sorted(yearly_gain_loss_set, key=_yearly_gain_loss_sort_criteria, reverse=True))
 
-
 def _yearly_gain_loss_sort_criteria(yearly_gain_loss: YearlyGainLoss) -> str:
     return (
         f"{yearly_gain_loss.asset}"
         f" {yearly_gain_loss.year}"
-        f" {'LONG' if yearly_gain_loss.is_long_term else 'SHORT'}"
+        f" {'LONG' if yearly_gain_loss.is_long_term_capital_gains else 'SHORT'}"
         f" {yearly_gain_loss.transaction_type.value}"
     )
 
-
-# Internal sanity check
+# Internal sanity check: ensure the sum total of gains and losses from taxable flows matches the one from taxable events and InTransactions
 def _verify_computation(
     input_data: InputData,
     crypto_taxable_amount_total: Decimal,
@@ -217,14 +213,14 @@ def _verify_computation(
     cost_basis_total: Decimal,
     gain_loss_total: Decimal,
 ) -> None:
-    # Internal sanity check: ensure the sum total of gains and losses from taxable flows matches the one
-    # from taxable events and InTransactions
     usd_taxable_amount_total_verify: Decimal = ZERO
-    cost_basis_total_verify: Decimal = ZERO
-    crypto_sold_amount_total_verify: Decimal = ZERO
     crypto_earned_amount_total_verify: Decimal = ZERO
+    crypto_sold_amount_total_verify: Decimal = ZERO
     crypto_taxable_amount_total_verify: Decimal = ZERO
+    cost_basis_total_verify: Decimal = ZERO
+    crypto_in_amount_total: Decimal = ZERO
     gain_loss_total_verify: Decimal = ZERO
+
     # Compute USD and crypto total taxable amount
     for entry in input_data.in_transaction_set:
         in_transaction: InTransaction = cast(InTransaction, entry)
@@ -242,10 +238,10 @@ def _verify_computation(
     crypto_taxable_amount_total_verify = crypto_sold_amount_total_verify + crypto_earned_amount_total_verify
 
     # Compute cost basis
-    crypto_in_amount_total: Decimal = ZERO
     for entry in input_data.in_transaction_set:
         in_transaction = cast(InTransaction, entry)
         if crypto_in_amount_total + in_transaction.crypto_in > crypto_sold_amount_total_verify:
+            # End of loop: last in transaction covering the amount sold needs to be fractioned
             crypto_in_amount: Decimal = crypto_sold_amount_total_verify - crypto_in_amount_total
             crypto_in_amount_total += crypto_in_amount
             cost_basis_total_verify += (crypto_in_amount / in_transaction.crypto_in) * in_transaction.usd_in_with_fee
@@ -256,30 +252,16 @@ def _verify_computation(
     gain_loss_total_verify = usd_taxable_amount_total_verify - cost_basis_total_verify
 
     if crypto_taxable_amount_total != crypto_taxable_amount_total_verify:
-        LOGGER.warning(
-            "%s: total crypto taxable amount incongruence detected: %f != %f",
-            input_data.asset,
-            crypto_taxable_amount_total,
-            crypto_taxable_amount_total_verify,
+        raise Exception(
+            f"{input_data.asset}: total crypto taxable amount incongruence detected: "
+            f"{crypto_taxable_amount_total} != {crypto_taxable_amount_total_verify}",
         )
     if usd_taxable_amount_total != usd_taxable_amount_total_verify:
-        LOGGER.warning(
-            "%s: total usd taxable amount incongruence detected: %f != %f",
-            input_data.asset,
-            usd_taxable_amount_total,
-            usd_taxable_amount_total_verify,
+        raise Exception(
+            f"{input_data.asset}: total usd taxable amount incongruence detected: "
+            f"{usd_taxable_amount_total} != {usd_taxable_amount_total_verify}",
         )
     if cost_basis_total != cost_basis_total_verify:
-        LOGGER.warning(
-            "%s: cost basis incongruence detected: %f != %f",
-            input_data.asset,
-            cost_basis_total,
-            cost_basis_total_verify,
-        )
+        raise Exception(f"{input_data.asset}: cost basis incongruence detected: {cost_basis_total} != {cost_basis_total_verify}")
     if gain_loss_total != gain_loss_total_verify:
-        LOGGER.warning(
-            "%s: total gain/loss incongruence detected: %f != %f",
-            input_data.asset,
-            gain_loss_total,
-            gain_loss_total_verify,
-        )
+        raise Exception(f"{input_data.asset}: total gain/loss incongruence detected: {gain_loss_total} != {gain_loss_total_verify}")
