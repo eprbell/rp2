@@ -352,7 +352,7 @@ class Generator(AbstractODTGenerator):
         year: int = 0
         for yearly_gain_loss in yearly_gain_loss_list:
             border_suffix: str = ""
-            capital_gains_type: str = "LONG" if yearly_gain_loss.is_long_term else "SHORT"
+            capital_gains_type: str = "LONG" if yearly_gain_loss.is_long_term_capital_gains else "SHORT"
             year, border_suffix = self.__get_border_style(yearly_gain_loss.year, year)
             self._fill_cell(sheet, row_index, 0, yearly_gain_loss.year, visual_style="transparent" + border_suffix, data_style="default")
             self._fill_cell(sheet, row_index, 1, yearly_gain_loss.asset, visual_style="transparent" + border_suffix, data_style="default")
@@ -487,7 +487,7 @@ class Generator(AbstractODTGenerator):
     def __generate_yearly_gain_loss_summary(self, sheet: Any, asset: str, yearly_gain_loss_list: List[YearlyGainLoss], row_index: int) -> int:
         for gain_loss in yearly_gain_loss_list:
             visual_style: str = "transparent"
-            capital_gains_type: str = "LONG" if gain_loss.is_long_term else "SHORT"
+            capital_gains_type: str = "LONG" if gain_loss.is_long_term_capital_gains else "SHORT"
             self._fill_cell(sheet, row_index, 0, gain_loss.year, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 1, asset, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 2, gain_loss.usd_gain_loss, visual_style=visual_style, data_style="usd")
