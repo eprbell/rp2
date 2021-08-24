@@ -76,10 +76,14 @@ def rp2_main() -> None:
             if args.plugin and plugin_name != f"{OUTPUT_PACKAGE}.{args.plugin}":
                 continue
             output_module: ModuleType = import_module(plugin_name, package=OUTPUT_PACKAGE)
-            generator: AbstractGenerator = output_module.Generator()  # type: ignore  # mypy issue #1422
-            LOGGER.debug("Generator object: '%s'", generator)
-            LOGGER.info("Generating output for plugin '%s'", plugin_name)
-            generator.generate(asset_to_computed_data=asset_to_computed_data, output_dir_path=args.output_dir, output_file_prefix=args.prefix)
+            if hasattr(output_module, "Generator"):
+                generator: AbstractGenerator = output_module.Generator()  # type: ignore  # mypy issue #1422
+                LOGGER.debug("Generator object: '%s'", generator)
+                LOGGER.info("Generating output for plugin '%s'", plugin_name)
+                if not hasattr(generator, "generate"):
+                    LOGGER.error("Plugin '%s' has no 'generate' method. Exiting...", plugin_name)
+                    sys.exit(1)
+                generator.generate(asset_to_computed_data=asset_to_computed_data, output_dir_path=args.output_dir, output_file_prefix=args.prefix)
             package_found = True
 
         if not package_found:
