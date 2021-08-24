@@ -152,7 +152,7 @@ LOG_LEVEL=DEBUG bin/rp2.py -o output -p crypto_example_ config/crypto_example.co
 ## Contributing And Reporting Bugs
 Feel free to submit bugs via Issue Tracker or pull requests. For pull requests, please follow the PEP 8 coding standard (which is enforced by the `reformat` make target) and make sure your code doesn't trigger new issues with the following make targets:
 ```
-make lint reformat test typecheck
+make check lint reformat typecheck
 ```
 Unit tests for new code are highly appreciated.
 
