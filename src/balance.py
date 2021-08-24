@@ -138,25 +138,25 @@ class BalanceSet:
         for transaction in self.__input_data.in_transaction_set:
             in_transaction: InTransaction = cast(InTransaction, transaction)
             to_account = Account(in_transaction.exchange, in_transaction.holder)
-            acquired_balances[to_account] = acquired_balances.get(to_account, 0) + in_transaction.crypto_in
-            final_balances[to_account] = final_balances.get(to_account, 0) + in_transaction.crypto_in
+            acquired_balances[to_account] = acquired_balances.get(to_account, ZERO) + in_transaction.crypto_in
+            final_balances[to_account] = final_balances.get(to_account, ZERO) + in_transaction.crypto_in
 
         # Balances for currency that is moved across accounts
         for transaction in self.__input_data.intra_transaction_set:
             intra_transaction: IntraTransaction = cast(IntraTransaction, transaction)
             from_account = Account(intra_transaction.from_exchange, intra_transaction.from_holder)
             to_account = Account(intra_transaction.to_exchange, intra_transaction.to_holder)
-            sent_balances[from_account] = sent_balances.get(from_account, 0) + intra_transaction.crypto_sent
-            received_balances[to_account] = received_balances.get(to_account, 0) + intra_transaction.crypto_received
-            final_balances[from_account] = final_balances.get(from_account, 0) - intra_transaction.crypto_sent
-            final_balances[to_account] = final_balances.get(to_account, 0) + intra_transaction.crypto_received
+            sent_balances[from_account] = sent_balances.get(from_account, ZERO) + intra_transaction.crypto_sent
+            received_balances[to_account] = received_balances.get(to_account, ZERO) + intra_transaction.crypto_received
+            final_balances[from_account] = final_balances.get(from_account, ZERO) - intra_transaction.crypto_sent
+            final_balances[to_account] = final_balances.get(to_account, ZERO) + intra_transaction.crypto_received
 
         # Balances for sold and gifted currency
         for transaction in self.__input_data.out_transaction_set:
             out_transaction: OutTransaction = cast(OutTransaction, transaction)
             from_account = Account(out_transaction.exchange, out_transaction.holder)
-            sent_balances[from_account] = sent_balances.get(from_account, 0) + out_transaction.crypto_out_no_fee + out_transaction.crypto_fee
-            final_balances[from_account] = final_balances.get(from_account, 0) - out_transaction.crypto_out_no_fee - out_transaction.crypto_fee
+            sent_balances[from_account] = sent_balances.get(from_account, ZERO) + out_transaction.crypto_out_no_fee + out_transaction.crypto_fee
+            final_balances[from_account] = final_balances.get(from_account, ZERO) - out_transaction.crypto_out_no_fee - out_transaction.crypto_fee
 
         for account, final_balance in final_balances.items():
             balance = Balance(
