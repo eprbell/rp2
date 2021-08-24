@@ -467,7 +467,6 @@ class TestConfiguration(unittest.TestCase):
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'my_decimal' has zero value"):
             self._configuration.type_check_positive_decimal("my_decimal", ZERO, non_zero=True)
 
-
     def test_bool(self) -> None:
         self.assertEqual(True, self._configuration.type_check_bool("my_bool", True))
         self.assertEqual(False, self._configuration.type_check_bool("my_bool", False))

@@ -105,8 +105,8 @@ class Account:
     exchange: str
     holder: str
 
-class BalanceSet:
 
+class BalanceSet:
     @classmethod
     def type_check(cls, name: str, instance: "BalanceSet") -> "BalanceSet":
         Configuration.type_check_parameter_name(name)

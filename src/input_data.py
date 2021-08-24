@@ -40,4 +40,3 @@ class InputData:
         TransactionSet.type_check("in_transaction_set", self.in_transaction_set, EntrySetType.IN, self.asset, False)
         TransactionSet.type_check("out_transaction_set", self.out_transaction_set, EntrySetType.OUT, self.asset, True)
         TransactionSet.type_check("intra_transaction_set", self.intra_transaction_set, EntrySetType.INTRA, self.asset, True)
-

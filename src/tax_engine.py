@@ -92,9 +92,7 @@ def _create_gain_and_loss_set(configuration: Configuration, input_data: InputDat
     taxable_event_iterator: Iterator[AbstractTransaction] = iter(
         cast(Iterable[AbstractTransaction], taxable_event_set)
     )  # pylint disable=unsubscriptable-object
-    from_lot_iterator: Iterator[InTransaction] = iter(
-        cast(Iterable[InTransaction], input_data.in_transaction_set)
-    )  # pylint disable=E1136
+    from_lot_iterator: Iterator[InTransaction] = iter(cast(Iterable[InTransaction], input_data.in_transaction_set))  # pylint disable=E1136
 
     try:
         gain_loss: GainLoss
@@ -137,12 +135,14 @@ def _create_gain_and_loss_set(configuration: Configuration, input_data: InputDat
 
     return gain_loss_set
 
+
 @dataclass(frozen=True, eq=True)
 class _YearlyGainLossId:
     year: int
     asset: str
     transaction_type: TransactionType
     is_long_term_capital_gains: bool
+
 
 # Frozen and eq are not set because we don't need to hash instances and we need to modify fields (see _create_yearly_gain_loss_list)
 @dataclass
@@ -151,6 +151,7 @@ class _YearlyGainLossAmounts:
     usd_amount: Decimal
     usd_cost_basis: Decimal
     usd_gain_loss: Decimal
+
 
 def _create_yearly_gain_loss_list(input_data: InputData, gain_loss_set: GainLossSet) -> List[YearlyGainLoss]:
     summaries: Dict[_YearlyGainLossId, _YearlyGainLossAmounts] = dict()
@@ -197,6 +198,7 @@ def _create_yearly_gain_loss_list(input_data: InputData, gain_loss_set: GainLoss
 
     return list(sorted(yearly_gain_loss_set, key=_yearly_gain_loss_sort_criteria, reverse=True))
 
+
 def _yearly_gain_loss_sort_criteria(yearly_gain_loss: YearlyGainLoss) -> str:
     return (
         f"{yearly_gain_loss.asset}"
@@ -204,6 +206,7 @@ def _yearly_gain_loss_sort_criteria(yearly_gain_loss: YearlyGainLoss) -> str:
         f" {'LONG' if yearly_gain_loss.is_long_term_capital_gains else 'SHORT'}"
         f" {yearly_gain_loss.transaction_type.value}"
     )
+
 
 # Internal sanity check: ensure the sum total of gains and losses from taxable flows matches the one from taxable events and InTransactions
 def _verify_computation(
@@ -253,13 +256,11 @@ def _verify_computation(
 
     if crypto_taxable_amount_total != crypto_taxable_amount_total_verify:
         raise Exception(
-            f"{input_data.asset}: total crypto taxable amount incongruence detected: "
-            f"{crypto_taxable_amount_total} != {crypto_taxable_amount_total_verify}",
+            f"{input_data.asset}: total crypto taxable amount incongruence detected: " f"{crypto_taxable_amount_total} != {crypto_taxable_amount_total_verify}",
         )
     if usd_taxable_amount_total != usd_taxable_amount_total_verify:
         raise Exception(
-            f"{input_data.asset}: total usd taxable amount incongruence detected: "
-            f"{usd_taxable_amount_total} != {usd_taxable_amount_total_verify}",
+            f"{input_data.asset}: total usd taxable amount incongruence detected: " f"{usd_taxable_amount_total} != {usd_taxable_amount_total_verify}",
         )
     if cost_basis_total != cost_basis_total_verify:
         raise Exception(f"{input_data.asset}: cost basis incongruence detected: {cost_basis_total} != {cost_basis_total_verify}")

@@ -26,7 +26,6 @@ from rp2_error import RP2TypeError, RP2ValueError
 
 
 class GainLoss(AbstractEntry):
-
     def __init__(
         self,
         configuration: Configuration,

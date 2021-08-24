@@ -18,7 +18,6 @@ from rp2_decimal import ZERO, RP2Decimal
 
 
 class TestRP2Decimal(unittest.TestCase):
-
     def setUp(self) -> None:
         self.maxDiff = None
 
@@ -92,6 +91,7 @@ class TestRP2Decimal(unittest.TestCase):
         self.assertTrue(nine % two == one)
         self.assertTrue(nine % two + n3 - n1 == one)
         self.assertTrue(nine % two + n4 - n1 > one)
+
 
 if __name__ == "__main__":
     unittest.main()

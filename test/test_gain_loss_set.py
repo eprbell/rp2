@@ -28,6 +28,7 @@ from rp2_error import RP2TypeError, RP2ValueError
 
 _ASSETS: List[str] = ["B1", "B2", "B3", "B4"]
 
+
 class TestGainLossSet(unittest.TestCase):
     _configuration: Configuration
 

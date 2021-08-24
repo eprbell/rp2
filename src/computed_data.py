@@ -51,7 +51,12 @@ class YearlyGainLoss:
             return False
         if not isinstance(other, YearlyGainLoss):
             raise RP2TypeError(f"Operand has non-YearlyGainLoss value {repr(other)}")
-        result: bool = self.year == other.year and self.asset == other.asset and self.transaction_type == other.transaction_type and self.is_long_term_capital_gains == other.is_long_term_capital_gains
+        result: bool = (
+            self.year == other.year
+            and self.asset == other.asset
+            and self.transaction_type == other.transaction_type
+            and self.is_long_term_capital_gains == other.is_long_term_capital_gains
+        )
         return result
 
     def __ne__(self, other: object) -> bool:
