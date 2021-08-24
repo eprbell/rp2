@@ -48,7 +48,6 @@ class AbstractTransaction(AbstractEntry):
             raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
         return instance
 
-    # Experimental hash implementation
     def __eq__(self, other: object) -> bool:
         if not other:
             return False
