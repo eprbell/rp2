@@ -3,13 +3,13 @@ RP2 reads as input two user-prepared files:
 - an ODS-format spreadsheet (containing crypto transactions)
 - a JSON config (describing the format of the spreadsheet file).
 
-The user fills the input spreadsheet with crypto transactions using records from exchanges and wallets. The user also writes the config file (or they can use [crypto_example.config](config/crypto_example.config) as-is or as boilerplate) describing the format and structure of the spreadsheet file:
+The user fills the input spreadsheet with crypto transactions using records from exchanges and wallets. The user also writes the config file (or they can use [crypto_example.config](../config/crypto_example.config) as-is or as boilerplate) describing the format and structure of the spreadsheet file:
 - meaning of columns,
 - cryptocurrencies used,
 - exchanges used,
 - account owners.
 
-See [crypto_example.ods](input/crypto_example.ods) and [crypto_example.config](config/crypto_example.config) to learn more.
+See [crypto_example.ods](../input/crypto_example.ods) and [crypto_example.config](../config/crypto_example.config) to learn more.
 
 ## The Config File
 The config file tells RP2 how to interpret the input spreadsheet. It is in JSON format and contains the following sections:
