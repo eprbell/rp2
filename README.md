@@ -15,18 +15,22 @@
 * **[Development And Testing](#development-and-testing)**
 * **[Contributing And Reporting Bugs](#contributing-and-reporting-bugs)**
 * **[Documentation](#documentation)**
+* **[Frequently Asked Questions](#frequently-asked-questions)**
 
 ## Introduction
-RP2 is a privacy-focused, free, open-source cryptocurrency tax calculator. Calculating crytpocurrency-related taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. [RP2](https://github.com/eprbell/rp2) makes this process easier. It reads as input a spreadsheet containing crypto transactions, divided in three tables (one per direction):
+[RP2](https://github.com/eprbell/rp2) is a privacy-focused, free, open-source cryptocurrency tax calculator. Calculating crytpocurrency-related taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This problem could be solved by using a crypto tax preparation service, but preserving privacy and not sending transaction information to third parties unnecessarily is a concern for many crypto users: doing all crypto tax computation on the user's own machine is often preferred. RP2 solves all of these problems:
+- it manages all the complexity related to coin flows and tax calculation;
+- it prioritizes user privacy by storing crypto transaction information locally on the user's computer and not sending it anywhere else;
+- it's free.
+
+It reads as input a spreadsheet containing crypto transactions, divided in three tables (one per direction):
 * in (buy, earn),
 * out (sell, gift, donate),
 * intra (move across accounts).
 
 It then calculates long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions, using high-precision math, and generates output spreadsheets. It supports the FIFO accounting method.
 
-RP2 prioritizes user privacy: it stores crypto transaction information locally on the user's computer and doesn't send transaction information anywhere else.
-
-It has a programmable plugin architecture for output generators: currently only US-specific plugins are available, but the architecture makes it possible to contribute additional output generators for different countries or for different US-based cases.
+It has a programmable plugin architecture for output generators: currently only US-specific plugins are available (one for mock form 8949 and another for a full tax report), but the architecture makes it possible to contribute additional output generators for different countries or for different US-based cases.
 
 RP2 has extensive unit test coverage to reduce the risk of regression.
 
@@ -157,4 +161,7 @@ make check lint reformat typecheck
 Unit tests for new code are highly appreciated.
 
 ## Documentation
-Documentation is available in the [doc](doc/README.md) directory
+[Documentation](doc/README.md) is available in the [doc](doc/) directory
+
+## Frequently Asked Questions
+The [FAQ list](doc/faq.md) is available in the [doc](doc/) directory
