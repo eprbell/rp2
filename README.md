@@ -138,11 +138,11 @@ To print command usage information for the `rp2.py` command:
 ## Reporting Bugs
 Feel free to submit bugs via Issue Tracker.
 
-**IMPORTANT**: RP2 stores logs and transaction and tax data locally on the user's machine and never sends it elsewhere. This information can be useful to reproduce a bug, so a user can decide (or not) to share it to help fix a problem. If you decide to share this information, be mindful of what you post or send out: stack traces are typically free of personal data, but RP2 logs and outputs, while very useful to reproduce an issue, may contain information that can identify you and your transactions. Before posting such data publicly in a forum or even sending it privately to the author of RP2, make sure that:
+**IMPORTANT**: RP2 stores logs and outputs locally on the user's machine and doesn't send this data elsewhere. Logs, inputs and outputs can be useful to reproduce a bug, so a user can decide (or not) to share them to help fix a problem. If you decide to share this information, be mindful of what you post or send out: stack traces are typically free of personal data, but RP2 logs, inputs and outputs, while very useful to reproduce an issue, may contain information that can identify you and your transactions. Before posting such data publicly in a forum or even sending it privately to the author of RP2, make sure that:
 - it is sanitized of personal information (although this may make it harder to reproduce the problem), or
 - you're comfortable sharing your personal data.
 
-Logs are stored in the log/ directory and each file name is appended with a timestamp.
+Logs are stored in the `log/` directory and each file name is appended with a timestamp. Outputs are stored in the `output/` directory or where specified by the user with the `-o` option.
 
 ## Contributing
 Feel free to submit pull requests. [Unit tests](test/) for new code are highly appreciated.

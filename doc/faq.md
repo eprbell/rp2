@@ -4,7 +4,7 @@
 
 * **[How To Verify That I Entered Data Correctly In The Input Spreadsheet?](#how-to-verify-that-i-entered-data-correctly-in-the-input-spreadsheet)**
 * **[What Does RP2 Mean?](#what-does-rp2-mean)**
-* **How To Handle Crypto-To-Crypto Sale/Buy?
+* **How To Handle Crypto-To-Crypto Sale/Buy?**
 
 ## How To Verify That I Entered Data Correctly In The Input Spreadsheet?
 ## What Does RP2 Mean?
