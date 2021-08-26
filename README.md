@@ -12,29 +12,26 @@
 * **[Running](#running)**
   * [Linux, macOS and Other Unix-like Systems](#running-on-linux-macos-and-other-unix-like-systems)
   * [Windows 10](#running-on-windows-10)
-* **[Development And Testing](#development-and-testing)**
-* **[Contributing And Reporting Bugs](#contributing-and-reporting-bugs)**
+* **[Reporting Bugs](#reporting-bugs)**
+* **[Contributing](#contributing)**
 * **[Documentation](#documentation)**
 * **[Frequently Asked Questions](#frequently-asked-questions)**
 
 ## Introduction
-[RP2](https://github.com/eprbell/rp2) is a privacy-focused, free, open-source cryptocurrency tax calculator. Calculating crytpocurrency-related taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This problem could be solved by using a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. RP2 solves all of these problems:
-- it manages all the complexity related to coin flows and tax calculation and it generates forms that tax accountants can understand, even if they are not cryptocurrency experts (e.g. form 8949);
-- it prioritizes user privacy by storing crypto transactions and tax computation on the user's computer and not sending it anywhere else;
+[RP2](https://github.com/eprbell/rp2) is a privacy-focused, free, open-source cryptocurrency tax calculator. Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This problem could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
+- it manages the complexity related to coin flows and tax calculation and it generates forms tax accountants can understand, even if they are not cryptocurrency experts (e.g. form 8949);
+- it prioritizes user privacy by storing crypto transactions and tax results on the user's computer and not sending them anywhere else;
 - it's free and open-source.
 
-RP2 reads as input a spreadsheet containing crypto transactions, divided in three tables (one per direction):
-* in (buy, earn),
-* out (sell, gift, donate),
-* intra (move across accounts).
+RP2 reads in a user-prepared spreadsheet containing crypto transactions. It then uses high-precision math to calculate long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions, and finally it generates output spreadsheets. It supports the FIFO accounting method.
 
-It then calculates long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions, using high-precision math, and generates output spreadsheets. It supports the FIFO accounting method.
+It has a programmable plugin architecture for [output generators](plugins/output): currently only US-specific plugins are available (one for mock form 8949 and another for a full tax report), but the architecture makes it possible to contribute additional output generators for different countries or for different US-based cases.
 
-It has a programmable plugin architecture for output generators: currently only US-specific plugins are available (one for mock form 8949 and another for a full tax report), but the architecture makes it possible to contribute additional output generators for different countries or for different US-based cases.
+RP2 has extensive [unit test](test/) coverage to reduce the risk of regression.
 
-RP2 has extensive unit test coverage to reduce the risk of regression.
+The author of RP2 is not a tax professional, but has used RP2 personally for a few years.
 
-**IMPORTANT DISCLAIMER**: RP2 offers no guarantee of correctness: always verify results with the help of a tax professional.
+**IMPORTANT DISCLAIMER**: RP2 offers no guarantee of correctness (read the [license](#license)): always verify results with the help of a tax professional.
 
 ## License
 RP2 is released under the terms of Apache License Version 2.0. For more information see [LICENSE](LICENSE) or http://www.apache.org/licenses/LICENSE-2.0.
@@ -93,15 +90,15 @@ python -m pip install -r requirements.txt
 * make
 
 ## Running
-RP2 reads as input two user-prepared files:
-- an ODS-format spreadsheet (containing crypto transactions)
-- a JSON config (describing the format of the spreadsheet file).
+RP2 reads in two user-prepared files:
+- an ODS-format spreadsheet, containing crypto transactions (ODS-format files can be opened and edited with [LibreOffice](https://www.libreoffice.org/), Microsoft Excel and many other spreadsheet applications);
+- a JSON config file, describing the format of the spreadsheet file.
 
 The formats of these files are described in detail in the [Input Files](doc/input_files.md) section of the documentation.
 
 Examples of an input spreadsheet and its respective config file:
 * [input/crypto_example.ods](input/crypto_example.ods)
-* [config/crypto_example.config](config/crypto_example.config). If desired, this config file can be used as boilerplate.
+* [config/crypto_example.config](config/crypto_example.config) (if desired, this config file can be used as boilerplate).
 
 RP2 generates output files based on the received input. The output files contain information on long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. They are described in detail in the [Output Files](doc/output_files.md) section of the documentation.
 
@@ -115,7 +112,7 @@ To generate output for the above example open a terminal window and enter the fo
   ```
 Results are generated in the `output` directory. Logs are stored in the `log` directory.
 
-To print usage information for the `rp2.py` command:
+To print command usage information for the `rp2.py` command:
   ```
   bin/rp2.py --help
   ```
@@ -131,15 +128,22 @@ To generate output for the above example open a PowerShell window and enter the 
 
 Results are generated in the `output` directory. Logs are stored in the `log` directory.
 
-To print usage information for the `rp2.py` command:
+To print command usage information for the `rp2.py` command:
   ```
   python bin\rp2.py --help
   ```
 
-## Development and Testing
-The development and testing workflows are supported only on Linux and macOS (not on Windows).
+## Reporting Bugs
+Feel free to submit bugs via Issue Tracker.
 
-Here are the relevant make targets:
+**IMPORTANT**: be mindful of the data to reproduce a bug: stack traces are typically free of personal data, but RP2 logs and output, while very useful to reproduce an issue, may contain information that can identify you and your transactions. Before posting such data publicly in a forum or even sending it privately to the author of RP2, make sure that:
+- it is sanitized of personal information (although this may make it harder to reproduce the problem), or
+- you're comfortable sharing your personal data.
+
+## Contributing
+Feel free to submit pull requests. [Unit tests](test/) for new code are highly appreciated.
+
+Here is a list of make targets, useful during development:
 * `make`: installs package requirements
 * `make archive`: creates a .zip file with the contents of the RP2 directory
 * `make check`: runs all RP2 unit tests
@@ -148,17 +152,17 @@ Here are the relevant make targets:
 * `make reformat`: formats all Python sources using Black
 * `make typecheck`: analyzes all Python sources with Mypy static type checker
 
+RP2 follows strictly the PEP 8 coding standard, so, before pushing code, use `make reformat`, which enforces the style guide.
+
+The following make targets perform static and runtime (unit test) checks: they are ran automatically in continuous integration on push and pull requests, but they are also useful while coding (use them liberally on your machine):
+* `make check lint typecheck`
+
+The development and test workflows are supported only on Linux and macOS (not on Windows).
+
 Logs are stored in the `log` directory. To generate debug logs, prepend the command line with `LOG_LEVEL=DEBUG`, e.g.:
 ```
 LOG_LEVEL=DEBUG bin/rp2.py -o output -p crypto_example_ config/crypto_example.config input/crypto_example.ods
 ```
-
-## Contributing And Reporting Bugs
-Feel free to submit bugs via Issue Tracker or pull requests. For pull requests, please follow the PEP 8 coding standard (which is enforced by the `reformat` make target) and make sure your code doesn't trigger new issues with the following make targets:
-```
-make check lint reformat typecheck
-```
-Unit tests for new code are highly appreciated.
 
 ## Documentation
 [Documentation](doc/README.md) is available in the [doc](doc/) directory
