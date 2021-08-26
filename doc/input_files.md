@@ -75,7 +75,7 @@ Here follows an example of an input spreadheet with 2 sheets (one for BTC and on
   * **notes** (optional): user-provided description of the transaction.
 
 ## The Config File
-The config file tells RP2 how to interpret the input spreadsheet (i.e. what values are contained in what column). The purpose of the config file is input flexibility: unfortunately exchanges don't provide user transaction data in a standardized way, so customizing column positions can be useful.
+The config file tells RP2 how to interpret the input spreadsheet (i.e. what values are contained in what column). The purpose of the config file is input flexibility: unfortunately exchanges don't provide user transaction data in a standardized way, so customizing column positions can be useful. See an [example of config file](../config/crypto_example.config) to learn more.
 
 The config file is in JSON format and is structured as described below. Note that:
 - header descriptions are given in the [input spreadsheet section](#the-input-spreadsheet);
@@ -144,50 +144,3 @@ The config file is in JSON format and is structured as described below. Note tha
     ]
 }
 ```
-
-* **in_header**: JSON object containing [parameter:column_number] value pairs for **IN**-transactions (i.e. transactions that increase cryptocurrency holdings, e.g. buy or earn). Column number 0 corresponds to column A in the input spreadsheet, 1 to B, etc. The in_header parameters are:
-  * **timestamp**: time at which the transaction occurred. RP2 can parse most timestamp formats, but timestamps must always include: year, month, day, hour, minute, second and timezone (milliseconds are optional). E.g.: "2020-01-11 11:15:00+00:00".
-  * **asset**: which cryptocurrency was transacted (e.g. BTC, ETH, etc.).
-  * **exchange**: exchange or wallet on which the transaction occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.).
-  * **holder**: exchange account or wallet owner.
-  * **transaction_type**: BUY or EARN.
-  * **spot_price**: value of 1 unit of the given cryptocurrency at the time the transaction occurred.
-  * **crypto_in**: how much of the given cryptocurrency was acquired with the transaction.
-  * **usd_fee**: US dollar value of the transaction fees.
-  * **usd_in_no_fee** (optional): US dollar value of the transaction without fees. If not provided, RP2 will compute this value automatically.
-  * **usd_in_with_fee** (optional): US dollar value of the transaction with fees. If not provided, RP2 will compute this value automatically.
-  * **notes** (optional): user-provided description of the transaction.
-
-* **out_header**: JSON object containing [parameter:column_number] value pairs for **OUT**-transactions (i.e. transactions that decrease cryptocurrency holdings, e.g. sell, donate or gift). Column number 0 corresponds to column A in the input spreadsheet, 1 to B, etc. The out_header parameters are:
-  * **timestamp**: time at which the transaction occurred. RP2 can parse most timestamp formats, but timestamps must always include: year, month, day, hour, minute, second and timezone (milliseconds are optional). E.g.: "2020-01-11 11:15:00+00:00".
-  * **asset**: which cryptocurrency was transacted (e.g. BTC, ETH, etc.).
-  * **exchange**: exchange or wallet on which the transaction occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.).
-  * **holder**: exchange account or wallet owner.
-  * **transaction_type**: DONATE, GIFT or SELL.
-  * **spot_price**: value of 1 unit of the given cryptocurrency at the time the transaction occurred.
-  * **crypto_out_no_fee**: how much of the given cryptocurrency was sold or sent with the transaction (excluding fees).
-  * **crypto_fee**: crypto value of the transaction fees.
-  * **crypto_out_with_fee** (optional): how much of the given cryptocurrency was sold or sent with the transaction (excluding fees). If not provided, RP2 will compute this value automatically.
-  * **usd_out_no_fee** (optional): US dollar value of the transaction without fees. If not provided, RP2 will compute this value automatically.
-  * **usd_fee** (optional): US dollar value of the transaction fees. If not provided, RP2 will compute this value automatically.
-  * **notes** (optional): user-provided description of the transaction.
-
-* **intra_header**: JSON object containing [parameter:column_number] value pairs for **INTRA**-transactions (i.e. transactions that don't increase or decrease cryptocurrency holdings, e.g. move across accounts owned by the same person). Column number 0 corresponds to column A in the input spreadsheet, 1 to B, etc. The intra_header parameters are:
-  * **timestamp**: time at which the transaction occurred. RP2 can parse most timestamp formats, but timestamps must always include: year, month, day, hour, minute, second and timezone (milliseconds are optional). E.g.: "2020-01-11 11:15:00+00:00".
-  * **asset**: which cryptocurrency was transacted (e.g. BTC, ETH, etc.).
-  * **from_exchange**: exchange or wallet from which the transfer of cryptocurrency occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.).
-  * **from_holder**: owner of the exchange account or wallet from which the transfer of cryptocurrency occurred.
-  * **to_exchange**: exchange or wallet to which the transfer of cryptocurrency occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.).
-  * **to_holder**: owner of the exchange account or wallet to which the transfer of cryptocurrency occurred.
-  * **spot_price** (optional): value of 1 unit of the given cryptocurrency at the time the transaction occurred.
-  * **crypto_sent**: how much of the given cryptocurrency was sent with the transaction.
-  * **crypto_received**: how much of the given cryptocurrency was received with the transaction.
-  * **crypto_fee**: crypto value of the transaction fees.
-  * **usd_fee**: US dollar value of the transaction fees.
-  * **notes** (optional): user-provided description of the transaction.
-
-* **assets**: JSON array containing a list of valid cryptocurrencies (references to cryptocurrencies not listed here will cause an error).
-
-* **exchanges**: JSON array containing a list of valid exchanges and wallets (references to exchanges or wallets not listed here will cause an error).
-
-* **holders**: JSON array containing a list of valid account and wallet owners (references to holders not listed here will cause an error). Multiple holders can be used by people who file taxes together.
