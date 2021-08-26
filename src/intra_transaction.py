@@ -54,10 +54,10 @@ class IntraTransaction(AbstractTransaction):
 
         if self.__from_exchange == self.__to_exchange and self.__from_holder == self.__to_holder:
             raise RP2ValueError(
-                f"{self.asset} {type(self).__name__}, id {self.unique_id} ({self.timestamp}): from/to exchanges/holders are the same: sending to self"
+                f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.unique_id}): from/to exchanges/holders are the same: sending to self"
             )
         if self.__crypto_sent < self.__crypto_received:
-            raise RP2ValueError(f"{self.asset} {type(self).__name__}, id {self.unique_id} ({self.timestamp}): crypto sent < crypto received")
+            raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.unique_id}): crypto sent < crypto received")
 
         self.__crypto_fee = self.__crypto_sent - self.__crypto_received
         self.__usd_fee = self.__crypto_fee * self.spot_price

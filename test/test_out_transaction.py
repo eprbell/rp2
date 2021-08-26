@@ -393,7 +393,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("0"),
                 unique_id=38,
             )
-        with self.assertRaisesRegex(RP2ValueError, ".*OutTransaction, id.*invalid transaction type .*"):
+        with self.assertRaisesRegex(RP2ValueError, ".*OutTransaction .*, id.*invalid transaction type .*"):
             # Bad transaction type
             OutTransaction(
                 self._configuration,
@@ -407,7 +407,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("0"),
                 unique_id=38,
             )
-        with self.assertRaisesRegex(RP2ValueError, ".*OutTransaction, id.*invalid transaction type .*"):
+        with self.assertRaisesRegex(RP2ValueError, ".*OutTransaction .*, id.*invalid transaction type .*"):
             # Bad transaction type
             OutTransaction(
                 self._configuration,
@@ -449,7 +449,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("0"),
                 unique_id=38,
             )
-        with self.assertRaisesRegex(RP2ValueError, "OutTransaction, id.*parameter 'spot_price' cannot be 0"):
+        with self.assertRaisesRegex(RP2ValueError, "OutTransaction .*, id.*parameter 'spot_price' cannot be 0"):
             # Bad spot price
             OutTransaction(
                 self._configuration,

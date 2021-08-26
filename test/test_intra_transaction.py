@@ -651,7 +651,7 @@ class TestIntraTransaction(unittest.TestCase):
                 unique_id=19,
             )
 
-        with self.assertRaisesRegex(RP2ValueError, "IntraTransaction, id.*from/to exchanges/holders are the same: sending to self"):
+        with self.assertRaisesRegex(RP2ValueError, "IntraTransaction .*, id.*from/to exchanges/holders are the same: sending to self"):
             # From/to exchanges/holders are the same: sending to self
             IntraTransaction(
                 self._configuration,
@@ -727,7 +727,7 @@ class TestIntraTransaction(unittest.TestCase):
                 unique_id=19,
                 notes=1111,  # type: ignore
             )
-        with self.assertRaisesRegex(RP2ValueError, ".*IntraTransaction, id.*: from/to exchanges/holders are the same: sending to self"):
+        with self.assertRaisesRegex(RP2ValueError, ".*IntraTransaction .*, id.*: from/to exchanges/holders are the same: sending to self"):
             # Sender and receiver are the same
             IntraTransaction(
                 self._configuration,
@@ -742,7 +742,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1.9998"),
                 unique_id=19,
             )
-        with self.assertRaisesRegex(RP2ValueError, ".*IntraTransaction, id.*crypto sent < crypto received"):
+        with self.assertRaisesRegex(RP2ValueError, ".*IntraTransaction .*, id.*crypto sent < crypto received"):
             # Crypto sent < crypto received
             IntraTransaction(
                 self._configuration,

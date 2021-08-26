@@ -492,7 +492,7 @@ class TestInTransaction(unittest.TestCase):
                 usd_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
-        with self.assertRaisesRegex(RP2ValueError, ".*InTransaction, id.*invalid transaction type.*"):
+        with self.assertRaisesRegex(RP2ValueError, ".*InTransaction .*, id.*invalid transaction type.*"):
             # Bad transaction type
             InTransaction(
                 self._configuration,
@@ -556,7 +556,7 @@ class TestInTransaction(unittest.TestCase):
                 usd_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
-        with self.assertRaisesRegex(RP2ValueError, ".*InTransaction, id.*parameter 'spot_price' cannot be 0"):
+        with self.assertRaisesRegex(RP2ValueError, ".*InTransaction .*, id.*parameter 'spot_price' cannot be 0"):
             # Bad spot price
             InTransaction(
                 self._configuration,
@@ -572,7 +572,7 @@ class TestInTransaction(unittest.TestCase):
                 usd_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
-        with self.assertRaisesRegex(RP2ValueError, ".*InTransaction, id.*parameter 'spot_price' cannot be 0"):
+        with self.assertRaisesRegex(RP2ValueError, ".*InTransaction .*, id.*parameter 'spot_price' cannot be 0"):
             # Bad spot price
             InTransaction(
                 self._configuration,
@@ -815,7 +815,7 @@ class TestInTransaction(unittest.TestCase):
                 usd_in_with_fee=RP2Decimal("2000.2"),
                 unique_id=19,
             )
-            self.assertTrue(re.search(".* InTransaction, id.*crypto_in.*spot_price != usd_in_no_fee:.*", log.output[0]))  # type: ignore
+            self.assertTrue(re.search(".* InTransaction .*, id.*crypto_in.*spot_price != usd_in_no_fee:.*", log.output[0]))  # type: ignore
 
         with self.assertLogs(level="WARNING") as log:
             # USD in (with fee) != USD in (without fee) + USD fee
@@ -833,7 +833,7 @@ class TestInTransaction(unittest.TestCase):
                 usd_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
-            self.assertTrue(re.search(".* InTransaction, id.*usd_in_with_fee != usd_in_no_fee.*usd_fee:.*", log.output[0]))  # type: ignore
+            self.assertTrue(re.search(".* InTransaction .*, id.*usd_in_with_fee != usd_in_no_fee.*usd_fee:.*", log.output[0]))  # type: ignore
 
 
 if __name__ == "__main__":

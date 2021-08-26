@@ -69,28 +69,28 @@ class InTransaction(AbstractTransaction):
             self.__usd_in_with_fee = configuration.type_check_positive_decimal("usd_in_with_fee", usd_in_with_fee, non_zero=True)
 
         if spot_price == ZERO:
-            raise RP2ValueError(f"{self.asset} {type(self).__name__}, id {self.unique_id} ({self.timestamp}): parameter 'spot_price' cannot be 0")
+            raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.unique_id}): parameter 'spot_price' cannot be 0")
         if self.transaction_type != TransactionType.BUY and self.transaction_type != TransactionType.EARN:
-            raise RP2ValueError(f"{self.asset} {type(self).__name__}, id {self.unique_id} ({self.timestamp}): invalid transaction type {self.transaction_type}")
+            raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.unique_id}): invalid transaction type {self.transaction_type}")
 
         # If the values provided by the exchange doesn't match the computed one, log a warning.
         if not RP2Decimal.is_equal_within_precision(self.__crypto_in * self.spot_price, self.__usd_in_no_fee, USD_DECIMAL_MASK):
             LOGGER.warning(
-                "%s %s, id %s (%s): crypto_in * spot_price != usd_in_no_fee: %f != %f",
+                "%s %s (%s, id %s): crypto_in * spot_price != usd_in_no_fee: %f != %f",
                 self.asset,
                 type(self).__name__,
-                self.unique_id,
                 self.timestamp,
+                self.unique_id,
                 self.__crypto_in * self.spot_price,
                 self.__usd_in_no_fee,
             )
         if not RP2Decimal.is_equal_within_precision(self.__usd_in_with_fee, self.__usd_in_no_fee + self.__usd_fee, USD_DECIMAL_MASK):
             LOGGER.warning(
-                "%s %s, id %s (%s): usd_in_with_fee != usd_in_no_fee + usd_fee: %f != %f",
+                "%s %s (%s, id %s): usd_in_with_fee != usd_in_no_fee + usd_fee: %f != %f",
                 self.asset,
                 type(self).__name__,
-                self.unique_id,
                 self.timestamp,
+                self.unique_id,
                 self.__usd_in_with_fee,
                 self.__usd_in_no_fee + self.__usd_fee,
             )
