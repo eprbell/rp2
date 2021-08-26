@@ -29,7 +29,7 @@ The input spreadsheet is in .ods format and contains one or more sheets. Each sh
   * the following rows describe one **INTRA**-transaction each
   * the last row contains the **TABLE END** keyword in column A
 
-Here's an example of an input spreadheet with 2 sheets: one for BTC and one for ETH:
+Here follows an example of an input spreadheet with 2 sheets (one for BTC and one for ETH) and 3 tables (IN, OUT and INTRA). Note that in this case the user decided to have some custom columns for their own purposes: these columns are not specified in the config file and will be ignored by RP2.
 ![Input spreadsheet example](images/input_spreadsheet.png)
 
 ### **IN**-Transaction Table Format
@@ -79,7 +79,7 @@ The config file tells RP2 how to interpret the input spreadsheet (i.e. what valu
 
 The config file is in JSON format and is structured as described below. Note that:
 - header descriptions are given in the [input spreadsheet section](#the-input-spreadsheet);
-- optional elements are marked in <span style="color:green">green</span>;
+- optional elements are marked with &#x1F537;;
 - *`<...>`* must be substituted with user-provided values, and, specifically, *`<column_number>`* must be substituted with 0 for column A in the input spreadsheet, 1 for B, etc;
 - the `exchanges` section can contain both exchange and wallet identifiers;
 - the `holders` section typically contains only one name, unless multiple people are filing taxes together;
@@ -94,9 +94,9 @@ The config file is in JSON format and is structured as described below. Note tha
         "spot_price": <em>&lt;column_number&gt;</em>,
         "crypto_in": <em>&lt;column_number&gt;</em>,
         "usd_fee": <em>&lt;column_number&gt;</em>,
-        <span style="color:green">"usd_in_no_fee": <em>&lt;column_number&gt;</em>,</span>
-        <span style="color:green">"usd_in_with_fee": <em>&lt;column_number&gt;</em>,</span>
-        <span style="color:green">"notes": <em>&lt;column_number&gt;</em></span>
+        "usd_in_no_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
+        "usd_in_with_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
+        "notes": <em>&lt;column_number&gt;</em>&#x1F537;
     },
 
     "out_header": {
@@ -108,10 +108,10 @@ The config file is in JSON format and is structured as described below. Note tha
         "spot_price": <em>&lt;column_number&gt;</em>,
         "crypto_out_no_fee": <em>&lt;column_number&gt;</em>,
         "crypto_fee": <em>&lt;column_number&gt;</em>,
-        <span style="color:green">"crypto_out_with_fee": <em>&lt;column_number&gt;</em>,</span>
-        <span style="color:green">"usd_out_no_fee": <em>&lt;column_number&gt;</em>,</span>
-        <span style="color:green">"usd_fee": <em>&lt;column_number&gt;</em>,</span>
-        <span style="color:green">"notes": <em>&lt;column_number&gt;</em></span>
+        "crypto_out_with_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
+        "usd_out_no_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
+        "usd_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
+        "notes": <em>&lt;column_number&gt;</em>&#x1F537;
     },
 
     "intra_header": {
@@ -121,26 +121,26 @@ The config file is in JSON format and is structured as described below. Note tha
         "from_holder": <em>&lt;column_number&gt;</em>,
         "to_exchange": <em>&lt;column_number&gt;</em>,
         "to_holder": <em>&lt;column_number&gt;</em>,
-        <span style="color:green">"spot_price": <em>&lt;column_number&gt;</em>,</span>
+        "spot_price": <em>&lt;column_number&gt;</em>,&#x1F537;
         "crypto_sent": <em>&lt;column_number&gt;</em>,
         "crypto_received": <em>&lt;column_number&gt;</em>,
-        <span style="color:green">"notes": <em>&lt;column_number&gt;</em></span>
+        "notes": <em>&lt;column_number&gt;</em>&#x1F537;
     },
 
     "assets": [
         <em>&lt;"asset_1_in_quotes"&gt;</em>,
-        <span style="color:green">...</span>
-        <span style="color:green"><em>&lt;"asset_n_in_quotes"&gt;</em></span>,
+        ...&#x1F537;
+        <em>&lt;"asset_n_in_quotes"&gt;</em>&#x1F537;,
     ],
     "exchanges": [
         <em>&lt;"exchange_or_wallet_1_in_quotes"&gt;</em>,
-        <span style="color:green">...</span>
-        <span style="color:green"><em>&lt;"exchange_or_wallet_n_in_quotes"&gt;</em></span>,
+        ...&#x1F537;
+        <em>&lt;"exchange_or_wallet_n_in_quotes"&gt;</em>&#x1F537;,
     ],
     "holders": [
         <em>&lt;"holder_1_in_quotes"&gt;</em>,
-        <span style="color:green">...</span>
-        <span style="color:green"><em>&lt;"holder_n_in_quotes"&gt;</em></span>,
+        ...&#x1F537;
+        <em>&lt;"holder_n_in_quotes"&gt;</em>&#x1F537;,
     ]
 }
 ```
