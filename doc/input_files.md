@@ -143,4 +143,4 @@ The config file is in JSON format and is structured as described below. Note tha
         <em>&lt;"holder_n_in_quotes"&gt;</em>&#x1F537;,
     ]
 }
-```
+</pre>
