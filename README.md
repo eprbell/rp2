@@ -142,6 +142,8 @@ Feel free to submit bugs via Issue Tracker.
 - it is sanitized of personal information (although this may make it harder to reproduce the problem), or
 - you're comfortable sharing your personal data.
 
+Logs are stored in the log/ directory and each file name is appended with a timestamp.
+
 ## Contributing
 Feel free to submit pull requests. [Unit tests](test/) for new code are highly appreciated.
 
