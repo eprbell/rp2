@@ -61,7 +61,7 @@ brew update
 brew install python3 virtualenv
 ```
 
-Then install RP2 Python package requirements:
+Finally install RP2 Python package requirements:
 ```
 cd <rp2_directory>
 make
@@ -74,7 +74,7 @@ cd <rp2_directory>
 virtualenv -p python .venv
 ```
 
-Then install RP2 Python package requirements:
+Finally install RP2 Python package requirements:
 ```
 cd <rp2_directory>
 python -m pip install -r requirements.txt
@@ -101,6 +101,8 @@ Examples of an input spreadsheet and its respective config file:
 * [config/crypto_example.config](config/crypto_example.config) (if desired, this config file can be used as boilerplate).
 
 RP2 generates output files based on the received input. The output files contain information on long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. They are described in detail in the [Output Files](doc/output_files.md) section of the documentation.
+
+The next sections contain platform-specific information on how to run RP2 on different systems.
 
 ### Running on Linux, macOS and Other Unix-like Systems
 
@@ -136,7 +138,7 @@ To print command usage information for the `rp2.py` command:
 ## Reporting Bugs
 Feel free to submit bugs via Issue Tracker.
 
-**IMPORTANT**: be mindful of the data to reproduce a bug: stack traces are typically free of personal data, but RP2 logs and output, while very useful to reproduce an issue, may contain information that can identify you and your transactions. Before posting such data publicly in a forum or even sending it privately to the author of RP2, make sure that:
+**IMPORTANT**: RP2 stores logs and transaction and tax data locally on the user's machine and never sends it elsewhere. This information can be useful to reproduce a bug, so a user can decide (or not) to share it to help fix a problem. If you decide to share this information, be mindful of what you post or send out: stack traces are typically free of personal data, but RP2 logs and outputs, while very useful to reproduce an issue, may contain information that can identify you and your transactions. Before posting such data publicly in a forum or even sending it privately to the author of RP2, make sure that:
 - it is sanitized of personal information (although this may make it harder to reproduce the problem), or
 - you're comfortable sharing your personal data.
 
