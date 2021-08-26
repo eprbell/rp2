@@ -18,12 +18,12 @@
 * **[Frequently Asked Questions](#frequently-asked-questions)**
 
 ## Introduction
-[RP2](https://github.com/eprbell/rp2) is a privacy-focused, free, open-source cryptocurrency tax calculator. Calculating crytpocurrency-related taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This problem could be solved by using a crypto tax preparation service, but preserving privacy and not sending transaction information to third parties unnecessarily is a concern for many crypto users: doing all crypto tax computation on the user's own machine is often preferred. RP2 solves all of these problems:
-- it manages all the complexity related to coin flows and tax calculation;
-- it prioritizes user privacy by storing crypto transaction information locally on the user's computer and not sending it anywhere else;
+[RP2](https://github.com/eprbell/rp2) is a privacy-focused, free, open-source cryptocurrency tax calculator. Calculating crytpocurrency-related taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This problem could be solved by using a crypto tax preparation service, but preserving privacy and not sending transaction information to third parties unnecessarily is a concern for many crypto users: doing all crypto tax computation locally on one's own machine is often preferred. RP2 solves all of these problems:
+- it manages all the complexity related to coin flows and tax calculation and it generates forms that tax accountants can understand (even if they are not Crypto experts);
+- it prioritizes user privacy by storing crypto transaction and tax information on the user's computer and not sending it anywhere else;
 - it's free.
 
-It reads as input a spreadsheet containing crypto transactions, divided in three tables (one per direction):
+RP2 reads as input a spreadsheet containing crypto transactions, divided in three tables (one per direction):
 * in (buy, earn),
 * out (sell, gift, donate),
 * intra (move across accounts).
@@ -101,7 +101,7 @@ The formats of these files are described in detail in the [Input Files](doc/inpu
 
 Examples of an input spreadsheet and its respective config file:
 * [input/crypto_example.ods](input/crypto_example.ods)
-* [config/crypto_example.config](config/crypto_example.config). If desired, this config file can be used as-is as a ready-made format for the spreadsheet.
+* [config/crypto_example.config](config/crypto_example.config). If desired, this config file can be used as boilerplate.
 
 RP2 generates output files based on the received input. The output files contain information on long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. They are described in detail in the [Output Files](doc/output_files.md) section of the documentation.
 
