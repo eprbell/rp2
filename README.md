@@ -19,13 +19,13 @@
 
 ## Introduction
 [RP2](https://github.com/eprbell/rp2) is a privacy-focused, free, open-source cryptocurrency tax calculator. Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This problem could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
-- it manages the complexity related to coin flows and tax calculation and it generates forms tax accountants can understand, even if they are not cryptocurrency experts (e.g. form 8949);
+- it manages the complexity related to coin flows and tax calculation and it generates forms tax that accountants can understand, even if they are not cryptocurrency experts (e.g. form 8949);
 - it prioritizes user privacy by storing crypto transactions and tax results on the user's computer and not sending them anywhere else;
 - it's free and open-source.
 
 RP2 reads in a user-prepared spreadsheet containing crypto transactions. It then uses high-precision math to calculate long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions, and finally it generates output spreadsheets. It supports the FIFO accounting method.
 
-It has a programmable plugin architecture for [output generators](plugins/output): currently only US-specific plugins are available (one for mock form 8949 and another for a full tax report), but the architecture makes it possible to contribute additional output generators for different countries or for different US-based cases.
+It has a programmable plugin architecture for [output generators](plugins/output): currently only US-specific plugins are available (one for form 8949 and another for a full tax report), but the architecture makes it possible to contribute additional output generators for different countries or for different US-based cases.
 
 RP2 has extensive [unit test](test/) coverage to reduce the risk of regression.
 
@@ -147,7 +147,7 @@ Logs are stored in the `log/` directory and each file name is appended with a ti
 ## Contributing
 Feel free to submit pull requests. [Unit tests](test/) for new code are highly appreciated.
 
-Here is a list of make targets, useful during development:
+Here is a list of make targets, that are relevant for development:
 * `make`: installs package requirements
 * `make archive`: creates a .zip file with the contents of the RP2 directory
 * `make check`: runs all RP2 unit tests
