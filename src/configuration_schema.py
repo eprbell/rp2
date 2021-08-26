@@ -46,15 +46,15 @@ CONFIGURATION_SCHEMA = {
                     "type": "integer",
                     "minimum": 0,
                 },
+                "usd_fee": {
+                    "type": "integer",
+                    "minimum": 0,
+                },
                 "usd_in_no_fee": {
                     "type": "integer",
                     "minimum": 0,
                 },
                 "usd_in_with_fee": {
-                    "type": "integer",
-                    "minimum": 0,
-                },
-                "usd_fee": {
                     "type": "integer",
                     "minimum": 0,
                 },
@@ -71,8 +71,6 @@ CONFIGURATION_SCHEMA = {
                 "transaction_type",
                 "spot_price",
                 "crypto_in",
-                "usd_in_no_fee",
-                "usd_in_with_fee",
                 "usd_fee",
             ],
             "additionalProperties": False,
