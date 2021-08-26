@@ -29,7 +29,7 @@ The input spreadsheet is in .ods format and contains one or more sheets. Each sh
   * the following rows describe one **INTRA**-transaction each
   * the last row contains the **TABLE END** keyword in column A
 
-Here follows an example of an input spreadheet with 2 sheets (one for BTC and one for ETH) and 3 tables (IN, OUT and INTRA). Note that in this case the user decided to have some custom columns for their own purposes: these columns are not specified in the config file and will be ignored by RP2.
+Here follows an example of an input spreadheet with 2 sheets (one for BTC and one for ETH) and 3 tables (IN, OUT and INTRA). Note that in this case the user decided to have some custom columns for their own purposes: these columns must not be referenced in the config file and will be ignored by RP2.
 ![Input spreadsheet example](images/input_spreadsheet.png)
 
 ### **IN**-Transaction Table Format
