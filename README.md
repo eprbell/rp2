@@ -138,10 +138,10 @@ To print command usage information for the `rp2.py` command:
   ```
 
 ## Reporting Bugs
-See the [Contributing](contributing.md) document.
+See the [Contributing](CONTRIBUTING.md) document.
 
 ## Contributing
-See the [Contributing](contributing.md) document.
+See the [Contributing](CONTRIBUTING.md) document.
 
 ## Documentation
 [Documentation](doc/README.md) is available in the [doc](doc/) directory
