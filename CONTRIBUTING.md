@@ -1,8 +1,8 @@
-# Contributing To RP2
+# Contributing to RP2
 
 ## Table of Contents
 * **[Reporting Bugs](#reporting-bugs)**
-* **[Contributing To The Repository](#contributing-to-the-repository)**
+* **[Contributing to the Repository](#contributing-to-the-repository)**
   * [Development Workflow](#development-workflow)
   * [Submitting Pull Requests](#submitting-pull-requests)
 
@@ -15,7 +15,7 @@ Feel free to submit bugs via Issue Tracker.
 
 Logs are stored in the `log/` directory and each file name is appended with a timestamp. Outputs are stored in the `output/` directory or where specified by the user with the `-o` option.
 
-## Contributing To The Repository
+## Contributing to the Repository
 
 ### Development Workflow
 

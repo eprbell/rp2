@@ -3,8 +3,8 @@
 User Guide:
 * Setup
 * Running
-* Command line interface
-* [Input Files: ODS Spreadsheet And Config File](input_files.md)
+* Command Line interface
+* [Input Files: ODS Spreadsheet and Config File](input_files.md)
 * [Output Files](output_files.md)
 * [FAQ](faq.md)
 
