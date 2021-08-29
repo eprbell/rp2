@@ -1,9 +1,11 @@
 # RP2 v0.5.0
 
 ![Main branch](https://github.com/eprbell/rp2/actions/workflows/build.yml/badge.svg)
+![Main branch](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml/badge.svg)
 
 ## Table of Contents
 * **[Introduction](#introduction)**
+  * [Operation](#operation)
 * **[License](#license)**
 * **[Download](#download)**
 * **[Installation](#installation)**
@@ -34,6 +36,16 @@ RP2 has extensive [unit test](test/) coverage to reduce the risk of regression.
 The author of RP2 is not a tax professional, but has used RP2 personally for a few years.
 
 **IMPORTANT DISCLAIMER**: RP2 offers no guarantee of correctness (read the [license](#license)): always verify results with the help of a tax professional.
+
+### Operation
+RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Currency Guidance](https://www.irs.gov/newsroom/irs-virtual-currency-guidance).
+
+As such, RP2 identifies the following as taxable events:
+- transfer of ownership (gift, sale, donation, etc.);
+- acquisition (buy, earn, etc.);
+- transfer fees (the fee for moving currency between two accounts controlled by the same owner is treated like a sale).
+
+RP2 uses the FIFO accounting method (lots acquired first are disposed of first): however in and out lots typically don't have matching amounts, so RP2 fractions them as needed and manages the resulting cost bases and capital gains.
 
 ## License
 RP2 is released under the terms of Apache License Version 2.0. For more information see [LICENSE](LICENSE) or http://www.apache.org/licenses/LICENSE-2.0.
