@@ -34,8 +34,9 @@ TBD
 
 ## If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?
 TBD
-## What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We TBD
-File Taxes Together?
+## What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We File Taxes Together?
+TBD
+
 ## What Events Are Taxable?
 TBD
 

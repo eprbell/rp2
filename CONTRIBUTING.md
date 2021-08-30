@@ -19,7 +19,7 @@ Logs are stored in the `log/` directory and each file name is appended with a ti
 
 ### Development Workflow
 
-The RP2 source tree contains a Makefile with targets encapsulating common tasksm relevant for development:
+The RP2 source tree contains a Makefile with targets encapsulating common tasks relevant for development:
 * `make`: installs RP2 package requirements
 * `make archive`: creates a .zip file with the contents of the RP2 directory
 * `make check`: runs all RP2 unit tests
