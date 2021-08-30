@@ -151,7 +151,7 @@ To print command usage information for the `rp2.py` command:
   ```
 
 ## Input and Output Files
-Read the [input files](input_files.md) and [output files](output_files.md) documentation.
+Read the [input files](doc/input_files.md) and [output files](doc/output_files.md) documentation.
 
 ## Reporting Bugs
 Read the [Contributing](CONTRIBUTING.md) document.
