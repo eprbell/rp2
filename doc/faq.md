@@ -18,16 +18,26 @@
 * **[What Does RP2 Mean?](#what-does-rp2-mean)**
 
 ## How to Verify That I Entered Data Correctly in the Input Spreadsheet?
+TBD
 ## What Is the Timestamp Format?
+TBD
 ## How to Handle Conversion of a Cryptocurrency to Another?
+TBD
 ## How to Handle Airdrops?
+TBD
 
 ## How to Report a RP2 Bug without Sharing Personal Information?
+TBD
 
 ## Can I Avoid Writing a Config File From Scratch?
+TBD
 
 ## If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?
-## What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We File Taxes Together?
+TBD
+## What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We TBD
+File Taxes Together?
 ## What Events Are Taxable?
+TBD
 
 ## What Does RP2 Mean?
+TBD
