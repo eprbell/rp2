@@ -16,7 +16,7 @@
 * **[Running](#running)**
   * [Linux, macOS and Other Unix-like Systems](#running-on-linux-macos-and-other-unix-like-systems)
   * [Windows 10](#running-on-windows-10)
-* **[Reporting Bugs](#reporting-bugs)**]
+* **[Reporting Bugs](#reporting-bugs)**
 * **[Contributing](#contributing)**
 * **[Documentation](#documentation)**
 * **[Frequently Asked Questions](#frequently-asked-questions)**
