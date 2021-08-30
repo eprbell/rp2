@@ -16,15 +16,14 @@
 * **[Running](#running)**
   * [Linux, macOS and Other Unix-like Systems](#running-on-linux-macos-and-other-unix-like-systems)
   * [Windows 10](#running-on-windows-10)
-* **[Reporting Bugs](#reporting-bugs)**
+* **[Reporting Bugs](#reporting-bugs)**]
 * **[Contributing](#contributing)**
 * **[Documentation](#documentation)**
 * **[Frequently Asked Questions](#frequently-asked-questions)**
 
 ## Introduction
 [RP2](https://github.com/eprbell/rp2) is a privacy-focused, free, open-source cryptocurrency tax calculator. Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This problem could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
-- it manages the complexity related to coin flows and tax calculation and it generates forms tax that accountants can understand, even if they are not cryptocurrency experts (e.g. form 8949);
-- it prioritizes user privacy by storing crypto transactions and tax results on the user's computer and not sending them anywhere else;
+- it manages the complexity related to coin flows and tax calculation and it generates forms tax that accountants can understand]lse;
 - it's free and open-source.
 
 RP2 reads in a user-prepared spreadsheet containing crypto transactions. It then uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships and fractions, and finally it generates output spreadsheets. It supports the FIFO accounting method.
@@ -159,4 +158,5 @@ See the [Contributing](CONTRIBUTING.md) document.
 [Documentation](doc/README.md) is available in the [doc](doc/) directory
 
 ## Frequently Asked Questions
-The [FAQ list](doc/faq.md) is available in the [doc](doc/) directory
+The [User FAQ list](doc/user_faq.md) is available in the [doc](doc/) directory
+The [Developer FAQ list](doc/developer_faq.md) is available in the [doc](doc/) directory
