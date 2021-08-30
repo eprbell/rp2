@@ -16,6 +16,7 @@
 * **[Running](#running)**
   * [Linux, macOS and Other Unix-like Systems](#running-on-linux-macos-and-other-unix-like-systems)
   * [Windows 10](#running-on-windows-10)
+* **[Input And Output Files](#input-and-output-files)**
 * **[Reporting Bugs](#reporting-bugs)**
 * **[Contributing](#contributing)**
 * **[Documentation](#documentation)**
@@ -147,6 +148,9 @@ To print command usage information for the `rp2.py` command:
   ```
   python bin\rp2.py --help
   ```
+
+## Input And Output Files
+Read the [input files](input_files.md) and [output files](output_files.md) documents.
 
 ## Reporting Bugs
 See the [Contributing](CONTRIBUTING.md) document.
