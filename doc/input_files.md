@@ -29,11 +29,11 @@ The input spreadsheet is in .ods format and contains one or more sheets. Each sh
   * the following rows describe one **INTRA**-transaction each
   * the last row contains the **TABLE END** keyword in column A
 
-Here follows an example of an input spreadheet with 2 sheets (one for BTC and one for ETH) and 3 tables (IN, OUT and INTRA). Note that in this case the user decided to have some custom columns for their own purposes: these columns must not be referenced in the config file and will be ignored by RP2. See also an [ODS spreadsheet example](../input/crypto_example.ods) to learn more.
+Here follows an example of an input spreadsheet with 2 sheets (one for BTC and one for ETH) and 3 tables (IN, OUT and INTRA). Note that in this case the user decided to have some custom columns for their own purposes: these columns must not be referenced in the config file and will be ignored by RP2. See also an [ODS spreadsheet example](../input/crypto_example.ods) to learn more.
 ![Input spreadsheet example](images/input_spreadsheet.png)
 
 ### **IN**-Transaction Table Format
-**IN**-transactions des(ncribe crypto flowing in (e.g. buy, earn) and are contained in the **IN**-table. They have the following parameters (parameter/column mapping is described in the **in_header** section of the config file):
+**IN**-transactions describe crypto flowing in (e.g. buy, earn) and are contained in the **IN**-table. They have the following parameters (parameter/column mapping is described in the **in_header** section of the config file):
   * **timestamp**: time at which the transaction occurred. RP2 can parse most timestamp formats, but timestamps must always include: year, month, day, hour, minute, second and timezone (milliseconds are optional). E.g.: "2020-01-21 11:15:00+00:00".
   * **asset**: which cryptocurrency was transacted (e.g. BTC, ETH, etc.). It must match the name of the spreadsheet and one of the values in the **assets** section of the config file.
   * **exchange**: exchange or wallet on which the transaction occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.). It must match one of the values in the **exchanges** section of the config file.
