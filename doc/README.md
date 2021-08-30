@@ -1,7 +1,7 @@
 # RP2 Documentation
 
 User Guide:
-* Setup
+* Installation
 * Running
 * Command Line interface
 * [Input Files: ODS Spreadsheet and Config File](input_files.md)
