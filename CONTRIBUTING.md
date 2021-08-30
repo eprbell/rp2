@@ -19,7 +19,7 @@ Logs are stored in the `log/` directory and each file name is appended with a ti
 
 ### Development Workflow
 
-The RP2 source tree contains a Makefile that has a few targets, which encapsulate common tasks that are relevant for development:
+The RP2 source tree contains a Makefile with targets encapsulating common tasksm relevant for development:
 * `make`: installs RP2 package requirements
 * `make archive`: creates a .zip file with the contents of the RP2 directory
 * `make check`: runs all RP2 unit tests
@@ -28,7 +28,7 @@ The RP2 source tree contains a Makefile that has a few targets, which encapsulat
 * `make reformat`: formats all Python sources using Black
 * `make typecheck`: analyzes all Python sources with Mypy static type checker
 
-The following make targets perform static and runtime (unit test) checks: they are ran automatically in continuous integration on push and pull requests, but they are also useful while coding (use them liberally on your machine): `make check lint typecheck`
+The following line performs static and runtime (unit test) checks on the code: it is ran automatically in continuous integration on push and pull requests, but it's also useful while coding (use it liberally on your machine): `make check typecheck lint`
 
 The development and test workflows are supported only on Linux and macOS (not on Windows).
 
@@ -41,6 +41,6 @@ LOG_LEVEL=DEBUG bin/rp2.py -o output -p crypto_example_ config/crypto_example.co
 Feel free to submit pull requests. Please follow these practices:
 - follow the [PEP 8](https://www.python.org/dev/peps/pep-0008/) coding standard and use `make reformat` before pushing;
 - add [unit tests](test/) for any new code;
-- make sure your code doesn't cause new issues with `make check lint typecheck`;
+- make sure your code doesn't cause new issues with `make check typecheck lint`;
 - ensure your commits are atomic (one feature per commit);
 - write a clear log message for your commits.
