@@ -41,8 +41,8 @@ The author of RP2 is not a tax professional, but has used RP2 personally for a f
 RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Currency Guidance](https://www.irs.gov/newsroom/irs-virtual-currency-guidance).
 
 As such, RP2 identifies the following as taxable events:
-- transfer of ownership (gift, sale, donation, etc.);
-- acquisition (buy, earn, etc.);
+- transfer of ownership (gift, sale, donation);
+- acquisition (earn, not buy);
 - transfer fees (the fee for moving currency between two accounts controlled by the same owner is treated like a sale).
 
 RP2 uses the FIFO accounting method (lots acquired first are disposed of first): however in and out lots typically don't have matching amounts, so RP2 fractions them as needed and manages the resulting cost bases and capital gains.
