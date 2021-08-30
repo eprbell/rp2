@@ -5,7 +5,7 @@
 * **[License](#license)**
 * **[Download](#download)**
 * **[Installation](#installation)**
-* **[Running](#Running)**
+* **[Running](#running)**
 * **[Command Line interface](#command-line-interface)**
 * **[Input Files: ODS Spreadsheet and Config File](#input-files)**
 * **[Output Files](#output-files)**

@@ -1,4 +1,4 @@
-# RP2 Frequently Asked Questions
+# RP2 Frequently Asked Questions (User)
 
 ## Table of Contents
 

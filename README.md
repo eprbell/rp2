@@ -37,14 +37,14 @@ The author of RP2 is not a tax professional, but has used RP2 personally for a f
 **IMPORTANT DISCLAIMER**: RP2 offers no guarantee of correctness (read the [license](#license)): always verify results with the help of a tax professional.
 
 ### How RP2 Operates
-RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Currency Guidance](https://www.irs.gov/newsroom/irs-virtual-currency-guidance).
-
-As such, RP2 identifies the following as taxable events:
-- transfer of ownership: any cryptocurrency that is gifted, sold, donated;
-- acquisition: any cryptocurrency that is earned (e.g. interest). Note that buying crypto is not taxable;
-- transfer fees (the fee for moving currency between two accounts controlled by the same owner is treated like a sale).
+RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Currency Guidance](https://www.irs.gov/newsroom/irs-reminds-taxpayers-to-report-virtual-currency-transactions).
 
 RP2 uses the FIFO accounting method (lots acquired first are disposed of first): however in and out lots typically don't have matching amounts, so RP2 fractions them as needed and manages the resulting cost bases and capital gains.
+
+RP2 identifies the following as taxable events:
+- acquisition: any cryptocurrency that is earned (e.g. interest, wages, etc.) is always taxed as ordinary income (or short-term capital gains). Note that buying cryptocurrency is not a taxable event;
+- transfer of ownership: any cryptocurrency that is sold, gifted or donated is taxed as long-term capital gains if the lot was held for more than 1 year, or short-term capital gains otherwise;
+- transfer fee (the fee for moving currency between two accounts controlled by the same owner) is treated like a sale and is taxed as long-term capital gains if the lot was held for more than 1 year, or short-term capital gains otherwise. Note that, other than the fee, the amount transferred is not a taxable event;
 
 ## License
 RP2 is released under the terms of Apache License Version 2.0. For more information see [LICENSE](LICENSE) or http://www.apache.org/licenses/LICENSE-2.0.
