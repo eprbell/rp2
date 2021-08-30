@@ -45,7 +45,7 @@ RP2 uses the FIFO accounting method (lots acquired first are disposed of first):
 RP2 identifies the following as taxable events:
 - acquisition: any cryptocurrency that is earned (e.g. interest, wages, etc.) is always treated as ordinary income (or short-term capital gains). Note that buying cryptocurrency is not a taxable event;
 - transfer of ownership: any cryptocurrency that is sold, gifted or donated is treated as long-term capital gains if the lot was held for more than 1 year, or short-term capital gains otherwise;
-- transfer fee (the fee for moving currency between two accounts controlled by the same owner) is treated like a sale and is treated as long-term capital gains if the lot was held for more than 1 year, or short-term capital gains otherwise. Note that, other than the fee, the amount transferred is not a taxable event;
+- transfer fee (the fee for moving currency between two accounts controlled by the same owner) is treated like a sale: long-term capital gains if the lot was held for more than 1 year, or short-term capital gains otherwise. Note that, other than the fee, the amount transferred is not taxable;
 
 ## License
 RP2 is released under the terms of Apache License Version 2.0. For more information see [LICENSE](LICENSE) or http://www.apache.org/licenses/LICENSE-2.0.
