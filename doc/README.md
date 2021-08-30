@@ -1,6 +1,7 @@
 # RP2 Documentation
 
 User Guide:
+* [Introduction](../README.md#introduction)
 * Installation
 * Running
 * Command Line interface
