@@ -19,7 +19,7 @@
 * **[Input and Output Files](#input-and-output-files)**
 * **[Reporting Bugs](#reporting-bugs)**
 * **[Contributing](#contributing)**
-* **[Documentation](#documentation)**
+* **[Full Documentation](#full-documentation)**
 * **[Frequently Asked Questions](#frequently-asked-questions)**
 
 ## Introduction
@@ -105,9 +105,9 @@ python -m pip install -r requirements.txt
 * make
 
 ## Running
-RP2 reads in two user-prepared files:
+Before running RP2 the user must prepare two files:
 - an ODS-format spreadsheet, containing crypto transactions (ODS-format files can be opened and edited with [LibreOffice](https://www.libreoffice.org/), Microsoft Excel and many other spreadsheet applications);
-- a JSON config file, describing the format of the spreadsheet file.
+- a JSON config file, describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies and exchanges to expect.
 
 The formats of these files are described in detail in the [Input Files](doc/input_files.md) section of the documentation.
 
@@ -115,7 +115,7 @@ Examples of an input spreadsheet and its respective config file:
 * [input/crypto_example.ods](input/crypto_example.ods)
 * [config/crypto_example.config](config/crypto_example.config) (if desired, this config file can be used as boilerplate).
 
-RP2 generates output files based on the received input. The output files contain information on long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. They are described in detail in the [Output Files](doc/output_files.md) section of the documentation.
+After reading the input files, RP2 generates output files based on the transaction information therein. The output files contain information on long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. They are described in detail in the [Output Files](doc/output_files.md) section of the documentation.
 
 The next sections contain platform-specific information on how to run RP2 on different systems.
 
@@ -159,7 +159,7 @@ Read the [Contributing](CONTRIBUTING.md) document.
 ## Contributing
 Read the [Contributing](CONTRIBUTING.md) document.
 
-## Documentation
+## Full Documentation
 Read the [full documentation](doc/README.md).
 
 ## Frequently Asked Questions
