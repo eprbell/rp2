@@ -16,7 +16,7 @@
 * **[Running](#running)**
   * [Linux, macOS and Other Unix-like Systems](#running-on-linux-macos-and-other-unix-like-systems)
   * [Windows 10](#running-on-windows-10)
-* **[Input And Output Files](#input-and-output-files)**
+* **[Input and Output Files](#input-and-output-files)**
 * **[Reporting Bugs](#reporting-bugs)**
 * **[Contributing](#contributing)**
 * **[Documentation](#documentation)**
@@ -149,18 +149,17 @@ To print command usage information for the `rp2.py` command:
   python bin\rp2.py --help
   ```
 
-## Input And Output Files
-Read the [input files](input_files.md) and [output files](output_files.md) documents.
+## Input and Output Files
+Read the [input files](input_files.md) and [output files](output_files.md) documentation.
 
 ## Reporting Bugs
-See the [Contributing](CONTRIBUTING.md) document.
+Read the [Contributing](CONTRIBUTING.md) document.
 
 ## Contributing
-See the [Contributing](CONTRIBUTING.md) document.
+Read the [Contributing](CONTRIBUTING.md) document.
 
 ## Documentation
-[Documentation](doc/README.md) is available in the [doc](doc/) directory
+Read the [full documentation](doc/README.md).
 
 ## Frequently Asked Questions
-The [User FAQ list](doc/user_faq.md) is available in the [doc](doc/) directory
-The [Developer FAQ list](doc/developer_faq.md) is available in the [doc](doc/) directory
+Read the [user FAQ list](doc/user_faq.md) and the [developer FAQ list](doc/developer_faq.md).

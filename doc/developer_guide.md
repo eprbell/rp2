@@ -16,4 +16,4 @@ TBD
 TBD
 
 ## FAQ
-Read the [frequently asked developer questions](developer_faq.md) document.
+Read the [frequently asked developer questions](developer_faq.md).
