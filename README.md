@@ -5,7 +5,7 @@
 
 ## Table of Contents
 * **[Introduction](#introduction)**
-  * [Operation](#operation)
+  * [How RP2 Operates](#how-rp2-operates)
 * **[License](#license)**
 * **[Download](#download)**
 * **[Installation](#installation)**
@@ -37,7 +37,7 @@ The author of RP2 is not a tax professional, but has used RP2 personally for a f
 
 **IMPORTANT DISCLAIMER**: RP2 offers no guarantee of correctness (read the [license](#license)): always verify results with the help of a tax professional.
 
-### Operation
+### How RP2 Operates
 RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Currency Guidance](https://www.irs.gov/newsroom/irs-virtual-currency-guidance).
 
 As such, RP2 identifies the following as taxable events:
