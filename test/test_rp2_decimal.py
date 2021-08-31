@@ -14,7 +14,9 @@
 
 import unittest
 
-from rp2_decimal import ZERO, RP2Decimal
+from decimal import Decimal
+
+from rp2_decimal import ZERO, RP2Decimal, RP2TypeError
 
 
 class TestRP2Decimal(unittest.TestCase):
@@ -84,6 +86,10 @@ class TestRP2Decimal(unittest.TestCase):
         self.assertTrue(n3 / n1 == one)
         self.assertTrue(n4 / n1 > one)
 
+        self.assertTrue(three // two == one)
+        self.assertTrue((three // two) + n3 - n1 == one)
+        self.assertTrue((three // two) + n4 - n1 > one)
+
         self.assertTrue(pow(three, two) == nine)
         self.assertTrue(pow(three, two) + n3 - n1 == nine)
         self.assertTrue(pow(three, two) + n4 - n1 > nine)
@@ -91,6 +97,77 @@ class TestRP2Decimal(unittest.TestCase):
         self.assertTrue(nine % two == one)
         self.assertTrue(nine % two + n3 - n1 == one)
         self.assertTrue(nine % two + n4 - n1 > one)
+
+    def test_bad_rp2_decimal(self) -> None:
+        # pylint: disable=pointless-statement
+        # pylint: disable=misplaced-comparison-constant
+        one: RP2Decimal = RP2Decimal("1")
+
+        # Test comparison operators
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            one == 1
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            1 == one
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            one != -1.1
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            1.1 != one
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            one > 1
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            1 > one
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            one < 1
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            1 < one
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            one >= 1
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            1 >= one
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            one <= 1
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            1 <= one
+
+        # Test arithmetic operators
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            one + 1
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            1 + one
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            one - 1
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            1 - one
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            one * 1
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            1 * one
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            one / 1
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            1 / one
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            one // 1
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            1 // one
+
+        # Test power
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            one ** 1
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            1 ** one
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            pow(one, 1)
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            pow(1, one)
+        with self.assertRaisesRegex(RP2TypeError, "Modulo has non-Decimal value "):
+            pow(one, one, 1)
+
+        # Test modulo
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            one % 1
+        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
+            1 % one
 
 
 if __name__ == "__main__":
