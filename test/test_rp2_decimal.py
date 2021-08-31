@@ -14,9 +14,8 @@
 
 import unittest
 
-from decimal import Decimal
-
-from rp2_decimal import ZERO, RP2Decimal, RP2TypeError
+from rp2_decimal import ZERO, RP2Decimal
+from rp2_error import RP2TypeError
 
 
 class TestRP2Decimal(unittest.TestCase):
@@ -159,7 +158,7 @@ class TestRP2Decimal(unittest.TestCase):
         with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
             pow(one, 1)
         with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
-            pow(1, one)
+            pow(1, one)  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Modulo has non-Decimal value "):
             pow(one, one, 1)
 
