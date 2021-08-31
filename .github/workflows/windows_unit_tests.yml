@@ -1,4 +1,4 @@
-name: Windows Unit Tests [Python 3.7, 3.8, 3.9]
+name: Windows Unit Tests
 
 on: [push, pull_request]
 
