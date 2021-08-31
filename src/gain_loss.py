@@ -71,7 +71,7 @@ class GainLoss(AbstractEntry):
     @classmethod
     def type_check(cls, name: str, instance: "AbstractEntry") -> "GainLoss":
         Configuration.type_check_parameter_name(name)
-        if not isinstance(instance, GainLoss):
+        if not isinstance(instance, cls):
             raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
         return instance
 
