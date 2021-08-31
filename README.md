@@ -25,9 +25,9 @@
 
 ## Introduction
 [RP2](https://github.com/eprbell/rp2) is a privacy-focused, free, open-source cryptocurrency tax calculator. Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This problem could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
-- it manages the complexity related to coin flows and tax calculation and it generates forms tax that accountants can understand, even if they are not cryptocurrency experts (e.g. form 8949);
-- it prioritizes user privacy by storing crypto transactions and tax results on the user's computer and not sending them anywhere else;
-- it's free and open-source.
+* it manages the complexity related to coin flows and tax calculation and it generates forms tax that accountants can understand, even if they are not cryptocurrency experts (e.g. form 8949);
+* it prioritizes user privacy by storing crypto transactions and tax results on the user's computer and not sending them anywhere else;
+* it's free and open-source.
 
 RP2 reads in a user-prepared spreadsheet containing crypto transactions. It then uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships and fractions, and finally it generates output spreadsheets. It supports the FIFO accounting method.
 
@@ -44,10 +44,12 @@ RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Cu
 
 RP2 uses the FIFO accounting method (lots acquired first are disposed of first): however in and out lots typically don't have matching amounts, so RP2 fractions them as needed and manages the resulting cost bases and capital gains.
 
-RP2 identifies the following as taxable events:
-- acquisition: any cryptocurrency that is earned (e.g. interest, wages, etc.) is always treated as ordinary income (or short-term capital gains). Note that buying cryptocurrency is not a taxable event;
-- transfer of ownership: any cryptocurrency that is sold, gifted or donated is treated as long-term capital gains if the lot was held for more than 1 year, or short-term capital gains otherwise;
-- transfer fee (the fee for moving currency between two accounts controlled by the same owner) is treated like a sale: long-term capital gains if the lot was held for more than 1 year, or short-term capital gains otherwise. Note that only the fee is taxable: the transferred amount is not;
+RP2 identifies the following taxable events:
+* acquisition: any cryptocurrency that is earned (e.g. interest, wages, etc.) is treated as ordinary income (or short-term capital gains). Note that buying cryptocurrency is not a taxable event;
+* transfer of ownership: any cryptocurrency that is sold, gifted or donated is treated as:
+  * long-term capital gains if the lot was held for more than 1 year, or
+  * short-term capital gains otherwise;
+* transfer fee (the fee for moving currency between two accounts controlled by the same owner) is treated like a sale: long-term capital gains if the lot was held for more than 1 year, or short-term capital gains otherwise. Note that only the fee is taxable: the transferred amount is not;
 
 ## License
 RP2 is released under the terms of Apache License Version 2.0. For more information see [LICENSE](LICENSE) or http://www.apache.org/licenses/LICENSE-2.0.
@@ -107,8 +109,8 @@ python -m pip install -r requirements.txt
 
 ## Running
 Before running RP2 the user must prepare two files:
-- an ODS-format spreadsheet, containing crypto transactions (ODS-format files can be opened and edited with [LibreOffice](https://www.libreoffice.org/), Microsoft Excel and many other spreadsheet applications);
-- a JSON config file, describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies and exchanges to expect.
+* an ODS-format spreadsheet, containing crypto transactions (ODS-format files can be opened and edited with [LibreOffice](https://www.libreoffice.org/), Microsoft Excel and many other spreadsheet applications);
+* a JSON config file, describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies and exchanges to expect.
 
 The formats of these files are described in detail in the [Input Files](doc/input_files.md) section of the documentation.
 

@@ -1,13 +1,13 @@
 # Input Files: ODS Spreadsheet and Config File
 RP2 reads in two user-prepared files:
-- an [ODS-format spreadsheet](#the-input-spreadsheet), containing crypto transactions (ODS-format files can be opened and edited with LibreOffice, Microsoft Excel and many other spreadsheet applications);
-- a [JSON config file](#the-config-file), describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies and exchanges to expect.
+* an [ODS-format spreadsheet](#the-input-spreadsheet), containing crypto transactions (ODS-format files can be opened and edited with LibreOffice, Microsoft Excel and many other spreadsheet applications);
+* a [JSON config file](#the-config-file), describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies and exchanges to expect.
 
 The user fills the input spreadsheet with crypto transactions using records from exchanges and wallets. The user also writes the config file (or they can start with [crypto_example.config](../config/crypto_example.config) as boilerplate) describing the format of the spreadsheet file:
-- meaning of columns,
-- cryptocurrencies used,
-- exchanges used,
-- account owners.
+* meaning of columns,
+* cryptocurrencies used,
+* exchanges used,
+* account owners.
 
 See [crypto_example.ods](../input/crypto_example.ods) and [crypto_example.config](../config/crypto_example.config) to learn more.
 
@@ -78,11 +78,11 @@ Here follows an example of an input spreadsheet with 2 sheets (one for BTC and o
 The config file tells RP2 how to interpret the input spreadsheet (i.e. what values are contained in what column). The purpose of the config file is input flexibility: unfortunately exchanges don't provide user transaction data in a standardized way, so customizing column positions can be useful. See an [example of config file](../config/crypto_example.config) to learn more.
 
 The config file is in JSON format and is structured as described below. Note that:
-- header descriptions are given in the [input spreadsheet section](#the-input-spreadsheet);
-- optional elements are marked with &#x1F537;;
-- *`<...>`* must be substituted with user-provided values, and, specifically, *`<column_number>`* must be substituted with 0 for column A in the input spreadsheet, 1 for B, etc;
-- the `exchanges` section can contain both exchange and wallet identifiers;
-- the `holders` section typically contains only one name, unless multiple people are filing taxes together;
+* header descriptions are given in the [input spreadsheet section](#the-input-spreadsheet);
+* optional elements are marked with &#x1F537;;
+* *`<...>`* must be substituted with user-provided values, and, specifically, *`<column_number>`* must be substituted with 0 for column A in the input spreadsheet, 1 for B, etc;
+* the `exchanges` section can contain both exchange and wallet identifiers;
+* the `holders` section typically contains only one name, unless multiple people are filing taxes together;
 <pre>
 {
     "in_header": {

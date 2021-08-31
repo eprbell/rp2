@@ -39,23 +39,23 @@ The RP2 source tree is organized as follows:
 RP2 has a plugin architecture for output generators, which makes it extensible for new use cases. Writing a new plugin is quite easy: the [8949 form generator](../plugin/output/mock_8949_us.py) is a simple example, the [RP2 report generator](../plugin/output/rp2_report.py) is more comprehensive.
 
 Plugins are discovered by RP2 at runtime and they must adhere to the specific conventions shown below. To add a new plugin follow this procedure:
-- add a new Python file in the plugin/output directory and give it a meaningful name
-- import the following:
+* add a new Python file in the plugin/output directory and give it a meaningful name
+* import the following:
 ```
 from abstract_generator import AbstractGenerator
 from computed_data import ComputedData
 from gain_loss import GainLoss
 from gain_loss_set import GainLossSet
 ```
-- Optionally, RP2 also provides a logger facility:
+* Optionally, RP2 also provides a logger facility:
 ```
 from logger import LOGGER
 ```
-- Add a class named Generator, deriving from AbstractGenerator:
+* Add a class named Generator, deriving from AbstractGenerator:
 ```
 class Generator(AbstractGenerator):
 ```
-- Add a generate method with the following signature:
+* Add a generate method with the following signature:
 ```
     def generate(
         self,
