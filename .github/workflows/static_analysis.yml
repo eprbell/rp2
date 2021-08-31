@@ -1,4 +1,4 @@
-name: Static Analysis [Python 3.7, 3.8, 3.9]
+name: Static Analysis
 
 on: [push, pull_request]
 
@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.7, 3.8, 3.9]
+        python-version: [3.9]
     env:
       PYTHONPATH: ./plugin:./src:./test
       MYPYPATH: ./plugin:./src:./test:./stubs
