@@ -3,8 +3,7 @@ name: Static Analysis [Python 3.7, 3.8, 3.9]
 on: [push, pull_request]
 
 jobs:
-  build:
-    name: Analyze
+  analyze:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

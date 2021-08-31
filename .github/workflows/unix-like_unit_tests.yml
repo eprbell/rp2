@@ -3,8 +3,7 @@ name: Unix-like Unit Tests [Python 3.7, 3.8, 3.9]
 on: [push, pull_request]
 
 jobs:
-  build:
-    name: Test
+  test:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

@@ -1,7 +1,8 @@
 # RP2 v0.5.0
 
 ![Main branch](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml/badge.svg)
-![Main branch](https://github.com/eprbell/rp2/actions/workflows/unit_tests.yml/badge.svg)
+![Main branch](https://github.com/eprbell/rp2/actions/workflows/unix-like_unit_tests.yml/badge.svg)
+![Main branch](https://github.com/eprbell/rp2/actions/workflows/windows_unit_tests.yml/badge.svg)
 ![Main branch](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml/badge.svg)
 
 ## Table of Contents
