@@ -1,10 +1,9 @@
-name: Build And Test [Python 3.7, 3.8, 3.9]
+name: Static Analysis and Unit Tests [Python 3.7, 3.8, 3.9]
 
 on: [push, pull_request]
 
 jobs:
   build:
-
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
