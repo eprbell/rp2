@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build:
+    name: Analyze
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
