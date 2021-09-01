@@ -451,16 +451,16 @@ class TestConfiguration(unittest.TestCase):
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter name is not a string: .*"):
             self._configuration.type_check_decimal(None, one)  # type: ignore
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'my_decimal' has non-Decimal value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'my_decimal' has non-RP2Decimal value .*"):
             self._configuration.type_check_decimal("my_decimal", None)  # type: ignore
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'my_decimal' has non-Decimal value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'my_decimal' has non-RP2Decimal value .*"):
             self._configuration.type_check_decimal("my_decimal", "5.5")  # type: ignore
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter name is not a string: .*"):
             self._configuration.type_check_positive_decimal(None, one)  # type: ignore
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'my_decimal' has non-Decimal value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'my_decimal' has non-RP2Decimal value .*"):
             self._configuration.type_check_positive_decimal("my_decimal", None)  # type: ignore
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'my_decimal' has non-Decimal value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'my_decimal' has non-RP2Decimal value .*"):
             self._configuration.type_check_positive_decimal("my_decimal", "5.5")  # type: ignore
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'my_decimal' has non-positive value .*"):
             self._configuration.type_check_positive_decimal("my_decimal", minus_one)

@@ -154,11 +154,7 @@ class TestRP2Decimal(unittest.TestCase):
         with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
             one ** 1
         with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
-            1 ** one
-        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
             pow(one, 1)
-        with self.assertRaisesRegex(RP2TypeError, "Operand has non-Decimal value "):
-            pow(1, one)  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Modulo has non-Decimal value "):
             pow(one, one, 1)
 

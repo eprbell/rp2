@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from decimal import Decimal
 from typing import Dict, List, Optional, cast
 
 from abstract_entry import AbstractEntry
@@ -22,7 +21,7 @@ from configuration import Configuration
 from gain_loss import GainLoss
 from in_transaction import InTransaction
 from logger import LOGGER
-from rp2_decimal import ZERO
+from rp2_decimal import RP2Decimal, ZERO
 from rp2_error import RP2TypeError, RP2ValueError
 
 
@@ -83,8 +82,8 @@ class GainLossSet(AbstractEntrySet):
         entry: AbstractEntry
         gain_loss: Optional[GainLoss] = None
         parent: Optional[GainLoss]
-        current_taxable_event_amount: Decimal = ZERO
-        current_from_lot_amount: Decimal = ZERO
+        current_taxable_event_amount: RP2Decimal = ZERO
+        current_from_lot_amount: RP2Decimal = ZERO
         current_taxable_event_fraction: int = 0
         current_from_lot_fraction: int = 0
         last_gain_loss_with_from_lot: Optional[GainLoss] = None

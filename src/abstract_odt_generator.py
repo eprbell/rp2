@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import os
-from decimal import Decimal
 from pathlib import Path
 from typing import Any, List, Set, Tuple
 
@@ -24,6 +23,7 @@ from abstract_transaction import AbstractTransaction
 from configuration import Configuration
 from in_transaction import InTransaction
 from out_transaction import OutTransaction
+from rp2_decimal import RP2Decimal
 from rp2_error import RP2TypeError
 
 
@@ -91,8 +91,8 @@ class AbstractODTGenerator(AbstractGenerator):  # pylint: disable=W0223
         Configuration.type_check_string("data_style", data_style)
 
         style_name = f"{visual_style}_{data_style}"
-        if isinstance(value, Decimal):
-            # Unfortunately the ezodf API doesn't accept Decimal, so we are forced to cast to float before writing to the spreadsheet
+        if isinstance(value, RP2Decimal):
+            # The ezodf API doesn't accept RP2Decimal, so we are forced to cast to float before writing to the spreadsheet
             value = float(value)
         sheet[row_index, column_index].set_value(value)
         self._apply_style_to_cell(sheet=sheet, row_index=row_index, column_index=column_index, style_name=style_name)

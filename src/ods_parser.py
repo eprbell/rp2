@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import inspect
-from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -61,7 +60,7 @@ def parse_ods(configuration: Configuration, asset: str, input_file_path: str) ->
     row: Any = None
     for i, row in enumerate(input_sheet.rows()):
         cell0_value: str = row[0].value
-        # The numeric elements of the row_values list are used to initialize Decimal instances. In theory we could collect string representations
+        # The numeric elements of the row_values list are used to initialize RP2Decimal instances. In theory we could collect string representations
         # from numeric strings using the plaintext() method of Cell, but this doesn't work well because of an ezodf limitation: such strings are
         # affected by the format of their cell (so they may be less precise than their real value, depending on cell format), so as a workaround
         # we read the value attribute which returns a float. In theory this could cause precision loss, but in reality most of the input data from
@@ -143,7 +142,7 @@ def _get_decimal_constructor_argument_names(class_name: str) -> List[str]:
         raise Exception(f"Internal error: class {class_name} is not a subclass of AbstractTransaction")
     arg_spec = inspect.getfullargspec(class_to_inspect.__init__)
     for parameter_name, parameter_type in arg_spec.annotations.items():
-        if parameter_type in [Decimal, Optional[Decimal]]:
+        if parameter_type in [RP2Decimal, Optional[RP2Decimal]]:
             result.append(parameter_name)
     return result
 
@@ -163,7 +162,7 @@ def _process_constructor_argument_pack(
             # It would be ideal to pass a string directly to the RP2Decimal constructor for maximum precision, but due to ezodf limitations we
             # cannot get the string representation directly from the spreadsheet (see the comment on cell format inside parse_ods() for more
             # detail), so at parse time we have to get the float value from the cell. Here we convert the float to string, which allows us to
-            # initialize a maximum-precision Decimal (11 decimal digits is enough precision for millisats).
+            # initialize a maximum-precision RP2Decimal (11 decimal digits is enough precision for millisats).
             argument_pack[numeric_parameter] = RP2Decimal(f"{value:.11f}") if value is not None else None
 
     return argument_pack

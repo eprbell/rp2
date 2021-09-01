@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from decimal import Decimal
 from typing import Any, Callable, List, Optional
 
 from abstract_transaction import AbstractTransaction
@@ -32,12 +31,12 @@ class OutTransaction(AbstractTransaction):
         exchange: str,
         holder: str,
         transaction_type: str,
-        spot_price: Decimal,
-        crypto_out_no_fee: Decimal,
-        crypto_fee: Decimal,
-        crypto_out_with_fee: Optional[Decimal] = None,
-        usd_out_no_fee: Optional[Decimal] = None,
-        usd_fee: Optional[Decimal] = None,
+        spot_price: RP2Decimal,
+        crypto_out_no_fee: RP2Decimal,
+        crypto_fee: RP2Decimal,
+        crypto_out_with_fee: Optional[RP2Decimal] = None,
+        usd_out_no_fee: Optional[RP2Decimal] = None,
+        usd_fee: Optional[RP2Decimal] = None,
         unique_id: Optional[int] = None,
         notes: Optional[str] = None,
     ) -> None:
@@ -45,10 +44,10 @@ class OutTransaction(AbstractTransaction):
 
         self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
         self.__holder: str = configuration.type_check_holder("holder", holder)
-        self.__crypto_out_no_fee: Decimal = configuration.type_check_positive_decimal("crypto_out_no_fee", crypto_out_no_fee, non_zero=True)
-        self.__crypto_fee: Decimal = configuration.type_check_positive_decimal("crypto_fee", crypto_fee)
-        self.__usd_out_with_fee: Decimal
-        self.__usd_out_no_fee: Decimal
+        self.__crypto_out_no_fee: RP2Decimal = configuration.type_check_positive_decimal("crypto_out_no_fee", crypto_out_no_fee, non_zero=True)
+        self.__crypto_fee: RP2Decimal = configuration.type_check_positive_decimal("crypto_fee", crypto_fee)
+        self.__usd_out_with_fee: RP2Decimal
+        self.__usd_out_no_fee: RP2Decimal
 
         # Crypto out with fee is optional. It can be derived from crypto out (no fee) and crypto fee, however some exchanges
         # provide it anyway. If it is provided use it as given by the exchange, if not compute it.
@@ -148,43 +147,43 @@ class OutTransaction(AbstractTransaction):
         return self.__holder
 
     @property
-    def crypto_out_no_fee(self) -> Decimal:
+    def crypto_out_no_fee(self) -> RP2Decimal:
         return self.__crypto_out_no_fee
 
     @property
-    def crypto_out_with_fee(self) -> Decimal:
+    def crypto_out_with_fee(self) -> RP2Decimal:
         return self.__crypto_out_with_fee
 
     @property
-    def crypto_fee(self) -> Decimal:
+    def crypto_fee(self) -> RP2Decimal:
         return self.__crypto_fee
 
     @property
-    def usd_out_no_fee(self) -> Decimal:
+    def usd_out_no_fee(self) -> RP2Decimal:
         return self.__usd_out_no_fee
 
     @property
-    def usd_out_with_fee(self) -> Decimal:
+    def usd_out_with_fee(self) -> RP2Decimal:
         return self.__usd_out_with_fee
 
     @property
-    def usd_fee(self) -> Decimal:
+    def usd_fee(self) -> RP2Decimal:
         return self.__usd_fee
 
     @property
-    def crypto_taxable_amount(self) -> Decimal:
+    def crypto_taxable_amount(self) -> RP2Decimal:
         return self.crypto_balance_change
 
     @property
-    def usd_taxable_amount(self) -> Decimal:
+    def usd_taxable_amount(self) -> RP2Decimal:
         return self.usd_balance_change
 
     @property
-    def crypto_balance_change(self) -> Decimal:
+    def crypto_balance_change(self) -> RP2Decimal:
         return self.crypto_out_with_fee
 
     @property
-    def usd_balance_change(self) -> Decimal:
+    def usd_balance_change(self) -> RP2Decimal:
         return self.usd_out_with_fee
 
     def is_taxable(self) -> bool:

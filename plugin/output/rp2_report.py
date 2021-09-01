@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from decimal import Decimal
 from typing import Any, Dict, List, Optional, Set, Tuple, cast
 
 import ezodf
@@ -28,6 +27,7 @@ from in_transaction import InTransaction
 from intra_transaction import IntraTransaction
 from logger import LOGGER
 from out_transaction import OutTransaction
+from rp2_decimal import RP2Decimal
 from rp2_error import RP2TypeError
 from transaction_set import TransactionSet
 
@@ -125,7 +125,7 @@ _GAIN_LOSS_DETAIL_HEADER_NAMES: List[Tuple[str, str]] = [
     ("In Lot Fraction", "Description"),
 ]
 
-_ZERO: Decimal = Decimal(0)
+_ZERO: RP2Decimal = RP2Decimal(0)
 
 
 class Generator(AbstractODTGenerator):
@@ -235,7 +235,7 @@ class Generator(AbstractODTGenerator):
 
         in_transaction_index: int = row_index
         entry: AbstractEntry
-        crypto_in_running_sum: Decimal = _ZERO
+        crypto_in_running_sum: RP2Decimal = _ZERO
         year: int = 0
         visual_style: str
         for entry in in_transaction_set:
@@ -261,7 +261,7 @@ class Generator(AbstractODTGenerator):
             row_index += 1
 
         current_from_lot: Optional[AbstractTransaction] = None
-        current_from_lot_percentage: Decimal = _ZERO
+        current_from_lot_percentage: RP2Decimal = _ZERO
         year = 0
         border_suffix: str = ""
         for entry in gain_loss_set:
@@ -286,8 +286,8 @@ class Generator(AbstractODTGenerator):
         row_index = self._fill_header("Out-Flow Detail", _OUT_HEADER_NAMES, sheet, row_index, 1)
 
         entry: AbstractEntry
-        crypto_out_running_sum: Decimal = _ZERO
-        crypto_fee_running_sum: Decimal = _ZERO
+        crypto_out_running_sum: RP2Decimal = _ZERO
+        crypto_fee_running_sum: RP2Decimal = _ZERO
         year: int = 0
         for entry in out_transaction_set:
             transaction: OutTransaction = cast(OutTransaction, entry)
@@ -319,7 +319,7 @@ class Generator(AbstractODTGenerator):
         row_index = self._fill_header("Intra-Flow Detail", _INTRA_HEADER_NAMES, sheet, row_index, 1)
 
         entry: AbstractEntry
-        crypto_fee_running_sum: Decimal = _ZERO
+        crypto_fee_running_sum: RP2Decimal = _ZERO
         year: int = 0
         for entry in intra_transaction_set:
             transaction: IntraTransaction = cast(IntraTransaction, entry)
@@ -369,8 +369,8 @@ class Generator(AbstractODTGenerator):
     def __generate_account_balances(self, sheet: Any, balance_set: BalanceSet, row_index: int) -> int:
         row_index = self._fill_header("Account Balances", _BALANCE_HEADER_NAMES, sheet, row_index, 0)
 
-        totals: Dict[str, Decimal] = dict()
-        value: Decimal
+        totals: Dict[str, RP2Decimal] = dict()
+        value: RP2Decimal
         for balance in balance_set:
             self._fill_cell(sheet, row_index, 0, balance.exchange, visual_style="bold", data_style="default")
             self._fill_cell(sheet, row_index, 1, balance.holder, visual_style="bold", data_style="default")
@@ -402,7 +402,7 @@ class Generator(AbstractODTGenerator):
 
         return row_index
 
-    def __generate_average_price_per_unit(self, sheet: Any, asset: str, price_per_unit: Decimal, row_index: int) -> int:
+    def __generate_average_price_per_unit(self, sheet: Any, asset: str, price_per_unit: RP2Decimal, row_index: int) -> int:
         self._fill_cell(sheet, row_index, 0, "Average Price", visual_style="title")
         self._fill_cell(sheet, row_index + 1, 0, "Average Price", visual_style="header")
         self._fill_cell(sheet, row_index + 2, 0, f"Paid Per 1 {asset}", visual_style="header")
@@ -416,7 +416,7 @@ class Generator(AbstractODTGenerator):
 
         taxable_event_style_modifier: str = ""
         from_lot_style_modifier: str = ""
-        crypto_amount_running_sum: Decimal = _ZERO
+        crypto_amount_running_sum: RP2Decimal = _ZERO
         year: int = 0
         for entry in gain_loss_set:
             gain_loss: GainLoss = cast(GainLoss, entry)
@@ -467,7 +467,7 @@ class Generator(AbstractODTGenerator):
                 self._fill_cell(sheet, row_index, 11, gain_loss.from_lot.timestamp, visual_style=from_lot_style)
                 self._fill_cell(sheet, row_index, 12, gain_loss.from_lot_fraction_percentage, visual_style=from_lot_style, data_style="percent")
                 self._fill_cell(sheet, row_index, 13, gain_loss.from_lot_usd_amount_with_fee_fraction, visual_style=from_lot_style, data_style="usd")
-                usd_fee_fraction: Decimal = gain_loss.from_lot.usd_fee * gain_loss.from_lot_fraction_percentage
+                usd_fee_fraction: RP2Decimal = gain_loss.from_lot.usd_fee * gain_loss.from_lot_fraction_percentage
                 self._fill_cell(sheet, row_index, 14, usd_fee_fraction, visual_style=from_lot_style, data_style="usd")
                 self._fill_cell(sheet, row_index, 15, gain_loss.usd_cost_basis, visual_style=highlighted_style, data_style="usd")
                 self._fill_cell(sheet, row_index, 16, gain_loss.from_lot.spot_price, visual_style=from_lot_style, data_style="usd")

@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from decimal import Decimal
 from typing import Dict, List, Optional, cast
 
 from configuration import Configuration
@@ -22,7 +21,7 @@ from input_data import InputData
 from intra_transaction import IntraTransaction
 from logger import LOGGER
 from out_transaction import OutTransaction
-from rp2_decimal import ZERO
+from rp2_decimal import RP2Decimal, ZERO
 from rp2_error import RP2TypeError
 
 
@@ -33,19 +32,19 @@ class Balance:
         asset: str,
         exchange: str,
         holder: str,
-        final_balance: Decimal,
-        acquired_balance: Decimal,
-        sent_balance: Decimal,
-        received_balance: Decimal,
+        final_balance: RP2Decimal,
+        acquired_balance: RP2Decimal,
+        sent_balance: RP2Decimal,
+        received_balance: RP2Decimal,
     ) -> None:
         Configuration.type_check("configuration", configuration)
         self.__asset: str = configuration.type_check_asset("asset", asset)
         self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
         self.__holder: str = configuration.type_check_holder("holder", holder)
-        self.__final_balance: Decimal = configuration.type_check_decimal("final_balance", final_balance)
-        self.__acquired_balance: Decimal = configuration.type_check_decimal("acquired_balance", acquired_balance)
-        self.__sent_balance: Decimal = configuration.type_check_decimal("sent_balance", sent_balance)
-        self.__received_balance: Decimal = configuration.type_check_decimal("received_balance", received_balance)
+        self.__final_balance: RP2Decimal = configuration.type_check_decimal("final_balance", final_balance)
+        self.__acquired_balance: RP2Decimal = configuration.type_check_decimal("acquired_balance", acquired_balance)
+        self.__sent_balance: RP2Decimal = configuration.type_check_decimal("sent_balance", sent_balance)
+        self.__received_balance: RP2Decimal = configuration.type_check_decimal("received_balance", received_balance)
 
     def __str__(self) -> str:
         return (
@@ -84,19 +83,19 @@ class Balance:
         return self.__holder
 
     @property
-    def final_balance(self) -> Decimal:
+    def final_balance(self) -> RP2Decimal:
         return self.__final_balance
 
     @property
-    def acquired_balance(self) -> Decimal:
+    def acquired_balance(self) -> RP2Decimal:
         return self.__acquired_balance
 
     @property
-    def sent_balance(self) -> Decimal:
+    def sent_balance(self) -> RP2Decimal:
         return self.__sent_balance
 
     @property
-    def received_balance(self) -> Decimal:
+    def received_balance(self) -> RP2Decimal:
         return self.__received_balance
 
 
@@ -126,10 +125,10 @@ class BalanceSet:
         self.__asset: str = configuration.type_check_asset("in_transaction_set.asset", input_data.asset)
         self._balances: List[Balance] = []
 
-        acquired_balances: Dict[Account, Decimal] = {}
-        sent_balances: Dict[Account, Decimal] = {}
-        received_balances: Dict[Account, Decimal] = {}
-        final_balances: Dict[Account, Decimal] = {}
+        acquired_balances: Dict[Account, RP2Decimal] = {}
+        sent_balances: Dict[Account, RP2Decimal] = {}
+        received_balances: Dict[Account, RP2Decimal] = {}
+        final_balances: Dict[Account, RP2Decimal] = {}
 
         from_account: Account
         to_account: Account

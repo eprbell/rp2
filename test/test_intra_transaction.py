@@ -530,7 +530,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1.9998"),
                 unique_id=19,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'spot_price' has non-Decimal value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'spot_price' has non-RP2Decimal value .*"):
             # Bad spot price
             IntraTransaction(
                 self._configuration,
@@ -575,7 +575,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1.9998"),
                 unique_id=19,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_sent' has non-Decimal value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_sent' has non-RP2Decimal value .*"):
             # Bad crypto sent
             IntraTransaction(
                 self._configuration,
@@ -590,7 +590,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1.9998"),
                 unique_id=19,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_sent' has non-Decimal value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_sent' has non-RP2Decimal value .*"):
             # Bad crypto sent
             IntraTransaction(
                 self._configuration,
@@ -620,7 +620,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("-2"),
                 unique_id=19,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_received' has non-Decimal value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_received' has non-RP2Decimal value .*"):
             # Bad crypto received
             IntraTransaction(
                 self._configuration,
@@ -635,7 +635,7 @@ class TestIntraTransaction(unittest.TestCase):
                 None,  # type: ignore
                 unique_id=19,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_received' has non-Decimal value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_received' has non-RP2Decimal value .*"):
             # Bad crypto received
             IntraTransaction(
                 self._configuration,

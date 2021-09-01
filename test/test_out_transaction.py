@@ -477,7 +477,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("0"),
                 unique_id=38,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'spot_price' has non-Decimal value ,*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'spot_price' has non-RP2Decimal value ,*"):
             # Bad spot price
             OutTransaction(
                 self._configuration,
@@ -519,7 +519,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("0"),
                 unique_id=38,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_out_no_fee' has non-Decimal value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_out_no_fee' has non-RP2Decimal value .*"):
             # Bad crypto out no fee
             OutTransaction(
                 self._configuration,
@@ -547,7 +547,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("-0.1"),
                 unique_id=38,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_fee' has non-Decimal value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_fee' has non-RP2Decimal value .*"):
             # Bad crypto fee
             OutTransaction(
                 self._configuration,
@@ -576,7 +576,7 @@ class TestOutTransaction(unittest.TestCase):
                 usd_out_no_fee=RP2Decimal("-0.1"),
                 unique_id=38,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'usd_out_no_fee' has non-Decimal value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'usd_out_no_fee' has non-RP2Decimal value .*"):
             # Bad usd_out_no_fee
             OutTransaction(
                 self._configuration,
@@ -608,7 +608,7 @@ class TestOutTransaction(unittest.TestCase):
                 usd_fee=RP2Decimal("-10"),
                 unique_id=38,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'usd_fee' has non-Decimal value .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'usd_fee' has non-RP2Decimal value .*"):
             # Bad usd fee
             OutTransaction(
                 self._configuration,

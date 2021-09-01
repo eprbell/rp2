@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from decimal import Decimal
 from typing import Any, Callable, List, Optional
 
 from abstract_transaction import AbstractTransaction
 from configuration import Configuration
-from rp2_decimal import ZERO
+from rp2_decimal import ZERO, RP2Decimal
 from rp2_error import RP2TypeError, RP2ValueError
 
 
@@ -31,9 +30,9 @@ class IntraTransaction(AbstractTransaction):
         from_holder: str,
         to_exchange: str,
         to_holder: str,
-        spot_price: Optional[Decimal],
-        crypto_sent: Decimal,
-        crypto_received: Decimal,
+        spot_price: Optional[RP2Decimal],
+        crypto_sent: RP2Decimal,
+        crypto_received: RP2Decimal,
         unique_id: Optional[int] = None,
         notes: Optional[str] = None,
     ) -> None:
@@ -47,10 +46,10 @@ class IntraTransaction(AbstractTransaction):
         self.__from_holder: str = configuration.type_check_holder("from_holder", from_holder)
         self.__to_exchange: str = configuration.type_check_exchange("to_exchange", to_exchange)
         self.__to_holder: str = configuration.type_check_holder("to_holder", to_holder)
-        self.__crypto_sent: Decimal = configuration.type_check_positive_decimal("crypto_sent", crypto_sent, non_zero=True)
-        self.__crypto_received: Decimal = configuration.type_check_positive_decimal("crypto_received", crypto_received)
-        self.__crypto_fee: Decimal
-        self.__usd_fee: Decimal
+        self.__crypto_sent: RP2Decimal = configuration.type_check_positive_decimal("crypto_sent", crypto_sent, non_zero=True)
+        self.__crypto_received: RP2Decimal = configuration.type_check_positive_decimal("crypto_received", crypto_received)
+        self.__crypto_fee: RP2Decimal
+        self.__usd_fee: RP2Decimal
 
         if self.__from_exchange == self.__to_exchange and self.__from_holder == self.__to_holder:
             raise RP2ValueError(
@@ -114,35 +113,35 @@ class IntraTransaction(AbstractTransaction):
         return self.__to_holder
 
     @property
-    def crypto_sent(self) -> Decimal:
+    def crypto_sent(self) -> RP2Decimal:
         return self.__crypto_sent
 
     @property
-    def crypto_received(self) -> Decimal:
+    def crypto_received(self) -> RP2Decimal:
         return self.__crypto_received
 
     @property
-    def crypto_fee(self) -> Decimal:
+    def crypto_fee(self) -> RP2Decimal:
         return self.__crypto_fee
 
     @property
-    def usd_fee(self) -> Decimal:
+    def usd_fee(self) -> RP2Decimal:
         return self.__usd_fee
 
     @property
-    def crypto_taxable_amount(self) -> Decimal:
+    def crypto_taxable_amount(self) -> RP2Decimal:
         return self.crypto_fee
 
     @property
-    def usd_taxable_amount(self) -> Decimal:
+    def usd_taxable_amount(self) -> RP2Decimal:
         return self.usd_fee
 
     @property
-    def crypto_balance_change(self) -> Decimal:
+    def crypto_balance_change(self) -> RP2Decimal:
         return self.crypto_fee
 
     @property
-    def usd_balance_change(self) -> Decimal:
+    def usd_balance_change(self) -> RP2Decimal:
         return self.usd_fee
 
     def is_taxable(self) -> bool:

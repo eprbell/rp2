@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from decimal import Decimal
 from typing import Any, Callable, List, Optional
 
 from abstract_entry import AbstractEntry
@@ -40,11 +39,11 @@ class InTransaction(AbstractTransaction):
         exchange: str,
         holder: str,
         transaction_type: str,
-        spot_price: Decimal,
-        crypto_in: Decimal,
-        usd_fee: Decimal,
-        usd_in_no_fee: Optional[Decimal] = None,
-        usd_in_with_fee: Optional[Decimal] = None,
+        spot_price: RP2Decimal,
+        crypto_in: RP2Decimal,
+        usd_fee: RP2Decimal,
+        usd_in_no_fee: Optional[RP2Decimal] = None,
+        usd_in_with_fee: Optional[RP2Decimal] = None,
         unique_id: Optional[int] = None,
         notes: Optional[str] = None,
     ) -> None:
@@ -52,13 +51,13 @@ class InTransaction(AbstractTransaction):
 
         self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
         self.__holder: str = configuration.type_check_holder("holder", holder)
-        self.__crypto_in: Decimal = configuration.type_check_positive_decimal("crypto_in", crypto_in, non_zero=True)
-        self.__usd_fee: Decimal = configuration.type_check_positive_decimal("usd_fee", usd_fee)
+        self.__crypto_in: RP2Decimal = configuration.type_check_positive_decimal("crypto_in", crypto_in, non_zero=True)
+        self.__usd_fee: RP2Decimal = configuration.type_check_positive_decimal("usd_fee", usd_fee)
 
         # USD in with/without fee are optional. They can be derived from crypto in, spot price and usd fee, however some exchanges
         # provide them anyway. If they are provided use them as given by the exchange, if not compute them.
-        self.__usd_in_no_fee: Decimal
-        self.__usd_in_with_fee: Decimal
+        self.__usd_in_no_fee: RP2Decimal
+        self.__usd_in_with_fee: RP2Decimal
         if usd_in_no_fee is None:
             self.__usd_in_no_fee = self.__crypto_in * self.spot_price
         else:
@@ -137,39 +136,39 @@ class InTransaction(AbstractTransaction):
         return self.__holder
 
     @property
-    def crypto_in(self) -> Decimal:
+    def crypto_in(self) -> RP2Decimal:
         return self.__crypto_in
 
     @property
-    def usd_in_no_fee(self) -> Decimal:
+    def usd_in_no_fee(self) -> RP2Decimal:
         return self.__usd_in_no_fee
 
     @property
-    def usd_in_with_fee(self) -> Decimal:
+    def usd_in_with_fee(self) -> RP2Decimal:
         return self.__usd_in_with_fee
 
     @property
-    def usd_fee(self) -> Decimal:
+    def usd_fee(self) -> RP2Decimal:
         return self.__usd_fee
 
     @property
-    def crypto_taxable_amount(self) -> Decimal:
+    def crypto_taxable_amount(self) -> RP2Decimal:
         if self.is_taxable():
             return self.__crypto_in
         return ZERO
 
     @property
-    def usd_taxable_amount(self) -> Decimal:
+    def usd_taxable_amount(self) -> RP2Decimal:
         if self.is_taxable():
             return self.usd_in_with_fee
         return ZERO
 
     @property
-    def crypto_balance_change(self) -> Decimal:
+    def crypto_balance_change(self) -> RP2Decimal:
         return self.crypto_in
 
     @property
-    def usd_balance_change(self) -> Decimal:
+    def usd_balance_change(self) -> RP2Decimal:
         return self.usd_in_with_fee
 
     def is_taxable(self) -> bool:

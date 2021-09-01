@@ -240,7 +240,7 @@ class TestGainLoss(unittest.TestCase):
             # Bad amount
             GainLoss(self._configuration, RP2Decimal("-1"), self._out, None)
 
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_amount' has non-Decimal value"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_amount' has non-RP2Decimal value"):
             # Bad amount
             GainLoss(self._configuration, "0.5", self._in_earn, None)  # type: ignore
 

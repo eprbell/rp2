@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from decimal import Decimal
 from typing import Dict, Iterable, Iterator, List, Set, cast
 
 from abstract_entry import AbstractEntry
@@ -29,7 +28,7 @@ from input_data import InputData
 from intra_transaction import IntraTransaction
 from logger import LOGGER
 from out_transaction import OutTransaction
-from rp2_decimal import ZERO
+from rp2_decimal import ZERO, RP2Decimal
 from rp2_error import RP2ValueError
 from transaction_set import TransactionSet
 
@@ -47,13 +46,13 @@ def compute_tax(configuration: Configuration, input_data: InputData) -> Computed
     yearly_gain_loss_list: List[YearlyGainLoss] = _create_yearly_gain_loss_list(input_data, gain_loss_set)
     LOGGER.debug("%s: Created yearly gain-loss list", input_data.asset)
 
-    crypto_in_running_sum: Decimal = ZERO
-    usd_in_with_fee_running_sum: Decimal = ZERO
+    crypto_in_running_sum: RP2Decimal = ZERO
+    usd_in_with_fee_running_sum: RP2Decimal = ZERO
     for entry in input_data.in_transaction_set:
         transaction: InTransaction = cast(InTransaction, entry)
         crypto_in_running_sum += transaction.crypto_in
         usd_in_with_fee_running_sum += transaction.usd_in_with_fee
-    price_per_unit: Decimal = usd_in_with_fee_running_sum / crypto_in_running_sum
+    price_per_unit: RP2Decimal = usd_in_with_fee_running_sum / crypto_in_running_sum
     LOGGER.debug("%s: Created price per unit", input_data.asset)
 
     return ComputedData(
@@ -97,9 +96,9 @@ def _create_gain_and_loss_set(configuration: Configuration, input_data: InputDat
     try:
         gain_loss: GainLoss
         taxable_event: AbstractTransaction = next(taxable_event_iterator)
-        taxable_event_amount: Decimal = taxable_event.crypto_taxable_amount
+        taxable_event_amount: RP2Decimal = taxable_event.crypto_taxable_amount
         from_lot: InTransaction = next(from_lot_iterator)
-        from_lot_amount: Decimal = from_lot.crypto_in
+        from_lot_amount: RP2Decimal = from_lot.crypto_in
 
         while True:
             if taxable_event.transaction_type == TransactionType.EARN:
@@ -147,10 +146,10 @@ class _YearlyGainLossId:
 # Frozen and eq are not set because we don't need to hash instances and we need to modify fields (see _create_yearly_gain_loss_list)
 @dataclass(frozen=True, eq=True)
 class _YearlyGainLossAmounts:
-    crypto_amount: Decimal
-    usd_amount: Decimal
-    usd_cost_basis: Decimal
-    usd_gain_loss: Decimal
+    crypto_amount: RP2Decimal
+    usd_amount: RP2Decimal
+    usd_cost_basis: RP2Decimal
+    usd_gain_loss: RP2Decimal
 
 
 def _create_yearly_gain_loss_list(input_data: InputData, gain_loss_set: GainLossSet) -> List[YearlyGainLoss]:
@@ -167,10 +166,10 @@ def _create_yearly_gain_loss_list(input_data: InputData, gain_loss_set: GainLoss
             gain_loss.is_long_term_capital_gains(),
         )
         value = summaries.setdefault(key, _YearlyGainLossAmounts(ZERO, ZERO, ZERO, ZERO))
-        crypto_amount: Decimal = value.crypto_amount + gain_loss.crypto_amount
-        usd_amount: Decimal = value.usd_amount + gain_loss.taxable_event_usd_amount_with_fee_fraction
-        usd_cost_basis: Decimal = value.usd_cost_basis + gain_loss.usd_cost_basis
-        usd_gain_loss: Decimal = value.usd_gain_loss + gain_loss.usd_gain
+        crypto_amount: RP2Decimal = value.crypto_amount + gain_loss.crypto_amount
+        usd_amount: RP2Decimal = value.usd_amount + gain_loss.taxable_event_usd_amount_with_fee_fraction
+        usd_cost_basis: RP2Decimal = value.usd_cost_basis + gain_loss.usd_cost_basis
+        usd_gain_loss: RP2Decimal = value.usd_gain_loss + gain_loss.usd_gain
         summaries[key] = _YearlyGainLossAmounts(
             crypto_amount=crypto_amount,
             usd_amount=usd_amount,
@@ -179,10 +178,10 @@ def _create_yearly_gain_loss_list(input_data: InputData, gain_loss_set: GainLoss
         )
 
     yearly_gain_loss_set: Set[YearlyGainLoss] = set()
-    crypto_taxable_amount_total: Decimal = ZERO
-    usd_taxable_amount_total: Decimal = ZERO
-    cost_basis_total: Decimal = ZERO
-    gain_loss_total: Decimal = ZERO
+    crypto_taxable_amount_total: RP2Decimal = ZERO
+    usd_taxable_amount_total: RP2Decimal = ZERO
+    cost_basis_total: RP2Decimal = ZERO
+    gain_loss_total: RP2Decimal = ZERO
     for (key, value) in summaries.items():
         yearly_gain_loss: YearlyGainLoss = YearlyGainLoss(
             year=key.year,
@@ -217,18 +216,18 @@ def _yearly_gain_loss_sort_criteria(yearly_gain_loss: YearlyGainLoss) -> str:
 # Internal sanity check: ensure the sum total of gains and losses from taxable flows matches the one from taxable events and InTransactions
 def _verify_computation(
     input_data: InputData,
-    crypto_taxable_amount_total: Decimal,
-    usd_taxable_amount_total: Decimal,
-    cost_basis_total: Decimal,
-    gain_loss_total: Decimal,
+    crypto_taxable_amount_total: RP2Decimal,
+    usd_taxable_amount_total: RP2Decimal,
+    cost_basis_total: RP2Decimal,
+    gain_loss_total: RP2Decimal,
 ) -> None:
-    usd_taxable_amount_total_verify: Decimal = ZERO
-    crypto_earned_amount_total_verify: Decimal = ZERO
-    crypto_sold_amount_total_verify: Decimal = ZERO
-    crypto_taxable_amount_total_verify: Decimal = ZERO
-    cost_basis_total_verify: Decimal = ZERO
-    crypto_in_amount_total: Decimal = ZERO
-    gain_loss_total_verify: Decimal = ZERO
+    usd_taxable_amount_total_verify: RP2Decimal = ZERO
+    crypto_earned_amount_total_verify: RP2Decimal = ZERO
+    crypto_sold_amount_total_verify: RP2Decimal = ZERO
+    crypto_taxable_amount_total_verify: RP2Decimal = ZERO
+    cost_basis_total_verify: RP2Decimal = ZERO
+    crypto_in_amount_total: RP2Decimal = ZERO
+    gain_loss_total_verify: RP2Decimal = ZERO
 
     # Compute USD and crypto total taxable amount
     for entry in input_data.in_transaction_set:
@@ -251,7 +250,7 @@ def _verify_computation(
         in_transaction = cast(InTransaction, entry)
         if crypto_in_amount_total + in_transaction.crypto_in > crypto_sold_amount_total_verify:
             # End of loop: last in transaction covering the amount sold needs to be fractioned
-            crypto_in_amount: Decimal = crypto_sold_amount_total_verify - crypto_in_amount_total
+            crypto_in_amount: RP2Decimal = crypto_sold_amount_total_verify - crypto_in_amount_total
             crypto_in_amount_total += crypto_in_amount
             cost_basis_total_verify += (crypto_in_amount / in_transaction.crypto_in) * in_transaction.usd_in_with_fee
             break

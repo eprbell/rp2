@@ -13,12 +13,12 @@
 # limitations under the License.
 
 from datetime import datetime
-from decimal import Decimal
 from typing import Any, Callable, List, Optional
 
 from abstract_entry import AbstractEntry
 from configuration import Configuration
 from entry_types import TransactionType
+from rp2_decimal import RP2Decimal
 from rp2_error import RP2TypeError
 
 
@@ -29,7 +29,7 @@ class AbstractTransaction(AbstractEntry):
         timestamp: str,
         asset: str,
         transaction_type: str,
-        spot_price: Decimal,
+        spot_price: RP2Decimal,
         unique_id: Optional[int] = None,
         notes: Optional[str] = None,
     ) -> None:
@@ -37,7 +37,7 @@ class AbstractTransaction(AbstractEntry):
 
         self.__timestamp: datetime = configuration.type_check_timestamp_from_string("timestamp", timestamp)
         self.__transaction_type: TransactionType = TransactionType.type_check_from_string("transaction_type", transaction_type)
-        self.__spot_price: Decimal = configuration.type_check_positive_decimal("spot_price", spot_price)
+        self.__spot_price: RP2Decimal = configuration.type_check_positive_decimal("spot_price", spot_price)
         self.__unique_id: int = configuration.type_check_unique_id("unique_id", unique_id) if unique_id is not None else id(self)
         self.__notes = configuration.type_check_string("notes", notes) if notes else ""
 
@@ -109,7 +109,7 @@ class AbstractTransaction(AbstractEntry):
         return self.__transaction_type
 
     @property
-    def spot_price(self) -> Decimal:
+    def spot_price(self) -> RP2Decimal:
         return self.__spot_price
 
     @property
@@ -117,11 +117,11 @@ class AbstractTransaction(AbstractEntry):
         return self.__notes
 
     @property
-    def crypto_taxable_amount(self) -> Decimal:
+    def crypto_taxable_amount(self) -> RP2Decimal:
         raise NotImplementedError("Abstract property")
 
     @property
-    def usd_taxable_amount(self) -> Decimal:
+    def usd_taxable_amount(self) -> RP2Decimal:
         raise NotImplementedError("Abstract property")
 
     def is_taxable(self) -> bool:

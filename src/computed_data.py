@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from decimal import Decimal
 from typing import List
 
 from balance import BalanceSet
@@ -21,6 +20,7 @@ from configuration import Configuration
 from entry_types import EntrySetType, TransactionType
 from gain_loss_set import GainLossSet
 from input_data import InputData
+from rp2_decimal import RP2Decimal
 from rp2_error import RP2TypeError, RP2ValueError
 from transaction_set import TransactionSet
 
@@ -31,10 +31,10 @@ class YearlyGainLoss:
     asset: str
     transaction_type: TransactionType
     is_long_term_capital_gains: bool
-    crypto_amount: Decimal
-    usd_amount: Decimal
-    usd_cost_basis: Decimal
-    usd_gain_loss: Decimal
+    crypto_amount: RP2Decimal
+    usd_amount: RP2Decimal
+    usd_cost_basis: RP2Decimal
+    usd_gain_loss: RP2Decimal
 
     def __post_init__(self) -> None:
         Configuration.type_check_positive_int("year", self.year)
@@ -95,7 +95,7 @@ class ComputedData:
     gain_loss_set: GainLossSet
     balance_set: BalanceSet
     yearly_gain_loss_list: List[YearlyGainLoss]
-    price_per_unit: Decimal
+    price_per_unit: RP2Decimal
     input_data: InputData
 
     @classmethod
