@@ -14,7 +14,6 @@
 
 import json
 from datetime import datetime
-from decimal import Decimal
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
@@ -23,7 +22,7 @@ from dateutil.parser import parse
 from jsonschema import validate  # type: ignore
 
 from configuration_schema import CONFIGURATION_SCHEMA
-from rp2_decimal import ZERO
+from rp2_decimal import RP2Decimal, ZERO
 from rp2_error import RP2TypeError, RP2ValueError
 
 VERSION: str = "0.5.0"
@@ -72,7 +71,7 @@ class Configuration:
         if not Path(configuration_path).exists():
             raise RP2ValueError(f"Error: {configuration_path} does not exist")
 
-        with open(configuration_path, "r") as configuration_file:
+        with open(configuration_path, "r", encoding="utf-8") as configuration_file:
             # This json_configuration is validated by jsonschema, so we can disable static type checking for it:
             # it adds complexity but not much value over jsonschema checks
             json_configuration: Any = json.load(configuration_file)
@@ -245,8 +244,8 @@ class Configuration:
         return value
 
     @classmethod
-    def type_check_positive_decimal(cls, name: str, value: Decimal, non_zero: bool = False) -> Decimal:
-        result: Decimal = cls.type_check_decimal(name, value)
+    def type_check_positive_decimal(cls, name: str, value: RP2Decimal, non_zero: bool = False) -> RP2Decimal:
+        result: RP2Decimal = cls.type_check_decimal(name, value)
         if result < ZERO:
             raise RP2ValueError(f"Parameter '{name}' has non-positive value {value}")
         if non_zero and result == ZERO:
@@ -254,8 +253,8 @@ class Configuration:
         return result
 
     @classmethod
-    def type_check_decimal(cls, name: str, value: Decimal) -> Decimal:
+    def type_check_decimal(cls, name: str, value: RP2Decimal) -> RP2Decimal:
         cls.type_check_parameter_name(name)
-        if not isinstance(value, Decimal):
-            raise RP2TypeError(f"Parameter '{name}' has non-Decimal value {repr(value)}")
+        if not isinstance(value, RP2Decimal):
+            raise RP2TypeError(f"Parameter '{name}' has non-RP2Decimal value {repr(value)}")
         return value
