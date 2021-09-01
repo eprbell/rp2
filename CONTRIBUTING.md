@@ -17,6 +17,8 @@ Logs are stored in the `log/` directory and each file name is appended with a ti
 
 ## Contributing to the Repository
 
+The [developer guide](doc/developer_guide.md) contains the RP2 [design guidelines](doc/developer_guide.md#design-guidelines).
+
 ### Development Workflow
 
 The RP2 source tree contains a Makefile with targets encapsulating common tasks relevant for development:
