@@ -32,98 +32,192 @@ from rp2_decimal import RP2Decimal
 from rp2_error import RP2TypeError
 from transaction_set import TransactionSet
 
-_IN_HEADER_NAMES: List[Tuple[str, str]] = [
-    ("", "Sent/Sold"),
-    ("", "Timestamp"),
-    ("", "Asset"),
-    ("", "Exchange"),
-    ("", "Holder"),
-    ("Transaction", "Type"),
-    ("", "Spot Price"),
-    ("Crypto", "In"),
-    ("Crypto In", "Running Sum"),
-    ("", "USD Fee"),
-    ("USD In", "No Fee"),
-    ("USD In", "With Fee"),
-    ("Taxable", "Event"),
-    ("", "N/A"),
-    ("", "Notes"),
+_IN_HEADER_NAMES_ROW_1: List[str] = [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "Transaction",
+    "",
+    "Crypto",
+    "Crypto In",
+    "",
+    "USD In",
+    "USD In",
+    "Taxable",
+    "",
+    "",
 ]
 
-_OUT_HEADER_NAMES: List[Tuple[str, str]] = [
-    ("", "Timestamp"),
-    ("", "Asset"),
-    ("", "Exchange"),
-    ("", "Holder"),
-    ("Transaction", "Type"),
-    ("", "Spot Price"),
-    ("", "Crypto Out"),
-    ("", "Crypto Fee"),
-    ("Crypto Out", "Running Sum"),
-    ("Crypto Fee", "Running Sum"),
-    ("", "USD Out"),
-    ("", "USD Fee"),
-    ("Taxable", "Event"),
-    ("", "Notes"),
+_IN_HEADER_NAMES_ROW_2: List[str] = [
+    "Sent/Sold",
+    "Timestamp",
+    "Asset",
+    "Exchange",
+    "Holder",
+    "Type",
+    "Spot Price",
+    "In",
+    "Running Sum",
+    "USD Fee",
+    "No Fee",
+    "With Fee",
+    "Event",
+    "N/A",
+    "Notes",
 ]
 
-_INTRA_HEADER_NAMES: List[Tuple[str, str]] = [
-    ("", "Timestamp"),
-    ("", "Asset"),
-    ("From", "Exchange"),
-    ("From", "Holder"),
-    ("", "To Exchange"),
-    ("", "To Holder"),
-    ("", "Spot Price"),
-    ("", "Crypto Sent"),
-    ("Crypto", "Received"),
-    ("", "Crypto Fee"),
-    ("Crypto Fee", "Running Sum"),
-    ("", "USD Fee"),
-    ("Taxable", "Event"),
-    ("", "Notes"),
+_OUT_HEADER_NAMES_ROW_1: List[str] = [
+    "",
+    "",
+    "",
+    "",
+    "Transaction",
+    "",
+    "",
+    "",
+    "Crypto Out",
+    "Crypto Fee",
+    "",
+    "",
+    "Taxable",
+    "",
 ]
 
-_BALANCE_HEADER_NAMES: List[Tuple[str, str]] = [
-    ("", "Exchange"),
-    ("", "Holder"),
-    ("", "Asset"),
-    ("Acquired", "Balance"),
-    ("Sent", "Balance"),
-    ("Received", "Balance"),
-    ("Final", "Balance"),
+_OUT_HEADER_NAMES_ROW_2: List[str] = [
+    "Timestamp",
+    "Asset",
+    "Exchange",
+    "Holder",
+    "Type",
+    "Spot Price",
+    "Crypto Out",
+    "Crypto Fee",
+    "Running Sum",
+    "Running Sum",
+    "USD Out",
+    "USD Fee",
+    "Event",
+    "Notes",
 ]
 
-_GAIN_LOSS_SUMMARY_HEADER_NAMES: List[Tuple[str, str]] = [
-    ("", "Year"),
-    ("", "Asset"),
-    ("Capital", "Gains"),
-    ("Capital", "Gains Type"),
-    ("Transaction", "Type"),
-    ("Crypto", "Taxable Total"),
-    ("USD", "Taxable Total"),
-    ("USD Total", "Cost Basis"),
+_INTRA_HEADER_NAMES_ROW_1: List[str] = [
+    "",
+    "",
+    "From",
+    "From",
+    "",
+    "",
+    "",
+    "",
+    "Crypto",
+    "",
+    "Crypto Fee",
+    "",
+    "Taxable",
+    "",
 ]
 
-_GAIN_LOSS_DETAIL_HEADER_NAMES: List[Tuple[str, str]] = [
-    ("Crypto", "Amount"),
-    ("", "Asset"),
-    ("Crypto Amt", "Running Sum"),
-    ("Capital", "Gains"),
-    ("Capital", "Gains Type"),
-    ("Taxable Event", "Timestamp"),
-    ("Taxable Event", "Direction/Type"),
-    ("Taxable Event", "Fraction %"),
-    ("Taxable Event USD", "Amount Fraction"),
-    ("Taxable Event", "Spot Price"),
-    ("Taxable Event", "Fraction Description"),
-    ("In Lot", "Timestamp"),
-    ("In Lot", "Fraction %"),
-    ("In Lot USD", "Amount Fraction"),
-    ("In Lot USD", "Fee Fraction"),
-    ("In Lot USD", "Cost Basis"),
-    ("In Lot", "Spot Price"),
-    ("In Lot Fraction", "Description"),
+_INTRA_HEADER_NAMES_ROW_2: List[str] = [
+    "Timestamp",
+    "Asset",
+    "Exchange",
+    "Holder",
+    "To Exchange",
+    "To Holder",
+    "Spot Price",
+    "Crypto Sent",
+    "Received",
+    "Crypto Fee",
+    "Running Sum",
+    "USD Fee",
+    "Event",
+    "Notes",
+]
+
+_BALANCE_HEADER_NAMES_ROW_1: List[str] = [
+    "",
+    "",
+    "",
+    "Acquired",
+    "Sent",
+    "Received",
+    "Final",
+]
+
+_BALANCE_HEADER_NAMES_ROW_2: List[str] = [
+    "Exchange",
+    "Holder",
+    "Asset",
+    "Balance",
+    "Balance",
+    "Balance",
+    "Balance",
+]
+
+_GAIN_LOSS_SUMMARY_HEADER_NAMES_ROW_1: List[str] = [
+    "",
+    "",
+    "Capital",
+    "Capital",
+    "Transaction",
+    "Crypto",
+    "USD",
+    "USD Total",
+]
+
+_GAIN_LOSS_SUMMARY_HEADER_NAMES_ROW_2: List[str] = [
+    "Year",
+    "Asset",
+    "Gains",
+    "Gains Type",
+    "Type",
+    "Taxable Total",
+    "Taxable Total",
+    "Cost Basis",
+]
+
+_GAIN_LOSS_DETAIL_HEADER_NAMES_ROW_1: List[str] = [
+    "Crypto",
+    "",
+    "Crypto Amt",
+    "Capital",
+    "Capital",
+    "Taxable Event",
+    "Taxable Event",
+    "Taxable Event",
+    "Taxable Event USD",
+    "Taxable Event",
+    "Taxable Event",
+    "In Lot",
+    "In Lot",
+    "In Lot USD",
+    "In Lot USD",
+    "In Lot USD",
+    "In Lot",
+    "In Lot Fraction",
+]
+
+_GAIN_LOSS_DETAIL_HEADER_NAMES_ROW_2: List[str] = [
+    "Amount",
+    "Asset",
+    "Running Sum",
+    "Gains",
+    "Gains Type",
+    "Timestamp",
+    "Direction/Type",
+    "Fraction %",
+    "Amount Fraction",
+    "Spot Price",
+    "Fraction Description",
+    "Timestamp",
+    "Fraction %",
+    "Amount Fraction",
+    "Fee Fraction",
+    "Cost Basis",
+    "Spot Price",
+    "Description",
 ]
 
 _ZERO: RP2Decimal = RP2Decimal(0)
@@ -231,7 +325,7 @@ class Generator(AbstractODTGenerator):
         return year, border_suffix
 
     def __generate_in_table(self, sheet: Any, in_transaction_set: TransactionSet, gain_loss_set: GainLossSet, row_index: int) -> int:
-        row_index = self._fill_header("In-Flow Detail", _IN_HEADER_NAMES, sheet, row_index, 0)
+        row_index = self._fill_header("In-Flow Detail", _IN_HEADER_NAMES_ROW_1, _IN_HEADER_NAMES_ROW_2, sheet, row_index, 0)
 
         in_transaction_index: int = row_index
         entry: AbstractEntry
@@ -283,7 +377,7 @@ class Generator(AbstractODTGenerator):
         return row_index
 
     def __generate_out_table(self, sheet: Any, out_transaction_set: TransactionSet, row_index: int) -> int:
-        row_index = self._fill_header("Out-Flow Detail", _OUT_HEADER_NAMES, sheet, row_index, 1)
+        row_index = self._fill_header("Out-Flow Detail", _OUT_HEADER_NAMES_ROW_1, _OUT_HEADER_NAMES_ROW_2, sheet, row_index, 1)
 
         entry: AbstractEntry
         crypto_out_running_sum: RP2Decimal = _ZERO
@@ -316,7 +410,7 @@ class Generator(AbstractODTGenerator):
         return row_index
 
     def __generate_intra_table(self, sheet: Any, intra_transaction_set: TransactionSet, row_index: int) -> int:
-        row_index = self._fill_header("Intra-Flow Detail", _INTRA_HEADER_NAMES, sheet, row_index, 1)
+        row_index = self._fill_header("Intra-Flow Detail", _INTRA_HEADER_NAMES_ROW_1, _INTRA_HEADER_NAMES_ROW_2, sheet, row_index, 1)
 
         entry: AbstractEntry
         crypto_fee_running_sum: RP2Decimal = _ZERO
@@ -347,7 +441,7 @@ class Generator(AbstractODTGenerator):
         return row_index
 
     def __generate_gain_loss_summary(self, sheet: Any, yearly_gain_loss_list: List[YearlyGainLoss], row_index: int) -> int:
-        row_index = self._fill_header("Gain / Loss Summary", _GAIN_LOSS_SUMMARY_HEADER_NAMES, sheet, row_index, 0)
+        row_index = self._fill_header("Gain / Loss Summary", _GAIN_LOSS_SUMMARY_HEADER_NAMES_ROW_1, _GAIN_LOSS_SUMMARY_HEADER_NAMES_ROW_2, sheet, row_index, 0)
 
         year: int = 0
         for yearly_gain_loss in yearly_gain_loss_list:
@@ -367,7 +461,7 @@ class Generator(AbstractODTGenerator):
         return row_index
 
     def __generate_account_balances(self, sheet: Any, balance_set: BalanceSet, row_index: int) -> int:
-        row_index = self._fill_header("Account Balances", _BALANCE_HEADER_NAMES, sheet, row_index, 0)
+        row_index = self._fill_header("Account Balances", _BALANCE_HEADER_NAMES_ROW_1, _BALANCE_HEADER_NAMES_ROW_2, sheet, row_index, 0)
 
         totals: Dict[str, RP2Decimal] = dict()
         value: RP2Decimal
@@ -412,7 +506,7 @@ class Generator(AbstractODTGenerator):
 
     def __generate_gain_loss_detail(self, sheet: Any, asset: str, gain_loss_set: GainLossSet, row_index: int) -> int:
 
-        row_index = self._fill_header("Gain / Loss Detail", _GAIN_LOSS_DETAIL_HEADER_NAMES, sheet, row_index, 0)
+        row_index = self._fill_header("Gain / Loss Detail", _GAIN_LOSS_DETAIL_HEADER_NAMES_ROW_1, _GAIN_LOSS_DETAIL_HEADER_NAMES_ROW_2, sheet, row_index, 0)
 
         taxable_event_style_modifier: str = ""
         from_lot_style_modifier: str = ""

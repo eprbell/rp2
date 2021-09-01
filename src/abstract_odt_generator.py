@@ -14,7 +14,7 @@
 
 import os
 from pathlib import Path
-from typing import Any, List, Set, Tuple
+from typing import Any, List, Set
 
 import ezodf
 
@@ -97,11 +97,13 @@ class AbstractODTGenerator(AbstractGenerator):  # pylint: disable=W0223
         sheet[row_index, column_index].set_value(value)
         self._apply_style_to_cell(sheet=sheet, row_index=row_index, column_index=column_index, style_name=style_name)
 
-    def _fill_header(self, title: str, header: List[Tuple[str, str]], sheet: Any, row_index: int, column_index: int) -> int:
+    def _fill_header(self, title: str, header_row_1: List[str], header_row_2: List[str], sheet: Any, row_index: int, column_index: int) -> int:
 
         Configuration.type_check_string("title", title)
-        if not isinstance(header, List):
-            raise RP2TypeError("Parameter 'header' is not a List")
+        if not isinstance(header_row_1, List):
+            raise RP2TypeError("Parameter 'header_row_1' is not a List")
+        if not isinstance(header_row_2, List):
+            raise RP2TypeError("Parameter 'header_row_2' is not a List")
 
         self._fill_cell(sheet, row_index, 0, title, visual_style="title")
         row_index += 1
@@ -112,7 +114,7 @@ class AbstractODTGenerator(AbstractGenerator):  # pylint: disable=W0223
         header1: str
         header2: str
         i: int = 0
-        for header1, header2 in header:
+        for header1, header2 in zip(header_row_1, header_row_2):
             self._fill_cell(sheet, row_index, column_index + i, header1, visual_style="header", data_style="default")
             self._fill_cell(sheet, row_index + 1, column_index + i, header2, visual_style="header", data_style="default")
             i += 1
