@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple, cast
 
 import ezodf
@@ -146,8 +147,7 @@ class Generator(AbstractODTGenerator):
             raise RP2TypeError(f"Parameter 'asset_to_computed_data' has non-Dict value {asset_to_computed_data}")
 
         output_file: Any
-        output_file_path: str
-        output_file, output_file_path = self._initialize_output_file(
+        output_file = self._initialize_output_file(
             output_dir_path=output_dir_path,
             output_file_prefix=output_file_prefix,
             output_file_name=self.OUTPUT_FILE,
@@ -165,7 +165,7 @@ class Generator(AbstractODTGenerator):
             summary_row_index = self.__generate_asset(computed_data, output_file, summary_row_index)
 
         output_file.save()
-        LOGGER.info("Plugin '%s' output: %s", __name__, output_file_path)
+        LOGGER.info("Plugin '%s' output: %s", __name__, Path(output_file.docname).resolve())
 
     def __get_number_of_rows_in_transaction_sheet(self, computed_data: ComputedData) -> int:
         return self.MIN_ROWS + computed_data.in_transaction_set.count + computed_data.out_transaction_set.count + computed_data.intra_transaction_set.count

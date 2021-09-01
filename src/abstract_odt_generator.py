@@ -34,7 +34,7 @@ class AbstractODTGenerator(AbstractGenerator):  # pylint: disable=W0223
         output_file_prefix: str,
         output_file_name: str,
         template_sheets_to_keep: Set[str],
-    ) -> Tuple[Any, str]:
+    ) -> Any:
 
         Configuration.type_check_string("output_dir_path", output_dir_path)
         Configuration.type_check_string("output_file_prefix", output_file_prefix)
@@ -67,7 +67,7 @@ class AbstractODTGenerator(AbstractGenerator):  # pylint: disable=W0223
         for index in reversed(sheet_indexes_to_remove):
             del output_file.sheets[index]
 
-        return output_file, str(output_file_path)
+        return output_file
 
     @staticmethod
     def _apply_style_to_cell(sheet: Any, row_index: int, column_index: int, style_name: str) -> None:

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
 from typing import Any, Dict, Set, cast
 
 from abstract_odt_generator import AbstractODTGenerator
@@ -40,8 +41,7 @@ class Generator(AbstractODTGenerator):
             raise RP2TypeError(f"Parameter 'asset_to_computed_data' has non-Dict value {asset_to_computed_data}")
 
         output_file: Any
-        output_file_path: str
-        output_file, output_file_path = self._initialize_output_file(
+        output_file = self._initialize_output_file(
             output_dir_path=output_dir_path,
             output_file_prefix=output_file_prefix,
             output_file_name=self.OUTPUT_FILE,
@@ -61,7 +61,7 @@ class Generator(AbstractODTGenerator):
             row_index = self.__generate(sheet, asset, computed_data.gain_loss_set, row_index)
 
         output_file.save()
-        LOGGER.info("Plugin '%s' output: %s", __name__, output_file_path)
+        LOGGER.info("Plugin '%s' output: %s", __name__, Path(output_file.docname).resolve())
 
     def __generate(self, sheet: Any, asset: str, gain_loss_set: GainLossSet, row_index: int) -> int:
 
