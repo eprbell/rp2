@@ -31,7 +31,9 @@ Read the [Contributing](../CONTRIBUTING.md) document.
 ## Design Guidelines
 RP2 code adheres to these principles:
 * immutability: all class fields are private (prepended with double-underscore). Fields that need public access have a read-only property. Write-properties are never used;
-* runtime checks: function parameters are type-checked at runtime;
+* runtime checks: function parameters are type-checked at runtime, using:
+  * `Configuration.type_check_*()` for primitive types;
+  * `<class>.type_check()` for classes
 * type hints: all variables and functions have Python type hints;
 * no id-based hashing: classes that are added to dictionaries and sets redefine `__eq__()`, `__neq__()` and `__hash__()`;
 * encapsulated math: all high-precision math is done via `RP2Decimal` (a subclass of Decimal), to ensure the correct precision is used throughout the code. `RP2Decimal` instances are never mixed with other types in expressions;
