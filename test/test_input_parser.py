@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import unittest
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Dict, List, Optional, NamedTuple, Type
 
 from dateutil.parser import parse
 
@@ -28,6 +28,9 @@ from rp2_decimal import RP2Decimal
 from rp2_error import RP2Error, RP2TypeError, RP2ValueError
 from transaction_set import TransactionSet
 
+class ErrorAndMessage(NamedTuple):
+    error_class: Type[RP2Error]
+    message: str
 
 class TestInputParser(unittest.TestCase):
     _good_input_configuration: Configuration
@@ -280,40 +283,40 @@ class TestInputParser(unittest.TestCase):
 
     def test_bad_input(self) -> None:
 
-        sheets_to_expected_messages: Dict[str, Tuple[Type[RP2Error], str]] = {
-            "B1": (RP2ValueError, "IN table not found"),
-            "B2": (RP2ValueError, 'Found an invalid cell "foo" while looking for a table-begin token'),
-            "B3": (RP2ValueError, 'Found an invalid cell "bar" while looking for a table-begin token'),
-            "B4": (RP2ValueError, "Found end-table keyword without having found a table-begin keyword first"),
-            "B5": (RP2ValueError, "Found end-table keyword without having found a table-begin keyword first"),
-            "B6": (RP2ValueError, "TABLE END not found for EntrySetType.IN table"),
-            "B7": (RP2ValueError, "TABLE END not found for EntrySetType.OUT table"),
-            "B8": (RP2ValueError, "TABLE END not found for EntrySetType.INTRA table"),
-            "B9": (RP2ValueError, 'Found "IN" keyword while parsing table EntrySetType.IN'),
-            "B10": (RP2ValueError, 'Found "OUT" keyword while parsing table EntrySetType.OUT'),
-            "B11": (RP2ValueError, 'Found "INTRA" keyword while parsing table EntrySetType.INTRA'),
-            "B12": (RP2ValueError, 'Found "OUT" keyword while parsing table EntrySetType.IN'),
-            "B13": (RP2ValueError, 'Found "OUT" keyword while parsing table EntrySetType.INTRA'),
-            "B14": (RP2ValueError, "IN table not found or empty"),
-            "B15": (RP2ValueError, "TABLE END not found for EntrySetType.IN table"),
-            "B16": (RP2ValueError, "Parameter 'data' has length .*, but required minimum from in-table headers in .* is .*"),
-            "B17": (RP2ValueError, "Parameter 'data' has length .*, but required minimum from out-table headers in .* is .*"),
-            "B18": (RP2TypeError, "Parameter 'asset' has non-string value .*"),
-            "B19": (RP2ValueError, "Found an empty cell while parsing table EntrySetType.OUT"),
-            "B20": (RP2ValueError, "IN table not found"),
-            "B21": (RP2ValueError, "IN table not found or empty"),
-            "B22": (RP2ValueError, "Found data with no header"),
-            "B23": (RP2ValueError, "Parameter 'timestamp' value has no timezone info: .*"),
-            "B24": (RP2ValueError, "Parameter 'exchange' value is not known: .*"),
-            "B25": (RP2ValueError, "Parameter 'holder' value is not known: .*"),
-            "B26": (RP2ValueError, "Parameter 'transaction_type' has invalid transaction type value: .*"),
-            "B27": (RP2ValueError, "Parameter 'asset' value is not known: .*"),
-            "B28": (RP2ValueError, "Parameter 'crypto_in' has non-positive value .*"),
-            "B29": (RP2ValueError, "Parameter 'spot_price' has non-positive value .*"),
-            "B30": (RP2ValueError, "Parameter 'usd_fee' has non-positive value .*"),
-            "B31": (RP2ValueError, "Found an empty cell while parsing table EntrySetType.IN"),
-            "B32": (RP2ValueError, "TABLE END not found for EntrySetType.OUT table"),
-            "B33": (RP2ValueError, "Found more than one IN symbol"),
+        sheets_to_expected_messages: Dict[str, ErrorAndMessage] = {
+            "B1": ErrorAndMessage(RP2ValueError, "IN table not found"),
+            "B2": ErrorAndMessage(RP2ValueError, 'Found an invalid cell "foo" while looking for a table-begin token'),
+            "B3": ErrorAndMessage(RP2ValueError, 'Found an invalid cell "bar" while looking for a table-begin token'),
+            "B4": ErrorAndMessage(RP2ValueError, "Found end-table keyword without having found a table-begin keyword first"),
+            "B5": ErrorAndMessage(RP2ValueError, "Found end-table keyword without having found a table-begin keyword first"),
+            "B6": ErrorAndMessage(RP2ValueError, "TABLE END not found for EntrySetType.IN table"),
+            "B7": ErrorAndMessage(RP2ValueError, "TABLE END not found for EntrySetType.OUT table"),
+            "B8": ErrorAndMessage(RP2ValueError, "TABLE END not found for EntrySetType.INTRA table"),
+            "B9": ErrorAndMessage(RP2ValueError, 'Found "IN" keyword while parsing table EntrySetType.IN'),
+            "B10": ErrorAndMessage(RP2ValueError, 'Found "OUT" keyword while parsing table EntrySetType.OUT'),
+            "B11": ErrorAndMessage(RP2ValueError, 'Found "INTRA" keyword while parsing table EntrySetType.INTRA'),
+            "B12": ErrorAndMessage(RP2ValueError, 'Found "OUT" keyword while parsing table EntrySetType.IN'),
+            "B13": ErrorAndMessage(RP2ValueError, 'Found "OUT" keyword while parsing table EntrySetType.INTRA'),
+            "B14": ErrorAndMessage(RP2ValueError, "IN table not found or empty"),
+            "B15": ErrorAndMessage(RP2ValueError, "TABLE END not found for EntrySetType.IN table"),
+            "B16": ErrorAndMessage(RP2ValueError, "Parameter 'data' has length .*, but required minimum from in-table headers in .* is .*"),
+            "B17": ErrorAndMessage(RP2ValueError, "Parameter 'data' has length .*, but required minimum from out-table headers in .* is .*"),
+            "B18": ErrorAndMessage(RP2TypeError, "Parameter 'asset' has non-string value .*"),
+            "B19": ErrorAndMessage(RP2ValueError, "Found an empty cell while parsing table EntrySetType.OUT"),
+            "B20": ErrorAndMessage(RP2ValueError, "IN table not found"),
+            "B21": ErrorAndMessage(RP2ValueError, "IN table not found or empty"),
+            "B22": ErrorAndMessage(RP2ValueError, "Found data with no header"),
+            "B23": ErrorAndMessage(RP2ValueError, "Parameter 'timestamp' value has no timezone info: .*"),
+            "B24": ErrorAndMessage(RP2ValueError, "Parameter 'exchange' value is not known: .*"),
+            "B25": ErrorAndMessage(RP2ValueError, "Parameter 'holder' value is not known: .*"),
+            "B26": ErrorAndMessage(RP2ValueError, "Parameter 'transaction_type' has invalid transaction type value: .*"),
+            "B27": ErrorAndMessage(RP2ValueError, "Parameter 'asset' value is not known: .*"),
+            "B28": ErrorAndMessage(RP2ValueError, "Parameter 'crypto_in' has non-positive value .*"),
+            "B29": ErrorAndMessage(RP2ValueError, "Parameter 'spot_price' has non-positive value .*"),
+            "B30": ErrorAndMessage(RP2ValueError, "Parameter 'usd_fee' has non-positive value .*"),
+            "B31": ErrorAndMessage(RP2ValueError, "Found an empty cell while parsing table EntrySetType.IN"),
+            "B32": ErrorAndMessage(RP2ValueError, "TABLE END not found for EntrySetType.OUT table"),
+            "B33": ErrorAndMessage(RP2ValueError, "Found more than one IN symbol"),
         }
 
         sheet: str

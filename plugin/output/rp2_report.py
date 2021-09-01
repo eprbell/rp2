@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple, cast
+from typing import Any, Dict, List, NamedTuple, Optional, Set, cast
 
 import ezodf
 
@@ -31,6 +31,15 @@ from out_transaction import OutTransaction
 from rp2_decimal import RP2Decimal
 from rp2_error import RP2TypeError
 from transaction_set import TransactionSet
+
+class _TransactionVisualStyle(NamedTuple):
+    year: int
+    visual_style: str
+    highlighted_style:str
+
+class _BorderStyle(NamedTuple):
+    year: int
+    border_suffix: str
 
 _IN_HEADER_NAMES_ROW_1: List[str] = [
     "",
@@ -299,8 +308,7 @@ class Generator(AbstractODTGenerator):
 
         return self.__generate_yearly_gain_loss_summary(summary_sheet, asset, computed_data.yearly_gain_loss_list, summary_row_index)
 
-    # Returns (year, visual_style, highlighted_style)
-    def __get_in_out_visual_style(self, transaction: AbstractTransaction, year: int) -> Tuple[int, str, str]:
+    def __get_transaction_visual_style(self, transaction: AbstractTransaction, year: int) -> _TransactionVisualStyle:
         visual_style: str = "transparent"
         highlighted_style: str = "transparent"
         if transaction.is_taxable():
@@ -312,17 +320,16 @@ class Generator(AbstractODTGenerator):
             visual_style = f"{visual_style}_border"
             highlighted_style = f"{highlighted_style}_border"
             year = transaction.timestamp.year
-        return year, visual_style, highlighted_style
+        return _TransactionVisualStyle(year, visual_style, highlighted_style)
 
-    # Returns (year, visual_style)
-    def __get_border_style(self, current_year: int, year: int) -> Tuple[int, str]:
+    def __get_border_style(self, current_year: int, year: int) -> _BorderStyle:
         border_suffix: str = ""
         if year == 0:
             year = current_year
         if current_year != year:
             border_suffix = "_border"
             year = current_year
-        return year, border_suffix
+        return _BorderStyle(year, border_suffix)
 
     def __generate_in_table(self, sheet: Any, in_transaction_set: TransactionSet, gain_loss_set: GainLossSet, row_index: int) -> int:
         row_index = self._fill_header("In-Flow Detail", _IN_HEADER_NAMES_ROW_1, _IN_HEADER_NAMES_ROW_2, sheet, row_index, 0)
@@ -335,7 +342,10 @@ class Generator(AbstractODTGenerator):
         for entry in in_transaction_set:
             transaction: InTransaction = cast(InTransaction, entry)
             highlighted_style: str
-            year, visual_style, highlighted_style = self.__get_in_out_visual_style(transaction, year)
+            transaction_visual_style: _TransactionVisualStyle = self.__get_transaction_visual_style(transaction, year)
+            year = transaction_visual_style.year
+            visual_style = transaction_visual_style.visual_style
+            highlighted_style = transaction_visual_style.highlighted_style
             self._fill_cell(sheet, row_index, 0, "", visual_style="transparent")
             self._fill_cell(sheet, row_index, 1, transaction.timestamp, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 2, transaction.asset, visual_style=visual_style)
@@ -357,6 +367,7 @@ class Generator(AbstractODTGenerator):
         current_from_lot: Optional[AbstractTransaction] = None
         current_from_lot_percentage: RP2Decimal = _ZERO
         year = 0
+        border_style: _BorderStyle
         border_suffix: str = ""
         for entry in gain_loss_set:
             gain_loss: GainLoss = cast(GainLoss, entry)
@@ -364,14 +375,18 @@ class Generator(AbstractODTGenerator):
                 continue
             if gain_loss.from_lot != current_from_lot:
                 if current_from_lot:
-                    year, border_suffix = self.__get_border_style(current_from_lot.timestamp.year, year)
+                    border_style = self.__get_border_style(current_from_lot.timestamp.year, year)
+                    year = border_style.year
+                    border_suffix = border_style.border_suffix
                     self._fill_cell(sheet, in_transaction_index, 0, 1, data_style="percent", visual_style="from_lot" + border_suffix)
                     in_transaction_index += 1
                     current_from_lot_percentage = _ZERO
                 current_from_lot = gain_loss.from_lot
             current_from_lot_percentage += gain_loss.from_lot_fraction_percentage
         if current_from_lot:
-            year, border_suffix = self.__get_border_style(current_from_lot.timestamp.year, year)
+            border_style = self.__get_border_style(current_from_lot.timestamp.year, year)
+            year = border_style.year
+            border_suffix = border_style.border_suffix
         self._fill_cell(sheet, in_transaction_index, 0, current_from_lot_percentage, data_style="percent", visual_style="from_lot" + border_suffix)
 
         return row_index
@@ -387,7 +402,10 @@ class Generator(AbstractODTGenerator):
             transaction: OutTransaction = cast(OutTransaction, entry)
             visual_style: str
             highlighted_style: str
-            year, visual_style, highlighted_style = self.__get_in_out_visual_style(transaction, year)
+            transaction_visual_style: _TransactionVisualStyle = self.__get_transaction_visual_style(transaction, year)
+            year = transaction_visual_style.year
+            visual_style = transaction_visual_style.visual_style
+            highlighted_style = transaction_visual_style.highlighted_style
             self._fill_cell(sheet, row_index, 0, "", visual_style="transparent")
             self._fill_cell(sheet, row_index, 1, transaction.timestamp, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 2, transaction.asset, visual_style=visual_style)
@@ -419,7 +437,10 @@ class Generator(AbstractODTGenerator):
             transaction: IntraTransaction = cast(IntraTransaction, entry)
             visual_style: str
             highlighted_style: str
-            year, visual_style, highlighted_style = self.__get_in_out_visual_style(transaction, year)
+            transaction_visual_style: _TransactionVisualStyle = self.__get_transaction_visual_style(transaction, year)
+            year = transaction_visual_style.year
+            visual_style = transaction_visual_style.visual_style
+            highlighted_style = transaction_visual_style.highlighted_style
             self._fill_cell(sheet, row_index, 0, "", visual_style="transparent")
             self._fill_cell(sheet, row_index, 1, transaction.timestamp, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 2, transaction.asset, visual_style=visual_style)
@@ -447,7 +468,9 @@ class Generator(AbstractODTGenerator):
         for yearly_gain_loss in yearly_gain_loss_list:
             border_suffix: str = ""
             capital_gains_type: str = "LONG" if yearly_gain_loss.is_long_term_capital_gains else "SHORT"
-            year, border_suffix = self.__get_border_style(yearly_gain_loss.year, year)
+            border_style: _BorderStyle = self.__get_border_style(yearly_gain_loss.year, year)
+            year = border_style.year
+            border_suffix = border_style.border_suffix
             self._fill_cell(sheet, row_index, 0, yearly_gain_loss.year, visual_style="transparent" + border_suffix, data_style="default")
             self._fill_cell(sheet, row_index, 1, yearly_gain_loss.asset, visual_style="transparent" + border_suffix, data_style="default")
             self._fill_cell(sheet, row_index, 2, yearly_gain_loss.usd_gain_loss, visual_style="bold" + border_suffix, data_style="usd")
@@ -512,10 +535,13 @@ class Generator(AbstractODTGenerator):
         from_lot_style_modifier: str = ""
         crypto_amount_running_sum: RP2Decimal = _ZERO
         year: int = 0
+        border_style: _BorderStyle
         for entry in gain_loss_set:
             gain_loss: GainLoss = cast(GainLoss, entry)
             border_suffix: str = ""
-            year, border_suffix = self.__get_border_style(gain_loss.taxable_event.timestamp.year, year)
+            border_style = self.__get_border_style(gain_loss.taxable_event.timestamp.year, year)
+            year = border_style.year
+            border_suffix = border_style.border_suffix
             transparent_style: str = f"transparent{border_suffix}"
             taxable_event_style: str = f"taxable_event{taxable_event_style_modifier}{border_suffix}"
             highlighted_style: str = f"highlighted{border_suffix}"
