@@ -31,7 +31,7 @@ class RP2Decimal(Decimal):
     getcontext().traps[FloatOperation] = True
 
     @classmethod
-    def is_equal_within_precision(cls, n1: Decimal, n2: Decimal, precision_mask: Decimal) -> bool:
+    def is_equal_within_precision(cls, n1: "RP2Decimal", n2: "RP2Decimal", precision_mask: Decimal) -> bool:
         return (n1 - n2).quantize(precision_mask) == ZERO
 
     def __eq__(self, other: object) -> bool:
@@ -83,39 +83,7 @@ class RP2Decimal(Decimal):
             raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
         return RP2Decimal(Decimal.__floordiv__(self, other))
 
-    def __radd__(self, other: object) -> "RP2Decimal":
-        if not isinstance(other, Decimal):
-            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
-        return RP2Decimal(Decimal.__add__(self, other))
-
-    def __rsub__(self, other: object) -> "RP2Decimal":
-        if not isinstance(other, Decimal):
-            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
-        return RP2Decimal(Decimal.__sub__(self, other))
-
-    def __rmul__(self, other: object) -> "RP2Decimal":
-        if not isinstance(other, Decimal):
-            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
-        return RP2Decimal(Decimal.__mul__(self, other))
-
-    def __rtruediv__(self, other: object) -> "RP2Decimal":
-        if not isinstance(other, Decimal):
-            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
-        return RP2Decimal(Decimal.__truediv__(self, other))
-
-    def __rfloordiv__(self, other: object) -> "RP2Decimal":
-        if not isinstance(other, Decimal):
-            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
-        return RP2Decimal(Decimal.__floordiv__(self, other))
-
     def __pow__(self, other: object, modulo: object = None) -> "RP2Decimal":
-        if not isinstance(other, Decimal):
-            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
-        if modulo is not None and not isinstance(modulo, Decimal):
-            raise RP2TypeError(f"Modulo has non-Decimal value {repr(other)}")
-        return RP2Decimal(Decimal.__pow__(self, other, modulo))
-
-    def __rpow__(self, other: object, modulo: object = None) -> "RP2Decimal":
         if not isinstance(other, Decimal):
             raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
         if modulo is not None and not isinstance(modulo, Decimal):
@@ -127,10 +95,36 @@ class RP2Decimal(Decimal):
             raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
         return RP2Decimal(Decimal.__mod__(self, other))
 
+    # Reflected operand overrides
+    def __radd__(self, other: object) -> "RP2Decimal":
+        if not isinstance(other, Decimal):
+            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
+        return RP2Decimal(Decimal.__radd__(self, other))
+
+    def __rsub__(self, other: object) -> "RP2Decimal":
+        if not isinstance(other, Decimal):
+            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
+        return RP2Decimal(Decimal.__rsub__(self, other))
+
+    def __rmul__(self, other: object) -> "RP2Decimal":
+        if not isinstance(other, Decimal):
+            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
+        return RP2Decimal(Decimal.__rmul__(self, other))
+
+    def __rtruediv__(self, other: object) -> "RP2Decimal":
+        if not isinstance(other, Decimal):
+            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
+        return RP2Decimal(Decimal.__rtruediv__(self, other))
+
+    def __rfloordiv__(self, other: object) -> "RP2Decimal":
+        if not isinstance(other, Decimal):
+            raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
+        return RP2Decimal(Decimal.__rfloordiv__(self, other))
+
     def __rmod__(self, other: object) -> "RP2Decimal":
         if not isinstance(other, Decimal):
             raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
-        return RP2Decimal(Decimal.__mod__(self, other))
+        return RP2Decimal(Decimal.__rmod__(self, other))
 
 
 ZERO: RP2Decimal = RP2Decimal("0")
