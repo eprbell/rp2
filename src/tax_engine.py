@@ -145,7 +145,7 @@ class _YearlyGainLossId:
 
 
 # Frozen and eq are not set because we don't need to hash instances and we need to modify fields (see _create_yearly_gain_loss_list)
-@dataclass
+@dataclass(frozen=True, eq=True)
 class _YearlyGainLossAmounts:
     crypto_amount: Decimal
     usd_amount: Decimal
@@ -167,10 +167,16 @@ def _create_yearly_gain_loss_list(input_data: InputData, gain_loss_set: GainLoss
             gain_loss.is_long_term_capital_gains(),
         )
         value = summaries.setdefault(key, _YearlyGainLossAmounts(ZERO, ZERO, ZERO, ZERO))
-        value.crypto_amount += gain_loss.crypto_amount
-        value.usd_amount += gain_loss.taxable_event_usd_amount_with_fee_fraction
-        value.usd_cost_basis += gain_loss.usd_cost_basis
-        value.usd_gain_loss += gain_loss.usd_gain
+        crypto_amount: Decimal = value.crypto_amount + gain_loss.crypto_amount
+        usd_amount: Decimal = value.usd_amount + gain_loss.taxable_event_usd_amount_with_fee_fraction
+        usd_cost_basis: Decimal = value.usd_cost_basis + gain_loss.usd_cost_basis
+        usd_gain_loss: Decimal = value.usd_gain_loss + gain_loss.usd_gain
+        summaries[key] = _YearlyGainLossAmounts(
+            crypto_amount=crypto_amount,
+            usd_amount=usd_amount,
+            usd_cost_basis=usd_cost_basis,
+            usd_gain_loss=usd_gain_loss
+        )
 
     yearly_gain_loss_set: Set[YearlyGainLoss] = set()
     crypto_taxable_amount_total: Decimal = ZERO
