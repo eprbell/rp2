@@ -20,10 +20,11 @@ RP2 code adheres to these principles:
 * runtime checks: function parameters are type-checked at runtime;
 * type hints: all variables and functions have Python type hints;
 * no id-based hashing: classes that are added to dictionaries and sets redefine `__eq__()`, `__neq__()` and `__hash__()`;
-* encapsulated math: all high-precision math is done via RP2Decimal (a subclass of Decimal), to ensure the correct precision is used throughout the code. RP2Decimal instances are never mixed with other types in expressions;
+* encapsulated math: all high-precision math is done via `RP2Decimal` (a subclass of Decimal), to ensure the correct precision is used throughout the code. `RP2Decimal` instances are never mixed with other types in expressions;
 * f-strings only: every time string interpolation is needed, use f-strings;
-* logging: logging is done via logger.LOGGER;
-* no unnamed tuples: use dataclasses or named tuples.
+* logging: logging is done via `logger.LOGGER`;
+* no unnamed tuples: use dataclasses or named tuples;
+* no imports with `*`.
 
 ## Source Code
 The RP2 source tree is organized as follows:
