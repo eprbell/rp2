@@ -39,6 +39,7 @@ LOG_LEVEL=DEBUG bin/rp2.py -o output -p crypto_example_ config/crypto_example.co
 
 ### Submitting Pull Requests
 Feel free to submit pull requests. Please follow these practices:
+* follow the RP2 [design guidelines](doc/developer_guide.md#design-guidelines)
 * follow the [PEP 8](https://www.python.org/dev/peps/pep-0008/) coding standard and use `make reformat` before pushing;
 * add [unit tests](test/) for any new code;
 * make sure your code doesn't cause new issues with `make check typecheck lint`;
