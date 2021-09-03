@@ -38,7 +38,29 @@ class AbstractEntry:
 
     # Parametrized and extensible method to generate string representation
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
-        raise NotImplementedError("Abstract method")
+        padding: str
+        output: List[str] = []
+        separator: str
+
+        if repr_format:
+            padding = ""
+            separator = ", "
+            output.append(f"{'  ' * indent}{type(self).__name__}(id={repr(self.unique_id)}")
+        else:
+            padding = "  " * indent
+            separator = "\n  "
+            output.append(f"{padding}{type(self).__name__}:")
+            output.append(f"{padding}id={str(self.unique_id)}")
+
+        if extra_data:
+            for line in extra_data:
+                output.append(f"{padding}{line}")
+
+        if repr_format:
+            output[-1] += ")"
+
+        # Joining by separator adds one level of indentation to internal fields (like id) in str mode, which is correct.
+        return separator.join(output)
 
     # Used for hashing but there are not enough attributes in this class, so the method is abstract.
     def __eq__(self, other: object) -> bool:
