@@ -31,7 +31,7 @@ Read the [Contributing](../CONTRIBUTING.md) document.
 ## Design Guidelines
 RP2 code adheres to these principles:
 * immutability: all class fields are private (prepended with double-underscore). Fields that need public access have a read-only property. Write-properties are never used;
-* runtime checks: parameters of main interface functions are type-checked at runtime:
+* runtime checks: parameters of public functions are type-checked at runtime:
   * `Configuration.type_check_*()` for primitive types;
   * `<class>.type_check()` for classes
 * type hints: all variables and functions have Python type hints;
