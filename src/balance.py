@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, cast
+from typing import Any, Callable, Dict, List, Optional, cast
 
 from configuration import Configuration
 from in_transaction import InTransaction
@@ -46,29 +46,35 @@ class Balance:
         self.configuration.type_check_decimal("sent_balance", self.sent_balance)
         self.configuration.type_check_decimal("received_balance", self.received_balance)
 
+    def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
+        class_specific_data: List[str] = []
+        stringify: Callable[[Any], str] = repr
+        if not repr_format:
+            stringify = str
+
+        if repr_format:
+            class_specific_data.append(f"{type(self).__name__}(asset={repr(self.asset)}")
+        else:
+            class_specific_data.append(f"{type(self).__name__}:")
+            class_specific_data.append(f"asset={str(self.asset)}")
+
+        class_specific_data.append(f"exchange={stringify(self.exchange)}")
+        class_specific_data.append(f"holder={stringify(self.holder)}")
+        class_specific_data.append(f"final_balance={self.final_balance:.8f}")
+        class_specific_data.append(f"acquired_balance={self.acquired_balance:.8f}")
+        class_specific_data.append(f"sent_balance={self.sent_balance:.8f}")
+        class_specific_data.append(f"received_balance={self.received_balance:.8f}")
+
+        if extra_data:
+            class_specific_data.extend(extra_data)
+
+        return self.configuration.to_string(indent=indent, repr_format=repr_format, data=class_specific_data)
+
     def __str__(self) -> str:
-        return (
-            f"{type(self).__name__}:\n"
-            f"  asset={str(self.asset)}\n"
-            f"  exchange={str(self.exchange)}\n"
-            f"  holder={str(self.holder)}\n"
-            f"  final_balance={self.final_balance:.8f}\n"
-            f"  acquired_balance={self.acquired_balance:.8f}\n"
-            f"  sent_balance={self.sent_balance:.8f}\n"
-            f"  received_balance={self.received_balance:.8f})"
-        )
+        return self.to_string(indent=0, repr_format=False)
 
     def __repr__(self) -> str:
-        return (
-            f"{type(self).__name__}("
-            f"asset={repr(self.asset)}, "
-            f"exchange={repr(self.exchange)}, "
-            f"holder={repr(self.holder)}, "
-            f"final_balance={self.final_balance:.8f}, "
-            f"acquired_balance={self.acquired_balance:.8f}, "
-            f"sent_balance={self.sent_balance:.8f}, "
-            f"received_balance={self.received_balance:.8f})"
-        )
+        return self.to_string(indent=0, repr_format=True)
 
 
 @dataclass(frozen=True, eq=True)
@@ -148,11 +154,10 @@ class BalanceSet:
     def __str__(self) -> str:
         output: List[str] = []
         output.append(f"{type(self).__name__}:")
-        output.append(f"  asset={repr(self.asset)}")
+        output.append(f"  asset={self.asset}")
         output.append("  balances=")
         for balance in self:
-            # TODO: replacing whitespaces is dirty: use a solution like AbstractEntry.to_string()
-            output.append(f"    {str(balance).replace('  ', '      ')}")
+            output.append(f"{balance.to_string(indent=2, repr_format=False)}")
         return "\n".join(output)
 
     def __repr__(self) -> str:

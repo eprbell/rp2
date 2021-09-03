@@ -68,9 +68,9 @@ class AbstractTransaction(AbstractEntry):
 
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
         class_specific_data: List[str] = []
-        stringify: Callable[[Any], str] = str
-        if repr_format:
-            stringify = repr
+        stringify: Callable[[Any], str] = repr
+        if not repr_format:
+            stringify = str
 
         class_specific_data.append(f"timestamp={stringify(self.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f %z'))}")
         class_specific_data.append(f"asset={stringify(self.asset)}")
