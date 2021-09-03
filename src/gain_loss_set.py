@@ -192,8 +192,7 @@ class GainLossSet(AbstractEntrySet):
         for entry in self:
             parent: Optional[AbstractEntry]
             gain_loss: GainLoss = cast(GainLoss, entry)
-            # TODO: Is there a better option here than replacing spaces?
-            output.append("    " + str(entry).replace("  ", "      "))
+            output.append(entry.to_string(indent=2, repr_format=False))
             parent = self.get_parent(entry)
             output.append(
                 f"      taxable_event_fraction={self.get_taxable_event_fraction(gain_loss) + 1} of "
