@@ -25,26 +25,26 @@ from rp2_decimal import RP2Decimal, ZERO
 from rp2_error import RP2TypeError
 
 
+@dataclass(frozen=True, eq=True)
 class Balance:
-    def __init__(
-        self,
-        configuration: Configuration,
-        asset: str,
-        exchange: str,
-        holder: str,
-        final_balance: RP2Decimal,
-        acquired_balance: RP2Decimal,
-        sent_balance: RP2Decimal,
-        received_balance: RP2Decimal,
-    ) -> None:
-        Configuration.type_check("configuration", configuration)
-        self.__asset: str = configuration.type_check_asset("asset", asset)
-        self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
-        self.__holder: str = configuration.type_check_holder("holder", holder)
-        self.__final_balance: RP2Decimal = configuration.type_check_decimal("final_balance", final_balance)
-        self.__acquired_balance: RP2Decimal = configuration.type_check_decimal("acquired_balance", acquired_balance)
-        self.__sent_balance: RP2Decimal = configuration.type_check_decimal("sent_balance", sent_balance)
-        self.__received_balance: RP2Decimal = configuration.type_check_decimal("received_balance", received_balance)
+    configuration: Configuration
+    asset: str
+    exchange: str
+    holder: str
+    final_balance: RP2Decimal
+    acquired_balance: RP2Decimal
+    sent_balance: RP2Decimal
+    received_balance: RP2Decimal
+
+    def __post_init__(self) -> None:
+        Configuration.type_check("configuration", self.configuration)
+        self.configuration.type_check_asset("asset", self.asset)
+        self.configuration.type_check_exchange("exchange", self.exchange)
+        self.configuration.type_check_holder("holder", self.holder)
+        self.configuration.type_check_decimal("final_balance", self.final_balance)
+        self.configuration.type_check_decimal("acquired_balance", self.acquired_balance)
+        self.configuration.type_check_decimal("sent_balance", self.sent_balance)
+        self.configuration.type_check_decimal("received_balance", self.received_balance)
 
     def __str__(self) -> str:
         return (
@@ -69,34 +69,6 @@ class Balance:
             f"sent_balance={self.sent_balance:.8f}, "
             f"received_balance={self.received_balance:.8f})"
         )
-
-    @property
-    def asset(self) -> str:
-        return self.__asset
-
-    @property
-    def exchange(self) -> str:
-        return self.__exchange
-
-    @property
-    def holder(self) -> str:
-        return self.__holder
-
-    @property
-    def final_balance(self) -> RP2Decimal:
-        return self.__final_balance
-
-    @property
-    def acquired_balance(self) -> RP2Decimal:
-        return self.__acquired_balance
-
-    @property
-    def sent_balance(self) -> RP2Decimal:
-        return self.__sent_balance
-
-    @property
-    def received_balance(self) -> RP2Decimal:
-        return self.__received_balance
 
 
 @dataclass(frozen=True, eq=True)
@@ -179,6 +151,7 @@ class BalanceSet:
         output.append(f"  asset={repr(self.asset)}")
         output.append("  balances=")
         for balance in self:
+            # TODO: replacing whitespaces is dirty: use a solution like AbstractEntry.to_string()
             output.append(f"    {str(balance).replace('  ', '      ')}")
         return "\n".join(output)
 
