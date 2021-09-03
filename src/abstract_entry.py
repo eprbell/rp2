@@ -36,31 +36,18 @@ class AbstractEntry:
             raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
         return instance
 
-    # Parametrized and extensible method to generate string representation
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
-        padding: str
-        output: List[str] = []
-        separator: str
-
+        class_specific_data: List[str] = []
         if repr_format:
-            padding = ""
-            separator = ", "
-            output.append(f"{'  ' * indent}{type(self).__name__}(id={repr(self.unique_id)}")
+            class_specific_data.append(f"{type(self).__name__}(id={repr(self.unique_id)}")
         else:
-            padding = "  " * indent
-            separator = "\n  "
-            output.append(f"{padding}{type(self).__name__}:")
-            output.append(f"{padding}id={str(self.unique_id)}")
+            class_specific_data.append(f"{type(self).__name__}:")
+            class_specific_data.append(f"id={str(self.unique_id)}")
 
         if extra_data:
-            for line in extra_data:
-                output.append(f"{padding}{line}")
+            class_specific_data.extend(extra_data)
 
-        if repr_format:
-            output[-1] += ")"
-
-        # Joining by separator adds one level of indentation to internal fields (like id) in str mode, which is correct.
-        return separator.join(output)
+        return self.configuration.to_string(indent=indent, repr_format=repr_format, data=class_specific_data)
 
     # Used for hashing but there are not enough attributes in this class, so the method is abstract.
     def __eq__(self, other: object) -> bool:
