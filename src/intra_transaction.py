@@ -90,12 +90,6 @@ class IntraTransaction(AbstractTransaction):
 
         return super().to_string(indent=indent, repr_format=repr_format, extra_data=class_specific_data)
 
-    def __str__(self) -> str:
-        return self.to_string(indent=0, repr_format=False)
-
-    def __repr__(self) -> str:
-        return self.to_string(indent=0, repr_format=True)
-
     @property
     def from_exchange(self) -> str:
         return self.__from_exchange

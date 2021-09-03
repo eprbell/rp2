@@ -49,6 +49,12 @@ class AbstractEntry:
 
         return self.configuration.to_string(indent=indent, repr_format=repr_format, data=class_specific_data)
 
+    def __str__(self) -> str:
+        return self.to_string(indent=0, repr_format=False)
+
+    def __repr__(self) -> str:
+        return self.to_string(indent=0, repr_format=True)
+
     # Used for hashing but there are not enough attributes in this class, so the method is abstract.
     def __eq__(self, other: object) -> bool:
         raise NotImplementedError("Abstract method")
