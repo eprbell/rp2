@@ -67,34 +67,18 @@ class AbstractTransaction(AbstractEntry):
         return hash(self.unique_id)
 
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
-        padding: str
-        output: List[str] = []
-        separator: str
-        stringify: Callable[[Any], str]
-
+        class_specific_data: List[str] = []
+        stringify: Callable[[Any], str] = str
         if repr_format:
-            padding = ""
-            separator = ", "
             stringify = repr
-            output.append(f"{'  ' * indent}{type(self).__name__}(id={stringify(self.unique_id)}")
-        else:
-            padding = "  " * (indent)
-            separator = "\n  "
-            stringify = str
-            output.append(f"{padding}{type(self).__name__}:")
-            output.append(f"{padding}id={stringify(self.unique_id)}")  # type: ignore
 
-        output.append(f"{padding}timestamp={stringify(self.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f %z'))}")
-        output.append(f"{padding}asset={stringify(self.asset)}")
+        class_specific_data.append(f"timestamp={stringify(self.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f %z'))}")
+        class_specific_data.append(f"asset={stringify(self.asset)}")
 
         if extra_data:
-            for line in extra_data:
-                output.append(f"{padding}{line}")
+            class_specific_data.extend(extra_data)
 
-        if repr_format:
-            output[-1] += ")"
-
-        return separator.join(output)
+        return super().to_string(indent=indent, repr_format=repr_format, extra_data=class_specific_data)
 
     @property
     def unique_id(self) -> str:
