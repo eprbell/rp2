@@ -365,7 +365,7 @@ class TestGainLossSet(unittest.TestCase):
         with self.assertRaisesRegex(RP2ValueError, "Unknown transaction:.*"):
             # Bad get_taxable_event_fractions parameter
             gain_loss_set.get_from_lot_number_of_fractions(in3)
-        with self.assertRaisesRegex(RP2ValueError, "Date of from_lot entry .*id.* is < the date of its parent .*id.*"):
+        with self.assertRaisesRegex(RP2ValueError, "Date of from_lot entry .*id.* is < the date of its ancestor .*id.*"):
             gain_loss_set = GainLossSet(self._configuration, asset)
             in_transaction_test: InTransaction = InTransaction(
                 self._configuration,
@@ -380,6 +380,13 @@ class TestGainLossSet(unittest.TestCase):
                 unique_id=2,
             )
             gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.2"), out15, in_transaction_test))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.01"), out14, in3))
+            for gain_loss in gain_loss_set:
+                pass
+        with self.assertRaisesRegex(RP2ValueError, "Date of from_lot entry .*id.* is < the date of its ancestor .*id.*"):
+            gain_loss_set = GainLossSet(self._configuration, asset)
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.2"), out15, in_transaction_test))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("2"), self._in2[asset], None))
             gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.01"), out14, in3))
             for gain_loss in gain_loss_set:
                 pass

@@ -81,7 +81,6 @@ class GainLossSet(AbstractEntrySet):
         super()._sort_entries()
         entry: AbstractEntry
         gain_loss: Optional[GainLoss] = None
-        parent: Optional[GainLoss]
         current_taxable_event_amount: RP2Decimal = ZERO
         current_from_lot_amount: RP2Decimal = ZERO
         current_taxable_event_fraction: int = 0
@@ -91,17 +90,14 @@ class GainLossSet(AbstractEntrySet):
             gain_loss = cast(GainLoss, entry)
             # Access the parent directly via _entry_to_parent because using the get_parent()
             # accessor would cause _sort_entries to be called in an infinite recursive loop
-            parent = cast(Optional[GainLoss], self._entry_to_parent[gain_loss])
             if gain_loss.from_lot:
-                # Needed for final housekeeping outside this loop
-                last_gain_loss_with_from_lot = gain_loss
-            if gain_loss.from_lot and parent and parent.from_lot:
-                # Ensure entry and parent are not EARN transactions (they don't have a from_lot)
-                if gain_loss.from_lot.timestamp < parent.from_lot.timestamp:
-                    # Ensure timestamp of from lot is >= timestamp of its parent.
+                if last_gain_loss_with_from_lot and last_gain_loss_with_from_lot.from_lot and gain_loss.from_lot.timestamp < last_gain_loss_with_from_lot.from_lot.timestamp:
+                    # Ensure timestamp of from lot is >= timestamp of its ancestor.
                     raise RP2ValueError(
-                        f"Date of from_lot entry (id {gain_loss.from_lot.unique_id}) is < the date of its parent (id {parent.from_lot.unique_id}): {gain_loss}"
+                        f"Date of from_lot entry (id {gain_loss.from_lot.unique_id}) is < the date of its ancestor "
+                        f"(id {last_gain_loss_with_from_lot.from_lot.unique_id}): {gain_loss}"
                     )
+                last_gain_loss_with_from_lot = gain_loss
 
             current_taxable_event_amount += gain_loss.crypto_amount
             self.__taxable_events_to_fraction[gain_loss] = current_taxable_event_fraction
