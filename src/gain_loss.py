@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from datetime import datetime
-from typing import Optional, cast
+from typing import Any, Callable, List, Optional, cast
 
 from abstract_entry import AbstractEntry
 from abstract_transaction import AbstractTransaction
@@ -94,39 +94,39 @@ class GainLoss(AbstractEntry):
         # since there are no cross-asset transactions (so a spreadsheet line points to a unique transaction for that asset).
         return hash((self.taxable_event.unique_id, self.from_lot.unique_id if self.from_lot else None))
 
+    def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
+        self.configuration.type_check_positive_int("indent", indent)
+        self.configuration.type_check_bool("repr_format", repr_format)
+        if extra_data and not isinstance(extra_data, List):
+            raise RP2TypeError(f"Parameter 'extra_data' is not of type List: {extra_data}")
+
+        class_specific_data: List[str] = []
+        stringify: Callable[[Any], str] = str
+        if repr_format:
+            stringify = repr
+        class_specific_data = [
+            f"crypto_amount={self.crypto_amount:.8f}",
+            f"usd_cost_basis={self.usd_cost_basis:.4f}",
+            f"usd_gain={self.usd_gain:.4f}",
+            f"is_long_term_capital_gains={stringify(self.is_long_term_capital_gains())}",
+            f"taxable_event_usd_amount_with_fee_fraction={self.taxable_event_usd_amount_with_fee_fraction:.4f}",
+            f"taxable_event_fraction_percentage={self.taxable_event_fraction_percentage:.4%}",
+            f"taxable_event={self.taxable_event.to_string(indent=indent + 1, repr_format=repr_format).lstrip()}",
+            f"from_lot_usd_amount_with_fee_fraction={self.from_lot_usd_amount_with_fee_fraction:.4f}",
+            f"from_lot_fraction_percentage={self.from_lot_fraction_percentage:.4%}",
+            f"from_lot={self.from_lot.to_string(indent=indent + 1, repr_format=repr_format).lstrip() if self.from_lot else 'None'}",
+        ]
+        if extra_data:
+            class_specific_data.extend(extra_data)
+
+        return super().to_string(indent=indent, repr_format=repr_format, extra_data=class_specific_data)
+
     def __str__(self) -> str:
-        return (
-            "{}:\n  id={}\n  crypto_amount={:.8f}\n  usd_cost_basis={:.4f}\n  usd_gain={:.4f}\n  is_long_term_capital_gains={}\n  taxable_event_usd_amount_with_fee_fraction={:.4f}\n  taxable_event_fraction_percentage={:.4%}\n  taxable_event={}\n  from_lot_usd_amount_with_fee_fraction={:.4f}\n  from_lot_fraction_percentage={:.4%}\n  from_lot={}"
-        ).format(
-            type(self).__name__,
-            str(self.unique_id),
-            self.crypto_amount,
-            self.usd_cost_basis,
-            self.usd_gain,
-            self.is_long_term_capital_gains(),
-            self.taxable_event_usd_amount_with_fee_fraction,
-            self.taxable_event_fraction_percentage,
-            str(self.taxable_event).replace("  ", "    "),
-            self.from_lot_usd_amount_with_fee_fraction,
-            self.from_lot_fraction_percentage,
-            str(self.from_lot).replace("  ", "    "),
-        )
+        return self.to_string(indent=0, repr_format=False)
 
     def __repr__(self) -> str:
-        return (
-            f"{type(self).__name__}"
-            f"(id={repr(self.unique_id)}, "
-            f"crypto_amount={self.crypto_amount:.8f}, "
-            f"usd_cost_basis={self.usd_cost_basis:.4f}, "
-            f"usd_gain={self.usd_gain:.4f}, "
-            f"is_long_term_capital_gains={self.is_long_term_capital_gains()}, "
-            f"taxable_event_usd_amount_with_fee_fraction={self.taxable_event_usd_amount_with_fee_fraction:.4f}, "
-            f"taxable_event_fraction_percentage={self.taxable_event_fraction_percentage:.4%}, "
-            f"taxable_event={repr(self.taxable_event)}, "
-            f"from_lot_usd_amount_with_fee_fraction={self.from_lot_usd_amount_with_fee_fraction:.4f}, "
-            f"from_lot_fraction_percentage={self.from_lot_fraction_percentage:.4%}, "
-            f"from_lot={repr(self.from_lot)})"
-        )
+        return self.to_string(indent=0, repr_format=True)
+
 
     @property
     def unique_id(self) -> str:
