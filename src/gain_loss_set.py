@@ -173,11 +173,23 @@ class GainLossSet(AbstractEntrySet):
                 if last_gain_loss_with_from_lot.taxable_event in self.__taxable_events_to_number_of_fractions:
                     raise RP2ValueError(f"Taxable event crypto amount already exhausted for {last_gain_loss_with_from_lot.taxable_event}")
                 self.__taxable_events_to_number_of_fractions[last_gain_loss_with_from_lot.taxable_event] = current_taxable_event_fraction
+                LOGGER.debug(
+                    "%s (%d - %d): taxable event housekeeping",
+                    last_gain_loss_with_from_lot.unique_id,
+                    current_from_lot_fraction,
+                    current_taxable_event_fraction,
+                )
 
             if last_gain_loss_with_from_lot.from_lot and current_from_lot_amount > ZERO:
                 if last_gain_loss_with_from_lot.from_lot in self.__from_lots_to_number_of_fractions:
                     raise RP2ValueError(f"From-lot crypto amount already exhausted for {last_gain_loss_with_from_lot.from_lot}")
                 self.__from_lots_to_number_of_fractions[last_gain_loss_with_from_lot.from_lot] = current_from_lot_fraction
+                LOGGER.debug(
+                    "%s (%d - %d): from_lot housekeeping",
+                    last_gain_loss_with_from_lot.unique_id,
+                    current_from_lot_fraction,
+                    current_taxable_event_fraction,
+                )
 
     def __str__(self) -> str:
         output: List[str] = []
