@@ -57,7 +57,7 @@ The author of RP2 is not a tax professional, but has used RP2 personally for a f
 ### How RP2 Operates
 RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Currency Guidance](https://www.irs.gov/newsroom/irs-reminds-taxpayers-to-report-virtual-currency-transactions).
 
-RP2 uses the FIFO accounting method (lots acquired first are disposed of first): however in and out lots typically don't have matching amounts, so RP2 fractions them as needed and manages the resulting cost bases and capital gains.
+RP2 uses the FIFO accounting method (lots acquired first are disposed of first): however, in and out lots typically don't have matching amounts, so RP2 fractions them as needed and manages the resulting cost bases and capital gains.
 
 RP2 identifies the following taxable events:
 * acquisition: any cryptocurrency that is earned (e.g. interest, wages, etc.) is treated as ordinary income (or short-term capital gains). Note that buying cryptocurrency is not a taxable event;
