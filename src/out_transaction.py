@@ -130,7 +130,7 @@ class OutTransaction(AbstractTransaction):
         if extra_data:
             class_specific_data.extend(extra_data)
 
-        return super().to_string(indent, repr_format, class_specific_data)
+        return super().to_string(indent=indent, repr_format=repr_format, extra_data=class_specific_data)
 
     def __str__(self) -> str:
         return self.to_string(indent=0, repr_format=False)
