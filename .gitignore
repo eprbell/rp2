@@ -14,7 +14,7 @@
 
 log/*.log
 output/*.ods
-output/.~lock*
+.~lock*
 .mypy_cache/
 *.pyc
 __pycache__/
