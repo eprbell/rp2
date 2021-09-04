@@ -10,8 +10,7 @@ jobs:
         os: [windows-latest]
         python-version: [3.7, 3.8, 3.9]
     env:
-      PYTHONPATH: .\plugin;.\src;.\test
-      MYPYPATH: .\plugin;.\src;.\test;.\stubs
+      PYTHONPATH: .\src;.\test
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
