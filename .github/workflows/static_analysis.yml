@@ -31,4 +31,4 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=160 --statistics
       - name: Typecheck with mypy
         run: |
-          mypy src/rp2/*.py src/plugin/*.py plugin/output/*.py test/*.py
+          mypy src/rp2/*.py src/plugin/*.py src/plugin/output/*.py test/*.py
