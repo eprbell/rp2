@@ -15,6 +15,7 @@
 import sys
 from argparse import ArgumentParser, Namespace
 from importlib import import_module
+from multiprocessing import Pool, cpu_count
 from pathlib import Path
 from pkgutil import iter_modules
 from types import ModuleType
@@ -30,6 +31,17 @@ from rp2.tax_engine import compute_tax
 
 OUTPUT_PACKAGE = "plugin.output"
 
+def _parse_and_compute(args):
+    (configuration, asset, input_file_path) = args
+    LOGGER.info("Processing %s", asset)
+
+    input_data: InputData = parse_ods(configuration=configuration, asset=asset, input_file_path=input_file_path)
+    LOGGER.debug("InputData object: %s", input_data)
+
+    computed_data: ComputedData = compute_tax(configuration=configuration, input_data=input_data)
+    LOGGER.debug("ComputedData object: %s", computed_data)
+
+    return computed_data
 
 def rp2_main() -> None:
 
@@ -54,16 +66,10 @@ def rp2_main() -> None:
 
         asset_to_computed_data: Dict[str, ComputedData] = {}
         asset: str
-        for asset in assets:
-            LOGGER.info("Processing %s", asset)
-
-            input_data: InputData = parse_ods(configuration=configuration, asset=asset, input_file_path=args.input_file)
-            LOGGER.debug("InputData object: %s", input_data)
-
-            computed_data: ComputedData = compute_tax(configuration=configuration, input_data=input_data)
-            LOGGER.debug("ComputedData object: %s", computed_data)
-
-            asset_to_computed_data[asset] = computed_data
+        print(cpu_count())
+        with Pool(processes=cpu_count()) as pool:
+            results = pool.map(_parse_and_compute, zip([configuration for _ in range(len(assets))], assets, [args.input_file for _ in range(len(assets))]))
+            asset_to_computed_data = {result.asset:result for result in results}
 
         # Load output plugins and call their generate() method
         package: ModuleType = import_module(OUTPUT_PACKAGE)
