@@ -15,10 +15,11 @@
 import sys
 from argparse import ArgumentParser, Namespace
 from importlib import import_module
+from multiprocessing import Pool, cpu_count
 from pathlib import Path
 from pkgutil import iter_modules
 from types import ModuleType
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from rp2.abstract_generator import AbstractGenerator
 from rp2.computed_data import ComputedData
@@ -30,6 +31,21 @@ from rp2.tax_engine import compute_tax
 
 OUTPUT_PACKAGE = "rp2.plugin.output"
 
+def _parse_and_compute(args: Tuple[Configuration, str, str]) -> ComputedData:
+    configuration: Configuration
+    asset: str
+    input_file_path: str
+    (configuration, asset, input_file_path) = args
+    LOGGER.info("Processing %s", asset)
+
+    input_file_handle: object = open_ods(configuration=configuration, input_file_path=input_file_path)
+    input_data: InputData = parse_ods(configuration=configuration, asset=asset, input_file_handle=input_file_handle)
+    LOGGER.debug("InputData object: %s", input_data)
+
+    computed_data: ComputedData = compute_tax(configuration=configuration, input_data=input_data)
+    LOGGER.debug("ComputedData object: %s", computed_data)
+
+    return computed_data
 
 def rp2_main() -> None:
 
@@ -53,19 +69,9 @@ def rp2_main() -> None:
         assets.sort()
 
         asset_to_computed_data: Dict[str, ComputedData] = {}
-        asset: str
-
-        input_file_handle: object = open_ods(configuration=configuration, input_file_path=args.input_file)
-        for asset in assets:
-            LOGGER.info("Processing %s", asset)
-
-            input_data: InputData = parse_ods(configuration=configuration, asset=asset, input_file_handle=input_file_handle)
-            LOGGER.debug("InputData object: %s", input_data)
-
-            computed_data: ComputedData = compute_tax(configuration=configuration, input_data=input_data)
-            LOGGER.debug("ComputedData object: %s", computed_data)
-
-            asset_to_computed_data[asset] = computed_data
+        with Pool(processes=cpu_count()) as pool:
+            results = pool.map(_parse_and_compute, zip([configuration for _ in range(len(assets))], assets, [args.input_file for _ in range(len(assets))]))
+            asset_to_computed_data = {result.asset:result for result in results}
 
         # Load output plugins and call their generate() method
         package: ModuleType = import_module(OUTPUT_PACKAGE)
