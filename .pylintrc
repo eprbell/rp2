@@ -19,5 +19,4 @@ disable=
     C0116, # missing-function-docstring
     R0902, # too-many-instance-attributes
     R0913, # too-many-arguments
-    E1136, # unsubscriptable_object
 max-line-length=160
