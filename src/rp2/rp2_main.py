@@ -20,15 +20,15 @@ from pkgutil import iter_modules
 from types import ModuleType
 from typing import Dict, List
 
-from abstract_generator import AbstractGenerator
-from computed_data import ComputedData
-from configuration import VERSION, Configuration
-from input_data import InputData
-from logger import LOG_FILE, LOGGER
-from ods_parser import parse_ods
-from tax_engine import compute_tax
+from rp2.abstract_generator import AbstractGenerator
+from rp2.computed_data import ComputedData
+from rp2.configuration import VERSION, Configuration
+from rp2.input_data import InputData
+from rp2.logger import LOG_FILE, LOGGER
+from rp2.ods_parser import parse_ods
+from rp2.tax_engine import compute_tax
 
-OUTPUT_PACKAGE = "output"
+OUTPUT_PACKAGE = "plugin.output"
 
 
 def rp2_main() -> None:
@@ -52,7 +52,7 @@ def rp2_main() -> None:
             assets = list(configuration.assets)
         assets.sort()
 
-        asset_to_computed_data: Dict[str, ComputedData] = dict()
+        asset_to_computed_data: Dict[str, ComputedData] = {}
         asset: str
         for asset in assets:
             LOGGER.info("Processing %s", asset)

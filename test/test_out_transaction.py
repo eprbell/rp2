@@ -17,12 +17,12 @@ import unittest
 
 from dateutil.tz import tzoffset
 
-from configuration import Configuration
-from entry_types import TransactionType
-from intra_transaction import IntraTransaction
-from out_transaction import OutTransaction
-from rp2_decimal import RP2Decimal
-from rp2_error import RP2TypeError, RP2ValueError
+from rp2.configuration import Configuration
+from rp2.entry_types import TransactionType
+from rp2.intra_transaction import IntraTransaction
+from rp2.out_transaction import OutTransaction
+from rp2.rp2_decimal import RP2Decimal
+from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
 class TestOutTransaction(unittest.TestCase):

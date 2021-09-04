@@ -22,9 +22,9 @@ from typing import Any, Optional
 import jsonschema  # type: ignore
 from dateutil.tz import tzoffset, tzutc
 
-from configuration import AccountingMethod, Configuration
-from rp2_decimal import ZERO, RP2Decimal
-from rp2_error import RP2TypeError, RP2ValueError
+from rp2.configuration import AccountingMethod, Configuration
+from rp2.rp2_decimal import ZERO, RP2Decimal
+from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
 class TestConfiguration(unittest.TestCase):

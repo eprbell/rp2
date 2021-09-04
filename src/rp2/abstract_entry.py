@@ -15,9 +15,9 @@
 from datetime import datetime
 from typing import List, Optional
 
-from configuration import Configuration
-from rp2_decimal import RP2Decimal
-from rp2_error import RP2TypeError
+from rp2.configuration import Configuration
+from rp2.rp2_decimal import RP2Decimal
+from rp2.rp2_error import RP2TypeError
 
 
 class AbstractEntry:

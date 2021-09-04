@@ -15,10 +15,10 @@
 
 from dataclasses import dataclass
 
-from configuration import Configuration
-from entry_types import EntrySetType
-from rp2_error import RP2TypeError
-from transaction_set import TransactionSet
+from rp2.configuration import Configuration
+from rp2.entry_types import EntrySetType
+from rp2.rp2_error import RP2TypeError
+from rp2.transaction_set import TransactionSet
 
 
 @dataclass(frozen=True, eq=True)

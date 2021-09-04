@@ -15,8 +15,8 @@
 from enum import Enum
 from typing import Optional, Set
 
-from configuration import Configuration
-from rp2_error import RP2TypeError, RP2ValueError
+from rp2.configuration import Configuration
+from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
 class TransactionType(Enum):

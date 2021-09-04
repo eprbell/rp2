@@ -19,7 +19,7 @@ from typing import Any, List
 
 import ezodf
 
-from rp2_decimal import CRYPTO_DECIMALS
+from rp2.rp2_decimal import CRYPTO_DECIMALS
 
 
 def _row_as_string(row: Any) -> str:

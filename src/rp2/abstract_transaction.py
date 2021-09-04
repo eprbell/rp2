@@ -15,11 +15,11 @@
 from datetime import datetime
 from typing import Any, Callable, List, Optional
 
-from abstract_entry import AbstractEntry
-from configuration import Configuration
-from entry_types import TransactionType
-from rp2_decimal import RP2Decimal
-from rp2_error import RP2TypeError
+from rp2.abstract_entry import AbstractEntry
+from rp2.configuration import Configuration
+from rp2.entry_types import TransactionType
+from rp2.rp2_decimal import RP2Decimal
+from rp2.rp2_error import RP2TypeError
 
 
 class AbstractTransaction(AbstractEntry):

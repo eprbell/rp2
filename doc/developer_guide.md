@@ -55,12 +55,12 @@ The RP2 source tree is organized as follows:
 * `LICENSE`: license information;
 * `Makefile`: it encapsulates several development tasks. It has targets for [installing, linting, reformatting, static checking, unit testing](../CONTRIBUTING.md#development-workflow), etc.;
 * `mypy.ini`: Mypy configuration;
-* `plugin/output/`: output generator plugins;
 * `.pylintrc`: Pylint configuration;
 * `README.md`: documentation entry point;
 * `requirements.txt`: standard Python dependency file;
 * `resources/`: spreadsheet templates that are used by the standard plugins;
-* `src/`: RP2 code, including classes modeling transactions, gains, tax engine, balances, logger, ODS parser, etc.;
+* `src/rp2`: RP2 code, including classes for transactions, gains, tax engine, balances, logger, ODS parser, etc.;
+* `src/plugin/output/`: output generator plugins;
 * `stubs/`: RP2 relies on the pyexcel-ezodf library, which doesn't have typing information, so it is added here;
 * `test/`: unit tests.
 

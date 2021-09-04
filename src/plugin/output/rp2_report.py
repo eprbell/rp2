@@ -17,20 +17,21 @@ from typing import Any, Dict, List, NamedTuple, Optional, Set, cast
 
 import ezodf
 
-from abstract_entry import AbstractEntry
-from abstract_odt_generator import AbstractODTGenerator
-from abstract_transaction import AbstractTransaction
-from balance import BalanceSet
-from computed_data import ComputedData, YearlyGainLoss
-from gain_loss import GainLoss
-from gain_loss_set import GainLossSet
-from in_transaction import InTransaction
-from intra_transaction import IntraTransaction
-from logger import LOGGER
-from out_transaction import OutTransaction
-from rp2_decimal import RP2Decimal
-from rp2_error import RP2TypeError
-from transaction_set import TransactionSet
+from plugin.output.abstract_odt_generator import AbstractODTGenerator
+
+from rp2.abstract_entry import AbstractEntry
+from rp2.abstract_transaction import AbstractTransaction
+from rp2.balance import BalanceSet
+from rp2.computed_data import ComputedData, YearlyGainLoss
+from rp2.gain_loss import GainLoss
+from rp2.gain_loss_set import GainLossSet
+from rp2.in_transaction import InTransaction
+from rp2.intra_transaction import IntraTransaction
+from rp2.logger import LOGGER
+from rp2.out_transaction import OutTransaction
+from rp2.rp2_decimal import RP2Decimal
+from rp2.rp2_error import RP2TypeError
+from rp2.transaction_set import TransactionSet
 
 class _TransactionVisualStyle(NamedTuple):
     year: int
@@ -486,7 +487,7 @@ class Generator(AbstractODTGenerator):
     def __generate_account_balances(self, sheet: Any, balance_set: BalanceSet, row_index: int) -> int:
         row_index = self._fill_header("Account Balances", _BALANCE_HEADER_NAMES_ROW_1, _BALANCE_HEADER_NAMES_ROW_2, sheet, row_index, 0)
 
-        totals: Dict[str, RP2Decimal] = dict()
+        totals: Dict[str, RP2Decimal] = {}
         value: RP2Decimal
         for balance in balance_set:
             self._fill_cell(sheet, row_index, 0, balance.exchange, visual_style="bold", data_style="default")

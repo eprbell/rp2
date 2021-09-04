@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abstract_entry import AbstractEntry
-from abstract_entry_set import AbstractEntrySet
-from abstract_transaction import AbstractTransaction
-from configuration import Configuration
-from entry_types import EntrySetType
-from rp2_error import RP2TypeError, RP2ValueError
+from rp2.abstract_entry import AbstractEntry
+from rp2.abstract_entry_set import AbstractEntrySet
+from rp2.abstract_transaction import AbstractTransaction
+from rp2.configuration import Configuration
+from rp2.entry_types import EntrySetType
+from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
 class TransactionSet(AbstractEntrySet):

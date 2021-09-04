@@ -17,16 +17,16 @@ from typing import List, Optional, cast
 
 from dateutil.parser import parse
 
-from abstract_entry import AbstractEntry
-from abstract_transaction import AbstractTransaction
-from configuration import Configuration
-from entry_types import EntrySetType, TransactionType
-from in_transaction import InTransaction
-from intra_transaction import IntraTransaction
-from out_transaction import OutTransaction
-from rp2_decimal import RP2Decimal
-from rp2_error import RP2TypeError, RP2ValueError
-from transaction_set import TransactionSet
+from rp2.abstract_entry import AbstractEntry
+from rp2.abstract_transaction import AbstractTransaction
+from rp2.configuration import Configuration
+from rp2.entry_types import EntrySetType, TransactionType
+from rp2.in_transaction import InTransaction
+from rp2.intra_transaction import IntraTransaction
+from rp2.out_transaction import OutTransaction
+from rp2.rp2_decimal import RP2Decimal
+from rp2.rp2_error import RP2TypeError, RP2ValueError
+from rp2.transaction_set import TransactionSet
 
 
 class TestTransactionSet(unittest.TestCase):

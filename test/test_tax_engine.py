@@ -16,12 +16,12 @@ import unittest
 
 from rp2_test_output import RP2_TEST_OUTPUT
 
-from computed_data import ComputedData
-from configuration import Configuration
-from input_data import InputData
-from ods_parser import parse_ods
-from rp2_error import RP2TypeError
-from tax_engine import compute_tax
+from rp2.computed_data import ComputedData
+from rp2.configuration import Configuration
+from rp2.input_data import InputData
+from rp2.ods_parser import parse_ods
+from rp2.rp2_error import RP2TypeError
+from rp2.tax_engine import compute_tax
 
 
 class TestTaxEngine(unittest.TestCase):

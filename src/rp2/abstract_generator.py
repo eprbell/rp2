@@ -14,7 +14,7 @@
 
 from typing import Dict
 
-from computed_data import ComputedData
+from rp2.computed_data import ComputedData
 
 
 class AbstractGenerator:

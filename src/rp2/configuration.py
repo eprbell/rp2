@@ -21,9 +21,9 @@ from typing import Any, Dict, List, Optional, Set
 from dateutil.parser import parse
 from jsonschema import validate  # type: ignore
 
-from configuration_schema import CONFIGURATION_SCHEMA
-from rp2_decimal import RP2Decimal, ZERO
-from rp2_error import RP2TypeError, RP2ValueError
+from rp2.configuration_schema import CONFIGURATION_SCHEMA
+from rp2.rp2_decimal import RP2Decimal, ZERO
+from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 VERSION: str = "0.5.0"
 

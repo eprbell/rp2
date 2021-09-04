@@ -13,10 +13,11 @@
 # limitations under the License.
 
 BIN := $(wildcard bin/*.py)
-PLUGINS := $(wildcard plugin/*/*.py)
-SRC := $(wildcard src/*.py)
+PLUGINS := $(wildcard src/plugin/output/*.py)
+SRC := $(wildcard src/rp2/*.py)
 TESTS := $(wildcard test/test_*.py)
-PYTHONPATH := $(CURDIR)/plugin:$(CURDIR)/src:$(CURDIR)/test
+TEST_SRC := $(wildcard test/*.py)
+PYTHONPATH := $(CURDIR)/src
 VENV := .venv
 RP2_MAKEFILE := 1
 
@@ -29,8 +30,8 @@ $(VENV)/bin/activate: bin/rp2_check_requirements.py requirements.txt
 
 run: $(VENV)/bin/activate
 	rm -rf log/ output/
-	bin/rp2.py -o output/ -p test_data_ config/test_data.config input/test_data.ods
-	bin/rp2.py -o output/ -p crypto_example_ config/crypto_example.config input/crypto_example.ods
+	bin/rp2_tax.py -o output/ -p test_data_ config/test_data.config input/test_data.ods
+	bin/rp2_tax.py -o output/ -p crypto_example_ config/crypto_example.config input/crypto_example.ods
 
 check: $(VENV)/bin/activate $(TESTS)
 	$(foreach file, \
@@ -39,9 +40,9 @@ check: $(VENV)/bin/activate $(TESTS)
 	  PYTHONPATH=$(PYTHONPATH) $(VENV)/bin/python3 $(file); \
 	)
 
-lint: $(VENV)/bin/activate $(BIN) $(PLUGINS) $(SRC) $(TESTS)
+lint: $(VENV)/bin/activate $(BIN) $(PLUGINS) $(SRC) $(TEST_SRC)
 	$(foreach file, \
-	  $(BIN) $(PLUGINS) $(SRC) $(TESTS), \
+	  $(BIN) $(PLUGINS) $(SRC) $(TEST_SRC), \
 	  echo; echo "Linting $(file)..."; \
 	  PYTHONPATH=$(PYTHONPATH) pylint $(file); \
 	)
@@ -49,17 +50,17 @@ lint: $(VENV)/bin/activate $(BIN) $(PLUGINS) $(SRC) $(TESTS)
 # Don't typecheck files in $(BIN) because they perform a version check
 # and are written using basic language features (no type hints) to ensure
 # they parse and run correctly on old versions of the interpreter.
-typecheck: $(VENV)/bin/activate $(PLUGINS) $(SRC) $(TESTS)
+typecheck: $(VENV)/bin/activate $(PLUGINS) $(SRC) $(TEST_SRC)
 	$(foreach file, \
-	  $(PLUGINS) $(SRC) $(TESTS), \
+	  $(PLUGINS) $(SRC) $(TEST_SRC), \
 	  echo; echo "Type checking $(file)..."; \
-	  MYPYPATH=$(PYTHONPATH):${CURDIR}/stubs mypy $(file); \
+	  MYPYPATH=$(PYTHONPATH):${CURDIR}/src/stubs mypy $(file); \
 	)
 
-reformat: $(VENV)/bin/activate $(BIN) $(PLUGINS) $(SRC) $(TESTS)
+reformat: $(VENV)/bin/activate $(BIN) $(PLUGINS) $(SRC) $(TEST_SRC)
 	isort .
 	$(foreach file, \
-	  $(BIN) $(PLUGINS) $(SRC) $(TESTS), \
+	  $(BIN) $(PLUGINS) $(SRC) $(TEST_SRC), \
 	  echo; echo "Reformatting $(file)..."; \
 	  PYTHONPATH=$(PYTHONPATH) black -l160 $(file); \
 	)

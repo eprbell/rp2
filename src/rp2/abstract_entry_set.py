@@ -15,13 +15,13 @@
 from datetime import datetime
 from typing import Dict, List, Optional, Set
 
-from abstract_entry import AbstractEntry
-from configuration import Configuration
-from entry_types import EntrySetType
-from in_transaction import InTransaction
-from intra_transaction import IntraTransaction
-from out_transaction import OutTransaction
-from rp2_error import RP2TypeError, RP2ValueError
+from rp2.abstract_entry import AbstractEntry
+from rp2.configuration import Configuration
+from rp2.entry_types import EntrySetType
+from rp2.in_transaction import InTransaction
+from rp2.intra_transaction import IntraTransaction
+from rp2.out_transaction import OutTransaction
+from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
 class AbstractEntrySet:

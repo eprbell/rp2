@@ -14,8 +14,8 @@
 
 import unittest
 
-from rp2_decimal import ZERO, RP2Decimal
-from rp2_error import RP2TypeError
+from rp2.rp2_decimal import ZERO, RP2Decimal
+from rp2.rp2_error import RP2TypeError
 
 
 class TestRP2Decimal(unittest.TestCase):

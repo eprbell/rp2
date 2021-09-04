@@ -14,15 +14,15 @@
 
 from typing import Dict, List, Optional, cast
 
-from abstract_entry import AbstractEntry
-from abstract_entry_set import AbstractEntrySet
-from abstract_transaction import AbstractTransaction
-from configuration import Configuration
-from gain_loss import GainLoss
-from in_transaction import InTransaction
-from logger import LOGGER
-from rp2_decimal import RP2Decimal, ZERO
-from rp2_error import RP2TypeError, RP2ValueError
+from rp2.abstract_entry import AbstractEntry
+from rp2.abstract_entry_set import AbstractEntrySet
+from rp2.abstract_transaction import AbstractTransaction
+from rp2.configuration import Configuration
+from rp2.gain_loss import GainLoss
+from rp2.in_transaction import InTransaction
+from rp2.logger import LOGGER
+from rp2.rp2_decimal import RP2Decimal, ZERO
+from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
 class GainLossSet(AbstractEntrySet):

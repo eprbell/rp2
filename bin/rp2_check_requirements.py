@@ -23,6 +23,7 @@ MINIMUM_VERSION = (3, 7, 0)
 # This code performs a Python version check: it's written using basic language features (e.g. no type hints, no f-strings,
 # etc.) to ensure it parses and runs correctly on old versions of the interpreter.
 def check_requirements():
+    # pylint: disable=import-outside-toplevel
     current_version = (sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
     current_version_string = ".".join(str(n) for n in current_version)
     minimum_version_string = ".".join(str(n) for n in MINIMUM_VERSION)

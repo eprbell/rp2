@@ -14,10 +14,10 @@
 
 from typing import Any, Callable, List, Optional
 
-from abstract_transaction import AbstractTransaction
-from configuration import Configuration
-from rp2_decimal import ZERO, RP2Decimal
-from rp2_error import RP2TypeError, RP2ValueError
+from rp2.abstract_transaction import AbstractTransaction
+from rp2.configuration import Configuration
+from rp2.rp2_decimal import ZERO, RP2Decimal
+from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
 class IntraTransaction(AbstractTransaction):

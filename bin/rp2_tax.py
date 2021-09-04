@@ -23,6 +23,7 @@ from rp2_check_requirements import check_requirements
 # This code performs a Python version check: it's written using basic language features (e.g. no type hints, no f-strings,
 # etc.) to ensure it parses and runs correctly on old versions of the interpreter.
 def main():
+    # pylint: disable=import-outside-toplevel
     message = check_requirements()
     if message:
         print(message)
@@ -40,7 +41,7 @@ def main():
     sys.path.append(str(root_path / Path("plugin")))
 
     try:
-        from rp2_main import rp2_main
+        from rp2.rp2_main import rp2_main
 
         rp2_main()
     except ModuleNotFoundError:

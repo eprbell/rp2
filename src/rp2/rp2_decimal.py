@@ -14,7 +14,7 @@
 
 from decimal import Decimal, FloatOperation, getcontext
 
-from rp2_error import RP2TypeError
+from rp2.rp2_error import RP2TypeError
 
 CRYPTO_DECIMALS: int = 13
 CRYPTO_DECIMAL_MASK: Decimal = Decimal("1." + "0" * int(CRYPTO_DECIMALS))
@@ -31,8 +31,8 @@ class RP2Decimal(Decimal):
     getcontext().traps[FloatOperation] = True
 
     @classmethod
-    def is_equal_within_precision(cls, n1: "RP2Decimal", n2: "RP2Decimal", precision_mask: Decimal) -> bool:
-        return (n1 - n2).quantize(precision_mask) == ZERO
+    def is_equal_within_precision(cls, first: "RP2Decimal", second: "RP2Decimal", precision_mask: Decimal) -> bool:
+        return (first - second).quantize(precision_mask) == ZERO
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Decimal):

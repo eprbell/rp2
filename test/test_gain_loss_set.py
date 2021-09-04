@@ -17,14 +17,14 @@ from typing import Dict, List
 
 from rp2_test_output import RP2_TEST_OUTPUT
 
-from configuration import Configuration
-from gain_loss import GainLoss
-from gain_loss_set import GainLossSet
-from in_transaction import InTransaction
-from intra_transaction import IntraTransaction
-from out_transaction import OutTransaction
-from rp2_decimal import RP2Decimal
-from rp2_error import RP2TypeError, RP2ValueError
+from rp2.configuration import Configuration
+from rp2.gain_loss import GainLoss
+from rp2.gain_loss_set import GainLossSet
+from rp2.in_transaction import InTransaction
+from rp2.intra_transaction import IntraTransaction
+from rp2.out_transaction import OutTransaction
+from rp2.rp2_decimal import RP2Decimal
+from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 _ASSETS: List[str] = ["B1", "B2", "B3", "B4"]
 
@@ -57,23 +57,23 @@ class TestGainLossSet(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls._configuration = Configuration("./config/test_data.config")
 
-        cls._in3 = dict()
-        cls._in2 = dict()
-        cls._in6 = dict()
-        cls._in5 = dict()
-        cls._in4 = dict()
+        cls._in3 = {}
+        cls._in2 = {}
+        cls._in6 = {}
+        cls._in5 = {}
+        cls._in4 = {}
 
-        cls._out15 = dict()
-        cls._out14 = dict()
-        cls._out16 = dict()
-        cls._out12 = dict()
-        cls._out13 = dict()
+        cls._out15 = {}
+        cls._out14 = {}
+        cls._out16 = {}
+        cls._out12 = {}
+        cls._out13 = {}
 
-        cls._intra25 = dict()
-        cls._intra24 = dict()
-        cls._intra22 = dict()
+        cls._intra25 = {}
+        cls._intra24 = {}
+        cls._intra22 = {}
 
-        cls._gain_loss_set = dict()
+        cls._gain_loss_set = {}
 
         for asset in _ASSETS:
             cls._initialize_transactions(asset)

@@ -18,13 +18,13 @@ from typing import Any, List, Set
 
 import ezodf
 
-from abstract_generator import AbstractGenerator
-from abstract_transaction import AbstractTransaction
-from configuration import Configuration
-from in_transaction import InTransaction
-from out_transaction import OutTransaction
-from rp2_decimal import RP2Decimal
-from rp2_error import RP2TypeError
+from rp2.abstract_generator import AbstractGenerator
+from rp2.abstract_transaction import AbstractTransaction
+from rp2.configuration import Configuration
+from rp2.in_transaction import InTransaction
+from rp2.out_transaction import OutTransaction
+from rp2.rp2_decimal import RP2Decimal
+from rp2.rp2_error import RP2TypeError
 
 
 class AbstractODTGenerator(AbstractGenerator):  # pylint: disable=W0223
@@ -46,7 +46,7 @@ class AbstractODTGenerator(AbstractGenerator):  # pylint: disable=W0223
         if Path(output_file_path).exists():
             output_file_path.unlink()
 
-        template_path: str = str(Path(os.path.dirname(__file__)).parent.absolute() / Path("resources/template.ods"))
+        template_path: str = str(Path(os.path.dirname(__file__)).absolute() / Path("resources/template.ods"))
         output_file: Any = ezodf.newdoc("ods", str(output_file_path), template=template_path)
 
         index: int = 0

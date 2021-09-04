@@ -15,22 +15,22 @@
 from dataclasses import dataclass
 from typing import Dict, Iterable, Iterator, List, Set, cast
 
-from abstract_entry import AbstractEntry
-from abstract_transaction import AbstractTransaction
-from balance import BalanceSet
-from computed_data import ComputedData, YearlyGainLoss
-from configuration import Configuration
-from entry_types import TransactionType
-from gain_loss import GainLoss
-from gain_loss_set import GainLossSet
-from in_transaction import InTransaction
-from input_data import InputData
-from intra_transaction import IntraTransaction
-from logger import LOGGER
-from out_transaction import OutTransaction
-from rp2_decimal import ZERO, RP2Decimal
-from rp2_error import RP2ValueError
-from transaction_set import TransactionSet
+from rp2.abstract_entry import AbstractEntry
+from rp2.abstract_transaction import AbstractTransaction
+from rp2.balance import BalanceSet
+from rp2.computed_data import ComputedData, YearlyGainLoss
+from rp2.configuration import Configuration
+from rp2.entry_types import TransactionType
+from rp2.gain_loss import GainLoss
+from rp2.gain_loss_set import GainLossSet
+from rp2.in_transaction import InTransaction
+from rp2.input_data import InputData
+from rp2.intra_transaction import IntraTransaction
+from rp2.logger import LOGGER
+from rp2.out_transaction import OutTransaction
+from rp2.rp2_decimal import ZERO, RP2Decimal
+from rp2.rp2_error import RP2ValueError
+from rp2.transaction_set import TransactionSet
 
 
 def compute_tax(configuration: Configuration, input_data: InputData) -> ComputedData:
@@ -153,7 +153,7 @@ class _YearlyGainLossAmounts:
 
 
 def _create_yearly_gain_loss_list(input_data: InputData, gain_loss_set: GainLossSet) -> List[YearlyGainLoss]:
-    summaries: Dict[_YearlyGainLossId, _YearlyGainLossAmounts] = dict()
+    summaries: Dict[_YearlyGainLossId, _YearlyGainLossAmounts] = {}
     entry: AbstractEntry
     key: _YearlyGainLossId
     value: _YearlyGainLossAmounts

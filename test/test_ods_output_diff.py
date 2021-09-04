@@ -25,8 +25,8 @@ class TestODSOutputDiff(unittest.TestCase):
         # Generate output to compare with golden files
         shutil.rmtree("./log", ignore_errors=True)
         shutil.rmtree("./output", ignore_errors=True)
-        run(["python3", "bin/rp2.py", "-o", "./output/", "-p", "test_data_", "./config/test_data.config", "./input/test_data.ods"], check=True)
-        run(["python3", "bin/rp2.py", "-o", "./output/", "-p", "crypto_example_", "./config/crypto_example.config", "./input/crypto_example.ods"], check=True)
+        run(["python3", "bin/rp2_tax.py", "-o", "./output/", "-p", "test_data_", "./config/test_data.config", "./input/test_data.ods"], check=True)
+        run(["python3", "bin/rp2_tax.py", "-o", "./output/", "-p", "crypto_example_", "./config/crypto_example.config", "./input/crypto_example.ods"], check=True)
 
     def setUp(self) -> None:
         self.maxDiff = None

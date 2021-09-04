@@ -15,14 +15,14 @@
 from dataclasses import dataclass
 from typing import List
 
-from balance import BalanceSet
-from configuration import Configuration
-from entry_types import EntrySetType, TransactionType
-from gain_loss_set import GainLossSet
-from input_data import InputData
-from rp2_decimal import RP2Decimal
-from rp2_error import RP2TypeError, RP2ValueError
-from transaction_set import TransactionSet
+from rp2.balance import BalanceSet
+from rp2.configuration import Configuration
+from rp2.entry_types import EntrySetType, TransactionType
+from rp2.gain_loss_set import GainLossSet
+from rp2.input_data import InputData
+from rp2.rp2_decimal import RP2Decimal
+from rp2.rp2_error import RP2TypeError, RP2ValueError
+from rp2.transaction_set import TransactionSet
 
 
 @dataclass(frozen=True, eq=True)

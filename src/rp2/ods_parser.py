@@ -19,17 +19,17 @@ from typing import Any, Dict, List, Optional
 
 import ezodf
 
-from abstract_transaction import AbstractTransaction
-from configuration import Configuration
-from entry_types import EntrySetType
-from in_transaction import InTransaction
-from input_data import InputData
-from intra_transaction import IntraTransaction
-from logger import LOGGER
-from out_transaction import OutTransaction
-from rp2_decimal import RP2Decimal
-from rp2_error import RP2ValueError
-from transaction_set import TransactionSet
+from rp2.abstract_transaction import AbstractTransaction
+from rp2.configuration import Configuration
+from rp2.entry_types import EntrySetType
+from rp2.in_transaction import InTransaction
+from rp2.input_data import InputData
+from rp2.intra_transaction import IntraTransaction
+from rp2.logger import LOGGER
+from rp2.out_transaction import OutTransaction
+from rp2.rp2_decimal import RP2Decimal
+from rp2.rp2_error import RP2ValueError
+from rp2.transaction_set import TransactionSet
 
 _TABLE_END: str = "TABLE END"
 
@@ -48,7 +48,7 @@ def parse_ods(configuration: Configuration, asset: str, input_file_path: str) ->
         raise RP2ValueError(f"Error: sheet {asset} does not exist in {input_file_path}")
     input_sheet: Any = input_file.sheets[asset]
 
-    transaction_sets: Dict[EntrySetType, TransactionSet] = dict()
+    transaction_sets: Dict[EntrySetType, TransactionSet] = {}
 
     transaction_sets[EntrySetType.IN] = TransactionSet(configuration, "IN", asset)
     transaction_sets[EntrySetType.OUT] = TransactionSet(configuration, "OUT", asset)

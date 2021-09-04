@@ -16,12 +16,12 @@ import unittest
 
 from dateutil.tz import tzutc
 
-from configuration import Configuration
-from entry_types import TransactionType
-from in_transaction import InTransaction
-from intra_transaction import IntraTransaction
-from rp2_decimal import RP2Decimal
-from rp2_error import RP2TypeError, RP2ValueError
+from rp2.configuration import Configuration
+from rp2.entry_types import TransactionType
+from rp2.in_transaction import InTransaction
+from rp2.intra_transaction import IntraTransaction
+from rp2.rp2_decimal import RP2Decimal
+from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
 class TestIntraTransaction(unittest.TestCase):

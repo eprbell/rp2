@@ -15,12 +15,13 @@
 from pathlib import Path
 from typing import Any, Dict, Set, cast
 
-from abstract_odt_generator import AbstractODTGenerator
-from computed_data import ComputedData
-from gain_loss import GainLoss
-from gain_loss_set import GainLossSet
-from logger import LOGGER
-from rp2_error import RP2TypeError
+from plugin.output.abstract_odt_generator import AbstractODTGenerator
+
+from rp2.computed_data import ComputedData
+from rp2.gain_loss import GainLoss
+from rp2.gain_loss_set import GainLossSet
+from rp2.logger import LOGGER
+from rp2.rp2_error import RP2TypeError
 
 
 class Generator(AbstractODTGenerator):

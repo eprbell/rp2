@@ -17,16 +17,16 @@ from typing import Dict, List, Optional, NamedTuple, Type
 
 from dateutil.parser import parse
 
-from configuration import Configuration
-from entry_types import TransactionType
-from in_transaction import InTransaction
-from input_data import InputData
-from intra_transaction import IntraTransaction
-from ods_parser import parse_ods
-from out_transaction import OutTransaction
-from rp2_decimal import RP2Decimal
-from rp2_error import RP2Error, RP2TypeError, RP2ValueError
-from transaction_set import TransactionSet
+from rp2.configuration import Configuration
+from rp2.entry_types import TransactionType
+from rp2.in_transaction import InTransaction
+from rp2.input_data import InputData
+from rp2.intra_transaction import IntraTransaction
+from rp2.ods_parser import parse_ods
+from rp2.out_transaction import OutTransaction
+from rp2.rp2_decimal import RP2Decimal
+from rp2.rp2_error import RP2Error, RP2TypeError, RP2ValueError
+from rp2.transaction_set import TransactionSet
 
 class ErrorAndMessage(NamedTuple):
     error_class: Type[RP2Error]
