@@ -13,11 +13,10 @@
 <!--- limitations under the License. --->
 
 # RP2 v0.5.0
-
-![Main branch](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml/badge.svg)
-![Main branch](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml/badge.svg)
-![Main branch](https://github.com/eprbell/rp2/actions/workflows/windows_unit_tests.yml/badge.svg)
-![Main branch](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml/badge.svg)
+[![Static Analysis / Main Branch](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml)
+[![Unix Unit Tests / Main Branch](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml)
+[![Windows Unit Tests / Main Branch](https://github.com/eprbell/rp2/actions/workflows/windows_unit_tests.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/windows_unit_tests.yml)
+[![CodeQL/Main Branch](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml)
 
 ## Table of Contents
 * **[Introduction](#introduction)**
