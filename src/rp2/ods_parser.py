@@ -33,20 +33,24 @@ from rp2.transaction_set import TransactionSet
 
 _TABLE_END: str = "TABLE END"
 
-
-def parse_ods(configuration: Configuration, asset: str, input_file_path: str) -> InputData:
-
+def open_ods(configuration: Configuration, input_file_path: str) -> Any:
     Configuration.type_check("configuration", configuration)
-    configuration.type_check_asset("asset", asset)
     configuration.type_check_string("input_file_path", input_file_path)
 
     if not Path(input_file_path).exists():
         raise RP2ValueError(f"Error: {input_file_path} does not exist")
 
-    input_file: Any = ezodf.opendoc(input_file_path)
-    if asset not in input_file.sheets.names():
-        raise RP2ValueError(f"Error: sheet {asset} does not exist in {input_file_path}")
-    input_sheet: Any = input_file.sheets[asset]
+    return ezodf.opendoc(input_file_path)
+
+
+def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) -> InputData:
+
+    Configuration.type_check("configuration", configuration)
+    configuration.type_check_asset("asset", asset)
+
+    if asset not in input_file_handle.sheets.names():
+        raise RP2ValueError(f"Error: sheet {asset} does not exist in {Path(input_file_handle.docname).resolve()}")
+    input_sheet: Any = input_file_handle.sheets[asset]
 
     transaction_sets: Dict[EntrySetType, TransactionSet] = {}
 

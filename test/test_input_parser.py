@@ -22,7 +22,7 @@ from rp2.entry_types import TransactionType
 from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData
 from rp2.intra_transaction import IntraTransaction
-from rp2.ods_parser import parse_ods
+from rp2.ods_parser import open_ods, parse_ods
 from rp2.out_transaction import OutTransaction
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2Error, RP2TypeError, RP2ValueError
@@ -53,7 +53,8 @@ class TestInputParser(unittest.TestCase):
     def _verify_good_sheet(self, sheet_name: str, out_empty: bool, intra_empty: bool) -> None:
 
         asset = sheet_name
-        input_data: InputData = parse_ods(self._good_input_configuration, asset, "./input/test_data.ods")
+        input_file_handle: object = open_ods(configuration=self._good_input_configuration, input_file_path="./input/test_data.ods")
+        input_data: InputData = parse_ods(self._good_input_configuration, asset, input_file_handle)
 
         # In table is always present
         self._verify_non_empty_in_table(input_data.in_transaction_set, asset)
@@ -324,7 +325,8 @@ class TestInputParser(unittest.TestCase):
         for sheet, (error_class, message) in sheets_to_expected_messages.items():
             with self.assertRaisesRegex(error_class, message):
                 asset: str = sheet
-                parse_ods(self._bad_input_configuration, asset, "./input/test_bad_data.ods")
+                input_file_handle: object = open_ods(configuration=self._bad_input_configuration, input_file_path="./input/test_bad_data.ods")
+                parse_ods(self._bad_input_configuration, asset, input_file_handle)
 
 
 if __name__ == "__main__":

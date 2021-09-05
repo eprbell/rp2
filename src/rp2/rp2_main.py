@@ -25,7 +25,7 @@ from rp2.computed_data import ComputedData
 from rp2.configuration import VERSION, Configuration
 from rp2.input_data import InputData
 from rp2.logger import LOG_FILE, LOGGER
-from rp2.ods_parser import parse_ods
+from rp2.ods_parser import open_ods, parse_ods
 from rp2.tax_engine import compute_tax
 
 OUTPUT_PACKAGE = "plugin.output"
@@ -54,10 +54,12 @@ def rp2_main() -> None:
 
         asset_to_computed_data: Dict[str, ComputedData] = {}
         asset: str
+
+        input_file_handle: object = open_ods(configuration=configuration, input_file_path=args.input_file)
         for asset in assets:
             LOGGER.info("Processing %s", asset)
 
-            input_data: InputData = parse_ods(configuration=configuration, asset=asset, input_file_path=args.input_file)
+            input_data: InputData = parse_ods(configuration=configuration, asset=asset, input_file_handle=input_file_handle)
             LOGGER.debug("InputData object: %s", input_data)
 
             computed_data: ComputedData = compute_tax(configuration=configuration, input_data=input_data)
