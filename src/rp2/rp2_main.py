@@ -40,6 +40,7 @@ def _parse_and_compute(args: Tuple[Configuration, str, str]) -> ComputedData:
 
     input_file_handle: object = open_ods(configuration=configuration, input_file_path=input_file_path)
     input_data: InputData = parse_ods(configuration=configuration, asset=asset, input_file_handle=input_file_handle)
+
     LOGGER.debug("InputData object: %s", input_data)
 
     computed_data: ComputedData = compute_tax(configuration=configuration, input_data=input_data)
