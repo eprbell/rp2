@@ -15,7 +15,7 @@
 from pathlib import Path
 from typing import Any, Dict, Set, cast
 
-from plugin.output.abstract_odt_generator import AbstractODTGenerator
+from rp2.plugin.output.abstract_odt_generator import AbstractODTGenerator
 
 from rp2.computed_data import ComputedData
 from rp2.gain_loss import GainLoss

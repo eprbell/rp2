@@ -17,7 +17,7 @@ from typing import Any, Dict, List, NamedTuple, Optional, Set, cast
 
 import ezodf
 
-from plugin.output.abstract_odt_generator import AbstractODTGenerator
+from rp2.plugin.output.abstract_odt_generator import AbstractODTGenerator
 
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
