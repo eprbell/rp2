@@ -18,5 +18,6 @@ output/*.ods
 .mypy_cache/
 *.pyc
 __pycache__/
+src/rp2.egg-info/
 .venv/
 .vscode/

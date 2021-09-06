@@ -38,7 +38,6 @@ def main():
 
     root_path = Path(os.path.dirname(__file__)).parent.absolute()
     sys.path.append(str(root_path / Path("src")))
-    sys.path.append(str(root_path / Path("plugin")))
 
     try:
         from rp2.rp2_main import rp2_main

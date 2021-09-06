@@ -13,7 +13,7 @@
 # limitations under the License.
 
 BIN := $(wildcard bin/*.py)
-PLUGINS := $(wildcard src/plugin/output/*.py)
+PLUGINS := $(wildcard src/rp2/plugin/output/*.py)
 SRC := $(wildcard src/rp2/*.py)
 TESTS := $(wildcard test/test_*.py)
 TEST_SRC := $(wildcard test/*.py)
@@ -70,7 +70,7 @@ archive: clean
 	zip -r rp2.zip .
 
 clean:
-	rm -rf $(VENV) .mypy_cache/ log/ output/
+	rm -rf $(VENV) .mypy_cache/ log/ output/ src/rp2.egg-info/
 	find . -type f -name '*.pyc' -delete
 
 .PHONY: all run test lint typecheck reformat archive clean
