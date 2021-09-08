@@ -15,7 +15,7 @@
 BIN := $(wildcard bin/*.py)
 PLUGINS := $(wildcard src/rp2/plugin/output/*.py)
 SRC := $(wildcard src/rp2/*.py)
-TESTS := $(wildcard test/test_*.py)
+TESTS := $(wildcard tests/test_*.py)
 TEST_SRC := $(wildcard test/*.py)
 PYTHONPATH := $(CURDIR)/src
 VENV := .venv

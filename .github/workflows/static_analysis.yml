@@ -10,8 +10,8 @@ jobs:
         os: [ubuntu-latest]
         python-version: [3.9]
     env:
-      PYTHONPATH: ./src:./test
-      MYPYPATH: ./src:./test:./src/stubs
+      PYTHONPATH: ./src:./tests
+      MYPYPATH: ./src:./tests:./src/stubs
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -31,4 +31,4 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=160 --statistics
       - name: Typecheck with mypy
         run: |
-          mypy src/rp2/*.py src/rp2/plugin/*.py src/rp2/plugin/output/*.py test/*.py
+          mypy src/rp2/*.py src/rp2/plugin/*.py src/rp2/plugin/output/*.py tests/*.py

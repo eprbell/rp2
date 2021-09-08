@@ -31,7 +31,7 @@ Logs are stored in the `log/` directory and each file name is appended with a ti
 
 ## Contributing to the Repository
 
-The [developer guide](doc/developer_guide.md) contains the RP2 [design guidelines](doc/developer_guide.md#design-guidelines).
+The [developer guide](docs/developer_guide.md) contains the RP2 [design guidelines](docs/developer_guide.md#design-guidelines).
 
 ### Development Workflow
 
@@ -55,9 +55,9 @@ LOG_LEVEL=DEBUG bin/rp2.py -o output -p crypto_example_ config/crypto_example.co
 
 ### Submitting Pull Requests
 Feel free to submit pull requests. Please follow these practices:
-* follow the RP2 [design guidelines](doc/developer_guide.md#design-guidelines)
+* follow the RP2 [design guidelines](docs/developer_guide.md#design-guidelines)
 * follow the [PEP 8](https://www.python.org/dev/peps/pep-0008/) coding standard and use `make reformat` before pushing;
-* add [unit tests](test/) for any new code;
+* add [unit tests](tests/) for any new code;
 * make sure your code doesn't cause new issues with `make check typecheck lint`;
 * ensure your commits are atomic (one feature per commit);
 * write a clear log message for your commits.
