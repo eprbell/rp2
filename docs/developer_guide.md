@@ -65,7 +65,7 @@ The RP2 source tree is organized as follows:
 * `tests/`: unit tests.
 
 ## Plugin Development
-RP2 has a plugin architecture for output generators, which makes it extensible for new use cases. Writing a new plugin is quite easy: the [8949 form generator](../plugin/output/mock_8949_us.py) is a simple example, the [RP2 report generator](../plugin/output/rp2_report.py) is more comprehensive.
+RP2 has a plugin architecture for output generators, which makes it extensible for new use cases. Writing a new plugin is quite easy: the [8949 form generator](../src/rp2/plugin/output/mock_8949_us.py) is a simple example, the [RP2 report generator](../src/rp2/plugin/output/rp2_report.py) is more comprehensive.
 
 Plugins are discovered by RP2 at runtime and they must adhere to the specific conventions shown below. To add a new plugin follow this procedure:
 * add a new Python file in the plugin/output directory and give it a meaningful name
