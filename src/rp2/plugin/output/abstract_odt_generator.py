@@ -46,7 +46,7 @@ class AbstractODTGenerator(AbstractGenerator):  # pylint: disable=W0223
         if Path(output_file_path).exists():
             output_file_path.unlink()
 
-        template_path: str = str(Path(os.path.dirname(__file__)).absolute() / Path("resources/template.ods"))
+        template_path: str = str(Path(os.path.dirname(__file__)).absolute() / Path("data/template.ods"))
         output_file: Any = ezodf.newdoc("ods", str(output_file_path), template=template_path)
 
         index: int = 0
