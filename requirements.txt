@@ -21,9 +21,11 @@ pyexcel-ezodf
 # Development
 autopep8
 black
+bumpversion
 isort
 mypy
 pep8
 pylint
 rope
 types-python-dateutil
+twine
