@@ -71,7 +71,6 @@ RP2_TEST_OUTPUT = {
       from_lot=None
       taxable_event_fraction=1 of 1
       parent=2->None""",
-
     "B2": """GainLossSet:
   configuration=./config/test_data.config
   asset=B2
@@ -481,7 +480,6 @@ RP2_TEST_OUTPUT = {
       taxable_event_fraction=2 of 2
       from_lot_fraction=1 of 1
       parent=13->5""",
-
     "B3": """GainLossSet:
   configuration=./config/test_data.config
   asset=B3
@@ -669,7 +667,6 @@ RP2_TEST_OUTPUT = {
       taxable_event_fraction=1 of 1
       from_lot_fraction=3 of 3
       parent=24->3""",
-
     "B4": """GainLossSet:
   configuration=./config/test_data.config
   asset=B4
@@ -1168,5 +1165,5 @@ RP2_TEST_OUTPUT = {
         usd_taxable_amount=0.0000
       taxable_event_fraction=1 of 1
       from_lot_fraction=3 of 3
-      parent=13->4"""
+      parent=13->4""",
 }

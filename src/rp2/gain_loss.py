@@ -20,7 +20,7 @@ from rp2.abstract_transaction import AbstractTransaction
 from rp2.configuration import Configuration
 from rp2.entry_types import TransactionType
 from rp2.in_transaction import InTransaction
-from rp2.rp2_decimal import RP2Decimal, ZERO
+from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 

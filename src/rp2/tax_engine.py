@@ -170,12 +170,7 @@ def _create_yearly_gain_loss_list(input_data: InputData, gain_loss_set: GainLoss
         usd_amount: RP2Decimal = value.usd_amount + gain_loss.taxable_event_usd_amount_with_fee_fraction
         usd_cost_basis: RP2Decimal = value.usd_cost_basis + gain_loss.usd_cost_basis
         usd_gain_loss: RP2Decimal = value.usd_gain_loss + gain_loss.usd_gain
-        summaries[key] = _YearlyGainLossAmounts(
-            crypto_amount=crypto_amount,
-            usd_amount=usd_amount,
-            usd_cost_basis=usd_cost_basis,
-            usd_gain_loss=usd_gain_loss
-        )
+        summaries[key] = _YearlyGainLossAmounts(crypto_amount=crypto_amount, usd_amount=usd_amount, usd_cost_basis=usd_cost_basis, usd_gain_loss=usd_gain_loss)
 
     yearly_gain_loss_set: Set[YearlyGainLoss] = set()
     crypto_taxable_amount_total: RP2Decimal = ZERO

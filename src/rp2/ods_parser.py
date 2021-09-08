@@ -33,6 +33,7 @@ from rp2.transaction_set import TransactionSet
 
 _TABLE_END: str = "TABLE END"
 
+
 def open_ods(configuration: Configuration, input_file_path: str) -> Any:
     Configuration.type_check("configuration", configuration)
     configuration.type_check_string("input_file_path", input_file_path)

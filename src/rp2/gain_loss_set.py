@@ -21,7 +21,7 @@ from rp2.configuration import Configuration
 from rp2.gain_loss import GainLoss
 from rp2.in_transaction import InTransaction
 from rp2.logger import LOGGER
-from rp2.rp2_decimal import RP2Decimal, ZERO
+from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
@@ -91,7 +91,11 @@ class GainLossSet(AbstractEntrySet):
             # Access the parent directly via _entry_to_parent because using the get_parent()
             # accessor would cause _sort_entries to be called in an infinite recursive loop
             if gain_loss.from_lot:
-                if last_gain_loss_with_from_lot and last_gain_loss_with_from_lot.from_lot and gain_loss.from_lot.timestamp < last_gain_loss_with_from_lot.from_lot.timestamp:
+                if (
+                    last_gain_loss_with_from_lot
+                    and last_gain_loss_with_from_lot.from_lot
+                    and gain_loss.from_lot.timestamp < last_gain_loss_with_from_lot.from_lot.timestamp
+                ):
                     # Ensure timestamp of from lot is >= timestamp of its ancestor.
                     raise RP2ValueError(
                         f"Date of from_lot entry (id {gain_loss.from_lot.unique_id}) is < the date of its ancestor "

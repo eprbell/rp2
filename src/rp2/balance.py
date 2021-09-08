@@ -21,7 +21,7 @@ from rp2.input_data import InputData
 from rp2.intra_transaction import IntraTransaction
 from rp2.logger import LOGGER
 from rp2.out_transaction import OutTransaction
-from rp2.rp2_decimal import RP2Decimal, ZERO
+from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError
 
 
