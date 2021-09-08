@@ -25,6 +25,7 @@ bumpversion
 isort
 mypy
 pep8
+pre-commit
 pylint
 rope
 types-python-dateutil
