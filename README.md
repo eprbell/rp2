@@ -36,6 +36,7 @@
 * **[Contributing](#contributing)**
 * **[Full Documentation](#full-documentation)**
 * **[Frequently Asked Questions](#frequently-asked-questions)**
+* **[Change Log](#change-log)**
 
 ## Introduction
 [RP2](https://github.com/eprbell/rp2) is a privacy-focused, free, open-source cryptocurrency tax calculator. Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This problem could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
@@ -47,7 +48,7 @@ RP2 reads in a user-prepared spreadsheet containing crypto transactions. It then
 
 It has a programmable plugin architecture for [output generators](plugin/output): currently only US-specific plugins are available (one for form 8949 and another for a full tax report), but the architecture makes it possible to contribute additional output generators for different countries or for different US-based cases.
 
-RP2 has extensive [unit test](test/) coverage to reduce the risk of regression.
+RP2 has extensive [unit test](tests/) coverage to reduce the risk of regression.
 
 The author of RP2 is not a tax professional, but has used RP2 personally for a few years.
 
@@ -126,13 +127,13 @@ Before running RP2 the user must prepare two files:
 * an ODS-format spreadsheet, containing crypto transactions (ODS-format files can be opened and edited with [LibreOffice](https://www.libreoffice.org/), Microsoft Excel and many other spreadsheet applications);
 * a JSON config file, describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies and exchanges to expect.
 
-The formats of these files are described in detail in the [Input Files](doc/input_files.md) section of the documentation.
+The formats of these files are described in detail in the [Input Files](docs/input_files.md) section of the documentation.
 
 Examples of an input spreadsheet and its respective config file:
 * [input/crypto_example.ods](input/crypto_example.ods)
 * [config/crypto_example.config](config/crypto_example.config) (if desired, this config file can be used as boilerplate).
 
-After reading the input files, RP2 generates output files based on the transaction information therein. The output files contain information on long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. They are described in detail in the [Output Files](doc/output_files.md) section of the documentation.
+After reading the input files, RP2 generates output files based on the transaction information therein. The output files contain information on long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. They are described in detail in the [Output Files](docs/output_files.md) section of the documentation.
 
 The next sections contain platform-specific information on how to run RP2 on different systems.
 
@@ -168,7 +169,7 @@ To print command usage information for the `rp2.py` command:
   ```
 
 ## Input and Output Files
-Read the [input files](doc/input_files.md) and [output files](doc/output_files.md) documentation.
+Read the [input files](docs/input_files.md) and [output files](docs/output_files.md) documentation.
 
 ## Reporting Bugs
 Read the [Contributing](CONTRIBUTING.md) document.
@@ -177,7 +178,10 @@ Read the [Contributing](CONTRIBUTING.md) document.
 Read the [Contributing](CONTRIBUTING.md) document.
 
 ## Full Documentation
-Read the [full documentation](doc/README.md).
+Read the [full documentation](docs/README.md).
 
 ## Frequently Asked Questions
-Read the [user FAQ list](doc/user_faq.md) and the [developer FAQ list](doc/developer_faq.md).
+Read the [user FAQ list](docs/user_faq.md) and the [developer FAQ list](docs/developer_faq.md).
+
+## Change Log
+Read the [Change Log](CHANGELOG.md) document.
