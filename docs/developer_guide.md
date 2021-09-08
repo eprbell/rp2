@@ -47,7 +47,7 @@ The RP2 source tree is organized as follows:
 * `bin/`: top level scripts performing requirement/version checks and calling RP2 entry logic;
 * `config/`: config files for examples and tests;
 * `CONTRIBUTING.md`: contribution guidelines;
-* `doc/`: documentation;
+* `docs/`: documentation;
 * `.github/workflows/`: configuration of Github continuous integration;
 * `.gitignore`
 * `input/`: examples and tests;
@@ -58,11 +58,11 @@ The RP2 source tree is organized as follows:
 * `.pylintrc`: Pylint configuration;
 * `README.md`: documentation entry point;
 * `requirements.txt`: standard Python dependency file;
-* `resources/`: spreadsheet templates that are used by the standard plugins;
 * `src/rp2`: RP2 code, including classes for transactions, gains, tax engine, balances, logger, ODS parser, etc.;
-* `src/plugin/output/`: output generator plugins;
-* `stubs/`: RP2 relies on the pyexcel-ezodf library, which doesn't have typing information, so it is added here;
-* `test/`: unit tests.
+* `src/rp2/plugin/output/`: output generator plugins;
+* `src/rp2/plugin/output/data/`: spreadsheet templates that are used by the standard output plugins;
+* `src/stubs/`: RP2 relies on the pyexcel-ezodf library, which doesn't have typing information, so it is added here;
+* `tests/`: unit tests.
 
 ## Plugin Development
 RP2 has a plugin architecture for output generators, which makes it extensible for new use cases. Writing a new plugin is quite easy: the [8949 form generator](../plugin/output/mock_8949_us.py) is a simple example, the [RP2 report generator](../plugin/output/rp2_report.py) is more comprehensive.
