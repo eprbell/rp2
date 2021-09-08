@@ -15,7 +15,7 @@
 # Output Files
 RP2 generates output files based on the output plugins that are present in the plugin directory. Currently two plugins are supported:
 * *rp2_report*: a comprehensive report containing full transaction history, long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. See [crypto_example_rp2_report_golden.ods](../input/golden/crypto_example_rp2_report_golden.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down in this document.
-* *mock_8949_us*: a US-specific report that can be used to fill form 8949. See [crypto_example_mock_8949_us_golden.ods](input/golden/crypto_example_mock_8949_us_golden.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down in this document.
+* *mock_8949_us*: a US-specific report that can be used to fill form 8949. See [crypto_example_mock_8949_us_golden.ods](../input/golden/crypto_example_mock_8949_us_golden.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down in this document.
 
 After running RP2, the output files can be found in the output directory or in the directory specified with the -o command line option.
 
