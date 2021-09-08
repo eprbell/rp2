@@ -45,19 +45,25 @@ RP2 code adheres to these principles:
 ## Source Code
 The RP2 source tree is organized as follows:
 * `bin/`: top level scripts performing requirement/version checks and calling RP2 entry logic;
+* `.bumpversion.cfg`;
+* `CHANGELOG.md`: change log document;
 * `config/`: config files for examples and tests;
 * `CONTRIBUTING.md`: contribution guidelines;
 * `docs/`: documentation;
 * `.github/workflows/`: configuration of Github continuous integration;
-* `.gitignore`
+* `.gitignore`;
 * `input/`: examples and tests;
 * `input/golden/`: expected outputs that RP2 tests compare against;
 * `LICENSE`: license information;
 * `Makefile`: it encapsulates several development tasks. It has targets for [installing, linting, reformatting, static checking, unit testing](../CONTRIBUTING.md#development-workflow), etc.;
+* `MANIFEST.in`: source distribution configuration;
 * `mypy.ini`: Mypy configuration;
 * `.pylintrc`: Pylint configuration;
+* `pyproject.toml`: packaging configuration file;
 * `README.md`: documentation entry point;
 * `requirements.txt`: standard Python dependency file;
+* `setup.cfg`: static packaging configuration file;
+* `setup.py`: dynamic packaging configuration file;
 * `src/rp2`: RP2 code, including classes for transactions, gains, tax engine, balances, logger, ODS parser, etc.;
 * `src/rp2/plugin/output/`: output generator plugins;
 * `src/rp2/plugin/output/data/`: spreadsheet templates that are used by the standard output plugins;
