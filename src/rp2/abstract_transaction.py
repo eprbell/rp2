@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from datetime import datetime
-from typing import Any, Callable, List, Optional
+from typing import Callable, List, Optional
 
 from rp2.abstract_entry import AbstractEntry
 from rp2.configuration import Configuration
@@ -68,7 +68,7 @@ class AbstractTransaction(AbstractEntry):
 
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
         class_specific_data: List[str] = []
-        stringify: Callable[[Any], str] = repr
+        stringify: Callable[[object], str] = repr
         if not repr_format:
             stringify = str
 
