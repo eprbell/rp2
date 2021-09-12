@@ -55,15 +55,15 @@ def _parse_cell_value(cell: Any) -> Any:
     return value
 
 
-def ods_diff(file1_path: str, file2_path: str) -> str:
+def ods_diff(file1_path: Path, file2_path: Path) -> str:
 
-    if not Path(file1_path).exists():
+    if not file1_path.exists():
         return f"Error: {file1_path} does not exist"
-    if not Path(file2_path).exists():
+    if not file2_path.exists():
         return f"Error: {file2_path} does not exist"
 
-    file1: Any = ezodf.opendoc(file1_path)
-    file2: Any = ezodf.opendoc(file2_path)
+    file1: Any = ezodf.opendoc(str(file1_path))
+    file2: Any = ezodf.opendoc(str(file2_path))
     sheet1: Any
     sheet2: Any
 
@@ -77,10 +77,9 @@ def ods_diff(file1_path: str, file2_path: str) -> str:
         contents1.append(sheet1.name)
         contents2.append(sheet1.name)
 
-        i: int = 0
         row1: Any = None
         row2: Any = None
-        for i, (row1, row2) in enumerate(zip_longest(sheet1.rows(), sheet2.rows())):
+        for _ , (row1, row2) in enumerate(zip_longest(sheet1.rows(), sheet2.rows())):
             if row1:
                 contents1.append(_row_as_string(row1))
             if row2:
