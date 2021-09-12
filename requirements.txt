@@ -20,6 +20,7 @@ pyexcel-ezodf
 
 # Development
 autopep8
+bandit
 black
 bumpversion
 isort
@@ -27,6 +28,7 @@ mypy
 pep8
 pre-commit
 pylint
+pytest
 rope
 types-python-dateutil
-twine
+-e . # Used by unit tests
