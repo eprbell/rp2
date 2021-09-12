@@ -18,5 +18,8 @@ disable=
     C0115, # missing-class-docstring
     C0116, # missing-function-docstring
     R0902, # too-many-instance-attributes
+    R0903, # too-few-public-methods
     R0913, # too-many-arguments
+    R0914, # too-many-local-variables
+    R0915, # too-many-statements
 max-line-length=160
