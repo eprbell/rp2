@@ -20,6 +20,10 @@
 * **[What Is the Timestamp Format?](#what-is-the-timestamp-format)**
 * **[how to Handle Conversion of a Cryptocurrency to Another?](#how-to-handle-conversion-of-a-cryptocurrency-to-another)**
 * **[How to Handle Airdrops?](#how-to-handle-airdrops)**
+* **[How to Handle Hard Forks?](#how-to-handle-hard-forks)**
+* **[How to Handle Income from Mining?](#how-to-handle-income-from-mining)**
+* **[How to Handle Income from Staking?](#how-to-handle-income-from-staking)**
+* **[Are NFTs supported?](#are-nfts-supported)**
 
 * **[How to Report a RP2 Bug without Sharing Personal Information?](#how-to-report-a-rp2-bug-without-sharing-personal-information)**
 
@@ -38,6 +42,14 @@ TBD
 ## How to Handle Conversion of a Cryptocurrency to Another?
 TBD
 ## How to Handle Airdrops?
+TBD
+## How to Handle Hard Forks?
+TBD
+## How to Handle Income from Mining?
+TBD
+## How to Handle Income from Staking?
+TBD
+## Are NFTs supported?
 TBD
 
 ## How to Report a RP2 Bug without Sharing Personal Information?
