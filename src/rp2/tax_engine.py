@@ -90,8 +90,8 @@ def _create_gain_and_loss_set(configuration: Configuration, input_data: InputDat
 
     taxable_event_iterator: Iterator[AbstractTransaction] = iter(
         cast(Iterable[AbstractTransaction], taxable_event_set)
-    )  # pylint disable=unsubscriptable-object
-    from_lot_iterator: Iterator[InTransaction] = iter(cast(Iterable[InTransaction], input_data.in_transaction_set))  # pylint disable=E1136
+    )
+    from_lot_iterator: Iterator[InTransaction] = iter(cast(Iterable[InTransaction], input_data.in_transaction_set))
 
     try:
         gain_loss: GainLoss
