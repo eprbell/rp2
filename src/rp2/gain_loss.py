@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from datetime import datetime
-from typing import Any, Callable, List, Optional, cast
+from typing import Callable, List, Optional, cast
 
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
@@ -101,7 +101,7 @@ class GainLoss(AbstractEntry):
             raise RP2TypeError(f"Parameter 'extra_data' is not of type List: {extra_data}")
 
         class_specific_data: List[str] = []
-        stringify: Callable[[Any], str] = str
+        stringify: Callable[[object], str] = str
         if repr_format:
             stringify = repr
         class_specific_data = [
