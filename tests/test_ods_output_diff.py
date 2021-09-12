@@ -12,53 +12,62 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+from pathlib import Path
 import shutil
 import unittest
 from subprocess import run
 
 from ods_diff import ods_diff
 
+ROOT_PATH: Path = Path(os.path.dirname(__file__)).parent.absolute()
+
+CONFIG_PATH: Path = ROOT_PATH / Path("config")
+INPUT_PATH: Path = ROOT_PATH / Path("input")
+GOLDEN_PATH: Path = INPUT_PATH / Path("golden")
+LOG_PATH: Path = ROOT_PATH / Path("log")
+OUTPUT_PATH: Path = ROOT_PATH / Path("output")
 
 class TestODSOutputDiff(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         # Generate output to compare with golden files
-        shutil.rmtree("./log", ignore_errors=True)
-        shutil.rmtree("./output", ignore_errors=True)
-        run(["python3", "bin/rp2_tax.py", "-o", "./output/", "-p", "test_data_", "./config/test_data.config", "./input/test_data.ods"], check=True)
+        shutil.rmtree(LOG_PATH, ignore_errors=True)
+        shutil.rmtree(OUTPUT_PATH, ignore_errors=True)
+        run(["rp2", "-o", OUTPUT_PATH, "-p", "test_data_", CONFIG_PATH / Path("test_data.config"), INPUT_PATH / Path("test_data.ods")], check=True)
         run(
-            ["python3", "bin/rp2_tax.py", "-o", "./output/", "-p", "crypto_example_", "./config/crypto_example.config", "./input/crypto_example.ods"],
+            ["rp2", "-o", OUTPUT_PATH, "-p", "crypto_example_", CONFIG_PATH / Path("crypto_example.config"), INPUT_PATH / Path("crypto_example.ods")],
             check=True,
         )
 
     def setUp(self) -> None:
-        self.maxDiff = None
+        self.maxDiff = None  # pylint: disable=C0103
 
     def test_data_tax_report_plugin(self) -> None:
         diff: str = ods_diff(
-            "./input/golden/test_data_rp2_report_golden.ods",
-            "./output/test_data_rp2_report.ods",
+            GOLDEN_PATH / Path("test_data_rp2_report_golden.ods"),
+            OUTPUT_PATH / Path("test_data_rp2_report.ods"),
         )
         self.assertFalse(diff, msg=diff)
 
     def test_data_mock_8949_plugin(self) -> None:
         diff: str = ods_diff(
-            "./input/golden/test_data_mock_8949_us_golden.ods",
-            "./output/test_data_mock_8949_us.ods",
+            GOLDEN_PATH / Path("test_data_mock_8949_us_golden.ods"),
+            OUTPUT_PATH / Path("test_data_mock_8949_us.ods"),
         )
         self.assertFalse(diff, msg=diff)
 
     def test_crypto_example_tax_report_plugin(self) -> None:
         diff: str = ods_diff(
-            "./input/golden/crypto_example_rp2_report_golden.ods",
-            "./output/crypto_example_rp2_report.ods",
+            GOLDEN_PATH / Path("crypto_example_rp2_report_golden.ods"),
+            OUTPUT_PATH / Path("crypto_example_rp2_report.ods"),
         )
         self.assertFalse(diff, msg=diff)
 
     def test_crypto_example_mock_8949_plugin(self) -> None:
         diff: str = ods_diff(
-            "./input/golden/crypto_example_mock_8949_us_golden.ods",
-            "./output/crypto_example_mock_8949_us.ods",
+            GOLDEN_PATH / Path("crypto_example_mock_8949_us_golden.ods"),
+            OUTPUT_PATH / Path("crypto_example_mock_8949_us.ods"),
         )
         self.assertFalse(diff, msg=diff)
 
