@@ -15,4 +15,9 @@
 # RP2 Change Log
 
 ## In Progress
-* First version tracked in Change Log.
+* First version tracked in change log
+* Added Python packaging support
+* Switched to high-precision math (decimal.Decimal)
+* Finished documentation
+* Added bumpversion
+* Various bug fixes and improvements
