@@ -311,7 +311,8 @@ class Generator(AbstractODTGenerator):
 
         return self.__generate_yearly_gain_loss_summary(summary_sheet, asset, computed_data.yearly_gain_loss_list, summary_row_index)
 
-    def __get_transaction_visual_style(self, transaction: AbstractTransaction, year: int) -> _TransactionVisualStyle:
+    @staticmethod
+    def __get_transaction_visual_style(transaction: AbstractTransaction, year: int) -> _TransactionVisualStyle:
         visual_style: str = "transparent"
         highlighted_style: str = "transparent"
         if transaction.is_taxable():
@@ -325,7 +326,8 @@ class Generator(AbstractODTGenerator):
             year = transaction.timestamp.year
         return _TransactionVisualStyle(year, visual_style, highlighted_style)
 
-    def __get_border_style(self, current_year: int, year: int) -> _BorderStyle:
+    @staticmethod
+    def __get_border_style(current_year: int, year: int) -> _BorderStyle:
         border_suffix: str = ""
         if year == 0:
             year = current_year
