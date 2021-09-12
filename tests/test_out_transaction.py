@@ -33,7 +33,7 @@ class TestOutTransaction(unittest.TestCase):
         TestOutTransaction._configuration = Configuration("./config/test_data.config")
 
     def setUp(self) -> None:
-        self.maxDiff = None
+        self.maxDiff = None  # pylint: disable=C0103
 
     def test_taxable_out_transaction(self) -> None:
         out_transaction: OutTransaction = OutTransaction(

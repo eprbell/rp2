@@ -32,7 +32,7 @@ class TestIntraTransaction(unittest.TestCase):
         TestIntraTransaction._configuration = Configuration("./config/test_data.config")
 
     def setUp(self) -> None:
-        self.maxDiff = None
+        self.maxDiff = None  # pylint: disable=C0103
 
     def test_taxable_intra_transaction(self) -> None:
         intra_transaction: IntraTransaction = IntraTransaction(

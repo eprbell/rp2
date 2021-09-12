@@ -34,7 +34,7 @@ class TestTaxEngine(unittest.TestCase):
         TestTaxEngine._bad_input_configuration = Configuration("./config/test_bad_data.config")
 
     def setUp(self) -> None:
-        self.maxDiff = None
+        self.maxDiff = None  # pylint: disable=C0103
 
     def test_good_input(self) -> None:
         self._verify_good_output("B1")
