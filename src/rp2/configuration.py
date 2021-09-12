@@ -42,7 +42,7 @@ class AccountingMethod(Enum):
         return instance
 
 
-class Configuration:
+class Configuration:  # pylint: disable=R0904
     @classmethod
     def type_check(cls, name: str, instance: "Configuration") -> "Configuration":
         cls.type_check_parameter_name(name)
@@ -103,7 +103,8 @@ class Configuration:
         )
 
     # Parametrized and extensible method to generate string representation
-    def to_string(self, indent: int = 0, repr_format: bool = True, data: Optional[List[str]] = None) -> str:
+    @staticmethod
+    def to_string(indent: int = 0, repr_format: bool = True, data: Optional[List[str]] = None) -> str:
         padding: str
         output: List[str] = []
         separator: str
