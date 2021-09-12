@@ -37,7 +37,7 @@ class TestTransactionSet(unittest.TestCase):
         TestTransactionSet._configuration = Configuration("./config/test_data.config")
 
     def setUp(self) -> None:
-        self.maxDiff = None
+        self.maxDiff = None  # pylint: disable=C0103
 
     def test_good_transaction_set(self) -> None:
         transaction_set: TransactionSet = TransactionSet(self._configuration, "MIXED", "B1")
@@ -51,7 +51,7 @@ class TestTransactionSet(unittest.TestCase):
             count += 1
         self.assertEqual(count, 0)
 
-        t3: InTransaction = InTransaction(
+        transaction3: InTransaction = InTransaction(
             self._configuration,
             "1/8/2021 8:42:43.883 -04:00",
             "B1",
@@ -65,9 +65,9 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("3020.2"),
             unique_id=30,
         )
-        transaction_set.add_entry(t3)
+        transaction_set.add_entry(transaction3)
 
-        t2: InTransaction = InTransaction(
+        transaction2: InTransaction = InTransaction(
             self._configuration,
             "2021-01-02T08:42:43.882Z",
             "B1",
@@ -81,7 +81,7 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("2000.2"),
             unique_id=20,
         )
-        transaction_set.add_entry(t2)
+        transaction_set.add_entry(transaction2)
 
         timestamps: List[str] = [
             "2021-01-02T08:42:43.882Z",
@@ -95,7 +95,7 @@ class TestTransactionSet(unittest.TestCase):
             count += 1
         self.assertEqual(count, 2)
 
-        t1: OutTransaction = OutTransaction(
+        transaction1: OutTransaction = OutTransaction(
             self._configuration,
             "6/1/2020 3:59:59 -04:00",
             "B1",
@@ -107,9 +107,9 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("0"),
             unique_id=10,
         )
-        transaction_set.add_entry(t1)
+        transaction_set.add_entry(transaction1)
 
-        t5: IntraTransaction = IntraTransaction(
+        transaction5: IntraTransaction = IntraTransaction(
             self._configuration,
             "2021-04-02T08:42:43.882Z",
             "B1",
@@ -122,9 +122,9 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("1.9998"),
             unique_id=50,
         )
-        transaction_set.add_entry(t5)
+        transaction_set.add_entry(transaction5)
 
-        t4: IntraTransaction = IntraTransaction(
+        transaction4: IntraTransaction = IntraTransaction(
             self._configuration,
             "2021-03-28T08:42:43.882Z",
             "B1",
@@ -137,19 +137,19 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("30"),
             unique_id=40,
         )
-        transaction_set.add_entry(t4)
+        transaction_set.add_entry(transaction4)
 
         self.assertEqual(transaction_set.entry_set_type, EntrySetType.MIXED)
         self.assertEqual(transaction_set.asset, "B1")
 
         unique_ids: List[str] = ["10", "20", "30", "40", "50"]
-        transactions: List[AbstractTransaction] = [t1, t2, t3, t4, t5]
+        transactions: List[AbstractTransaction] = [transaction1, transaction2, transaction3, transaction4, transaction5]
         parents: List[Optional[AbstractTransaction]] = [
             None,
-            t1,
-            t2,
-            t3,
-            t4,
+            transaction1,
+            transaction2,
+            transaction3,
+            transaction4,
         ]
         timestamps = [
             "6/1/2020 3:59:59 -04:00",
@@ -213,7 +213,6 @@ class TestTransactionSet(unittest.TestCase):
         self.assertTrue(str(transaction_set).startswith("TransactionSet:\n  configuration=./config/test_data.config\n  entry_set_type=EntrySetType.MIXED"))
 
     def test_bad_transaction_set(self) -> None:
-
         in_transaction = InTransaction(
             self._configuration,
             "2021-01-02T08:42:43.882Z",
