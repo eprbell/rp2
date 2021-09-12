@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Callable, List, Optional
+from typing import Callable, List, Optional
 
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
@@ -101,7 +101,7 @@ class InTransaction(AbstractTransaction):
             raise RP2TypeError(f"Parameter 'extra_data' is not of type List: {extra_data}")
 
         class_specific_data: List[str] = []
-        stringify: Callable[[Any], str] = repr
+        stringify: Callable[[object], str] = repr
         if not repr_format:
             stringify = str
         class_specific_data = [
