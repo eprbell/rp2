@@ -14,12 +14,13 @@
 
 import os
 from pathlib import Path
-from typing import Any, List, Set
+from typing import Any, Dict, List, Set
 
 import ezodf
 
 from rp2.abstract_generator import AbstractGenerator
 from rp2.abstract_transaction import AbstractTransaction
+from rp2.computed_data import ComputedData
 from rp2.configuration import Configuration
 from rp2.in_transaction import InTransaction
 from rp2.out_transaction import OutTransaction
@@ -27,7 +28,7 @@ from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError
 
 
-class AbstractODTGenerator(AbstractGenerator):  # pylint: disable=W0223
+class AbstractODTGenerator(AbstractGenerator):
     @staticmethod
     def _initialize_output_file(
         output_dir_path: str,
@@ -68,6 +69,15 @@ class AbstractODTGenerator(AbstractGenerator):  # pylint: disable=W0223
             del output_file.sheets[index]
 
         return output_file
+
+    def generate(
+        self,
+        asset_to_computed_data: Dict[str, ComputedData],
+        output_dir_path: str,
+        output_file_prefix: str,
+    ) -> None:
+        raise NotImplementedError("Abstract method: it must be implemented in the plugin class")
+
 
     @staticmethod
     def _apply_style_to_cell(sheet: Any, row_index: int, column_index: int, style_name: str) -> None:
