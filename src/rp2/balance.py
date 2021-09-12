@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, cast
+from typing import Callable, Dict, List, Optional, cast
 
 from rp2.configuration import Configuration
 from rp2.in_transaction import InTransaction
@@ -48,7 +48,7 @@ class Balance:
 
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
         class_specific_data: List[str] = []
-        stringify: Callable[[Any], str] = repr
+        stringify: Callable[[object], str] = repr
         if not repr_format:
             stringify = str
 
@@ -146,7 +146,7 @@ class BalanceSet:
                 sent_balances.get(account, ZERO),
                 received_balances.get(account, ZERO),
             )
-            LOGGER.debug("created balance: {}".format(balance))
+            LOGGER.debug("created balance: %s", balance)
             self._balances.append(balance)
 
         self._balances.sort(key=_balance_sort_key)
@@ -196,7 +196,7 @@ class BalanceSetIterator:
     def __next__(self) -> Balance:
         result: Optional[Balance] = None
         if self.__index < self.__balance_set_size:
-            result = self.__balance_set._balances[self.__index]
+            result = self.__balance_set._balances[self.__index]  # pylint: disable=W0212
             self.__index += 1
             return result
         raise StopIteration(self)
