@@ -35,19 +35,17 @@ class TestConfiguration(unittest.TestCase):
         TestConfiguration._configuration = Configuration("./config/test_data.config")
 
     def setUp(self) -> None:
-        self.maxDiff = None
+        self.maxDiff = None  # pylint: disable=C0103
 
-    def _test_config(self, config: Any) -> Configuration:
+    @staticmethod
+    def _test_config(config: Any) -> Configuration:
         result: Optional[Configuration] = None
-        temporary_file = NamedTemporaryFile(delete=False)
-        try:
+        with NamedTemporaryFile(delete=False) as temporary_file:
             temporary_file.write(json.dumps(config).encode())
             temporary_file.flush()
 
             result = Configuration(temporary_file.name)
-        finally:
-            temporary_file.close()
-            os.remove(temporary_file.name)
+        os.remove(temporary_file.name)
 
         return result
 
@@ -296,8 +294,8 @@ class TestConfiguration(unittest.TestCase):
                 "'usd_fee': 11, 'usd_in_no_fee': 9, 'usd_in_with_fee': 10, 'notes': 12}, out_header={'timestamp': 0, 'asset': 6, 'exchange': 1, "
                 "'holder': 2, 'transaction_type': 5, 'spot_price': 8, 'crypto_out_no_fee': 7, 'crypto_fee': 9, 'notes': 12}, "
                 "intra_header={'timestamp': 0, 'asset': 6, 'from_exchange': 1, 'from_holder': 2, 'to_exchange': 3, 'to_holder': 4, "
-                "'spot_price': 8, 'crypto_sent': 7, 'crypto_received': 10, 'notes': 12}, assets=['B1', 'B2', 'B3', 'B4'], exchanges=['BlockFi', 'Coinbase', 'Coinbase Pro', 'Kraken'], "
-                "holders=['Alice', 'Bob'])"
+                "'spot_price': 8, 'crypto_sent': 7, 'crypto_received': 10, 'notes': 12}, assets=['B1', 'B2', 'B3', 'B4'], "
+                "exchanges=['BlockFi', 'Coinbase', 'Coinbase Pro', 'Kraken'], holders=['Alice', 'Bob'])"
             ),
         )
 
