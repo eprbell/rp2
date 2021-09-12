@@ -46,9 +46,9 @@
 
 RP2 reads in a user-prepared spreadsheet containing crypto transactions. It then uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships and fractions, and finally it generates output spreadsheets. It supports the FIFO accounting method.
 
-It has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/src/rp2/plugin/output): builtin plugins are US-specific (one for form 8949 and another for a full tax report), but the architecture makes it possible to contribute additional output generators for different countries or for different US-based cases.
+It has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/src/rp2/plugin/output): builtin plugins are US-specific (one for form 8949 and another for a full tax report), but the architecture makes it possible to contribute additional output generators for different countries or for different US-based cases.
 
-RP2 has extensive [unit test](https://github.com/eprbell/rp2/tests/) coverage to reduce the risk of regression.
+RP2 has extensive [unit test](https://github.com/eprbell/rp2/tree/main/tests/) coverage to reduce the risk of regression.
 
 The author of RP2 is not a tax professional, but has used RP2 personally for a few years.
 
@@ -60,8 +60,8 @@ RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Cu
 RP2 uses the FIFO accounting method (lots acquired first are disposed of first): however, in and out lots typically don't have matching amounts, so RP2 fractions them as needed and computes the resulting cost bases and capital gains for each lot fraction.
 
 RP2 groups lot fractions into the following taxable event categories, each of which has a unique tax treatment:
-* EARN: specifically, interest from lending, wages, [mining](https://github.com/eprbell/rp2/docs/user_faq.md#how-to-handle-income-from-mining), [staking](https://github.com/eprbell/rp2/docs/user_faq.md#how-to-handle-income-from-staking), [airdrops](https://github.com/eprbell/rp2/docs/user_faq.md#how-to-handle-airdrops) and [hard forks](https://github.com/eprbell/rp2/docs/user_faq.md#how-to-handle-hard-forks). These are treated as ordinary income. Note that buying cryptocurrency is not a taxable event;
-* SELL: specifically, sale and [exchange of one cryptocurrency for another](https://github.com/eprbell/rp2/docs/user_faq.md#how-to-handle-conversion-of-a-cryptocurrency-to-another). RP2 splits them in two subcategories:
+* EARN: specifically, interest from lending, wages, [mining](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-mining), [staking](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-staking), [airdrops](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-airdrops) and [hard forks](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-hard-forks). These are treated as ordinary income. Note that buying cryptocurrency is not a taxable event;
+* SELL: specifically, sale and [exchange of one cryptocurrency for another](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-conversion-of-a-cryptocurrency-to-another). RP2 splits them in two subcategories:
   * long-term capital gains, if the lot was held for more than 1 year, or
   * short-term capital gains otherwise;
 * DONATE: donations to charitable orgaizations. These are tax-deductible;
@@ -133,13 +133,13 @@ Before running RP2 the user must prepare two files:
 * an ODS-format spreadsheet, containing crypto transactions (ODS-format files can be opened and edited with [LibreOffice](https://www.libreoffice.org/), Microsoft Excel and many other spreadsheet applications);
 * a JSON config file, describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies and exchanges to expect.
 
-The formats of these files are described in detail in the [Input Files](https://github.com/eprbell/rp2/docs/input_files.md) section of the documentation.
+The formats of these files are described in detail in the [Input Files](https://github.com/eprbell/rp2/tree/main/docs/input_files.md) section of the documentation.
 
 Examples of an input spreadsheet and its respective config file:
-* [input/crypto_example.ods](https://github.com/eprbell/rp2/input/crypto_example.ods)
-* [config/crypto_example.config](https://github.com/eprbell/rp2/config/crypto_example.config) (if desired, this config file can be used as boilerplate).
+* [input/crypto_example.ods](https://github.com/eprbell/rp2/tree/main/input/crypto_example.ods)
+* [config/crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config) (if desired, this config file can be used as boilerplate).
 
-After reading the input files, RP2 generates output files based on the transaction information therein. The output files contain information on long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. They are described in detail in the [Output Files](https://github.com/eprbell/rp2/docs/output_files.md) section of the documentation.
+After reading the input files, RP2 generates output files based on the transaction information therein. The output files contain information on long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. They are described in detail in the [Output Files](https://github.com/eprbell/rp2/tree/main/docs/output_files.md) section of the documentation.
 
 The next sections contain platform-specific information on how to run RP2 on different systems.
 
@@ -175,19 +175,19 @@ To print command usage information for the `rp2.py` command:
   ```
 
 ## Input and Output Files
-Read the [input files](https://github.com/eprbell/rp2/docs/input_files.md) and [output files](https://github.com/eprbell/rp2/docs/output_files.md) documentation.
+Read the [input files](https://github.com/eprbell/rp2/tree/main/docs/input_files.md) and [output files](https://github.com/eprbell/rp2/tree/main/docs/output_files.md) documentation.
 
 ## Reporting Bugs
-Read the [Contributing](https://github.com/eprbell/rp2/CONTRIBUTING.md) document.
+Read the [Contributing](https://github.com/eprbell/rp2/tree/main/CONTRIBUTING.md) document.
 
 ## Contributing
-Read the [Contributing](https://github.com/eprbell/rp2/CONTRIBUTING.md) document.
+Read the [Contributing](https://github.com/eprbell/rp2/tree/main/CONTRIBUTING.md) document.
 
 ## Full Documentation
-Read the [full documentation](https://github.com/eprbell/rp2/docs/README.md).
+Read the [full documentation](https://github.com/eprbell/rp2/tree/main/docs/README.md).
 
 ## Frequently Asked Questions
-Read the [user FAQ list](https://github.com/eprbell/rp2/docs/user_faq.md) and the [developer FAQ list](https://github.com/eprbell/rp2/docs/developer_faq.md).
+Read the [user FAQ list](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md) and the [developer FAQ list](https://github.com/eprbell/rp2/tree/main/docs/developer_faq.md).
 
 ## Change Log
-Read the [Change Log](https://github.com/eprbell/rp2/CHANGELOG.md) document.
+Read the [Change Log](https://github.com/eprbell/rp2/tree/main/CHANGELOG.md) document.
