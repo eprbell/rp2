@@ -44,7 +44,7 @@ def open_ods(configuration: Configuration, input_file_path: str) -> Any:
     return ezodf.opendoc(input_file_path)
 
 
-def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) -> InputData:
+def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) -> InputData:  # pylint: disable=R0912
 
     Configuration.type_check("configuration", configuration)
     configuration.type_check_asset("asset", asset)
@@ -74,7 +74,7 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
         # RP2 would still work, but it would have a little precision loss on these high-precision numbers. Also read the comments in
         # _process_constructor_argument_pack().
         row_values: List[Any] = [cell.value for cell in row]
-        LOGGER.debug("parsing row: {}".format(row_values))
+        LOGGER.debug("parsing row: %s", row_values)
 
         transaction: AbstractTransaction
         if current_table_type is not None:
@@ -109,7 +109,7 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
             # Header line: make sure it's not transaction data
             try:
                 transaction = _create_transaction(configuration, current_table_type, i, row_values)
-            except:
+            except Exception:  # pylint: disable=W0703
                 # Couldn't create transaction as expected: this is a table header
                 # TODO: this could still be a transaction but with some bad fields that would
                 # cause an exception. In this case this logic would incorrectly assume it's a
