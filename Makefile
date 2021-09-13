@@ -40,7 +40,7 @@ securitycheck: $(VENV)/bin/activate
 	bandit -s B110 -r src/
 
 lint: $(VENV)/bin/activate $(BIN) $(RP2_SRC) $(TEST_SRC) .pylintrc
-	pylint src tests/
+	pylint -r y src tests/
 
 # Don't typecheck files in $(BIN) because they perform a version check
 # and are written using basic language features (no type hints) to ensure
