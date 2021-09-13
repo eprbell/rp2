@@ -17,7 +17,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Set
 
 import ezodf
-
 from rp2.abstract_generator import AbstractGenerator
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.computed_data import ComputedData

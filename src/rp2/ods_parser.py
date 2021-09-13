@@ -18,7 +18,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import ezodf
-
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.configuration import Configuration
 from rp2.entry_types import EntrySetType
