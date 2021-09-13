@@ -14,7 +14,11 @@
 
 # RP2 Change Log
 
-## In Progress
+## In Progess
+* Added pre-commit
+* Added bandit security checks
+
+## v0.6.0
 * First version tracked in change log
 * Added Python packaging support
 * Switched to high-precision math (decimal.Decimal)
