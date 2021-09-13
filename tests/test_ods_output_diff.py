@@ -34,9 +34,9 @@ class TestODSOutputDiff(unittest.TestCase):
         # Generate output to compare with golden files
         shutil.rmtree(LOG_PATH, ignore_errors=True)
         shutil.rmtree(OUTPUT_PATH, ignore_errors=True)
-        run(["rp2", "-o", OUTPUT_PATH, "-p", "test_data_", CONFIG_PATH / Path("test_data.config"), INPUT_PATH / Path("test_data.ods")], check=True)
+        run(["rp2", "-o", str(OUTPUT_PATH), "-p", "test_data_", str(CONFIG_PATH / Path("test_data.config")), str(INPUT_PATH / Path("test_data.ods"))], check=True)
         run(
-            ["rp2", "-o", OUTPUT_PATH, "-p", "crypto_example_", CONFIG_PATH / Path("crypto_example.config"), INPUT_PATH / Path("crypto_example.ods")],
+            ["rp2", "-o", str(OUTPUT_PATH), "-p", "crypto_example_", str(CONFIG_PATH / Path("crypto_example.config")), str(INPUT_PATH / Path("crypto_example.ods"))],
             check=True,
         )
 
