@@ -41,11 +41,7 @@ securitycheck: $(VENV)/bin/activate
 	bandit -r src
 
 lint: $(VENV)/bin/activate $(BIN) $(RP2_SRC) $(TEST_SRC) .pylintrc
-	$(foreach file, \
-	  $(BIN) $(RP2_SRC) $(TEST_SRC), \
-	  echo; echo "Linting $(file)..."; \
-	  pylint $(file); \
-	)
+	pylint src tests/
 
 # Don't typecheck files in $(BIN) because they perform a version check
 # and are written using basic language features (no type hints) to ensure
