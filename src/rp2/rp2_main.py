@@ -72,7 +72,7 @@ def rp2_main() -> None:
         plugin_name: str
         is_package: bool
         package_found: bool = False
-        for *_, plugin_name, is_package in iter_modules(package.__path__, package.__name__ + "."):
+        for *_, plugin_name, is_package in iter_modules(package.__path__, package.__name__ + "."):  # type: ignore  # mypy issue #1422
             if is_package:
                 continue
             if args.plugin and plugin_name != f"{OUTPUT_PACKAGE}.{args.plugin}":

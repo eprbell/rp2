@@ -84,7 +84,7 @@ def _create_taxable_event_set(configuration: Configuration, input_data: InputDat
     return taxable_event_set
 
 
-def _create_gain_and_loss_set(configuration: Configuration, input_data: InputData, taxable_event_set) -> GainLossSet:
+def _create_gain_and_loss_set(configuration: Configuration, input_data: InputData, taxable_event_set: TransactionSet) -> GainLossSet:
 
     gain_loss_set: GainLossSet = GainLossSet(configuration, input_data.asset)
 
