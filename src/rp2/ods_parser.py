@@ -111,7 +111,7 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
                 transaction = _create_transaction(configuration, current_table_type, i, row_values)
             except Exception:  # pylint: disable=W0703
                 # Couldn't create transaction as expected: this is a table header
-                # TODO: this could still be a transaction but with some bad fields that would
+                # TODO: this could still be a transaction but with some bad fields that would  # pylint: disable=W0511
                 # cause an exception. In this case this logic would incorrectly assume it's a
                 # header. Can we do better in this case? Some heuristics testing field by
                 # field would help
