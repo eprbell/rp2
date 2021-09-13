@@ -186,7 +186,7 @@ class TestConfiguration(unittest.TestCase):
 
     def test_creation(self) -> None:
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration_path' has non-string value .*"):
-            Configuration(None)  # type: ignore
+            Configuration(None)
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration_path' has non-string value .*"):
             Configuration(111)  # type: ignore
         with self.assertRaisesRegex(RP2ValueError, "/non/existing/file does not exist"):
