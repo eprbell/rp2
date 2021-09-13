@@ -88,9 +88,7 @@ def _create_gain_and_loss_set(configuration: Configuration, input_data: InputDat
 
     gain_loss_set: GainLossSet = GainLossSet(configuration, input_data.asset)
 
-    taxable_event_iterator: Iterator[AbstractTransaction] = iter(
-        cast(Iterable[AbstractTransaction], taxable_event_set)
-    )
+    taxable_event_iterator: Iterator[AbstractTransaction] = iter(cast(Iterable[AbstractTransaction], taxable_event_set))
     from_lot_iterator: Iterator[InTransaction] = iter(cast(Iterable[InTransaction], input_data.in_transaction_set))
 
     try:
