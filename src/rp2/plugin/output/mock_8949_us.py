@@ -28,7 +28,7 @@ class Generator(AbstractODTGenerator):
     MIN_ROWS: int = 20
     MAX_COLUMNS: int = 20
     OUTPUT_FILE: str = "mock_8949_us.ods"
-    TEMPLATE_SHEETS_TO_KEEP: Set[str] = set(["__mock_8949"])
+    TEMPLATE_SHEETS_TO_KEEP: Set[str] = {"__mock_8949"}
 
     def generate(
         self,

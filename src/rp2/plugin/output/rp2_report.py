@@ -16,7 +16,6 @@ from pathlib import Path
 from typing import Any, Dict, List, NamedTuple, Optional, Set, cast
 
 import ezodf
-
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.balance import BalanceSet
@@ -240,7 +239,7 @@ class Generator(AbstractODTGenerator):
     MIN_ROWS: int = 40
     MAX_COLUMNS: int = 40
     OUTPUT_FILE: str = "rp2_report.ods"
-    TEMPLATE_SHEETS_TO_KEEP: Set[str] = set(["__Legend", "__Summary"])
+    TEMPLATE_SHEETS_TO_KEEP: Set[str] = {"__Legend", "__Summary"}
 
     def generate(
         self,
