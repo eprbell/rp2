@@ -29,4 +29,3 @@ The rp2_report output file is a comprehensive, ODS-format report containing full
 
 ## Mock 8949 US Output
 This ODS-format output is US-specific and can be used to fill form 8949. The left part (with white header) mimics form 8949 and it contains information on the transactions that had taxable events: their cost basis, capital gains, proceeds, etc. The right part (with gray header) contains additional information (not part of form 8949) that can be useful in identifying the transactions in the user's records: full timestamp of date sold, capital gains type (long or short), lot fraction information, transaction type, etc. In this sheet blue refers to taxable events and outgoing (sold, donated, etc.) transactions and purple refers to cost basis and incoming (purchased, received) transactions. Here follows an example of this sheet: ![mock 8949 us output](images/mock_8949_us_output.png)
-
