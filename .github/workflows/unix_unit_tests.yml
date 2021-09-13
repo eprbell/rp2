@@ -24,4 +24,4 @@ jobs:
           pip install -r requirements.txt
       - name: Test with pytest
         run: |
-          pytest --tb=long --full-trace --verbose
+          pytest --tb=native --verbose

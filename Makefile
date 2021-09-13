@@ -35,7 +35,7 @@ run: $(VENV)/bin/activate
 	rp2 -o output/ -p crypto_example_ config/crypto_example.config input/crypto_example.ods
 
 check: $(VENV)/bin/activate
-	pytest --tb=long --full-trace --verbose
+	pytest --tb=native --verbose
 
 securitycheck: $(VENV)/bin/activate
 	bandit -r src
