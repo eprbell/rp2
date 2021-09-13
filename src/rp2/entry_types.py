@@ -46,7 +46,7 @@ class TransactionType(Enum):
         return transaction_type
 
 
-_transaction_type_values: Set[str] = set(item.value for item in TransactionType)
+_transaction_type_values: Set[str] = {item.value for item in TransactionType}
 
 
 class EntrySetType(Enum):
@@ -86,4 +86,4 @@ class EntrySetType(Enum):
         return entry_set_type
 
 
-_entry_set_type_values: Set[str] = set(item.value for item in EntrySetType)
+_entry_set_type_values: Set[str] = {item.value for item in EntrySetType}
