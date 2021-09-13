@@ -196,7 +196,7 @@ class BalanceSetIterator:
     def __next__(self) -> Balance:
         result: Optional[Balance] = None
         if self.__index < self.__balance_set_size:
-            result = self.__balance_set._balances[self.__index]  # pylint: disable=W0212
+            result = self.__balance_set._balances[self.__index]  # pylint: disable=protected-access
             self.__index += 1
             return result
         raise StopIteration(self)

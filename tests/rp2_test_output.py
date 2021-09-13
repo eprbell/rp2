@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# pylint: disable=C0302
+# pylint: disable=too-many-lines
 RP2_TEST_OUTPUT = {
     "B1": """GainLossSet:
   configuration=./config/test_data.config

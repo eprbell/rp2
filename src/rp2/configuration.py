@@ -41,7 +41,7 @@ class AccountingMethod(Enum):
         return instance
 
 
-class Configuration:  # pylint: disable=R0904
+class Configuration:  # pylint: disable=too-many-public-methods
     @classmethod
     def type_check(cls, name: str, instance: "Configuration") -> "Configuration":
         cls.type_check_parameter_name(name)

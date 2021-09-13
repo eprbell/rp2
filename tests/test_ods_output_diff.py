@@ -53,7 +53,7 @@ class TestODSOutputDiff(unittest.TestCase):
         )
 
     def setUp(self) -> None:
-        self.maxDiff = None  # pylint: disable=C0103
+        self.maxDiff = None  # pylint: disable=invalid-name
 
     def test_data_tax_report_plugin(self) -> None:
         diff: str = ods_diff(

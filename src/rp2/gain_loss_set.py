@@ -76,7 +76,7 @@ class GainLossSet(AbstractEntrySet):
         GainLoss.type_check("entry", entry)
         super()._validate_entry(entry)
 
-    def _sort_entries(self) -> None:  # pylint: disable=R0912
+    def _sort_entries(self) -> None:  # pylint: disable=too-many-branches
         LOGGER.debug("Sort Gain-Loss Set:")
         super()._sort_entries()
         entry: AbstractEntry

@@ -32,7 +32,7 @@ class TestInTransaction(unittest.TestCase):
         TestInTransaction._configuration = Configuration("./config/test_data.config")
 
     def setUp(self) -> None:
-        self.maxDiff = None  # pylint: disable=C0103
+        self.maxDiff = None  # pylint: disable=invalid-name
 
     def test_transaction_type(self) -> None:
         self.assertEqual(TransactionType.BUY, TransactionType.type_check_from_string("transaction_type", "buy"))

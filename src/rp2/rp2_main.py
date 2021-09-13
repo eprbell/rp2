@@ -95,7 +95,7 @@ def rp2_main() -> None:
                 LOGGER.error("No plugin found. Exiting...")
             sys.exit(1)
 
-    except Exception:  # pylint: disable=W0703
+    except Exception:  # pylint: disable=broad-except
         LOGGER.exception("Fatal exception occurred:")
 
     LOGGER.info("Log file: %s", LOG_FILE)

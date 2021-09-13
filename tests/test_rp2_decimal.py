@@ -20,7 +20,7 @@ from rp2.rp2_error import RP2TypeError
 
 class TestRP2Decimal(unittest.TestCase):
     def setUp(self) -> None:
-        self.maxDiff = None  # pylint: disable=C0103
+        self.maxDiff = None  # pylint: disable=invalid-name
 
     def test_rp2_decimal(self) -> None:
         decimal1: RP2Decimal = RP2Decimal("0.2")
@@ -98,7 +98,7 @@ class TestRP2Decimal(unittest.TestCase):
         self.assertTrue(nine % two + decimal4 - decimal1 > one)
 
     def test_bad_rp2_decimal(self) -> None:
-        # pylint: disable=C0122, W0104
+        # pylint: disable=misplaced-comparison-constant, pointless-statement
         one: RP2Decimal = RP2Decimal("1")
 
         # Test comparison operators

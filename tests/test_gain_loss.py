@@ -24,7 +24,7 @@ from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
 class TestGainLoss(unittest.TestCase):
-    # pylint: disable=C0301
+    # pylint: disable=line-too-long
     _configuration: Configuration
 
     @classmethod
@@ -32,7 +32,7 @@ class TestGainLoss(unittest.TestCase):
         TestGainLoss._configuration = Configuration("./config/test_data.config")
 
     def setUp(self) -> None:
-        self.maxDiff = None  # pylint: disable=C0103
+        self.maxDiff = None  # pylint: disable=invalid-name
 
         self._in_buy = InTransaction(
             self._configuration,

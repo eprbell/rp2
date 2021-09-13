@@ -282,7 +282,7 @@ class TestGainLossSet(unittest.TestCase):
             cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("0.04"), cls._intra22[asset], cls._in4[asset]))
 
     def setUp(self) -> None:
-        self.maxDiff = None  # pylint: disable=C0103
+        self.maxDiff = None  # pylint: disable=invalid-name
 
     # Reproduce programmatically the data from sheets B1 to B4 in input/test_data.ods
     # and check them against golden output

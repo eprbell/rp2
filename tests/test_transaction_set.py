@@ -36,7 +36,7 @@ class TestTransactionSet(unittest.TestCase):
         TestTransactionSet._configuration = Configuration("./config/test_data.config")
 
     def setUp(self) -> None:
-        self.maxDiff = None  # pylint: disable=C0103
+        self.maxDiff = None  # pylint: disable=invalid-name
 
     def test_good_transaction_set(self) -> None:
         transaction_set: TransactionSet = TransactionSet(self._configuration, "MIXED", "B1")

@@ -34,7 +34,7 @@ class TestConfiguration(unittest.TestCase):
         TestConfiguration._configuration = Configuration("./config/test_data.config")
 
     def setUp(self) -> None:
-        self.maxDiff = None  # pylint: disable=C0103
+        self.maxDiff = None  # pylint: disable=invalid-name
 
     @staticmethod
     def _test_config(config: Any) -> Configuration:

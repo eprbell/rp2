@@ -136,7 +136,7 @@ class EntrySetIterator:
     def __next__(self) -> AbstractEntry:
         result: Optional[AbstractEntry] = None
         if self.__index < self.__entry_set_size:
-            result = self.__entry_set._entry_list[self.__index]  # pylint: disable=W0212
+            result = self.__entry_set._entry_list[self.__index]  # pylint: disable=protected-access
             self.__index += 1
             return result
         raise StopIteration(self)

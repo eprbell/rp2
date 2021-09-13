@@ -43,7 +43,7 @@ def open_ods(configuration: Configuration, input_file_path: str) -> Any:
     return ezodf.opendoc(input_file_path)
 
 
-def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) -> InputData:  # pylint: disable=R0912
+def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) -> InputData:  # pylint: disable=too-many-branches
 
     Configuration.type_check("configuration", configuration)
     configuration.type_check_asset("asset", asset)
@@ -108,9 +108,9 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
             # Header line: make sure it's not transaction data
             try:
                 transaction = _create_transaction(configuration, current_table_type, i, row_values)
-            except Exception:  # pylint: disable=W0703
+            except Exception:  # pylint: disable=broad-except
                 # Couldn't create transaction as expected: this is a table header
-                # TODO: this could still be a transaction but with some bad fields that would  # pylint: disable=W0511
+                # TODO: this could still be a transaction but with some bad fields that would  # pylint: disable=fixme
                 # cause an exception. In this case this logic would incorrectly assume it's a
                 # header. Can we do better in this case? Some heuristics testing field by
                 # field would help
