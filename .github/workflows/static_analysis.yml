@@ -32,6 +32,9 @@ jobs:
       - name: Lint with pylint
         run: |
           pylint src tests/
-      - name: Typecheck with mypy
+      - name: Security check with bandit
+        run: |
+          bandit -s B110 -r src/
+      - name: Type check with mypy
         run: |
           mypy src/rp2/*.py src/rp2/plugin/*.py src/rp2/plugin/output/*.py tests/*.py

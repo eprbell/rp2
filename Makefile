@@ -38,8 +38,7 @@ check: $(VENV)/bin/activate
 	pytest --tb=native --verbose
 
 securitycheck: $(VENV)/bin/activate
-	bandit -r src
-
+	bandit -s B110 -r src/
 lint: $(VENV)/bin/activate $(BIN) $(RP2_SRC) $(TEST_SRC) .pylintrc
 	pylint src tests/
 
