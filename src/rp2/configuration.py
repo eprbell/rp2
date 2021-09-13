@@ -20,7 +20,6 @@ from typing import Any, Dict, List, Optional, Set
 
 from dateutil.parser import parse
 from jsonschema import validate  # type: ignore
-
 from rp2.configuration_schema import CONFIGURATION_SCHEMA
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
@@ -71,7 +70,7 @@ class Configuration:  # pylint: disable=R0904
         if not Path(configuration_path).exists():
             raise RP2ValueError(f"Error: {configuration_path} does not exist")
 
-        with open(configuration_path, "r", encoding="utf-8") as configuration_file:
+        with open(configuration_path, encoding="utf-8") as configuration_file:
             # This json_configuration is validated by jsonschema, so we can disable static type checking for it:
             # it adds complexity but not much value over jsonschema checks
             json_configuration: Any = json.load(configuration_file)
