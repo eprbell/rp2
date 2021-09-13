@@ -24,8 +24,7 @@ RP2_MAKEFILE := 1
 
 all: $(VENV)/bin/activate
 
-$(VENV)/bin/activate: bin/rp2_check_requirements.py requirements.txt Makefile
-	bin/rp2_check_requirements.py
+$(VENV)/bin/activate: requirements.txt Makefile
 	virtualenv -p python3 $(VENV)
 	$(VENV)/bin/pip3 install -r requirements.txt
 
