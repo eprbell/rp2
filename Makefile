@@ -47,11 +47,7 @@ lint: $(VENV)/bin/activate $(BIN) $(RP2_SRC) $(TEST_SRC) .pylintrc
 # and are written using basic language features (no type hints) to ensure
 # they parse and run correctly on old versions of the interpreter.
 typecheck: $(VENV)/bin/activate $(RP2_SRC) $(TEST_SRC) mypy.ini
-	$(foreach file, \
-	  $(RP2_SRC) $(TEST_SRC), \
-	  echo; echo "Type checking $(file)..."; \
-	  MYPYPATH=$(PYTHONPATH):${CURDIR}/src/stubs mypy $(file); \
-	)
+	MYPYPATH=$(PYTHONPATH):$(CURDIR)/src/stubs mypy src/ tests/
 
 reformat: $(VENV)/bin/activate $(BIN) $(RP2_SRC) $(TEST_SRC)
 	isort .
