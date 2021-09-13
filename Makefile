@@ -39,6 +39,7 @@ check: $(VENV)/bin/activate
 
 securitycheck: $(VENV)/bin/activate
 	bandit -s B110 -r src/
+
 lint: $(VENV)/bin/activate $(BIN) $(RP2_SRC) $(TEST_SRC) .pylintrc
 	pylint src tests/
 
