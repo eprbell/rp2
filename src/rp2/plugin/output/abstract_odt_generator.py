@@ -78,7 +78,6 @@ class AbstractODTGenerator(AbstractGenerator):
     ) -> None:
         raise NotImplementedError("Abstract method: it must be implemented in the plugin class")
 
-
     @staticmethod
     def _apply_style_to_cell(sheet: Any, row_index: int, column_index: int, style_name: str) -> None:
         Configuration.type_check_positive_int("row_index", row_index)
