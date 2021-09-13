@@ -15,8 +15,6 @@
 import unittest
 from typing import Dict, List
 
-from rp2_test_output import RP2_TEST_OUTPUT
-
 from rp2.configuration import Configuration
 from rp2.gain_loss import GainLoss
 from rp2.gain_loss_set import GainLossSet
@@ -25,6 +23,7 @@ from rp2.intra_transaction import IntraTransaction
 from rp2.out_transaction import OutTransaction
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
+from rp2_test_output import RP2_TEST_OUTPUT
 
 _ASSETS: List[str] = ["B1", "B2", "B3", "B4"]
 

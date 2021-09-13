@@ -14,14 +14,13 @@
 
 import unittest
 
-from rp2_test_output import RP2_TEST_OUTPUT
-
 from rp2.computed_data import ComputedData
 from rp2.configuration import Configuration
 from rp2.input_data import InputData
 from rp2.ods_parser import open_ods, parse_ods
 from rp2.rp2_error import RP2TypeError
 from rp2.tax_engine import compute_tax
+from rp2_test_output import RP2_TEST_OUTPUT
 
 
 class TestTaxEngine(unittest.TestCase):

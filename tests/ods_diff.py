@@ -18,7 +18,6 @@ from pathlib import Path
 from typing import Any, List
 
 import ezodf
-
 from rp2.rp2_decimal import CRYPTO_DECIMALS
 
 

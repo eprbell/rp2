@@ -13,9 +13,9 @@
 # limitations under the License.
 
 import os
-from pathlib import Path
 import shutil
 import unittest
+from pathlib import Path
 from subprocess import run
 
 from ods_diff import ods_diff
