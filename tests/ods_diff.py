@@ -79,7 +79,7 @@ def ods_diff(file1_path: Path, file2_path: Path) -> str:
 
         row1: Any = None
         row2: Any = None
-        for _ , (row1, row2) in enumerate(zip_longest(sheet1.rows(), sheet2.rows())):
+        for _, (row1, row2) in enumerate(zip_longest(sheet1.rows(), sheet2.rows())):
             if row1:
                 contents1.append(_row_as_string(row1))
             if row2:
