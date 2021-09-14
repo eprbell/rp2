@@ -53,9 +53,13 @@ distribution:
 	rm -rf build/ dist/
 	$(VENV)/bin/python3 setup.py sdist bdist_wheel
 
-test_upload_distribution:
+upload_test_distribution:
 	$(VENV)/bin/pip3 install twine
 	$(VENV)/bin/python3 -m twine upload --repository testpypi dist/*
+
+upload_distribution:
+	$(VENV)/bin/pip3 install twine
+	$(VENV)/bin/python3 -m twine upload dist/*
 
 clean:
 	rm -rf $(VENV) .mypy_cache/ build dist/ log/ output/ src/rp2.egg-info/
