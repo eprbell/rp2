@@ -91,7 +91,7 @@ sudo apt-get install make python3 python3-pip
 
 Then install RP2 Python package requirements:
 ```
-pip install -i https://pypi.org/simple/ rp2
+pip install rp2
 ```
 ### Installation on macOS
 First make sure [Homebrew](https://brew.sh) is installed, then open a terminal window and enter the following commands:
@@ -102,18 +102,18 @@ brew install python3
 
 Finally install RP2 Python package requirements:
 ```
-pip install -i https://pypi.org/simple/ rp2
+pip install rp2
 ```
 ### Installation on Windows 10
 First make sure [Python](https://python.org) 3.7 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following:
 ```
-python -m pip install -r requirements.txt
+pip install rp2
 ```
 
 ### Installation on Other Unix-like Systems
 * install python 3.7 or greater
 * install pip3
-* `pip install -i https://pypi.org/simple/ rp2`
+* `pip install rp2`
 
 ## Running
 Before running RP2 two files must be prepared by the user:
