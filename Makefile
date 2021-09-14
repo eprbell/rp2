@@ -50,6 +50,7 @@ archive: clean
 	zip -r rp2.zip .
 
 distribution:
+	$(VENV)/bin/pip3 install twine
 	rm -rf build/ dist/
 	$(VENV)/bin/python3 setup.py sdist bdist_wheel
 	$(VENV)/bin/python3 -m twine check dist/*
