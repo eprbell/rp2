@@ -36,25 +36,14 @@ run: $(VENV)/bin/activate
 check: $(VENV)/bin/activate
 	pytest --tb=native --verbose
 
-securitycheck: $(VENV)/bin/activate
-	bandit -s B110 -r src/
-
-lint: $(VENV)/bin/activate $(BIN) $(RP2_SRC) $(TEST_SRC) .pylintrc
-	pylint -r y src tests/
-
-# Don't typecheck files in $(BIN) because they perform a version check
-# and are written using basic language features (no type hints) to ensure
-# they parse and run correctly on old versions of the interpreter.
-typecheck: $(VENV)/bin/activate $(RP2_SRC) $(TEST_SRC) mypy.ini
+static_analysis: $(VENV)/bin/activate
 	MYPYPATH=$(PYTHONPATH):$(CURDIR)/src/stubs mypy src/ tests/
+	pylint -r y src tests/
+	bandit -s B110 -r src/
 
 reformat: $(VENV)/bin/activate $(BIN) $(RP2_SRC) $(TEST_SRC)
 	isort .
-	$(foreach file, \
-	  $(BIN) $(RP2_SRC) $(TEST_SRC), \
-	  echo; echo "Reformatting $(file)..."; \
-	  PYTHONPATH=$(PYTHONPATH) black -l160 $(file); \
-	)
+	black -l160 src/ tests/
 
 archive: clean
 	rm -f rp2.zip || true
