@@ -29,8 +29,8 @@
   * [Windows 10](#setup-on-windows-10)
   * [Other Unix-like Systems](#setup-on-other-unix-like-systems)
 * **[Source Code](#source-code)**
-* **[Design Guidelines](#design-guidelines)**
-* **[Contributing](#contributing)**
+* **[Development](#development)**
+  * [Design Guidelines](#design-guidelines)
   * [Development Workflow](#development-workflow)
   * [Unit Tests](#unit-tests)
 * **[Plugin Development](#plugin-development)**
@@ -126,7 +126,10 @@ The RP2 source tree is organized as follows:
 * `src/stubs/`: RP2 relies on the pyexcel-ezodf library, which doesn't have typing information, so it is added here;
 * `tests/`: unit tests.
 
-## Design Guidelines
+## Development
+Read the [Contributing](CONTRIBUTING.md) document on bug reporting, pull requests, etc.
+
+### Design Guidelines
 RP2 code adheres to these principles:
 * immutability: all class fields are private (prepended with double-underscore). Fields that need public access have a read-only property. Write-properties are never used;
 * runtime checks: parameters of public functions are type-checked at runtime:
@@ -139,9 +142,6 @@ RP2 code adheres to these principles:
 * logging: logging is done via `logger.LOGGER`;
 * no unnamed tuples: use dataclasses or named tuples;
 * no imports with `*`.
-
-## Contributing
-Read the [Contributing](CONTRIBUTING.md) document on bug reporting, pull requests, etc.
 
 ### Development Workflow
 RP2 uses pre-commit hooks for quick validation at commit time and continuous integration via Github actions for deeper testing. Pre-commit hooks invoke: flake8, black, isort, pyupgrade and more. Github actions invoke: mypy, pylint, bandit, unit tests (on Linux, Mac and Windows), markdown link check and more.
