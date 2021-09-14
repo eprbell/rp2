@@ -27,11 +27,11 @@ Feel free to submit bugs via Issue Tracker, but **PLEASE READ THE FOLLOWING FIRS
 Logs are stored in the `log/` directory and each file name is appended with a timestamp. Outputs are stored in the `output/` directory or where specified by the user with the `-o` option.
 
 ## Contributing to the Repository
-First read the [developer guide](docs/developer_guide.md), which describes setup instructions, development workflow, design principles, source tree structure, plugin architecture, etc.
+First read the [developer guide](README.dev.md), which describes setup instructions, development workflow, design principles, source tree structure, plugin architecture, etc.
 
 ### Submitting Pull Requests
 Feel free to submit pull requests. Please follow these practices:
-* follow the RP2 [design guidelines](docs/developer_guide.md#design-guidelines)
+* follow the RP2 [design guidelines](README.dev.md#design-guidelines)
 * follow the [PEP 8](https://www.python.org/dev/peps/pep-0008/) coding standard and use `make reformat` before pushing;
 * add [unit tests](tests/) for any new code;
 * make sure your code doesn't cause new issues with `make check typecheck lint`;
