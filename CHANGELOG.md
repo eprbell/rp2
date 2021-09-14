@@ -20,7 +20,7 @@
 * First version uploaded to Pypi
 * Added pre-commit hooks
 * Added bandit security checks
-* Updated user and developer documentation
+* Major revision of user and developer documentation
 * Fixed lint errors
 * Various bug fixes and improvements
 
