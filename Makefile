@@ -52,6 +52,7 @@ archive: clean
 distribution:
 	rm -rf build/ dist/
 	$(VENV)/bin/python3 setup.py sdist bdist_wheel
+	$(VENV)/bin/python3 -m twine check dist/*
 
 upload_test_distribution:
 	$(VENV)/bin/pip3 install twine
