@@ -16,7 +16,7 @@
 
 ## In Progess
 
-## v0.6.1
+## v0.7.0
 * First version uploaded to Pypi
 * Added pre-commit hooks
 * Added bandit security checks
