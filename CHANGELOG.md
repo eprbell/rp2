@@ -14,8 +14,6 @@
 
 # RP2 Change Log
 
-## In Progess
-
 ## v0.7.1
 - Minor fixes related to Pypi package distribution and upload
 
