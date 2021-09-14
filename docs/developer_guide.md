@@ -100,7 +100,7 @@ class Generator(AbstractGenerator):
     ) -> None:
 ```
 * write the body of the method. The parameters are:
-  *  asset_to_computed_data: dictionary mapping user asset (i.e. cryptocurrency) to the computed tax data for that asset. For each user asset there is one instance of [ComputedData](../src/rp2/computed_data.py);
+  * asset_to_computed_data: dictionary mapping user asset (i.e. cryptocurrency) to the computed tax data for that asset. For each user asset there is one instance of [ComputedData](../src/rp2/computed_data.py);
   * output_dir_path: directory in which to write the output;
   * output_file_prefix: prefix to be prepended to the output file name
 
