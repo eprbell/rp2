@@ -16,6 +16,9 @@
 
 ## In Progess
 
+## v0.7.1
+- Minor fixes related to Pypi package distribution and upload
+
 ## v0.7.0
 * First version uploaded to Pypi
 * Added pre-commit hooks
