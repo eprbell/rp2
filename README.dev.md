@@ -12,35 +12,88 @@
 <!--- See the License for the specific language governing permissions and --->
 <!--- limitations under the License. --->
 
-# RP2 Developer Guide (Developer)
+# RP2 v0.6.1 Developer Guide
+[![Static Analysis / Main Branch](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml)
+[![Documentation Check / Main Branch](https://github.com/eprbell/rp2/actions/workflows/documentation_check.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/documentation_check.yml)
+[![Unix Unit Tests / Main Branch](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml)
+[![Windows Unit Tests / Main Branch](https://github.com/eprbell/rp2/actions/workflows/windows_unit_tests.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/windows_unit_tests.yml)
+[![CodeQL/Main Branch](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml)
 
 ## Table of Contents
+* **[Introduction](#introduction)**
 * **[License](#license)**
-* **[Design Guidelines](#design-guidelines)**
-* **[Contributing and Development Workflow](#contributing-and-development-workflow)**
+* **[Download](#download)**
+* **[Setup](#setup)**
+  * [Ubuntu Linux](#setup-on-ubuntu-linux)
+  * [macOS](#setup-on-macos)
+  * [Windows 10](#setup-on-windows-10)
+  * [Other Unix-like Systems](#setup-on-other-unix-like-systems)
 * **[Source Code](#source-code)**
+* **[Design Guidelines](#design-guidelines)**
+* **[Contributing](#contributing)**
+  * [Development Workflow](#development-workflow)
+  * [Unit Tests](#unit-tests)
 * **[Plugin Development](#plugin-development)**
-* **[Frequently Asked Developer Questions](#faq)**
+* **[Frequently Asked Developer Questions](#frequently-asked-developer-questions)**
+
+## Introduction
+This document describes [RP2](https://github.com/eprbell/rp2)'s setup instructions, development workflow, design principles, source tree structure and plugin architecture.
 
 ## License
-RP2 is released under the terms of Apache License Version 2.0. For more information see [LICENSE](../LICENSE) or http://www.apache.org/licenses/LICENSE-2.0.
+RP2 is released under the terms of Apache License Version 2.0. For more information see [LICENSE](LICENSE) or <http://www.apache.org/licenses/LICENSE-2.0>.
 
-## Contributing and Development Workflow
-Read the [Contributing](../CONTRIBUTING.md) document.
+## Download
+The latest source of RP2 can be downloaded at: <https://github.com/eprbell/rp2>
 
-## Design Guidelines
-RP2 code adheres to these principles:
-* immutability: all class fields are private (prepended with double-underscore). Fields that need public access have a read-only property. Write-properties are never used;
-* runtime checks: parameters of public functions are type-checked at runtime:
-  * `Configuration.type_check_*()` for primitive types;
-  * `<class>.type_check()` for classes
-* type hints: all variables and functions have Python type hints;
-* no id-based hashing: classes that are added to dictionaries and sets redefine `__eq__()`, `__neq__()` and `__hash__()`;
-* encapsulated math: all high-precision math is done via `RP2Decimal` (a subclass of Decimal), to ensure the correct precision is used throughout the code. `RP2Decimal` instances are never mixed with other types in expressions;
-* f-strings only: every time string interpolation is needed, use f-strings;
-* logging: logging is done via `logger.LOGGER`;
-* no unnamed tuples: use dataclasses or named tuples;
-* no imports with `*`.
+## Setup
+RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.7.0 or greater. Virtualenv is recommended for RP2 development. Note that requirements.txt contains `-e .`, which installs the RP2 package in editable mode.
+
+### Setup on Ubuntu Linux
+First make sure Python, pip and virtualenv are installed. If not, open a terminal window and enter the following commands:
+```
+sudo apt-get update
+sudo apt-get install make python3 python3-pip virtualenv
+```
+
+Then install RP2 Python package requirements:
+```
+cd <rp2_directory>
+virtualenv -p python3 .venv
+.venv/bin/pip3 install -r requirements.txt
+```
+### Setup on macOS
+First make sure [Homebrew](https://brew.sh) is installed, then open a terminal window and enter the following commands:
+```
+brew update
+brew install python3 virtualenv
+```
+
+Finally install RP2 Python package requirements:
+```
+cd <rp2_directory>
+virtualenv -p python3 .venv
+.venv/bin/pip3 install -r requirements.txt
+```
+### Setup on Windows 10
+First make sure [Python](https://python.org) 3.7 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following commands:
+```
+python -m pip install virtualenv
+```
+
+Finally install RP2 Python package requirements:
+```
+cd <rp2_directory>
+virtualenv -p python .venv
+python -m pip install -r requirements.txt
+```
+### Setup on Other Unix-like Systems
+* install GNU make
+* install python 3.7 or greater
+* install pip3
+* install virtualenv
+* cd _<rp2_directory>_
+* `virtualenv -p python3 .venv`
+* `.venv/bin/pip3 install -r requirements.txt`
 
 ## Source Code
 The RP2 source tree is organized as follows:
@@ -50,17 +103,20 @@ The RP2 source tree is organized as follows:
 * `config/`: config files for examples and tests;
 * `CONTRIBUTING.md`: contribution guidelines;
 * `docs/`: documentation;
+* `.editorconfig`;
 * `.github/workflows/`: configuration of Github continuous integration;
 * `.gitignore`;
 * `input/`: examples and tests;
 * `input/golden/`: expected outputs that RP2 tests compare against;
+* `.isort.cfg`: isort configuration;
 * `LICENSE`: license information;
-* `Makefile`: it encapsulates several development tasks. It has targets for [installing, linting, reformatting, static checking, unit testing](../CONTRIBUTING.md#development-workflow), etc.;
+* `Makefile`: it encapsulates several development tasks. It has targets for [installing, linting, reformatting, static checking, unit testing](CONTRIBUTING.md#development-workflow), etc.;
 * `MANIFEST.in`: source distribution configuration;
 * `mypy.ini`: Mypy configuration;
 * `.pylintrc`: Pylint configuration;
 * `pyproject.toml`: packaging configuration file;
-* `README.md`: documentation entry point;
+* `README.dev.md`: developer documentation;
+* `README.md`: user documentation;
 * `requirements.txt`: standard Python dependency file;
 * `setup.cfg`: static packaging configuration file;
 * `setup.py`: dynamic packaging configuration file;
@@ -70,8 +126,44 @@ The RP2 source tree is organized as follows:
 * `src/stubs/`: RP2 relies on the pyexcel-ezodf library, which doesn't have typing information, so it is added here;
 * `tests/`: unit tests.
 
+## Design Guidelines
+RP2 code adheres to these principles:
+* immutability: all class fields are private (prepended with double-underscore). Fields that need public access have a read-only property. Write-properties are never used;
+* runtime checks: parameters of public functions are type-checked at runtime:
+  * `Configuration.type_check_*()` for primitive types;
+  * `<class>.type_check()` for classes;
+* type hints: all variables and functions have Python type hints;
+* no id-based hashing: classes that are added to dictionaries and sets redefine `__eq__()`, `__neq__()` and `__hash__()`;
+* encapsulated math: all high-precision math is done via `RP2Decimal` (a subclass of Decimal), to ensure the correct precision is used throughout the code. `RP2Decimal` instances are never mixed with other types in expressions;
+* f-strings only: every time string interpolation is needed, use f-strings;
+* logging: logging is done via `logger.LOGGER`;
+* no unnamed tuples: use dataclasses or named tuples;
+* no imports with `*`.
+
+## Contributing
+Read the [Contributing](CONTRIBUTING.md) document on bug reporting, pull requests, etc.
+
+### Development Workflow
+RP2 uses pre-commit hooks for quick validation at commit time and continuous integration via Github actions for deeper testing. Pre-commit hooks invoke: flake8, black, isort, pyupgrade and more. Github actions invoke: mypy, pylint, bandit, unit tests (on Linux, Mac and Windows), markdown link check and more.
+
+While every commit and push are automatically tested as described, sometimes it's useful to run some of the above commands locally without waiting for continuous integration. Here's how to run the most common ones:
+* run unit tests: `pytest --tb=native --verbose`
+* type check: `mypy src tests`
+* lint: `pylint -r y src tests`
+* security check: `bandit -s B110 -r src`
+* reformat code: `black src tests`
+* sort imports: `isort .`
+
+Logs are stored in the `log` directory. To generate debug logs, prepend the command line with `LOG_LEVEL=DEBUG`, e.g.:
+```
+LOG_LEVEL=DEBUG bin/rp2.py -o output -p crypto_example_ config/crypto_example.config input/crypto_example.ods
+```
+
+### Unit Tests
+RP2 has considerable unit test coverage to reduce the risk of regression. Unit tests are in the [tests](tests) directory. Please add unit tests for any new code.
+
 ## Plugin Development
-RP2 has a plugin architecture for output generators, which makes it extensible for new use cases. Writing a new plugin is quite easy: the [8949 form generator](../src/rp2/plugin/output/mock_8949_us.py) is a simple example, the [RP2 report generator](../src/rp2/plugin/output/rp2_report.py) is more comprehensive.
+RP2 has a plugin architecture for output generators, which makes it extensible for new use cases. Writing a new plugin is quite easy: the [8949 form generator](src/rp2/plugin/output/mock_8949_us.py) is a simple example, the [RP2 report generator](src/rp2/plugin/output/rp2_report.py) is more comprehensive.
 
 Plugins are discovered by RP2 at runtime and they must adhere to the specific conventions shown below. To add a new plugin follow this procedure:
 * add a new Python file in the plugin/output directory and give it a meaningful name
@@ -100,9 +192,9 @@ class Generator(AbstractGenerator):
     ) -> None:
 ```
 * write the body of the method. The parameters are:
-  * asset_to_computed_data: dictionary mapping user asset (i.e. cryptocurrency) to the computed tax data for that asset. For each user asset there is one instance of [ComputedData](../src/rp2/computed_data.py);
+  * asset_to_computed_data: dictionary mapping user asset (i.e. cryptocurrency) to the computed tax data for that asset. For each user asset there is one instance of [ComputedData](src/rp2/computed_data.py);
   * output_dir_path: directory in which to write the output;
-  * output_file_prefix: prefix to be prepended to the output file name
+  * output_file_prefix: prefix to be prepended to the output file name.
 
-## FAQ
-Read the [frequently asked developer questions](developer_faq.md).
+## Frequently Asked Developer Questions
+Read the [frequently asked developer questions](docs/developer_faq.md).

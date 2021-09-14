@@ -15,13 +15,19 @@
 # RP2 Change Log
 
 ## In Progess
-* Added pre-commit
+
+## v0.6.1
+* First version uploaded to Pypi
+* Added pre-commit hooks
 * Added bandit security checks
+* Updated user and developer documentation
+* Fixed lint errors
+* Various bug fixes and improvements
 
 ## v0.6.0
 * First version tracked in change log
 * Added Python packaging support
 * Switched to high-precision math (decimal.Decimal)
-* Finished documentation
+* Finished documentation (except FAQs)
 * Added bumpversion
 * Various bug fixes and improvements
