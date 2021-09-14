@@ -30,27 +30,35 @@ $(VENV)/bin/activate: requirements.txt Makefile
 
 run: $(VENV)/bin/activate
 	rm -rf log/ output/
-	rp2 -o output/ -p test_data_ config/test_data.config input/test_data.ods
-	rp2 -o output/ -p crypto_example_ config/crypto_example.config input/crypto_example.ods
+	$(VENV)/bin/rp2 -o output/ -p test_data_ config/test_data.config input/test_data.ods
+	$(VENV)/bin/rp2 -o output/ -p crypto_example_ config/crypto_example.config input/crypto_example.ods
 
 check: $(VENV)/bin/activate
-	pytest --tb=native --verbose
+	$(VENV)/bin/pytest --tb=native --verbose
 
 static_analysis: $(VENV)/bin/activate
-	MYPYPATH=$(PYTHONPATH):$(CURDIR)/src/stubs mypy src/ tests/
-	pylint -r y src tests/
-	bandit -s B110 -r src/
+	MYPYPATH=$(PYTHONPATH):$(CURDIR)/src/stubs $(VENV)/bin/mypy src/ tests/
+	$(VENV)/bin/pylint -r y src tests/
+	$(VENV)/bin/bandit -s B110 -r src/
 
 reformat: $(VENV)/bin/activate $(BIN) $(RP2_SRC) $(TEST_SRC)
-	isort .
-	black -l160 src/ tests/
+	$(VENV)/bin/isort .
+	$(VENV)/bin/black -l160 src/ tests/
 
 archive: clean
 	rm -f rp2.zip || true
 	zip -r rp2.zip .
 
+distribution:
+	rm -rf build/ dist/
+	$(VENV)/bin/python3 setup.py sdist bdist_wheel
+
+test_upload_distribution:
+	$(VENV)/bin/pip3 install twine
+	$(VENV)/bin/python3 -m twine upload --repository testpypi dist/*
+
 clean:
-	rm -rf $(VENV) .mypy_cache/ log/ output/ src/rp2.egg-info/
+	rm -rf $(VENV) .mypy_cache/ build dist/ log/ output/ src/rp2.egg-info/
 	find . -type f -name '*.pyc' -delete
 
 .PHONY: all archive check clean lint reformat run securitycheck typecheck
