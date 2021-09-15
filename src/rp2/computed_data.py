@@ -88,16 +88,7 @@ class YearlyGainLoss:
         return hash((self.year, self.asset, self.transaction_type, self.is_long_term_capital_gains))
 
 
-@dataclass(frozen=True, eq=True)
 class ComputedData:
-    asset: str
-    taxable_event_set: TransactionSet
-    gain_loss_set: GainLossSet
-    balance_set: BalanceSet
-    yearly_gain_loss_list: List[YearlyGainLoss]
-    price_per_unit: RP2Decimal
-    input_data: InputData
-
     @classmethod
     def type_check(cls, name: str, instance: "ComputedData") -> "ComputedData":
         Configuration.type_check_parameter_name(name)
@@ -105,34 +96,71 @@ class ComputedData:
             raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
         return instance
 
-    def __post_init__(self) -> None:
-        Configuration.type_check_string("asset", self.asset)
-        TransactionSet.type_check("taxable_event_set", self.taxable_event_set, EntrySetType.MIXED, self.asset, True)
-        GainLossSet.type_check("gain_loss_set", self.gain_loss_set)
-        BalanceSet.type_check("balance_set", self.balance_set)
-        if not isinstance(self.yearly_gain_loss_list, List):
-            raise RP2TypeError(f"Parameter 'yearly_gain_loss_list' is not of type List: {self.yearly_gain_loss_list}")
-        Configuration.type_check_positive_decimal("price_per_unit", self.price_per_unit)
-        InputData.type_check("input_data", self.input_data)
+    def __init__(
+        self,
+        asset: str,
+        taxable_event_set: TransactionSet,
+        gain_loss_set: GainLossSet,
+        balance_set: BalanceSet,
+        yearly_gain_loss_list: List[YearlyGainLoss],
+        price_per_unit: RP2Decimal,
+        input_data: InputData,
+    ) -> None:
+        self.__asset = Configuration.type_check_string("asset", asset)
+        self.__taxable_event_set = TransactionSet.type_check("taxable_event_set", taxable_event_set, EntrySetType.MIXED, asset, True)
+        self.__gain_loss_set = GainLossSet.type_check("gain_loss_set", gain_loss_set)
+        self.__balance_set = BalanceSet.type_check("balance_set", balance_set)
+        if not isinstance(yearly_gain_loss_list, List):
+            raise RP2TypeError(f"Parameter 'yearly_gain_loss_list' is not of type List: {yearly_gain_loss_list}")
+        self.__yearly_gain_loss_list = yearly_gain_loss_list
+        self.__price_per_unit = Configuration.type_check_positive_decimal("price_per_unit", price_per_unit)
+        InputData.type_check("input_data", input_data)
+        self.__in_transaction_set = input_data.in_transaction_set
+        self.__intra_transaction_set = input_data.intra_transaction_set
+        self.__out_transaction_set = input_data.out_transaction_set
 
-        if self.taxable_event_set.asset != self.asset:
-            raise RP2ValueError(f"Asset mismatch in 'taxable_event_set': expected {self.asset}, found {self.taxable_event_set.asset}")
-        if self.gain_loss_set.asset != self.asset:
-            raise RP2ValueError(f"Asset mismatch in 'gain_loss_set': expected {self.asset}, found {self.gain_loss_set.asset}")
-        if self.balance_set.asset != self.asset:
-            raise RP2ValueError(f"Asset mismatch in 'balance_set': expected {self.asset}, found {self.balance_set.asset}")
+        if self.__taxable_event_set.asset != self.__asset:
+            raise RP2ValueError(f"Asset mismatch in 'taxable_event_set': expected {self.__asset}, found {self.__taxable_event_set.asset}")
+        if self.__gain_loss_set.asset != self.__asset:
+            raise RP2ValueError(f"Asset mismatch in 'gain_loss_set': expected {self.__asset}, found {self.__gain_loss_set.asset}")
+        if self.__balance_set.asset != self.__asset:
+            raise RP2ValueError(f"Asset mismatch in 'balance_set': expected {self.__asset}, found {self.__balance_set.asset}")
 
-        if self.asset != self.input_data.asset:
-            raise RP2ValueError(f"Asset mismatch in 'input_data': expected {self.asset}, found {self.input_data.asset}")
+        if self.__asset != input_data.asset:
+            raise RP2ValueError(f"Asset mismatch in 'input_data': expected {self.__asset}, found {input_data.asset}")
+
+    @property
+    def asset(self) -> str:
+        return self.__asset
+
+    @property
+    def taxable_event_set(self) -> TransactionSet:
+        return self.__taxable_event_set
+
+    @property
+    def gain_loss_set(self) -> GainLossSet:
+        return self.__gain_loss_set
+
+    @property
+    def balance_set(self) -> BalanceSet:
+        return self.__balance_set
+
+    @property
+    def yearly_gain_loss_list(self) -> List[YearlyGainLoss]:
+        return self.__yearly_gain_loss_list
+
+    @property
+    def price_per_unit(self) -> RP2Decimal:
+        return self.__price_per_unit
 
     @property
     def in_transaction_set(self) -> TransactionSet:
-        return self.input_data.in_transaction_set
+        return self.__in_transaction_set
 
     @property
     def out_transaction_set(self) -> TransactionSet:
-        return self.input_data.out_transaction_set
+        return self.__out_transaction_set
 
     @property
     def intra_transaction_set(self) -> TransactionSet:
-        return self.input_data.intra_transaction_set
+        return self.__intra_transaction_set
