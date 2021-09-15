@@ -23,7 +23,7 @@
 * **[How to Handle Hard Forks?](#how-to-handle-hard-forks)**
 * **[How to Handle Income from Mining?](#how-to-handle-income-from-mining)**
 * **[How to Handle Income from Staking?](#how-to-handle-income-from-staking)**
-* **[Are NFTs supported?](#are-nfts-supported)**
+* **[How to Handle NFTs?](#how-to-handle-nfts)**
 
 * **[How to Report a RP2 Bug without Sharing Personal Information?](#how-to-report-a-rp2-bug-without-sharing-personal-information)**
 
@@ -37,19 +37,26 @@
 
 ## How to Verify That I Entered Data Correctly in the Input Spreadsheet?
 TBD
+
 ## What Is the Timestamp Format?
 TBD
+
 ## How to Handle Conversion of a Cryptocurrency to Another?
 TBD
+
 ## How to Handle Airdrops?
 TBD
+
 ## How to Handle Hard Forks?
 TBD
+
 ## How to Handle Income from Mining?
 TBD
+
 ## How to Handle Income from Staking?
 TBD
-## Are NFTs supported?
+
+## How to Handle NFTs?
 TBD
 
 ## How to Report a RP2 Bug without Sharing Personal Information?
@@ -60,6 +67,7 @@ TBD
 
 ## If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?
 TBD
+
 ## What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We File Taxes Together?
 TBD
 

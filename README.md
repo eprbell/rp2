@@ -71,7 +71,7 @@ RP2 groups lot fractions into the following taxable event categories, each of wh
 
 For each of these categories RP2 generates an output spreadsheet with transaction details and computed gains. You can give this output to your tax professional with the rest of your tax documentation.
 
-**NOTE ON NFTs**: RP2 treats NFTs as a kind of cryptocurrency (that is as property).
+**NOTE ON NFTs**: RP2 treats [NFTs](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-nfts) as a kind of cryptocurrency (that is, as property).
 
 ## License
 RP2 is released under the terms of Apache License Version 2.0. For more information see [LICENSE](https://github.com/eprbell/rp2/tree/main/LICENSE) or <http://www.apache.org/licenses/LICENSE-2.0>.
