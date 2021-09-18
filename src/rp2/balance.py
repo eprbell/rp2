@@ -91,10 +91,12 @@ class BalanceSet:
             raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
         return instance
 
+    # from_year is not used when computing average price per unit: only to_year is relevant.
     def __init__(
         self,
         configuration: Configuration,
         input_data: InputData,
+        to_year: int,
     ) -> None:
 
         Configuration.type_check("configuration", configuration)
@@ -113,6 +115,8 @@ class BalanceSet:
 
         # Balances for bought and earned currency
         for transaction in self.__input_data.in_transaction_set:
+            if transaction.timestamp.year > to_year:
+                break
             in_transaction: InTransaction = cast(InTransaction, transaction)
             to_account = Account(in_transaction.exchange, in_transaction.holder)
             acquired_balances[to_account] = acquired_balances.get(to_account, ZERO) + in_transaction.crypto_in
@@ -120,6 +124,8 @@ class BalanceSet:
 
         # Balances for currency that is moved across accounts
         for transaction in self.__input_data.intra_transaction_set:
+            if transaction.timestamp.year > to_year:
+                break
             intra_transaction: IntraTransaction = cast(IntraTransaction, transaction)
             from_account = Account(intra_transaction.from_exchange, intra_transaction.from_holder)
             to_account = Account(intra_transaction.to_exchange, intra_transaction.to_holder)
@@ -130,6 +136,8 @@ class BalanceSet:
 
         # Balances for sold and gifted currency
         for transaction in self.__input_data.out_transaction_set:
+            if transaction.timestamp.year > to_year:
+                break
             out_transaction: OutTransaction = cast(OutTransaction, transaction)
             from_account = Account(out_transaction.exchange, out_transaction.holder)
             sent_balances[from_account] = sent_balances.get(from_account, ZERO) + out_transaction.crypto_out_no_fee + out_transaction.crypto_fee
