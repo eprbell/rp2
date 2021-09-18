@@ -40,10 +40,6 @@ def rp2_main() -> None:
     parser = _setup_argument_parser()
     args = parser.parse_args()
 
-    if args.from_year > args.to_year:
-        LOGGER.error("from_year cannot be greater than to_year. Exiting...")
-        sys.exit(1)
-
     _setup_paths(parser=parser, configuration_file=args.configuration_file, input_file=args.input_file, output_dir=args.output_dir)
 
     try:
