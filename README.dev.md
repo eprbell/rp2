@@ -131,7 +131,7 @@ Read the [Contributing](CONTRIBUTING.md) document on bug reporting, pull request
 
 ### Design Guidelines
 RP2 code adheres to these principles:
-* immutability: all class fields are private (prepended with double-underscore). Fields that need public access have a read-only property. Write-properties are never used;
+* immutability: classes are read-only. All class fields are private (prepended with double-underscore). Fields that need public access have a read-only property. Write-properties are never used;
 * runtime checks: parameters of public functions are type-checked at runtime:
   * `Configuration.type_check_*()` for primitive types;
   * `<class>.type_check()` for classes;
@@ -150,7 +150,7 @@ While every commit and push are automatically tested as described, sometimes it'
 * run unit tests: `pytest --tb=native --verbose`
 * type check: `mypy src tests`
 * lint: `pylint -r y src tests`
-* security check: `bandit -s B110 -r src`
+* security check: `bandit -r src`
 * reformat code: `black src tests`
 * sort imports: `isort .`
 

@@ -34,7 +34,7 @@ jobs:
           pylint -r y src tests/
       - name: Security check with bandit
         run: |
-          bandit -s B110 -r src/
+          bandit -r src/
       - name: Type check with mypy
         run: |
           mypy src/ tests/

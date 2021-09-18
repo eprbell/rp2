@@ -39,7 +39,7 @@ check: $(VENV)/bin/activate
 static_analysis: $(VENV)/bin/activate
 	MYPYPATH=$(PYTHONPATH):$(CURDIR)/src/stubs $(VENV)/bin/mypy src/ tests/
 	$(VENV)/bin/pylint -r y src tests/
-	$(VENV)/bin/bandit -s B110 -r src/
+	$(VENV)/bin/bandit -r src/
 
 reformat: $(VENV)/bin/activate $(BIN) $(RP2_SRC) $(TEST_SRC)
 	$(VENV)/bin/isort .
