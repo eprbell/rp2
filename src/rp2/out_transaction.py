@@ -70,7 +70,7 @@ class OutTransaction(AbstractTransaction):
 
         if spot_price == ZERO:
             raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.unique_id}): parameter 'spot_price' cannot be 0")
-        if self.transaction_type != TransactionType.DONATE and self.transaction_type != TransactionType.GIFT and self.transaction_type != TransactionType.SELL:
+        if self.transaction_type not in (TransactionType.DONATE, TransactionType.GIFT, TransactionType.SELL):
             raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.unique_id}): invalid transaction type {self.transaction_type}")
 
         # If the values provided by the exchange doesn't match the computed one, log a warning.
