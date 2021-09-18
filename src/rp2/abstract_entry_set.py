@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import copy
 from datetime import datetime
 from typing import Dict, List, Optional, Set
 
 from rp2.abstract_entry import AbstractEntry
-from rp2.configuration import Configuration
+from rp2.configuration import MAX_YEAR, Configuration
 from rp2.entry_types import EntrySetType
 from rp2.in_transaction import InTransaction
 from rp2.intra_transaction import IntraTransaction
@@ -30,10 +31,14 @@ class AbstractEntrySet:
         configuration: Configuration,
         entry_set_type: str,
         asset: str,
+        from_year: int,
+        to_year: int,
     ) -> None:
-        self._configuration: Configuration = Configuration.type_check("configuration", configuration)
+        self.__configuration: Configuration = Configuration.type_check("configuration", configuration)
         self.__entry_set_type: EntrySetType = EntrySetType.type_check_from_string("entry_set_type", entry_set_type)
         self.__asset: str = configuration.type_check_asset("asset", asset)
+        self.__from_year: int = configuration.type_check_positive_int("from_year", from_year) if from_year else 0
+        self.__to_year: int = configuration.type_check_positive_int("to_year", to_year, non_zero=True) if to_year else MAX_YEAR
 
         self._entry_list: List[AbstractEntry] = []  # List for sorting
         self._entry_set: Set[AbstractEntry] = set()  # Set for fast search (at the cost of extra memory)
@@ -43,9 +48,11 @@ class AbstractEntrySet:
     def __str__(self) -> str:
         output: List[str] = []
         output.append(f"{type(self).__name__}:")
-        output.append(f"  configuration={str(self._configuration.configuration_path)}")
+        output.append(f"  configuration={str(self.__configuration.configuration_path)}")
         output.append(f"  entry_set_type={str(self.entry_set_type)}")
         output.append(f"  asset={str(self.asset)}")
+        output.append(f"  from_year={str(self.from_year) if self.from_year > 0 else 'non-specified'}")
+        output.append(f"  to_year={str(self.to_year) if self.to_year < MAX_YEAR else 'non-specified'}")
         output.append("  entries=")
         for entry in self:
             parent: Optional[AbstractEntry]
@@ -56,9 +63,11 @@ class AbstractEntrySet:
     def __repr__(self) -> str:
         output: List[str] = []
         output.append(f"{type(self).__name__}(")
-        output.append(f"configuration={repr(self._configuration.configuration_path)}")
+        output.append(f"configuration={repr(self.__configuration.configuration_path)}")
         output.append(f", entry_set_type={repr(self.entry_set_type)}")
         output.append(f", asset={repr(self.asset)}")
+        output.append(f", from_year={repr(self.from_year) if self.from_year > 0 else 'non-specified'}")
+        output.append(f", to_year={repr(self.to_year) if self.to_year < MAX_YEAR else 'non-specified'}")
         output.append(", entries=[")
         for entry in self:
             parent: Optional[AbstractEntry]
@@ -68,6 +77,16 @@ class AbstractEntrySet:
         output.append(")")
         return "".join(output)
 
+    def duplicate(self, from_year: int = 0, to_year: int = MAX_YEAR) -> "AbstractEntrySet":
+        result: AbstractEntrySet = copy.copy(self)
+        result.__from_year = from_year  # pylint: disable=protected-access, unused-private-member
+        result.__to_year = to_year  # pylint: disable=protected-access, unused-private-member
+        return result
+
+    @property
+    def configuration(self) -> Configuration:
+        return self.__configuration
+
     @property
     def entry_set_type(self) -> EntrySetType:
         return self.__entry_set_type
@@ -75,6 +94,14 @@ class AbstractEntrySet:
     @property
     def asset(self) -> str:
         return self.__asset
+
+    @property
+    def from_year(self) -> int:
+        return self.__from_year
+
+    @property
+    def to_year(self) -> int:
+        return self.__to_year
 
     @property
     def count(self) -> int:
@@ -135,10 +162,11 @@ class EntrySetIterator:
 
     def __next__(self) -> AbstractEntry:
         result: Optional[AbstractEntry] = None
-        if self.__index < self.__entry_set_size:
+        while self.__index < self.__entry_set_size:
             result = self.__entry_set._entry_list[self.__index]  # pylint: disable=protected-access
             self.__index += 1
-            return result
+            if result.timestamp.year >= self.__entry_set.from_year and result.timestamp.year <= self.__entry_set.to_year:
+                return result
         raise StopIteration(self)
 
 
