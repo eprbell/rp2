@@ -40,10 +40,14 @@ def rp2_main() -> None:
     parser = _setup_argument_parser()
     args = parser.parse_args()
 
+    if args.from_year > args.to_year:
+        LOGGER.error("from_year cannot be greater than to_year. Exiting...")
+        sys.exit(1)
+
     _setup_paths(parser=parser, configuration_file=args.configuration_file, input_file=args.input_file, output_dir=args.output_dir)
 
     try:
-        configuration: Configuration = Configuration(configuration_path=args.configuration_file, up_to_year=args.up_to_year)
+        configuration: Configuration = Configuration(configuration_path=args.configuration_file, from_year=args.from_year, to_year=args.to_year)
         LOGGER.debug("Configuration object: %s", configuration)
 
         if args.asset:
@@ -115,6 +119,15 @@ def _setup_argument_parser() -> ArgumentParser:
         type=str,
     )
     parser.add_argument(
+        "-f",
+        "--from_year",
+        action="store",
+        default=None,
+        help="Generate report from the given YEAR",
+        metavar="YEAR",
+        type=int,
+    )
+    parser.add_argument(
         "-l",
         "--plugin",
         action="store",
@@ -141,8 +154,8 @@ def _setup_argument_parser() -> ArgumentParser:
         type=str,
     )
     parser.add_argument(
-        "-u",
-        "--up_to_year",
+        "-t",
+        "--to_year",
         action="store",
         default=None,
         help="Generate report up to the given YEAR",
