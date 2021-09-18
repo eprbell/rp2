@@ -13,7 +13,9 @@
 <!--- limitations under the License. --->
 
 # RP2 Change Log
-- Added from_year command line option
+
+## v0.7.3
+- Added from/to_year command line option
 
 ## v0.7.2
 - Minor fixes related to Pypi package distribution and upload
