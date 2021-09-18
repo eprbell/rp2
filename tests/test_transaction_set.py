@@ -138,78 +138,81 @@ class TestTransactionSet(unittest.TestCase):
         )
         transaction_set.add_entry(transaction4)
 
-        self.assertEqual(transaction_set.entry_set_type, EntrySetType.MIXED)
-        self.assertEqual(transaction_set.asset, "B1")
+        transaction_set_duplicate: TransactionSet = cast(TransactionSet, transaction_set.duplicate())
 
-        unique_ids: List[str] = ["10", "20", "30", "40", "50"]
-        transactions: List[AbstractTransaction] = [transaction1, transaction2, transaction3, transaction4, transaction5]
-        parents: List[Optional[AbstractTransaction]] = [
-            None,
-            transaction1,
-            transaction2,
-            transaction3,
-            transaction4,
-        ]
-        timestamps = [
-            "6/1/2020 3:59:59 -04:00",
-            "2021-01-02T08:42:43.882Z",
-            "1/8/2021 8:42:43.883 -04:00",
-            "2021-03-28T08:42:43.882Z",
-            "2021-04-02T08:42:43.882Z",
-        ]
-        transaction_types: List[TransactionType] = [
-            TransactionType.SELL,
-            TransactionType.EARN,
-            TransactionType.BUY,
-            TransactionType.MOVE,
-            TransactionType.MOVE,
-        ]
-        usd_taxable_amounts: List[RP2Decimal] = [RP2Decimal(s) for s in ["1981.98", "2000.2", "0", "0", "0.4"]]
-        crypto_balance_changes: List[RP2Decimal] = [RP2Decimal(s) for s in ["2.2", "2.0002", "3.0002", "0", "0.0004"]]
-        usd_balance_changes: List[RP2Decimal] = [RP2Decimal(s) for s in ["1981.98", "2000.2", "3020.2", "0", "0.4"]]
+        for current_set in [transaction_set, transaction_set_duplicate]:
+            self.assertEqual(current_set.entry_set_type, EntrySetType.MIXED)
+            self.assertEqual(current_set.asset, "B1")
 
-        count = 0
-        expected_transaction: AbstractTransaction
-        parent: AbstractTransaction
-        unique_id: str
-        transaction_type: TransactionType
-        usd_taxable_amount: RP2Decimal
-        crypto_balance_change: RP2Decimal
-        usd_balance_change: RP2Decimal
-        for (  # type: ignore
-            transaction,
-            expected_transaction,
-            parent,
-            unique_id,
-            timestamp,
-            transaction_type,
-            usd_taxable_amount,
-            crypto_balance_change,
-            usd_balance_change,
-        ) in zip(  # type: ignore
-            transaction_set,
-            transactions,
-            parents,
-            unique_ids,
-            timestamps,
-            transaction_types,
-            usd_taxable_amounts,
-            crypto_balance_changes,
-            usd_balance_changes,
-        ):
-            self.assertEqual(transaction, expected_transaction)
-            self.assertEqual(transaction_set.get_parent(transaction), parent)
-            self.assertEqual(transaction.unique_id, unique_id)
-            self.assertEqual(transaction.timestamp, parse(timestamp))
-            self.assertEqual(transaction.transaction_type, transaction_type)
-            self.assertEqual(transaction.asset, "B1")
-            self.assertEqual(transaction.usd_taxable_amount, usd_taxable_amount)
-            self.assertEqual(transaction.crypto_balance_change, crypto_balance_change)
-            self.assertEqual(transaction.usd_balance_change, usd_balance_change)
-            count += 1
-        self.assertEqual(count, 5)
+            unique_ids: List[str] = ["10", "20", "30", "40", "50"]
+            transactions: List[AbstractTransaction] = [transaction1, transaction2, transaction3, transaction4, transaction5]
+            parents: List[Optional[AbstractTransaction]] = [
+                None,
+                transaction1,
+                transaction2,
+                transaction3,
+                transaction4,
+            ]
+            timestamps = [
+                "6/1/2020 3:59:59 -04:00",
+                "2021-01-02T08:42:43.882Z",
+                "1/8/2021 8:42:43.883 -04:00",
+                "2021-03-28T08:42:43.882Z",
+                "2021-04-02T08:42:43.882Z",
+            ]
+            transaction_types: List[TransactionType] = [
+                TransactionType.SELL,
+                TransactionType.EARN,
+                TransactionType.BUY,
+                TransactionType.MOVE,
+                TransactionType.MOVE,
+            ]
+            usd_taxable_amounts: List[RP2Decimal] = [RP2Decimal(s) for s in ["1981.98", "2000.2", "0", "0", "0.4"]]
+            crypto_balance_changes: List[RP2Decimal] = [RP2Decimal(s) for s in ["2.2", "2.0002", "3.0002", "0", "0.0004"]]
+            usd_balance_changes: List[RP2Decimal] = [RP2Decimal(s) for s in ["1981.98", "2000.2", "3020.2", "0", "0.4"]]
 
-        self.assertTrue(str(transaction_set).startswith("TransactionSet:\n  configuration=./config/test_data.config\n  entry_set_type=EntrySetType.MIXED"))
+            count = 0
+            expected_transaction: AbstractTransaction
+            parent: AbstractTransaction
+            unique_id: str
+            transaction_type: TransactionType
+            usd_taxable_amount: RP2Decimal
+            crypto_balance_change: RP2Decimal
+            usd_balance_change: RP2Decimal
+            for (  # type: ignore
+                transaction,
+                expected_transaction,
+                parent,
+                unique_id,
+                timestamp,
+                transaction_type,
+                usd_taxable_amount,
+                crypto_balance_change,
+                usd_balance_change,
+            ) in zip(  # type: ignore
+                current_set,
+                transactions,
+                parents,
+                unique_ids,
+                timestamps,
+                transaction_types,
+                usd_taxable_amounts,
+                crypto_balance_changes,
+                usd_balance_changes,
+            ):
+                self.assertEqual(transaction, expected_transaction)
+                self.assertEqual(current_set.get_parent(transaction), parent)
+                self.assertEqual(transaction.unique_id, unique_id)
+                self.assertEqual(transaction.timestamp, parse(timestamp))
+                self.assertEqual(transaction.transaction_type, transaction_type)
+                self.assertEqual(transaction.asset, "B1")
+                self.assertEqual(transaction.usd_taxable_amount, usd_taxable_amount)
+                self.assertEqual(transaction.crypto_balance_change, crypto_balance_change)
+                self.assertEqual(transaction.usd_balance_change, usd_balance_change)
+                count += 1
+            self.assertEqual(count, 5)
+
+            self.assertTrue(str(current_set).startswith("TransactionSet:\n  configuration=./config/test_data.config\n  entry_set_type=EntrySetType.MIXED"))
 
     def test_bad_transaction_set(self) -> None:
         in_transaction = InTransaction(
@@ -291,6 +294,21 @@ class TestTransactionSet(unittest.TestCase):
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'asset' value is not known: .*"):
             # Bad asset
             TransactionSet(self._configuration, "IN", "Qwerty")
+        with self.assertRaisesRegex(RP2ValueError, "Parameter 'from_year' has non-positive value .*"):
+            # Bad from_year
+            TransactionSet(self._configuration, "IN", "B1", -1111)
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_year' has non-integer value .*"):
+            # Bad from_year
+            TransactionSet(self._configuration, "IN", "B1", "foobar")  # type: ignore
+        with self.assertRaisesRegex(RP2ValueError, "Parameter 'to_year' has non-positive value .*"):
+            # Bad to_year
+            TransactionSet(self._configuration, "IN", "B1", 2018, -1111)
+        with self.assertRaisesRegex(RP2ValueError, "Parameter 'to_year' has zero value"):
+            # Bad to_year
+            TransactionSet(self._configuration, "IN", "B1", 2018, 0)
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'to_year' has non-integer value .*"):
+            # Bad to_year
+            TransactionSet(self._configuration, "IN", "B1", 2018, "foobar")  # type: ignore
 
         in_transaction_set = TransactionSet(self._configuration, "IN", "B1")
         out_transaction_set = TransactionSet(self._configuration, "OUT", "B1")
