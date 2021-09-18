@@ -194,10 +194,16 @@ class TestConfiguration(unittest.TestCase):
             Configuration("./config/test_data.config", accounting_method=None)  # type: ignore
         with self.assertRaisesRegex(NotImplementedError, ".*'AccountingMethod.LIFO' not implemented yet"):
             Configuration("./config/test_data.config", accounting_method=AccountingMethod.LIFO)
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'up_to_year' has non-integer value .*"):
-            Configuration("./config/test_data.config", up_to_year="foobar")  # type: ignore
-        with self.assertRaisesRegex(RP2ValueError, "Parameter 'up_to_year' has non-positive value .*"):
-            Configuration("./config/test_data.config", up_to_year=-1)
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_year' has non-integer value .*"):
+            Configuration("./config/test_data.config", from_year="foobar")  # type: ignore
+        with self.assertRaisesRegex(RP2ValueError, "Parameter 'from_year' has non-positive value .*"):
+            Configuration("./config/test_data.config", from_year=-1)
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'to_year' has non-integer value .*"):
+            Configuration("./config/test_data.config", to_year="foobar")  # type: ignore
+        with self.assertRaisesRegex(RP2ValueError, "Parameter 'to_year' has non-positive value .*"):
+            Configuration("./config/test_data.config", to_year=-1)
+        with self.assertRaisesRegex(RP2ValueError, "Parameter 'to_year' has zero value"):
+            Configuration("./config/test_data.config", to_year=0)
 
     def test_argument_packs(self) -> None:
         self.assertEqual(
@@ -288,10 +294,10 @@ class TestConfiguration(unittest.TestCase):
         self.assertEqual(
             str(self._configuration),
             (
-                "Configuration(configuration_path=./config/test_data.config, accounting_method=AccountingMethod.FIFO, up_to_year=non-specified, "
-                "in_header={'timestamp': 0, 'asset': 6, 'exchange': 1, 'holder': 2, 'transaction_type': 5, 'spot_price': 8, 'crypto_in': 7, "
-                "'usd_fee': 11, 'usd_in_no_fee': 9, 'usd_in_with_fee': 10, 'notes': 12}, out_header={'timestamp': 0, 'asset': 6, 'exchange': 1, "
-                "'holder': 2, 'transaction_type': 5, 'spot_price': 8, 'crypto_out_no_fee': 7, 'crypto_fee': 9, 'notes': 12}, "
+                "Configuration(configuration_path=./config/test_data.config, accounting_method=AccountingMethod.FIFO, from_year=non-specified, "
+                "to_year=non-specified, in_header={'timestamp': 0, 'asset': 6, 'exchange': 1, 'holder': 2, 'transaction_type': 5, 'spot_price': 8, "
+                "'crypto_in': 7, 'usd_fee': 11, 'usd_in_no_fee': 9, 'usd_in_with_fee': 10, 'notes': 12}, out_header={'timestamp': 0, 'asset': 6, "
+                "'exchange': 1, 'holder': 2, 'transaction_type': 5, 'spot_price': 8, 'crypto_out_no_fee': 7, 'crypto_fee': 9, 'notes': 12}, "
                 "intra_header={'timestamp': 0, 'asset': 6, 'from_exchange': 1, 'from_holder': 2, 'to_exchange': 3, 'to_holder': 4, "
                 "'spot_price': 8, 'crypto_sent': 7, 'crypto_received': 10, 'notes': 12}, assets=['B1', 'B2', 'B3', 'B4'], "
                 "exchanges=['BlockFi', 'Coinbase', 'Coinbase Pro', 'Kraken'], holders=['Alice', 'Bob'])"
