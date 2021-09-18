@@ -45,6 +45,18 @@ class TestODSOutputDiff(unittest.TestCase):
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
+                "test_many_year_data_",
+                str(CONFIG_PATH / Path("test_data.config")),
+                str(INPUT_PATH / Path("test_many_year_data.ods")),
+            ],
+            check=True,
+        )
+        run(
+            [
+                "rp2",
+                "-o",
+                str(OUTPUT_PATH),
+                "-p",
                 "crypto_example_",
                 str(CONFIG_PATH / Path("crypto_example.config")),
                 str(INPUT_PATH / Path("crypto_example.ods")),
@@ -66,6 +78,20 @@ class TestODSOutputDiff(unittest.TestCase):
         diff: str = ods_diff(
             GOLDEN_PATH / Path("test_data_mock_8949_us_golden.ods"),
             OUTPUT_PATH / Path("test_data_mock_8949_us.ods"),
+        )
+        self.assertFalse(diff, msg=diff)
+
+    def test_many_year_data_tax_report_plugin(self) -> None:
+        diff: str = ods_diff(
+            GOLDEN_PATH / Path("test_many_year_data_rp2_report_golden.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_rp2_report.ods"),
+        )
+        self.assertFalse(diff, msg=diff)
+
+    def test_many_year_data_mock_8949_plugin(self) -> None:
+        diff: str = ods_diff(
+            GOLDEN_PATH / Path("test_many_year_data_mock_8949_us_golden.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_mock_8949_us.ods"),
         )
         self.assertFalse(diff, msg=diff)
 
