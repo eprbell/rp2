@@ -61,8 +61,11 @@ class Configuration:  # pylint: disable=too-many-public-methods
 
         self.__configuration_path: str = self.type_check_string("configuration_path", configuration_path)
         self.__accounting_method: AccountingMethod = AccountingMethod.type_check("accounting_method", accounting_method)
-        self.__from_year: int = self.type_check_positive_int("from_year", from_year) if from_year else 0
-        self.__to_year: int = self.type_check_positive_int("to_year", to_year, non_zero=True) if to_year else MAX_YEAR
+        self.__from_year: int = self.type_check_positive_int("from_year", from_year) if from_year is not None else 0
+        self.__to_year: int = self.type_check_positive_int("to_year", to_year, non_zero=True) if to_year is not None else MAX_YEAR
+
+        if self.__from_year > self.__to_year:
+            raise RP2ValueError(f"Parameter from_year cannot be greater than to_year")
 
         self.__in_header: Dict[str, int]
         self.__out_header: Dict[str, int]
