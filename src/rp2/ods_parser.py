@@ -108,22 +108,19 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
             # Header line: make sure it's not transaction data
             try:
                 transaction = _create_transaction(configuration, current_table_type, i, row_values)
-            except Exception:  # pylint: disable=broad-except
+            except Exception:  # pylint: disable=broad-except  # nosec
                 # Couldn't create transaction as expected: this is a table header
                 # TODO: this could still be a transaction but with some bad fields that would  # pylint: disable=fixme
                 # cause an exception. In this case this logic would incorrectly assume it's a
                 # header. Can we do better in this case? Some heuristics testing field by
-                # field would help
+                # field would help.
                 pass
             else:
                 raise RP2ValueError(f"{asset}({i + 1}): Found data with no header")
         elif current_table_type is not None and current_table_row_count > 1:
             # Transaction line
             transaction = _create_transaction(configuration, current_table_type, i, row_values)
-            if not configuration.up_to_year or transaction.timestamp.year <= configuration.up_to_year:
-                # Add transaction if up_to_year was not specified on the cli or if it was specified
-                # and the transaction is dated before the up_to_year value
-                transaction_sets[current_table_type].add_entry(transaction)
+            transaction_sets[current_table_type].add_entry(transaction)
         current_table_row_count += 1
 
     if current_table_type is not None:
