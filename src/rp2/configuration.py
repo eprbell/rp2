@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import json
+import sys
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
@@ -25,6 +26,7 @@ from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 VERSION: str = "0.7.2"
+MAX_YEAR: int = sys.maxsize
 
 
 class AccountingMethod(Enum):
@@ -53,12 +55,14 @@ class Configuration:  # pylint: disable=too-many-public-methods
         self,
         configuration_path: str,
         accounting_method: AccountingMethod = AccountingMethod.FIFO,
-        up_to_year: Optional[int] = None,
+        from_year: Optional[int] = None,
+        to_year: Optional[int] = None,
     ) -> None:
 
         self.__configuration_path: str = self.type_check_string("configuration_path", configuration_path)
         self.__accounting_method: AccountingMethod = AccountingMethod.type_check("accounting_method", accounting_method)
-        self.__up_to_year: Optional[int] = self.type_check_positive_int("up_to_year", up_to_year, non_zero=True) if up_to_year else up_to_year
+        self.__from_year: int = self.type_check_positive_int("from_year", from_year) if from_year else 0
+        self.__to_year: int = self.type_check_positive_int("to_year", to_year, non_zero=True) if to_year else MAX_YEAR
 
         self.__in_header: Dict[str, int]
         self.__out_header: Dict[str, int]
@@ -92,7 +96,8 @@ class Configuration:  # pylint: disable=too-many-public-methods
         return (
             f"Configuration(configuration_path={self.configuration_path}, "
             f"accounting_method={self.accounting_method}, "
-            f"up_to_year={self.up_to_year if self.up_to_year else 'non-specified'}, "
+            f"from_year={self.from_year if self.from_year > 0 else 'non-specified'}, "
+            f"to_year={self.to_year if self.to_year < MAX_YEAR else 'non-specified'}, "
             f"in_header={self.__in_header}, "
             f"out_header={self.__out_header}, "
             f"intra_header={self.__intra_header}, "
@@ -137,8 +142,12 @@ class Configuration:  # pylint: disable=too-many-public-methods
         return self.__accounting_method
 
     @property
-    def up_to_year(self) -> Optional[int]:
-        return self.__up_to_year
+    def from_year(self) -> int:
+        return self.__from_year
+
+    @property
+    def to_year(self) -> int:
+        return self.__to_year
 
     @property
     def assets(self) -> Set[str]:
