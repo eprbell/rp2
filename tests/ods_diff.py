@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from argparse import ArgumentParser, Namespace
 from difflib import unified_diff
 from itertools import zip_longest
 from pathlib import Path
@@ -89,3 +90,29 @@ def ods_diff(file1_path: Path, file2_path: Path) -> str:
             contents1.append(f"{sheet2.name}: sheet not found in '{file1_path}'")
 
     return "\n".join(unified_diff(contents1, contents2, lineterm=""))
+
+
+def main() -> None:
+
+    parser: ArgumentParser = ArgumentParser(description="Generate yearly capital gain/loss report and account balances for crypto holdings.")
+    parser.add_argument(
+        "ods_file1",
+        action="store",
+        help="First ODS file",
+        metavar="ODS_FILE1",
+        type=str,
+    )
+    parser.add_argument(
+        "ods_file2",
+        action="store",
+        help="Second ODS file",
+        metavar="ODS_FILE2",
+        type=str,
+    )
+
+    args: Namespace = parser.parse_args()
+    print(ods_diff(Path(args.ods_file1), Path(args.ods_file2)))
+
+
+if __name__ == "__main__":
+    main()
