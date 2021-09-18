@@ -13,14 +13,15 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from typing import List
+from typing import List, cast
 
 from rp2.balance import BalanceSet
 from rp2.configuration import Configuration
 from rp2.entry_types import EntrySetType, TransactionType
 from rp2.gain_loss_set import GainLossSet
+from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData
-from rp2.rp2_decimal import RP2Decimal
+from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 from rp2.transaction_set import TransactionSet
 
@@ -83,8 +84,6 @@ class YearlyGainLoss:
         return not self.__gt__(other)
 
     def __hash__(self) -> int:
-        # By definition, unique_id can uniquely identify a transaction: this works even if it's the ODS line from the spreadsheet,
-        # since there are no cross-asset transactions (so a spreadsheet line points to a unique transaction for that asset).
         return hash((self.year, self.asset, self.transaction_type, self.is_long_term_capital_gains))
 
 
@@ -96,28 +95,55 @@ class ComputedData:
             raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
         return instance
 
+    @staticmethod
+    def _filter_yearly_gain_loss_by_year(yearly_gain_loss_list: List[YearlyGainLoss], from_year: int, to_year: int) -> List[YearlyGainLoss]:
+        return [y for y in yearly_gain_loss_list if y.year >= from_year and y.year <= to_year]
+
+    # from_year is not used when computing average price per unit (because we always start from the beginning): only to_year is relevant.
+    @staticmethod
+    def _compute_price_per_unit(in_transaction_set: TransactionSet, to_year: int) -> RP2Decimal:
+        crypto_in_running_sum: RP2Decimal = ZERO
+        usd_in_with_fee_running_sum: RP2Decimal = ZERO
+        for entry in in_transaction_set:
+            if entry.timestamp.year > to_year:
+                break
+            transaction: InTransaction = cast(InTransaction, entry)
+            crypto_in_running_sum += transaction.crypto_in
+            usd_in_with_fee_running_sum += transaction.usd_in_with_fee
+        return usd_in_with_fee_running_sum / crypto_in_running_sum if crypto_in_running_sum is not ZERO else ZERO
+
     def __init__(
         self,
         asset: str,
         taxable_event_set: TransactionSet,
         gain_loss_set: GainLossSet,
-        balance_set: BalanceSet,
         yearly_gain_loss_list: List[YearlyGainLoss],
-        price_per_unit: RP2Decimal,
         input_data: InputData,
+        from_year: int,
+        to_year: int,
     ) -> None:
-        self.__asset = Configuration.type_check_string("asset", asset)
-        self.__taxable_event_set = TransactionSet.type_check("taxable_event_set", taxable_event_set, EntrySetType.MIXED, asset, True)
-        self.__gain_loss_set = GainLossSet.type_check("gain_loss_set", gain_loss_set)
-        self.__balance_set = BalanceSet.type_check("balance_set", balance_set)
+        InputData.type_check("input_data", input_data)
+        Configuration.type_check_positive_int("from_year", from_year)
+        Configuration.type_check_positive_int("to_year", to_year, non_zero=True)
+
+        self.__asset: str = Configuration.type_check_string("asset", asset)
+
+        TransactionSet.type_check("taxable_event_set", taxable_event_set, EntrySetType.MIXED, asset, True)
+        self.__taxable_event_set: TransactionSet = cast(TransactionSet, taxable_event_set.duplicate(from_year, to_year))
+
+        GainLossSet.type_check("gain_loss_set", gain_loss_set)
+        self.__gain_loss_set: GainLossSet = cast(GainLossSet, gain_loss_set.duplicate(from_year, to_year))
+
         if not isinstance(yearly_gain_loss_list, List):
             raise RP2TypeError(f"Parameter 'yearly_gain_loss_list' is not of type List: {yearly_gain_loss_list}")
-        self.__yearly_gain_loss_list = yearly_gain_loss_list
-        self.__price_per_unit = Configuration.type_check_positive_decimal("price_per_unit", price_per_unit)
-        InputData.type_check("input_data", input_data)
-        self.__in_transaction_set = input_data.in_transaction_set
-        self.__intra_transaction_set = input_data.intra_transaction_set
-        self.__out_transaction_set = input_data.out_transaction_set
+        self.__yearly_gain_loss_list: List[YearlyGainLoss] = self._filter_yearly_gain_loss_by_year(yearly_gain_loss_list, from_year, to_year)
+
+        self.__in_transaction_set: TransactionSet = cast(TransactionSet, input_data.in_transaction_set.duplicate(from_year, to_year))
+        self.__intra_transaction_set: TransactionSet = cast(TransactionSet, input_data.intra_transaction_set.duplicate(from_year, to_year))
+        self.__out_transaction_set: TransactionSet = cast(TransactionSet, input_data.out_transaction_set.duplicate(from_year, to_year))
+
+        self.__balance_set: BalanceSet = BalanceSet(taxable_event_set.configuration, input_data, to_year)
+        self.__price_per_unit: RP2Decimal = self._compute_price_per_unit(input_data.in_transaction_set, to_year)
 
         if self.__taxable_event_set.asset != self.__asset:
             raise RP2ValueError(f"Asset mismatch in 'taxable_event_set': expected {self.__asset}, found {self.__taxable_event_set.asset}")
@@ -142,16 +168,8 @@ class ComputedData:
         return self.__gain_loss_set
 
     @property
-    def balance_set(self) -> BalanceSet:
-        return self.__balance_set
-
-    @property
     def yearly_gain_loss_list(self) -> List[YearlyGainLoss]:
         return self.__yearly_gain_loss_list
-
-    @property
-    def price_per_unit(self) -> RP2Decimal:
-        return self.__price_per_unit
 
     @property
     def in_transaction_set(self) -> TransactionSet:
@@ -164,3 +182,11 @@ class ComputedData:
     @property
     def intra_transaction_set(self) -> TransactionSet:
         return self.__intra_transaction_set
+
+    @property
+    def balance_set(self) -> BalanceSet:
+        return self.__balance_set
+
+    @property
+    def price_per_unit(self) -> RP2Decimal:
+        return self.__price_per_unit
