@@ -17,6 +17,8 @@ RP2_TEST_OUTPUT = {
     "B1": """GainLossSet:
   configuration=./config/test_data.config
   asset=B1
+  from_year=non-specified
+  to_year=non-specified
   entries=
     GainLoss:
       id=2->None
@@ -75,6 +77,8 @@ RP2_TEST_OUTPUT = {
     "B2": """GainLossSet:
   configuration=./config/test_data.config
   asset=B2
+  from_year=non-specified
+  to_year=non-specified
   entries=
     GainLoss:
       id=15->3
@@ -484,6 +488,8 @@ RP2_TEST_OUTPUT = {
     "B3": """GainLossSet:
   configuration=./config/test_data.config
   asset=B3
+  from_year=non-specified
+  to_year=non-specified
   entries=
     GainLoss:
       id=25->3
@@ -671,6 +677,8 @@ RP2_TEST_OUTPUT = {
     "B4": """GainLossSet:
   configuration=./config/test_data.config
   asset=B4
+  from_year=non-specified
+  to_year=non-specified
   entries=
     GainLoss:
       id=15->3
