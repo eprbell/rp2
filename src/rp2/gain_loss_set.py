@@ -17,7 +17,7 @@ from typing import Dict, List, Optional, cast
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_entry_set import AbstractEntrySet
 from rp2.abstract_transaction import AbstractTransaction
-from rp2.configuration import Configuration
+from rp2.configuration import MAX_YEAR, Configuration
 from rp2.gain_loss import GainLoss
 from rp2.in_transaction import InTransaction
 from rp2.logger import LOGGER
@@ -30,8 +30,10 @@ class GainLossSet(AbstractEntrySet):
         self,
         configuration: Configuration,
         asset: str,
+        from_year: int = 0,
+        to_year: int = MAX_YEAR,
     ) -> None:
-        super().__init__(configuration, "MIXED", asset)
+        super().__init__(configuration, "MIXED", asset, from_year, to_year)
         self.__taxable_events_to_fraction: Dict[GainLoss, int] = {}
         self.__from_lots_to_fraction: Dict[GainLoss, int] = {}
         self.__taxable_events_to_number_of_fractions: Dict[AbstractTransaction, int] = {}
@@ -198,8 +200,10 @@ class GainLossSet(AbstractEntrySet):
     def __str__(self) -> str:
         output: List[str] = []
         output.append(f"{type(self).__name__}:")
-        output.append(f"  configuration={self._configuration.configuration_path}")
+        output.append(f"  configuration={self.configuration.configuration_path}")
         output.append(f"  asset={self.asset}")
+        output.append(f"  from_year={str(self.from_year) if self.from_year > 0 else 'non-specified'}")
+        output.append(f"  to_year={str(self.to_year) if self.to_year < MAX_YEAR else 'non-specified'}")
         output.append("  entries=")
         for entry in self:
             parent: Optional[AbstractEntry]
@@ -220,8 +224,10 @@ class GainLossSet(AbstractEntrySet):
     def __repr__(self) -> str:
         output: List[str] = []
         output.append(f"{type(self).__name__}(")
-        output.append(f"configuration={repr(self._configuration.configuration_path)}")
+        output.append(f"configuration={repr(self.configuration.configuration_path)}")
         output.append(f", asset={repr(self.asset)}")
+        output.append(f", from_year={repr(self.from_year) if self.from_year > 0 else 'non-specified'}")
+        output.append(f", to_year={repr(self.to_year) if self.to_year < MAX_YEAR else 'non-specified'}")
         output.append(", entries=[")
         count: int = 0
         for entry in self:
