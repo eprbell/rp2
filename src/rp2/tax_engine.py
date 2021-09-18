@@ -17,7 +17,6 @@ from typing import Dict, Iterable, Iterator, List, Set, cast
 
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
-from rp2.balance import BalanceSet
 from rp2.computed_data import ComputedData, YearlyGainLoss
 from rp2.configuration import Configuration
 from rp2.entry_types import TransactionType
@@ -41,28 +40,17 @@ def compute_tax(configuration: Configuration, input_data: InputData) -> Computed
     LOGGER.debug("%s: Created taxable event set", input_data.asset)
     gain_loss_set: GainLossSet = _create_gain_and_loss_set(configuration, input_data, taxable_event_set)
     LOGGER.debug("%s: Created gain-loss set", input_data.asset)
-    balance_set: BalanceSet = BalanceSet(configuration, input_data)
-    LOGGER.debug("%s: Created balance set", input_data.asset)
     yearly_gain_loss_list: List[YearlyGainLoss] = _create_yearly_gain_loss_list(input_data, gain_loss_set)
     LOGGER.debug("%s: Created yearly gain-loss list", input_data.asset)
-
-    crypto_in_running_sum: RP2Decimal = ZERO
-    usd_in_with_fee_running_sum: RP2Decimal = ZERO
-    for entry in input_data.in_transaction_set:
-        transaction: InTransaction = cast(InTransaction, entry)
-        crypto_in_running_sum += transaction.crypto_in
-        usd_in_with_fee_running_sum += transaction.usd_in_with_fee
-    price_per_unit: RP2Decimal = usd_in_with_fee_running_sum / crypto_in_running_sum
-    LOGGER.debug("%s: Created price per unit", input_data.asset)
 
     return ComputedData(
         input_data.asset,
         taxable_event_set,
         gain_loss_set,
-        balance_set,
         yearly_gain_loss_list,
-        price_per_unit,
         input_data,
+        configuration.from_year,
+        configuration.to_year,
     )
 
 
