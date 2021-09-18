@@ -37,8 +37,8 @@ class AbstractEntrySet:
         self.__configuration: Configuration = Configuration.type_check("configuration", configuration)
         self.__entry_set_type: EntrySetType = EntrySetType.type_check_from_string("entry_set_type", entry_set_type)
         self.__asset: str = configuration.type_check_asset("asset", asset)
-        self.__from_year: int = configuration.type_check_positive_int("from_year", from_year) if from_year else 0
-        self.__to_year: int = configuration.type_check_positive_int("to_year", to_year, non_zero=True) if to_year else MAX_YEAR
+        self.__from_year: int = configuration.type_check_positive_int("from_year", from_year)
+        self.__to_year: int = configuration.type_check_positive_int("to_year", to_year, non_zero=True)
 
         self._entry_list: List[AbstractEntry] = []  # List for sorting
         self._entry_set: Set[AbstractEntry] = set()  # Set for fast search (at the cost of extra memory)
