@@ -15,7 +15,7 @@
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_entry_set import AbstractEntrySet
 from rp2.abstract_transaction import AbstractTransaction
-from rp2.configuration import Configuration
+from rp2.configuration import MAX_YEAR, Configuration
 from rp2.entry_types import EntrySetType
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
@@ -33,6 +33,16 @@ class TransactionSet(AbstractEntrySet):
         if not allow_empty and instance.is_empty():
             raise RP2ValueError(f"IN transaction set is empty: {instance}")
         return instance
+
+    def __init__(
+        self,
+        configuration: Configuration,
+        entry_set_type: str,
+        asset: str,
+        from_year: int = 0,
+        to_year: int = MAX_YEAR,
+    ) -> None:
+        super().__init__(configuration, entry_set_type, asset, from_year, to_year)
 
     def add_entry(self, entry: AbstractEntry) -> None:
         AbstractTransaction.type_check("entry", entry)
