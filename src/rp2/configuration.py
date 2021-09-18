@@ -65,7 +65,7 @@ class Configuration:  # pylint: disable=too-many-public-methods
         self.__to_year: int = self.type_check_positive_int("to_year", to_year, non_zero=True) if to_year is not None else MAX_YEAR
 
         if self.__from_year > self.__to_year:
-            raise RP2ValueError(f"Parameter from_year cannot be greater than to_year")
+            raise RP2ValueError("Parameter from_year cannot be greater than to_year")
 
         self.__in_header: Dict[str, int]
         self.__out_header: Dict[str, int]
