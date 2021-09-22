@@ -127,20 +127,16 @@ class ComputedData:
         Configuration.type_check_positive_int("to_year", to_year, non_zero=True)
 
         self.__asset: str = Configuration.type_check_string("asset", asset)
-
-        TransactionSet.type_check("taxable_event_set", taxable_event_set, EntrySetType.MIXED, asset, True)
-        self.__taxable_event_set: TransactionSet = cast(TransactionSet, taxable_event_set.duplicate(from_year, to_year))
-
-        GainLossSet.type_check("gain_loss_set", gain_loss_set)
-        self.__gain_loss_set: GainLossSet = cast(GainLossSet, gain_loss_set.duplicate(from_year, to_year))
+        self.__taxable_event_set: TransactionSet = TransactionSet.type_check("taxable_event_set", taxable_event_set, EntrySetType.MIXED, asset, True)
+        self.__gain_loss_set: GainLossSet = GainLossSet.type_check("gain_loss_set", gain_loss_set)
 
         if not isinstance(yearly_gain_loss_list, List):
             raise RP2TypeError(f"Parameter 'yearly_gain_loss_list' is not of type List: {yearly_gain_loss_list}")
         self.__yearly_gain_loss_list: List[YearlyGainLoss] = self._filter_yearly_gain_loss_by_year(yearly_gain_loss_list, from_year, to_year)
 
-        self.__in_transaction_set: TransactionSet = cast(TransactionSet, input_data.in_transaction_set.duplicate(from_year, to_year))
-        self.__intra_transaction_set: TransactionSet = cast(TransactionSet, input_data.intra_transaction_set.duplicate(from_year, to_year))
-        self.__out_transaction_set: TransactionSet = cast(TransactionSet, input_data.out_transaction_set.duplicate(from_year, to_year))
+        self.__in_transaction_set: TransactionSet = input_data.in_transaction_set
+        self.__intra_transaction_set: TransactionSet = input_data.intra_transaction_set
+        self.__out_transaction_set: TransactionSet = input_data.out_transaction_set
 
         self.__balance_set: BalanceSet = BalanceSet(taxable_event_set.configuration, input_data, to_year)
         self.__price_per_unit: RP2Decimal = self._compute_price_per_unit(input_data.in_transaction_set, to_year)
