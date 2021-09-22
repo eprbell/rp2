@@ -67,45 +67,45 @@ class TestODSOutputDiff(unittest.TestCase):
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
 
-    def test_data_tax_report_plugin(self) -> None:
+    def test_data_rp2_full_report_plugin(self) -> None:
         diff: str = ods_diff(
-            GOLDEN_PATH / Path("test_data_rp2_report_golden.ods"),
-            OUTPUT_PATH / Path("test_data_rp2_report.ods"),
+            GOLDEN_PATH / Path("test_data_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_data_rp2_full_report.ods"),
         )
         self.assertFalse(diff, msg=diff)
 
-    def test_data_mock_8949_plugin(self) -> None:
+    def test_data_tax_report_us_plugin(self) -> None:
         diff: str = ods_diff(
-            GOLDEN_PATH / Path("test_data_mock_8949_us_golden.ods"),
-            OUTPUT_PATH / Path("test_data_mock_8949_us.ods"),
+            GOLDEN_PATH / Path("test_data_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_data_tax_report_us.ods"),
         )
         self.assertFalse(diff, msg=diff)
 
-    def test_many_year_data_tax_report_plugin(self) -> None:
+    def test_many_year_data_rp2_full_report_plugin(self) -> None:
         diff: str = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_rp2_report_golden.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_rp2_report.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_rp2_full_report.ods"),
         )
         self.assertFalse(diff, msg=diff)
 
-    def test_many_year_data_mock_8949_plugin(self) -> None:
+    def test_many_year_data_tax_report_us_plugin(self) -> None:
         diff: str = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_mock_8949_us_golden.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_mock_8949_us.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_tax_report_us.ods"),
         )
         self.assertFalse(diff, msg=diff)
 
-    def test_crypto_example_tax_report_plugin(self) -> None:
+    def test_crypto_example_rp2_full_report_plugin(self) -> None:
         diff: str = ods_diff(
-            GOLDEN_PATH / Path("crypto_example_rp2_report_golden.ods"),
-            OUTPUT_PATH / Path("crypto_example_rp2_report.ods"),
+            GOLDEN_PATH / Path("crypto_example_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("crypto_example_rp2_full_report.ods"),
         )
         self.assertFalse(diff, msg=diff)
 
-    def test_crypto_example_mock_8949_plugin(self) -> None:
+    def test_crypto_example_tax_report_us_plugin(self) -> None:
         diff: str = ods_diff(
-            GOLDEN_PATH / Path("crypto_example_mock_8949_us_golden.ods"),
-            OUTPUT_PATH / Path("crypto_example_mock_8949_us.ods"),
+            GOLDEN_PATH / Path("crypto_example_tax_report_us.ods"),
+            OUTPUT_PATH / Path("crypto_example_tax_report_us.ods"),
         )
         self.assertFalse(diff, msg=diff)
 
