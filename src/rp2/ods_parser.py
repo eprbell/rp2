@@ -54,9 +54,9 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
 
     transaction_sets: Dict[EntrySetType, TransactionSet] = {}
 
-    transaction_sets[EntrySetType.IN] = TransactionSet(configuration, "IN", asset)
-    transaction_sets[EntrySetType.OUT] = TransactionSet(configuration, "OUT", asset)
-    transaction_sets[EntrySetType.INTRA] = TransactionSet(configuration, "INTRA", asset)
+    transaction_sets[EntrySetType.IN] = TransactionSet(configuration, "IN", asset, configuration.from_year, configuration.to_year)
+    transaction_sets[EntrySetType.OUT] = TransactionSet(configuration, "OUT", asset, configuration.from_year, configuration.to_year)
+    transaction_sets[EntrySetType.INTRA] = TransactionSet(configuration, "INTRA", asset, configuration.from_year, configuration.to_year)
 
     current_table_type: Optional[EntrySetType] = None
     current_table_row_count: int = 0
