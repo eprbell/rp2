@@ -41,9 +41,9 @@ static_analysis: $(VENV)/bin/activate
 	$(VENV)/bin/pylint -r y src tests/
 	$(VENV)/bin/bandit -r src/
 
-reformat: $(VENV)/bin/activate $(BIN) $(RP2_SRC) $(TEST_SRC)
+reformat: $(VENV)/bin/activate
 	$(VENV)/bin/isort .
-	$(VENV)/bin/black -l160 src/ tests/
+	$(VENV)/bin/black src/ tests/
 
 archive: clean
 	rm -f rp2.zip || true
