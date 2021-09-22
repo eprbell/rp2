@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, Set, cast
 
 from rp2.computed_data import ComputedData
+from rp2.entry_types import TransactionType
 from rp2.gain_loss import GainLoss
 from rp2.gain_loss_set import GainLossSet
 from rp2.logger import LOGGER
@@ -23,12 +25,40 @@ from rp2.plugin.output.abstract_odt_generator import AbstractODTGenerator
 from rp2.rp2_error import RP2TypeError
 
 
+class SheetNames(Enum):
+    CAPITAL_GAINS: str = "Capital_Gains"
+    EARNINGS: str = "Earnings"
+    DONATIONS: str = "Donations"
+    GIFTS: str = "Gifts"
+    FEES: str = "Fees"
+
+
+_TEMPLATE_SHEETS_TO_KEEP: Set[str] = {
+    f"__{SheetNames.CAPITAL_GAINS.value}",
+    f"__{SheetNames.EARNINGS.value}",
+    f"__{SheetNames.DONATIONS.value}",
+    f"__{SheetNames.GIFTS.value}",
+    f"__{SheetNames.FEES.value}",
+}
+
+_SHEET_TO_TYPE: Dict[str, TransactionType] = {
+    SheetNames.CAPITAL_GAINS.value: TransactionType.SELL,
+    SheetNames.EARNINGS.value: TransactionType.EARN,
+    SheetNames.DONATIONS.value: TransactionType.DONATE,
+    SheetNames.GIFTS.value: TransactionType.GIFT,
+    SheetNames.FEES.value: TransactionType.MOVE,
+}
+
+_TYPE_TO_SHEET: Dict[TransactionType, str] = {transaction_type: sheet_name for sheet_name, transaction_type in _SHEET_TO_TYPE.items()}
+
+
 class Generator(AbstractODTGenerator):
 
     MIN_ROWS: int = 20
     MAX_COLUMNS: int = 20
-    OUTPUT_FILE: str = "mock_8949_us.ods"
-    TEMPLATE_SHEETS_TO_KEEP: Set[str] = {"__mock_8949"}
+    OUTPUT_FILE: str = "tax_report_us.ods"
+
+    HEADER_ROWS = 7
 
     def generate(
         self,
@@ -36,6 +66,8 @@ class Generator(AbstractODTGenerator):
         output_dir_path: str,
         output_file_prefix: str,
     ) -> None:
+
+        row_indexes: Dict[str, int] = {sheet_name.value: self.HEADER_ROWS for sheet_name in SheetNames}
 
         if not isinstance(asset_to_computed_data, Dict):
             raise RP2TypeError(f"Parameter 'asset_to_computed_data' has non-Dict value {asset_to_computed_data}")
@@ -45,31 +77,33 @@ class Generator(AbstractODTGenerator):
             output_dir_path=output_dir_path,
             output_file_prefix=output_file_prefix,
             output_file_name=self.OUTPUT_FILE,
-            template_sheets_to_keep=self.TEMPLATE_SHEETS_TO_KEEP,
+            template_sheets_to_keep=_TEMPLATE_SHEETS_TO_KEEP,
         )
 
-        sheet: Any = output_file.sheets["mock_8949"]
-        sheet.append_rows(self.MIN_ROWS)
-
-        row_index: int = 7
         asset: str
         computed_data: ComputedData
         for asset, computed_data in asset_to_computed_data.items():
             if not isinstance(asset, str):
                 raise RP2TypeError(f"Parameter 'asset' has non-string value {asset}")
             ComputedData.type_check("computed_data", computed_data)
-            row_index = self.__generate(sheet, asset, computed_data.gain_loss_set, row_index)
+            self.__generate(output_file, asset, computed_data.gain_loss_set, row_indexes)
 
         output_file.save()
         LOGGER.info("Plugin '%s' output: %s", __name__, Path(output_file.docname).resolve())
 
-    def __generate(self, sheet: Any, asset: str, gain_loss_set: GainLossSet, row_index: int) -> int:
+    def __generate(self, output_file: Any, asset: str, gain_loss_set: GainLossSet, row_indexes: Dict[str, int]) -> None:
 
-        sheet.append_rows(gain_loss_set.count + 1)
+        sheet: Any
+        for sheet in output_file.sheets:
+            sheet_type: TransactionType = _SHEET_TO_TYPE[sheet.name]
+            sheet.append_rows(self.MIN_ROWS + gain_loss_set.get_transaction_type_count(sheet_type) + 1)
 
         border_suffix: str = "_border"
         for entry in gain_loss_set:
             gain_loss: GainLoss = cast(GainLoss, entry)
+            sheet_type = gain_loss.taxable_event.transaction_type
+            sheet = output_file.sheets[_TYPE_TO_SHEET[sheet_type]]
+            row_index: int = row_indexes[sheet.name]
             current_taxable_event_fraction: int = gain_loss_set.get_taxable_event_fraction(gain_loss) + 1
             total_taxable_event_fractions: int = gain_loss_set.get_taxable_event_number_of_fractions(gain_loss.taxable_event)
             transaction_type: str = (
@@ -117,9 +151,7 @@ class Generator(AbstractODTGenerator):
                 self._fill_cell(sheet, row_index, 10, "", visual_style=transparent_vs)
 
             border_suffix = ""
-            row_index += 1
-
-        return row_index
+            row_indexes[sheet.name] = row_index + 1
 
 
 def main() -> None:
