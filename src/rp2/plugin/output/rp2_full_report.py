@@ -238,7 +238,7 @@ class Generator(AbstractODTGenerator):
 
     MIN_ROWS: int = 40
     MAX_COLUMNS: int = 40
-    OUTPUT_FILE: str = "rp2_report.ods"
+    OUTPUT_FILE: str = "rp2_full_report.ods"
     TEMPLATE_SHEETS_TO_KEEP: Set[str] = {"__Legend", "__Summary"}
 
     def generate(
