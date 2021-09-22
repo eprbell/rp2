@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import copy
 from datetime import datetime
 from typing import Dict, List, Optional, Set
 
@@ -77,12 +76,6 @@ class AbstractEntrySet:
         output.append(")")
         return "".join(output)
 
-    def duplicate(self, from_year: int = 0, to_year: int = MAX_YEAR) -> "AbstractEntrySet":
-        result: AbstractEntrySet = copy.copy(self)
-        result.__from_year = from_year  # pylint: disable=protected-access, unused-private-member
-        result.__to_year = to_year  # pylint: disable=protected-access, unused-private-member
-        return result
-
     @property
     def configuration(self) -> Configuration:
         return self.__configuration
@@ -109,6 +102,10 @@ class AbstractEntrySet:
 
     def add_entry(self, entry: AbstractEntry) -> None:
         AbstractEntry.type_check("entry", entry)
+
+        if entry.timestamp.year > self.to_year:
+            return
+
         if entry.asset != self.asset:
             raise RP2ValueError(f"Attempting to add a {entry.asset} entry to a {self.asset} set")
         if self.entry_set_type == EntrySetType.IN and not isinstance(entry, InTransaction):
@@ -119,6 +116,7 @@ class AbstractEntrySet:
             raise RP2TypeError(f"Attempting to add a {entry.__class__.__name__} to a set of type OUT")
         if entry in self._entry_set:
             raise RP2ValueError(f"Entry already added: {entry}")
+
         self._entry_list.append(entry)
         self._entry_set.add(entry)
         self.__is_sorted = False
@@ -165,7 +163,8 @@ class EntrySetIterator:
         while self.__index < self.__entry_set_size:
             result = self.__entry_set._entry_list[self.__index]  # pylint: disable=protected-access
             self.__index += 1
-            if result.timestamp.year >= self.__entry_set.from_year and result.timestamp.year <= self.__entry_set.to_year:
+            # No need to check to_year, since it's already used in add_entry()
+            if result.timestamp.year >= self.__entry_set.from_year:
                 return result
         raise StopIteration(self)
 
