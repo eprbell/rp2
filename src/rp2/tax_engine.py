@@ -58,7 +58,7 @@ def _create_taxable_event_set(configuration: Configuration, input_data: InputDat
     transaction_set: TransactionSet
     entry: AbstractEntry
     transaction: AbstractTransaction
-    taxable_event_set: TransactionSet = TransactionSet(configuration, "MIXED", input_data.asset)
+    taxable_event_set: TransactionSet = TransactionSet(configuration, "MIXED", input_data.asset, configuration.from_year, configuration.to_year)
     for transaction_set in [
         input_data.in_transaction_set,
         input_data.out_transaction_set,
@@ -74,7 +74,7 @@ def _create_taxable_event_set(configuration: Configuration, input_data: InputDat
 
 def _create_gain_and_loss_set(configuration: Configuration, input_data: InputData, taxable_event_set: TransactionSet) -> GainLossSet:
 
-    gain_loss_set: GainLossSet = GainLossSet(configuration, input_data.asset)
+    gain_loss_set: GainLossSet = GainLossSet(configuration, input_data.asset, from_year=configuration.from_year, to_year=configuration.to_year)
 
     taxable_event_iterator: Iterator[AbstractTransaction] = iter(cast(Iterable[AbstractTransaction], taxable_event_set))
     from_lot_iterator: Iterator[InTransaction] = iter(cast(Iterable[InTransaction], input_data.in_transaction_set))
