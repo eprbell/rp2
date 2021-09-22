@@ -14,16 +14,8 @@
 
 # Input Files: ODS Spreadsheet and Config File
 RP2 reads in two user-prepared files:
-* an [ODS-format spreadsheet](#the-input-spreadsheet), containing crypto transactions (ODS-format files can be opened and edited with LibreOffice, Microsoft Excel and many other spreadsheet applications);
-* a [JSON config file](#the-config-file), describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies and exchanges to expect.
-
-The user fills the input spreadsheet with crypto transactions using records from exchanges and wallets. The user also writes the config file (or they can start with [crypto_example.config](../config/crypto_example.config) as boilerplate) describing the format of the spreadsheet file:
-* meaning of columns,
-* cryptocurrencies used,
-* exchanges used,
-* account owners.
-
-See [crypto_example.ods](../input/crypto_example.ods) and [crypto_example.config](../config/crypto_example.config) to learn more.
+* an [ODS-format spreadsheet](#the-input-spreadsheet), containing crypto transactions (ODS-format files can be opened and edited with [LibreOffice](https://www.libreoffice.org/), Microsoft Excel and many other spreadsheet applications), originally reported in the user's records of exchange and wallet activity. The [crypto_example.ods](../input/crypto_example.ods) provides an example of an .ods input file;
+* a [JSON config file](#the-config-file), describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies, exchanges and account owners to expect. If desired, the [crypto_example.config](../config/crypto_example.config) file  can be used as an config example or boilerplate.
 
 ## The Input Spreadsheet
 The input spreadsheet is in .ods format and contains one or more sheets. Each sheet is named after one cryptocurrency and contains all transactions denominated in it (allowed cryptocurrencies are defined in the **assets** section of the config file). Each sheet is composed of the following tables:
@@ -95,6 +87,7 @@ The config file is in JSON format and is structured as described below. Note tha
 * header descriptions are given in the [input spreadsheet section](#the-input-spreadsheet);
 * optional elements are marked with &#x1F537;;
 * *`<...>`* must be substituted with user-provided values, and, specifically, *`<column_number>`* must be substituted with 0 for column A in the input spreadsheet, 1 for B, etc;
+* the `assets` section contains all cryptocurrencies the user transacted with;
 * the `exchanges` section can contain both exchange and wallet identifiers;
 * the `holders` section typically contains only one name, unless multiple people are filing taxes together;
 <pre>

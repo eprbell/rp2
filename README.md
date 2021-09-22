@@ -30,7 +30,7 @@
   * [Windows 10](https://github.com/eprbell/rp2/tree/main/README.md#installation-on-windows-10)
   * [Other Unix-like Systems](https://github.com/eprbell/rp2/tree/main/README.md#installation-on-other-unix-like-systems)
 * **[Running](https://github.com/eprbell/rp2/tree/main/README.md#running)**
-  * [Linux, macOS and Other Unix-like Systems](https://github.com/eprbell/rp2/tree/main/README.md#running-on-linux-macos-and-other-unix-like-systems)
+  * [Linux, macOS, Windows 10 and Other Unix-like Systems](https://github.com/eprbell/rp2/tree/main/README.md#running-on-linux-macos-windows-10-and-other-unix-like-systems)
   * [Windows 10](https://github.com/eprbell/rp2/tree/main/README.md#running-on-windows-10)
 * **[Input and Output Files](https://github.com/eprbell/rp2/tree/main/README.md#input-and-output-files)**
 * **[Reporting Bugs](https://github.com/eprbell/rp2/tree/main/README.md#reporting-bugs)**
@@ -40,14 +40,16 @@
 * **[Change Log](https://github.com/eprbell/rp2/tree/main/README.md#change-log)**
 
 ## Introduction
-[RP2](https://pypi.org/project/rp2/) is a privacy-focused, free, [open-source](https://github.com/eprbell/rp2) cryptocurrency tax calculator. Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This problem could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
-* it manages the complexity related to coin flows and tax calculation and it generates forms tax that accountants can understand, even if they are not cryptocurrency experts (e.g. form 8949);
+[RP2](https://pypi.org/project/rp2/) is a privacy-focused, free, [open-source](https://github.com/eprbell/rp2) cryptocurrency tax calculator. Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This task could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
+* it manages the complexity related to coin flows and tax calculation and it generates data that accountants can understand, even if they are not cryptocurrency experts (form 8949, etc.);
 * it prioritizes user privacy by storing crypto transactions and tax results on the user's computer and not sending them anywhere else;
 * it's free and open-source.
 
-RP2 reads in a user-prepared spreadsheet containing crypto transactions. It then uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships and fractions, and finally it generates output spreadsheets. It supports the FIFO accounting method.
+RP2 reads in a user-prepared spreadsheet containing crypto transactions. It then uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates output spreadsheets. It supports the FIFO accounting method.
 
-It has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/src/rp2/plugin/output): builtin plugins are US-specific (one for form 8949 and another for a full tax report), but the architecture makes it possible to contribute additional output generators for different countries or for different US-based cases.
+It has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/src/rp2/plugin/output): the builtin plugins are US-specific, but RP2's architecture makes it possible to contribute additional output generators for different countries or for different US-based cases. The builtin plugins are:
+* tax_report_us: generates a tax report meant to be read by tax professionals (in the format of form 8949);
+* rp2_full_report: generates a comprehensive report, with complete transaction history, lot relationships/fractions and computation details.
 
 RP2 has extensive [unit test](https://github.com/eprbell/rp2/tree/main/tests/) coverage to reduce the risk of regression.
 
@@ -58,20 +60,20 @@ The author of RP2 is not a tax professional, but has used RP2 personally for a f
 ### How RP2 Operates
 RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Currency Guidance](https://www.irs.gov/newsroom/irs-reminds-taxpayers-to-report-virtual-currency-transactions).
 
-RP2 uses the FIFO accounting method (lots acquired first are disposed of first): however, in and out lots typically don't have matching amounts, so RP2 fractions them as needed and computes the resulting cost bases and capital gains for each lot fraction.
+RP2 uses the FIFO accounting method (lots acquired first are disposed of first): however, in and out lots typically don't have matching amounts, so RP2 fractions them, maps in/out lot fractions and computes the resulting cost bases and capital gains for each lot fraction.
 
-RP2 groups lot fractions into the following taxable event categories, each of which has a unique tax treatment:
-* EARN: specifically, interest from lending, wages, [mining](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-mining), [staking](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-staking), [airdrops](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-airdrops) and [hard forks](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-hard-forks). These are treated as ordinary income. Note that buying cryptocurrency is not a taxable event;
+RP2 groups lot fractions into the following taxable event categories, each of which has a unique tax treatment (ask your tax professional):
+* EARN: specifically, interest from lending, wages, [mining](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-mining), [staking](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-staking), [airdrops](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-airdrops) and [hard forks](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-hard-forks). Note that buying cryptocurrency is not a taxable event;
 * SELL: specifically, sale and [exchange of one cryptocurrency for another](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-conversion-of-a-cryptocurrency-to-another). RP2 splits them in two subcategories:
   * long-term capital gains, if the lot was held for more than 1 year, or
   * short-term capital gains otherwise;
-* DONATE: donations to charitable organizations. These are tax-deductible;
-* GIFT: gifts to parties who are not charitable organizations are not tax-deductible. They are not taxable if they are below a certain threshold, but they are taxable if above the threshold.
+* DONATE: donations to charitable organizations;
+* GIFT: gifts to parties who are not charitable organizations are not tax-deductible.
 * MOVE: the fee for moving currency between two accounts controlled by the same owner; these may not be taxable or tax deductible but they still affect the FIFO order so they are tracked.
 
-For each of these categories RP2 generates an output spreadsheet with transaction details and computed gains. You can give this output to your tax professional with the rest of your tax documentation.
+For each of these categories RP2 generates an output spreadsheet with transaction details and computed gains. Users can give this output to their tax professional with the rest of their tax documentation.
 
-**NOTE ON NFTs**: RP2 treats [NFTs](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-nfts) as a kind of cryptocurrency (that is, as property).
+**NOTE ON NFTs**: RP2 treats [NFTs](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-nfts) as cryptocurrencies (that is, as property).
 
 ## License
 RP2 is released under the terms of Apache License Version 2.0. For more information see [LICENSE](https://github.com/eprbell/rp2/tree/main/LICENSE) or <http://www.apache.org/licenses/LICENSE-2.0>.
@@ -86,7 +88,7 @@ RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on 
 Open a terminal window and enter the following commands:
 ```
 sudo apt-get update
-sudo apt-get install make python3 python3-pip
+sudo apt-get install python3 python3-pip
 ```
 
 Then install RP2 Python package requirements:
@@ -116,7 +118,7 @@ pip install rp2
 * `pip install rp2`
 
 ## Running
-Before running RP2 two files must be prepared by the user:
+Before running RP2, the user must prepare two files:
 * an ODS-format spreadsheet, containing crypto transactions (ODS-format files can be opened and edited with [LibreOffice](https://www.libreoffice.org/), Microsoft Excel and many other spreadsheet applications);
 * a JSON config file, describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies and exchanges to expect.
 
@@ -126,34 +128,16 @@ Examples of an input spreadsheet and its respective config file:
 * [input/crypto_example.ods](https://github.com/eprbell/rp2/tree/main/input/crypto_example.ods)
 * [config/crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config) (if desired, this config file can be used as boilerplate).
 
-After reading the input files, RP2 generates output files based on the transaction information therein. The output files contain information on long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. They are described in detail in the [Output Files](https://github.com/eprbell/rp2/tree/main/docs/output_files.md) section of the documentation.
+After reading the input files, RP2 computes taxes and generates output files, which contain information on long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. They are described in detail in the [Output Files](https://github.com/eprbell/rp2/tree/main/docs/output_files.md) section of the documentation.
 
-The next sections contain platform-specific information on how to run RP2 on different systems.
-
-### Running on Linux, macOS and Other Unix-like Systems
+### Running on Linux, macOS, Windows 10 and Other Unix-like Systems
 Download [crypto_example.ods](https://github.com/eprbell/rp2/tree/main/input/crypto_example.ods) and [crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config). Let's call `<download_directory>` the location of the downloaded files.
 
-To generate output for the example files open a terminal window and enter the following commands:
+To generate output for the example files open a terminal window (or PowerShell if on Windows) and enter the following commands:
   ```
   cd <download_directory>
   rp2 -o output -p crypto_example_ crypto_example.config crypto_example.ods
   ```
-Results are generated in the `output` directory and logs are stored in the `log` directory.
-
-To print command usage information for the `rp2` command:
-  ```
-  rp2 --help
-  ```
-
-### Running on Windows 10
-Download [crypto_example.ods](https://github.com/eprbell/rp2/tree/main/input/crypto_example.ods) and [crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config). Let's call `<download_directory>` the location of the downloaded files.
-
-To generate output for the example files open a PowerShell window and enter the following commands:
-  ```
-  cd <download_directory>
-  rp2 -o output -p crypto_example_ crypto_example.config crypto_example.ods
-  ```
-
 Results are generated in the `output` directory and logs are stored in the `log` directory.
 
 To print command usage information for the `rp2` command:
