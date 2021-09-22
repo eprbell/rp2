@@ -163,7 +163,7 @@ LOG_LEVEL=DEBUG bin/rp2.py -o output -p crypto_example_ config/crypto_example.co
 RP2 has considerable unit test coverage to reduce the risk of regression. Unit tests are in the [tests](tests) directory. Please add unit tests for any new code.
 
 ## Plugin Development
-RP2 has a plugin architecture for output generators, which makes it extensible for new use cases. Writing a new plugin is quite easy: the [tax_report_us](src/rp2/plugin/output/rp2_plugin_output.py) generator is a simple example, the [rp2_full_report](src/rp2/plugin/output/rp2_full_report.py) one is more comprehensive.
+RP2 has a plugin architecture for output generators, which makes it extensible for new use cases. Writing a new plugin is quite easy: the [tax_report_us](src/rp2/plugin/output/tax_report_us.py) generator is a simple example, the [rp2_full_report](src/rp2/plugin/output/rp2_full_report.py) one is more comprehensive.
 
 Plugins are discovered by RP2 at runtime and they must adhere to the specific conventions shown below. To add a new plugin follow this procedure:
 * add a new Python file in the plugin/output directory and give it a meaningful name
