@@ -18,6 +18,7 @@ from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_entry_set import AbstractEntrySet
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.configuration import MAX_YEAR, Configuration
+from rp2.entry_types import TransactionType
 from rp2.gain_loss import GainLoss
 from rp2.in_transaction import InTransaction
 from rp2.logger import LOGGER
@@ -38,6 +39,7 @@ class GainLossSet(AbstractEntrySet):
         self.__from_lots_to_fraction: Dict[GainLoss, int] = {}
         self.__taxable_events_to_number_of_fractions: Dict[AbstractTransaction, int] = {}
         self.__from_lots_to_number_of_fractions: Dict[InTransaction, int] = {}
+        self.__transaction_type_2_count: Dict[TransactionType, int] = {transaction_type: 0 for transaction_type in TransactionType}
 
     @classmethod
     def type_check(cls, name: str, instance: "GainLossSet") -> "GainLossSet":
@@ -47,8 +49,17 @@ class GainLossSet(AbstractEntrySet):
         return instance
 
     def add_entry(self, entry: AbstractEntry) -> None:
-        GainLoss.type_check("entry", entry)
+        gain_loss: GainLoss = GainLoss.type_check("entry", entry)
+
+        if entry.timestamp.year > self.to_year:
+            return
+
         super().add_entry(entry)
+        count: int = self.__transaction_type_2_count[gain_loss.taxable_event.transaction_type]
+        self.__transaction_type_2_count[gain_loss.taxable_event.transaction_type] = count + 1
+
+    def get_transaction_type_count(self, transaction_type: TransactionType) -> int:
+        return self.__transaction_type_2_count[transaction_type]
 
     def get_taxable_event_fraction(self, entry: GainLoss) -> int:
         self._validate_entry(entry)
