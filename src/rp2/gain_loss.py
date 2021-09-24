@@ -18,7 +18,6 @@ from typing import Callable, List, Optional, cast
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.configuration import Configuration
-from rp2.entry_types import TransactionType
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
@@ -41,18 +40,18 @@ class GainLoss(AbstractEntry):
 
         self.__crypto_amount: RP2Decimal = configuration.type_check_positive_decimal("crypto_amount", crypto_amount, non_zero=True)
 
-        if taxable_event.transaction_type != TransactionType.EARN:
+        if not taxable_event.transaction_type.is_earn_type():
             if from_lot is None:
-                raise RP2TypeError("from_lot must not be None for non-EARN-typed taxable_events")
+                raise RP2TypeError("from_lot must not be None for non-earn-typed taxable_events")
             InTransaction.type_check("from_lot", from_lot)
         else:
             if crypto_amount != taxable_event.crypto_balance_change:
                 raise RP2ValueError(
-                    f"crypto_amount must be == taxable_event.crypto_balance_change for EARN-typed taxable events, "
+                    f"crypto_amount must be == taxable_event.crypto_balance_change for earn-typed taxable events, "
                     f"but they differ {crypto_amount} != {taxable_event.crypto_balance_change}"
                 )
             if from_lot is not None:
-                raise RP2TypeError(f"from_lot must be None for EARN-typed taxable_events, instead it's {from_lot}")
+                raise RP2TypeError(f"from_lot must be None for earn-typed taxable_events, instead it's {from_lot}")
         self.__from_lot: Optional[InTransaction] = from_lot
 
         if self.__crypto_amount > self.__taxable_event.crypto_balance_change or (self.__from_lot and self.__crypto_amount > self.__from_lot.crypto_in):
@@ -124,7 +123,7 @@ class GainLoss(AbstractEntry):
     @property
     def unique_id(self) -> str:
         if not self.from_lot:
-            # EARN taxable event doesn't have from lot
+            # earn-typed taxable event doesn't have from lot
             return f"{self.taxable_event.unique_id}->None"
         return f"{self.taxable_event.unique_id}->{self.from_lot.unique_id}"
 
@@ -171,18 +170,18 @@ class GainLoss(AbstractEntry):
     @property
     def from_lot_fraction_percentage(self) -> RP2Decimal:
         if not self.from_lot:
-            # Earn taxable events don't have a from_lot
-            if self.taxable_event.transaction_type != TransactionType.EARN:
-                raise Exception("Internal error: from lot is None but taxable event is not of type EARN")
+            # Earn-typed taxable events don't have a from_lot
+            if not self.taxable_event.transaction_type.is_earn_type():
+                raise Exception("Internal error: from lot is None but taxable event is not earn-typed")
             return ZERO
         return self.crypto_amount / self.from_lot.crypto_balance_change
 
     @property
     def usd_cost_basis(self) -> RP2Decimal:
         if not self.from_lot:
-            # Earn taxable events don't have a from_lot and their cost basis is 0
-            if self.taxable_event.transaction_type != TransactionType.EARN:
-                raise Exception("Internal error: from lot is None but taxable event is not of type EARN")
+            # Earn-typed taxable events don't have a from_lot and their cost basis is 0
+            if not self.taxable_event.transaction_type.is_earn_type():
+                raise Exception("Internal error: from lot is None but taxable event is not earn-typed")
             return ZERO
         # We don't simply multiply by from_lot_fraction_percentage to avoid potential precision loss with small percentages
         return (self.from_lot.usd_in_with_fee * self.crypto_amount) / self.from_lot.crypto_balance_change
@@ -193,8 +192,8 @@ class GainLoss(AbstractEntry):
 
     def is_long_term_capital_gains(self) -> bool:
         if not self.from_lot:
-            # Earn taxable events don't have a from lot and are always considered short term capital gains
-            if self.taxable_event.transaction_type != TransactionType.EARN:
-                raise Exception("Internal error: from lot is None but taxable event is not of type EARN")
+            # Earn-typed taxable events don't have a from lot and are always considered short term capital gains
+            if not self.taxable_event.transaction_type.is_earn_type():
+                raise Exception("Internal error: from lot is None but taxable event is not earn-typed")
             return False
         return (self.taxable_event.timestamp - self.from_lot.timestamp).days >= 365
