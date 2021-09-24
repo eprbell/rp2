@@ -87,8 +87,8 @@ def _create_gain_and_loss_set(configuration: Configuration, input_data: InputDat
         from_lot_amount: RP2Decimal = from_lot.crypto_in
 
         while True:
-            if taxable_event.transaction_type == TransactionType.EARN:
-                # Handle EARN transactions first
+            if taxable_event.transaction_type.is_earn_type():
+                # Handle earn-typed transactions first
                 gain_loss = GainLoss(configuration, taxable_event_amount, taxable_event, None)
                 gain_loss_set.add_entry(gain_loss)
                 taxable_event = next(taxable_event_iterator)
