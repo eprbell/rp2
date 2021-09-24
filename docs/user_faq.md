@@ -23,6 +23,7 @@
 * **[How to Handle Hard Forks?](#how-to-handle-hard-forks)**
 * **[How to Handle Income from Mining?](#how-to-handle-income-from-mining)**
 * **[How to Handle Income from Staking?](#how-to-handle-income-from-staking)**
+* **[How to Handle Futures and Options?](#how-to-handle-futures-and-options)**
 * **[How to Handle NFTs?](#how-to-handle-nfts)**
 
 * **[How to Report a RP2 Bug without Sharing Personal Information?](#how-to-report-a-rp2-bug-without-sharing-personal-information)**
@@ -33,6 +34,7 @@
 * **[What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We File Taxes Together?](#what-if-i-transfer-cryptocurrency-from-my-account-to-my-spouses-account-and-we-file-taxes-together)**
 * **[What Events Are Taxable?](#what-events-are-taxable)**
 
+* **[Who is the Author of RP2?](#who-is-the-author-of-rp2)**
 * **[What Does RP2 Mean?](#what-does-rp2-mean)**
 
 ## How to Verify That I Entered Data Correctly in the Input Spreadsheet?
@@ -56,6 +58,9 @@ TBD
 ## How to Handle Income from Staking?
 TBD
 
+## How to Handle Futures and Options?
+TBD
+
 ## How to Handle NFTs?
 TBD
 
@@ -74,5 +79,8 @@ TBD
 ## What Events Are Taxable?
 TBD
 
+## Who is the Author of RP2?
+The author of RP2 is a Silicon Valley veteran, a software engineer who left the corporate world to become an independent developer and investor. More on eprbell's story [here](https://eprbell.github.io/eprbell//eprbell/status/2021/07/29/the-beginning-of-the-journey.html).
+
 ## What Does RP2 Mean?
-TBD
+It's a humorous reference to Warren Buffett’s claim that Bitcoin is [“rat poison squared”](https://www.cnbc.com/2018/05/05/warren-buffett-says-bitcoin-is-probably-rat-poison-squared.html). Other smart people occasionally made [famously](https://www.snopes.com/fact-check/paul-krugman-internets-effect-economy/) [wrong](https://libquotes.com/thomas-edison/quote/lbx5e7q) [remarks](https://en.wikipedia.org/wiki/Robert_Metcalfe#Incorrect_predictions) about technology: I have a feeling Buffett’s quote might end up among those.
