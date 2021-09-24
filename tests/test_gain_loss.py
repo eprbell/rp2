@@ -72,13 +72,13 @@ class TestGainLoss(unittest.TestCase):
             RP2Decimal("20"),
             unique_id=12,
         )
-        self._in_earn = InTransaction(
+        self._in_interest = InTransaction(
             self._configuration,
             "2020-02-21T13:14:08 -00:04",
             "B1",
             "BlockFi",
             "Bob",
-            "eaRn",
+            "interest",
             RP2Decimal("11000"),
             RP2Decimal("0.1"),
             RP2Decimal("0"),
@@ -110,10 +110,10 @@ class TestGainLoss(unittest.TestCase):
             unique_id=30,
         )
 
-    def test_good_earn_gain_loss(self) -> None:
-        flow: GainLoss = GainLoss(self._configuration, RP2Decimal("0.1"), self._in_earn, None)
+    def test_good_interest_gain_loss(self) -> None:
+        flow: GainLoss = GainLoss(self._configuration, RP2Decimal("0.1"), self._in_interest, None)
         self.assertEqual(flow.crypto_amount, RP2Decimal("0.1"))
-        self.assertEqual(flow.taxable_event, self._in_earn)
+        self.assertEqual(flow.taxable_event, self._in_interest)
         self.assertEqual(flow.from_lot, None)
         self.assertEqual(flow.timestamp, flow.taxable_event.timestamp)
         self.assertEqual(flow.crypto_balance_change, RP2Decimal("0.1"))
@@ -134,7 +134,7 @@ class TestGainLoss(unittest.TestCase):
     asset=B1
     exchange=BlockFi
     holder=Bob
-    transaction_type=TransactionType.EARN
+    transaction_type=TransactionType.INTEREST
     spot_price=11000.0000
     crypto_in=0.10000000
     usd_fee=0.0000
@@ -148,10 +148,10 @@ class TestGainLoss(unittest.TestCase):
         )
         self.assertEqual(
             repr(flow),
-            "GainLoss(id='14->None', crypto_amount=0.10000000, usd_cost_basis=0.0000, usd_gain=1100.0000, is_long_term_capital_gains=False, taxable_event_usd_amount_with_fee_fraction=1100.0000, taxable_event_fraction_percentage=100.0000%, taxable_event=InTransaction(id='14', timestamp='2020-02-21 13:14:08.000000 -0004', asset='B1', exchange='BlockFi', holder='Bob', transaction_type=<TransactionType.EARN: 'earn'>, spot_price=11000.0000, crypto_in=0.10000000, usd_fee=0.0000, usd_in_no_fee=1100.0000, usd_in_with_fee=1100.0000, is_taxable=True, usd_taxable_amount=1100.0000), from_lot_usd_amount_with_fee_fraction=0.0000, from_lot_fraction_percentage=0.0000%, from_lot=None)",
+            "GainLoss(id='14->None', crypto_amount=0.10000000, usd_cost_basis=0.0000, usd_gain=1100.0000, is_long_term_capital_gains=False, taxable_event_usd_amount_with_fee_fraction=1100.0000, taxable_event_fraction_percentage=100.0000%, taxable_event=InTransaction(id='14', timestamp='2020-02-21 13:14:08.000000 -0004', asset='B1', exchange='BlockFi', holder='Bob', transaction_type=<TransactionType.INTEREST: 'interest'>, spot_price=11000.0000, crypto_in=0.10000000, usd_fee=0.0000, usd_in_no_fee=1100.0000, usd_in_with_fee=1100.0000, is_taxable=True, usd_taxable_amount=1100.0000), from_lot_usd_amount_with_fee_fraction=0.0000, from_lot_fraction_percentage=0.0000%, from_lot=None)",
         )
 
-    def test_good_non_earn_gain_loss(self) -> None:
+    def test_good_non_interest_gain_loss(self) -> None:
         flow: GainLoss = GainLoss(self._configuration, RP2Decimal("0.001"), self._intra, self._in_buy)
         self.assertEqual(flow.crypto_amount, RP2Decimal("0.001"))
         self.assertEqual(flow.taxable_event, self._intra)
@@ -213,7 +213,7 @@ class TestGainLoss(unittest.TestCase):
         gain_loss3: GainLoss = GainLoss(self._configuration, RP2Decimal("0.001"), self._intra, self._in_buy2)
         gain_loss4: GainLoss = GainLoss(self._configuration, RP2Decimal("0.001"), self._out, self._in_buy)
         gain_loss5: GainLoss = GainLoss(self._configuration, RP2Decimal("0.001"), self._out, self._in_buy2)
-        gain_loss6: GainLoss = GainLoss(self._configuration, RP2Decimal("0.1"), self._in_earn, None)
+        gain_loss6: GainLoss = GainLoss(self._configuration, RP2Decimal("0.1"), self._in_interest, None)
         self.assertEqual(gain_loss, gain_loss)
         self.assertEqual(gain_loss, gain_loss2)
         self.assertNotEqual(gain_loss, gain_loss3)
@@ -231,11 +231,11 @@ class TestGainLoss(unittest.TestCase):
     def test_bad_gain_loss(self) -> None:
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
             # Bad configuration
-            GainLoss(None, RP2Decimal("0.5"), self._in_earn, None)  # type: ignore
+            GainLoss(None, RP2Decimal("0.5"), self._in_interest, None)  # type: ignore
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
             # Bad configuration
-            GainLoss("config", RP2Decimal("0.5"), self._in_earn, None)  # type: ignore
+            GainLoss("config", RP2Decimal("0.5"), self._in_interest, None)  # type: ignore
 
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_amount' has non-positive value .*"):
             # Bad amount
@@ -243,7 +243,7 @@ class TestGainLoss(unittest.TestCase):
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_amount' has non-RP2Decimal value"):
             # Bad amount
-            GainLoss(self._configuration, "0.5", self._in_earn, None)  # type: ignore
+            GainLoss(self._configuration, "0.5", self._in_interest, None)  # type: ignore
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'taxable_event' is not of type AbstractTransaction: .*"):
             # Bad taxable event
@@ -259,10 +259,10 @@ class TestGainLoss(unittest.TestCase):
 
         with self.assertRaisesRegex(
             RP2TypeError,
-            "from_lot must be None for EARN-typed taxable_events, instead it's foobar",
+            "from_lot must be None for earn-typed taxable_events, instead it's foobar",
         ):
             # Bad from lot
-            GainLoss(self._configuration, RP2Decimal("0.1"), self._in_earn, "foobar")  # type: ignore
+            GainLoss(self._configuration, RP2Decimal("0.1"), self._in_interest, "foobar")  # type: ignore
 
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'taxable_event' of class InTransaction is not taxable: .*"):
             # Taxable event not taxable
@@ -270,31 +270,31 @@ class TestGainLoss(unittest.TestCase):
 
         with self.assertRaisesRegex(
             RP2ValueError,
-            "crypto_amount must be == taxable_event.crypto_balance_change for EARN-typed taxable events, but they differ .* != .*",
+            "crypto_amount must be == taxable_event.crypto_balance_change for earn-typed taxable events, but they differ .* != .*",
         ):
-            # Taxable event of type EARN: from_lot not None
-            GainLoss(self._configuration, RP2Decimal("1.1"), self._in_earn, None)
+            # Earn-typed taxable event: from_lot not None
+            GainLoss(self._configuration, RP2Decimal("1.1"), self._in_interest, None)
 
         with self.assertRaisesRegex(
             RP2TypeError,
-            "from_lot must be None for EARN-typed taxable_events, instead it's .*",
+            "from_lot must be None for earn-typed taxable_events, instead it's .*",
         ):
-            # Taxable event of type EARN: from_lot not None
-            GainLoss(self._configuration, RP2Decimal("0.1"), self._in_earn, self._in_buy2)
+            # Earn-typed taxable event: from_lot not None
+            GainLoss(self._configuration, RP2Decimal("0.1"), self._in_interest, self._in_buy2)
 
-        with self.assertRaisesRegex(RP2TypeError, "from_lot must not be None for non-EARN-typed taxable_events"):
-            # Taxable event not of type EARN: from lot None
+        with self.assertRaisesRegex(RP2TypeError, "from_lot must not be None for non-earn-typed taxable_events"):
+            # Non-earn-typed taxable event: from lot None
             GainLoss(self._configuration, RP2Decimal("0.2"), self._out, None)
 
         with self.assertRaisesRegex(
             RP2ValueError,
             "crypto_amount .* is greater than taxable event amount .* or from-lot amount .*: ",
         ):
-            # Taxable event of type EARN: from_lot not None
+            # Non-earn-typed taxable event: from_lot not None
             GainLoss(self._configuration, RP2Decimal("2"), self._out, self._in_buy2)
 
         with self.assertRaisesRegex(RP2ValueError, "Timestamp of taxable_event <= timestamp of from_lot"):
-            # Taxable event of type EARN: from_lot not None
+            # Non-earn-typed taxable event: from_lot not None
             GainLoss(self._configuration, RP2Decimal("0.1"), self._out, self._in_buy3)
 
         with self.assertRaisesRegex(RP2ValueError, "taxable_event.asset .* != from_lot.asset .*"):

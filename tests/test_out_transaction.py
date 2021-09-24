@@ -414,7 +414,7 @@ class TestOutTransaction(unittest.TestCase):
                 "B1",
                 "Coinbase Pro",
                 "Bob",
-                "eArN",
+                "iNteResT",
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),

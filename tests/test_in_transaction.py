@@ -35,12 +35,17 @@ class TestInTransaction(unittest.TestCase):
         self.maxDiff = None  # pylint: disable=invalid-name
 
     def test_transaction_type(self) -> None:
+        self.assertEqual(TransactionType.AIRDROP, TransactionType.type_check_from_string("transaction_type", "airdrop"))
         self.assertEqual(TransactionType.BUY, TransactionType.type_check_from_string("transaction_type", "buy"))
         self.assertEqual(TransactionType.DONATE, TransactionType.type_check_from_string("transaction_type", "dOnAtE"))
-        self.assertEqual(TransactionType.EARN, TransactionType.type_check_from_string("transaction_type", "Earn"))
         self.assertEqual(TransactionType.GIFT, TransactionType.type_check_from_string("transaction_type", "GIFT"))
+        self.assertEqual(TransactionType.HARDFORK, TransactionType.type_check_from_string("transaction_type", "HardFork"))
+        self.assertEqual(TransactionType.INTEREST, TransactionType.type_check_from_string("transaction_type", "Interest"))
+        self.assertEqual(TransactionType.MINING, TransactionType.type_check_from_string("transaction_type", "MiNiNg"))
         self.assertEqual(TransactionType.MOVE, TransactionType.type_check_from_string("transaction_type", "MoVe"))
         self.assertEqual(TransactionType.SELL, TransactionType.type_check_from_string("transaction_type", "sell"))
+        self.assertEqual(TransactionType.STAKING, TransactionType.type_check_from_string("transaction_type", "sTaKING"))
+        self.assertEqual(TransactionType.WAGES, TransactionType.type_check_from_string("transaction_type", "WageS"))
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter name is not a string: .*"):
             TransactionType.type_check_from_string(12, "buy")  # type: ignore
@@ -58,7 +63,7 @@ class TestInTransaction(unittest.TestCase):
             "B1",
             "BlockFi",
             "Bob",
-            "eaRn",
+            "inTerest",
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
             RP2Decimal("0"),
@@ -82,7 +87,7 @@ class TestInTransaction(unittest.TestCase):
         self.assertEqual("B1", in_transaction.asset)
         self.assertEqual("BlockFi", in_transaction.exchange)
         self.assertEqual("Bob", in_transaction.holder)
-        self.assertEqual(TransactionType.EARN, in_transaction.transaction_type)
+        self.assertEqual(TransactionType.INTEREST, in_transaction.transaction_type)
         self.assertEqual(RP2Decimal("1000"), in_transaction.spot_price)
         self.assertEqual(RP2Decimal("2.0002"), in_transaction.crypto_in)
         self.assertEqual(RP2Decimal("2000.2"), in_transaction.usd_in_no_fee)
@@ -99,7 +104,7 @@ class TestInTransaction(unittest.TestCase):
   asset=B1
   exchange=BlockFi
   holder=Bob
-  transaction_type=TransactionType.EARN
+  transaction_type=TransactionType.INTEREST
   spot_price=1000.0000
   crypto_in=2.00020000
   usd_fee=0.0000
@@ -116,7 +121,7 @@ class TestInTransaction(unittest.TestCase):
       asset=B1
       exchange=BlockFi
       holder=Bob
-      transaction_type=TransactionType.EARN
+      transaction_type=TransactionType.INTEREST
       spot_price=1000.0000
       crypto_in=2.00020000
       usd_fee=0.0000
@@ -136,7 +141,7 @@ class TestInTransaction(unittest.TestCase):
                 "asset='B1', "
                 "exchange='BlockFi', "
                 "holder='Bob', "
-                "transaction_type=<TransactionType.EARN: 'earn'>, "
+                "transaction_type=<TransactionType.INTEREST: 'interest'>, "
                 "spot_price=1000.0000, "
                 "crypto_in=2.00020000, "
                 "usd_fee=0.0000, "
@@ -194,7 +199,7 @@ class TestInTransaction(unittest.TestCase):
             "B1",
             "BlockFi",
             "Bob",
-            "eaRn",
+            "iNtErEsT",
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
             RP2Decimal("0"),
@@ -208,7 +213,7 @@ class TestInTransaction(unittest.TestCase):
             "B1",
             "BlockFi",
             "Bob",
-            "eaRn",
+            "INTEReST",
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
             RP2Decimal("0"),
@@ -222,7 +227,7 @@ class TestInTransaction(unittest.TestCase):
             "B1",
             "BlockFi",
             "Bob",
-            "eaRn",
+            "interest",
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
             RP2Decimal("0"),
@@ -245,7 +250,7 @@ class TestInTransaction(unittest.TestCase):
             "B1",
             "BlockFi",
             "Bob",
-            "eaRn",
+            "INteREst",
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
             RP2Decimal("0"),
@@ -291,7 +296,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "interest",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -307,7 +312,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "EARN",
+                "INTEREST",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -323,7 +328,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "Earn",
+                "Interest",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -371,7 +376,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eARn",
+                "intErest",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -387,7 +392,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "EaRn",
+                "intERest",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -403,7 +408,7 @@ class TestInTransaction(unittest.TestCase):
                 "yyy",
                 "BlockFi",
                 "Bob",
-                "eArN",
+                "intEResT",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -419,7 +424,7 @@ class TestInTransaction(unittest.TestCase):
                 1111,  # type: ignore
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "IntEResT",
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -435,7 +440,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "blockfi",
                 "Bob",
-                "eaRn",
+                "INtEResT",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -451,7 +456,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 1111,  # type: ignore
                 "Bob",
-                "eaRn",
+                "INtEresT",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -467,7 +472,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "qwerty",
-                "eaRn",
+                "INTEresT",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -483,7 +488,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 1111,  # type: ignore
-                "eaRn",
+                "iNTEresT",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -563,7 +568,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "iNTErest",
                 RP2Decimal("0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -579,7 +584,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "iNTerest",
                 RP2Decimal("0.00000000000001"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -595,7 +600,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "iNterest",
                 RP2Decimal("-1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -611,7 +616,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "iNtereSt",
                 "1000",  # type: ignore
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -627,7 +632,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "intereSt",
                 RP2Decimal("1000"),
                 RP2Decimal("0"),
                 RP2Decimal("20"),
@@ -643,7 +648,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "interESt",
                 RP2Decimal("1000"),
                 RP2Decimal("-2.0002"),
                 RP2Decimal("20"),
@@ -659,7 +664,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "interEst",
                 RP2Decimal("1000.0"),
                 "2.0002",  # type: ignore
                 RP2Decimal("20"),
@@ -675,7 +680,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "inteREst",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("-20"),
@@ -691,7 +696,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "intEREst",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 "20",  # type: ignore
@@ -707,7 +712,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "inTEREst",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -723,7 +728,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "inTERESt",
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -739,7 +744,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "iNTERESt",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -755,7 +760,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "INTERESt",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -771,7 +776,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "INTEREST",
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -788,7 +793,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "INTeREST",
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
@@ -806,7 +811,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "INTerEST",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1000"),
@@ -824,7 +829,7 @@ class TestInTransaction(unittest.TestCase):
                 "B1",
                 "BlockFi",
                 "Bob",
-                "eaRn",
+                "INTerESt",
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("18"),

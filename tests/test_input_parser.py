@@ -82,8 +82,8 @@ class TestInputParser(unittest.TestCase):
         ]
         transaction_types: List[TransactionType] = [
             TransactionType.BUY,
-            TransactionType.EARN,
-            TransactionType.EARN,
+            TransactionType.INTEREST,
+            TransactionType.INTEREST,
             TransactionType.BUY,
             TransactionType.BUY,
         ]
