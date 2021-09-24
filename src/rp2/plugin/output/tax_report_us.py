@@ -14,7 +14,7 @@
 
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Set, cast
+from typing import Any, Dict, List, Set, cast
 
 from rp2.computed_data import ComputedData
 from rp2.entry_types import TransactionType
@@ -26,27 +26,31 @@ from rp2.rp2_error import RP2TypeError
 
 
 class SheetNames(Enum):
-    CAPITAL_GAINS: str = "Capital_Gains"
-    EARNINGS: str = "Earnings"
+    AIRDROPS: str = "Airdrops"
+    CAPITAL_GAINS: str = "Capital Gains"
     DONATIONS: str = "Donations"
     GIFTS: str = "Gifts"
-    FEES: str = "Fees"
+    HARDFORKS: str = "Hard Forks"
+    INTEREST: str = "Interest"
+    INVESTMENT_EXPENSES: str = "Investment Expenses"
+    MINING: str = "Mining"
+    STAKING: str = "Staking"
+    WAGES: str = "Wages"
 
 
-_TEMPLATE_SHEETS_TO_KEEP: Set[str] = {
-    f"__{SheetNames.CAPITAL_GAINS.value}",
-    f"__{SheetNames.EARNINGS.value}",
-    f"__{SheetNames.DONATIONS.value}",
-    f"__{SheetNames.GIFTS.value}",
-    f"__{SheetNames.FEES.value}",
-}
+_TEMPLATE_SHEETS_TO_KEEP: Set[str] = {f"__{item.value}" for item in SheetNames}
 
 _SHEET_TO_TYPE: Dict[str, TransactionType] = {
+    SheetNames.AIRDROPS.value: TransactionType.AIRDROP,
     SheetNames.CAPITAL_GAINS.value: TransactionType.SELL,
-    SheetNames.EARNINGS.value: TransactionType.EARN,
     SheetNames.DONATIONS.value: TransactionType.DONATE,
     SheetNames.GIFTS.value: TransactionType.GIFT,
-    SheetNames.FEES.value: TransactionType.MOVE,
+    SheetNames.HARDFORKS.value: TransactionType.HARDFORK,
+    SheetNames.INTEREST.value: TransactionType.INTEREST,
+    SheetNames.INVESTMENT_EXPENSES.value: TransactionType.MOVE,
+    SheetNames.MINING.value: TransactionType.MINING,
+    SheetNames.STAKING.value: TransactionType.STAKING,
+    SheetNames.WAGES.value: TransactionType.WAGES,
 }
 
 _TYPE_TO_SHEET: Dict[TransactionType, str] = {transaction_type: sheet_name for sheet_name, transaction_type in _SHEET_TO_TYPE.items()}
@@ -87,6 +91,19 @@ class Generator(AbstractODTGenerator):
                 raise RP2TypeError(f"Parameter 'asset' has non-string value {asset}")
             ComputedData.type_check("computed_data", computed_data)
             self.__generate(output_file, asset, computed_data.gain_loss_set, row_indexes)
+
+        # Mark sheets that were not written to
+        sheet_indexes_to_remove: List[int] = []
+        index: int = 0
+        sheet_name: str
+        for sheet_name in output_file.sheets.names():
+            if row_indexes[sheet_name] == Generator.HEADER_ROWS:
+                sheet_indexes_to_remove.append(index)
+            index += 1
+
+        # Remove sheets that were marked for removal
+        for index in reversed(sheet_indexes_to_remove):
+            del output_file.sheets[index]
 
         output_file.save()
         LOGGER.info("Plugin '%s' output: %s", __name__, Path(output_file.docname).resolve())
