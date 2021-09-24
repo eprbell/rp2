@@ -20,12 +20,17 @@ from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
 class TransactionType(Enum):
+    AIRDROP: str = "airdrop"
     BUY: str = "buy"
     DONATE: str = "donate"
-    EARN: str = "earn"
     GIFT: str = "gift"
-    SELL: str = "sell"
+    HARDFORK: str = "hardfork"
+    INTEREST: str = "interest"
+    MINING: str = "mining"
     MOVE: str = "move"
+    SELL: str = "sell"
+    STAKING: str = "staking"
+    WAGES: str = "wages"
 
     @classmethod
     def has_value(cls, value: str) -> bool:
@@ -45,8 +50,19 @@ class TransactionType(Enum):
             raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {transaction_type}")
         return transaction_type
 
+    def is_earn_type(self) -> bool:
+        return self in _transaction_type_earn_values
+
 
 _transaction_type_values: Set[str] = {item.value for item in TransactionType}
+_transaction_type_earn_values: Set[TransactionType] = {
+    TransactionType.AIRDROP,
+    TransactionType.HARDFORK,
+    TransactionType.INTEREST,
+    TransactionType.MINING,
+    TransactionType.STAKING,
+    TransactionType.WAGES,
+}
 
 
 class EntrySetType(Enum):
