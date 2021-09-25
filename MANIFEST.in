@@ -6,6 +6,7 @@ include setup.py
 include *.md
 
 recursive-include config *.config
-recursive-include doc *.md *.png
+recursive-include docs *.md *.png
 recursive-include input *.ods
 recursive-include src *.ods
+recursive-include tests *.py
