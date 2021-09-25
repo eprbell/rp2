@@ -25,7 +25,7 @@ from rp2.configuration_schema import CONFIGURATION_SCHEMA
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
-VERSION: str = "0.7.3"
+VERSION: str = "0.8.0"
 MAX_YEAR: int = sys.maxsize
 
 
