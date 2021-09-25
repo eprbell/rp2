@@ -63,15 +63,20 @@ RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Cu
 RP2 uses the FIFO accounting method (lots acquired first are disposed of first): however, in and out lots typically don't have matching amounts, so RP2 fractions them, maps in/out lot fractions and computes the resulting cost bases and capital gains for each lot fraction.
 
 RP2 groups lot fractions into the following taxable event categories, each of which has a unique tax treatment (ask your tax professional):
-* EARN: specifically, interest from lending, wages, [mining](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-mining), [staking](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-staking), [airdrops](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-airdrops) and [hard forks](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-hard-forks). Note that buying cryptocurrency is not a taxable event;
+* [AIRDROP](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-airdrops)
+* DONATE: donations to charitable organizations;
+* GIFT: gifts to parties who are not charitable organizations are not tax-deductible.
+* [HARDFORK](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-hard-forks)
+* INTEREST
+* [MINING](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-mining)
+* MOVE: the fee for moving currency between two accounts controlled by the same owner; these may not be taxable or tax deductible but they still affect the FIFO order so they are tracked.
 * SELL: specifically, sale and [exchange of one cryptocurrency for another](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-conversion-of-a-cryptocurrency-to-another). RP2 splits them in two subcategories:
   * long-term capital gains, if the lot was held for more than 1 year, or
   * short-term capital gains otherwise;
-* DONATE: donations to charitable organizations;
-* GIFT: gifts to parties who are not charitable organizations are not tax-deductible.
-* MOVE: the fee for moving currency between two accounts controlled by the same owner; these may not be taxable or tax deductible but they still affect the FIFO order so they are tracked.
+* [STAKING](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-staking)
+* WAGES
 
-For each of these categories RP2 generates an output spreadsheet with transaction details and computed gains. Users can give this output to their tax professional with the rest of their tax documentation.
+For each of these categories RP2 generates an output spreadsheet with transaction details and computed gains (see [Input and Output Files](https://github.com/eprbell/rp2/tree/main/README.md#input-and-output-files) for more details). Users can give this output to their tax professional with the rest of their tax documentation. Note that buying cryptocurrency is not a taxable event.
 
 **NOTE ON NFTs**: RP2 treats [NFTs](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-nfts) as cryptocurrencies (that is, as property).
 

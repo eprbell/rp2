@@ -19,7 +19,7 @@ RP2 reads in two user-prepared files:
 
 ## The Input Spreadsheet
 The input spreadsheet is in .ods format and contains one or more sheets. Each sheet is named after one cryptocurrency and contains all transactions denominated in it (allowed cryptocurrencies are defined in the **assets** section of the config file). Each sheet is composed of the following tables:
-* The **IN**-table (mandatory) contains transactions describing crypto flowing in (e.g. buy, earn):
+* The **IN**-table (mandatory) contains transactions describing crypto flowing in (e.g. airdrop, buy, hard fork, interest, mining, staking, wages):
   * the first row contains the **IN** keyword in column A
   * the second row is the table header: the meaning of each header cell is defined in the **in_header** section of the config file
   * the following rows describe one **IN**-transaction each
@@ -39,12 +39,12 @@ Here follows an example of an input spreadsheet with 2 sheets (one for BTC and o
 ![Input spreadsheet example](images/input_spreadsheet.png)
 
 ### **IN**-Transaction Table Format
-**IN**-transactions describe crypto flowing in (e.g. buy, earn) and are contained in the **IN**-table. They have the following parameters (parameter/column mapping is described in the **in_header** section of the config file):
+**IN**-transactions describe crypto flowing in (e.g. airdrop, buy, hard fork, interest, mining, staking, wages) and are contained in the **IN**-table. They have the following parameters (parameter/column mapping is described in the **in_header** section of the config file):
   * **timestamp**: time at which the transaction occurred. RP2 can parse most timestamp formats, but timestamps must always include: year, month, day, hour, minute, second and timezone (milliseconds are optional). E.g.: "2020-01-21 11:15:00+00:00".
   * **asset**: which cryptocurrency was transacted (e.g. BTC, ETH, etc.). It must match the name of the spreadsheet and one of the values in the **assets** section of the config file.
   * **exchange**: exchange or wallet on which the transaction occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.). It must match one of the values in the **exchanges** section of the config file.
   * **holder**: exchange account or wallet owner. It must match one of the values in the **holders** section of the config file.
-  * **transaction_type**: BUY or EARN.
+  * **transaction_type**: AIRDROP, BUY, HARDFORK, INTEREST, MINING, STAKING or WAGES.
   * **spot_price**: value of 1 unit of the given cryptocurrency at the time the transaction occurred.
   * **crypto_in**: how much of the given cryptocurrency was acquired with the transaction.
   * **usd_fee**: US dollar value of the transaction fees.
