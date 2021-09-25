@@ -42,6 +42,10 @@ The tax_report_us.ods output file contains a sheet per taxable event type (if th
 
 These sheets are in the format of form 8949 and are meant for tax professionals, who can use it fill the appropriate forms. Every line corresponds to a taxable event and describes it. The left part (with white header) mimics form 8949: cost basis, capital gains, proceeds, etc. The right part (with gray header) contains additional information that can be used to identify the transactions in the user's records or in the [rp2_full_report output](#rp2-full-report-output): full timestamp of date sold, capital gains type (long or short), lot fraction information, transaction type, etc. In this sheet blue refers to taxable events and purple to in-transactions (purchased, earned, etc.).
 
-Here follows an example of the Capital Gains sheet: ![tax report us output capital gains](images/tax_report_us_output_capital_gains.png)
+Here follows an example of the Capital Gains sheet:
 
-And an example of the Interest sheet: ![tax report us output interest](images/tax_report_us_output_interest.png)
+![tax report us output capital gains](images/tax_report_us_output_capital_gains.png)
+
+And an example of the Interest sheet:
+
+![tax report us output interest](images/tax_report_us_output_interest.png)
