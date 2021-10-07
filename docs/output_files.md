@@ -28,7 +28,7 @@ The rp2_full_report.ods output file is a comprehensive, ODS-format report contai
   * *cryptocurrency* Tax: long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions for the given *cryptocurrency*. In this sheet, blue refers to taxable events and outgoing (sold, donated, etc.) transactions, purple refers to cost basis and incoming (purchased, received) transactions and yellow refers to taxable amount. The Intra-Flow Detail table shows the mapping between taxable event fractions and in-transaction fractions. Here follows an example of this sheet: ![RP2 full report tax example](images/rp2_full_report_output_tax.png)
 
 ## Tax Report US Output
-The tax_report_us.ods output file contains a sheet per taxable event type (if there are not taxable events for a given event type, it's relative sheet is not generated):
+The tax_report_us.ods output file contains a sheet per taxable event type (if there are no taxable events for a given event type, its respective sheet is not generated):
 * Airdrops;
 * Capital Gains (triggered by cryptocurrency sales);
 * Donations (cryptocurrency given to a qualified charity);
@@ -40,7 +40,9 @@ The tax_report_us.ods output file contains a sheet per taxable event type (if th
 * Staking;
 * Wages.
 
-These sheets are in the format of form 8949 and are meant for tax professionals, who can use it fill the appropriate forms. Every line corresponds to a taxable event and describes it. The left part (with white header) mimics form 8949: cost basis, capital gains, proceeds, etc. The right part (with gray header) contains additional information that can be used to identify the transactions in the user's records or in the [rp2_full_report output](#rp2-full-report-output): full timestamp of date sold, capital gains type (long or short), lot fraction information, transaction type, etc. In this sheet blue refers to taxable events and purple to in-transactions (purchased, earned, etc.).
+These sheets are in the format of form 8949 and are meant for tax preparers, who can use it fill the appropriate forms. Every line corresponds to a taxable event and describes it. The left part (with white header) mimics form 8949: cost basis, capital gains, proceeds, etc. The right part (with gray header) contains additional information that can be used to identify the transactions in the user's records or in the [rp2_full_report output](#rp2-full-report-output): full timestamp of date sold, capital gains type (long or short), lot fraction information, transaction type, etc. In this sheet blue refers to taxable events and purple to in-transactions (purchased, earned, etc.).
+
+Each sheet has a [specific tax treatment](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#which-crypto-tax-forms-to-file).
 
 Here follows an example of the Capital Gains sheet:
 

@@ -45,10 +45,10 @@
 * it prioritizes user privacy by storing crypto transactions and tax results on the user's computer and not sending them anywhere else;
 * it's free and open-source.
 
-RP2 reads in a user-prepared spreadsheet containing crypto transactions. It then uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates output spreadsheets. It supports the FIFO accounting method.
+RP2 reads in a user-prepared spreadsheet containing crypto transactions. It then uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates output spreadsheets. It uses the FIFO accounting method.
 
 It has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/src/rp2/plugin/output): the builtin plugins are US-specific, but RP2's architecture makes it possible to contribute additional output generators for different countries or for different US-based cases. The builtin plugins are:
-* tax_report_us: generates a tax report meant to be read by tax professionals (in the format of form 8949);
+* tax_report_us: generates a tax report meant to be read by tax preparers (in the format of form 8949);
 * rp2_full_report: generates a comprehensive report, with complete transaction history, lot relationships/fractions and computation details.
 
 RP2 has extensive [unit test](https://github.com/eprbell/rp2/tree/main/tests/) coverage to reduce the risk of regression.
@@ -62,21 +62,21 @@ RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Cu
 
 RP2 uses the FIFO accounting method (lots acquired first are disposed of first): however, in and out lots typically don't have matching amounts, so RP2 fractions them, maps in/out lot fractions and computes the resulting cost bases and capital gains for each lot fraction.
 
-RP2 groups lot fractions into the following taxable event categories, each of which has a unique tax treatment (ask your tax professional):
-* [AIRDROP](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-airdrops)
+RP2 groups lot fractions into the following taxable event categories, each of which has a [specific tax treatment](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#which-crypto-tax-forms-to-file):
+* [AIRDROP](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-airdrops): gains from airdrops;
 * DONATE: donations to charitable organizations;
-* GIFT: gifts to parties who are not charitable organizations are not tax-deductible.
-* [HARDFORK](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-hard-forks)
-* INTEREST
-* [MINING](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-mining)
-* MOVE: the fee for moving currency between two accounts controlled by the same owner; these may not be taxable or tax deductible but they still affect the FIFO order so they are tracked.
+* GIFT: gifts to parties who are not charitable organizations (not tax-deductible).
+* [HARDFORK](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-hard-forks): gains from hard forks;
+* INTEREST: gains from interest;
+* [MINING](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-mining): gains from mining;
+* MOVE: the fee for moving currency between two accounts controlled by the same owner; these may not be taxable or tax deductible but they still affect the FIFO order so they are tracked;
 * SELL: specifically, sale and [exchange of one cryptocurrency for another](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-conversion-of-a-cryptocurrency-to-another). RP2 splits them in two subcategories:
   * long-term capital gains, if the lot was held for more than 1 year, or
   * short-term capital gains otherwise;
-* [STAKING](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-staking)
-* WAGES
+* [STAKING](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-staking): gains from staking;
+* WAGES: income from crypto wages.
 
-For each of these categories RP2 generates an output spreadsheet with transaction details and computed gains (see [Input and Output Files](https://github.com/eprbell/rp2/tree/main/README.md#input-and-output-files) for more details). Users can give this output to their tax professional with the rest of their tax documentation. Note that buying cryptocurrency is not a taxable event.
+For each of these categories RP2 generates an output spreadsheet with transaction details and computed gains/losses (see [Input and Output Files](https://github.com/eprbell/rp2/tree/main/README.md#input-and-output-files) for more details). Users can give this output to their tax preparer with the rest of their tax documentation. Note that buying cryptocurrency is not a taxable event.
 
 **NOTE ON NFTs**: RP2 treats [NFTs](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-nfts) as cryptocurrencies (that is, as property).
 
@@ -107,7 +107,7 @@ brew update
 brew install python3
 ```
 
-Finally install RP2 Python package requirements:
+Then install RP2 Python package requirements:
 ```
 pip install rp2
 ```

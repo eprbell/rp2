@@ -25,6 +25,7 @@
 * **[How to Handle Income from Staking?](#how-to-handle-income-from-staking)**
 * **[How to Handle Futures and Options?](#how-to-handle-futures-and-options)**
 * **[How to Handle NFTs?](#how-to-handle-nfts)**
+* **[Which Crypto Tax Forms to File?](#which-crypto-tax-forms-to-file)**
 
 * **[How to Report a RP2 Bug without Sharing Personal Information?](#how-to-report-a-rp2-bug-without-sharing-personal-information)**
 
@@ -63,6 +64,9 @@ TBD
 
 ## How to Handle NFTs?
 TBD
+
+## Which Crypto Tax Forms to File?
+Each event has a specific tax treatment: ask a tax professional for the proper answer in any given year. Also read [CoinTracker's summary on this topic](https://www.cointracker.io/blog/what-tax-forms-should-crypto-holders-file).
 
 ## How to Report a RP2 Bug without Sharing Personal Information?
 TBD

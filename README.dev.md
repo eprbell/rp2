@@ -59,6 +59,7 @@ Then install RP2 Python package requirements:
 ```
 cd <rp2_directory>
 virtualenv -p python3 .venv
+. .venv/bin/activate
 .venv/bin/pip3 install -r requirements.txt
 ```
 ### Setup on macOS
@@ -72,6 +73,7 @@ Then install RP2 Python package requirements:
 ```
 cd <rp2_directory>
 virtualenv -p python3 .venv
+. .venv/bin/activate
 .venv/bin/pip3 install -r requirements.txt
 ```
 ### Setup on Windows 10
@@ -84,6 +86,7 @@ Then install RP2 Python package requirements:
 ```
 cd <rp2_directory>
 virtualenv -p python .venv
+.venv\Scripts\activate.ps1
 python -m pip install -r requirements.txt
 ```
 ### Setup on Other Unix-like Systems
@@ -130,7 +133,9 @@ Read the [Contributing](CONTRIBUTING.md) document on pull requests guidelines.
 
 ### Design Guidelines
 RP2 code adheres to these principles:
-* immutability: classes are read-only. All class fields are private (prepended with double-underscore). Fields that need public access have a read-only property. Write-properties are never used;
+* immutability: all data structures are read-only.
+  * class fields are private (prepended with double-underscore). Fields that need public access have a read-only property. Write-properties are never used;
+  * @dataclass classes have `frozen=True`
 * runtime checks: parameters of public functions are type-checked at runtime:
   * `Configuration.type_check_*()` for primitive types;
   * `<class>.type_check()` for classes;
@@ -165,16 +170,16 @@ RP2 has considerable unit test coverage to reduce the risk of regression. Unit t
 ## Plugin Development
 RP2 has a plugin architecture for output generators, which makes it extensible for new use cases. Writing a new plugin is quite easy: the [tax_report_us](src/rp2/plugin/output/tax_report_us.py) generator is a simple example, the [rp2_full_report](src/rp2/plugin/output/rp2_full_report.py) one is more comprehensive.
 
-Plugins are discovered by RP2 at runtime and they must adhere to the specific conventions shown below. To add a new plugin follow this procedure:
-* add a new Python file in the plugin/output directory and give it a meaningful name
-* import the following:
+Plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
+* add a new Python file in the src/rp2/plugin/output directory and give it a meaningful name
+* import the following (plus any other RP2 file you might need):
 ```
 from abstract_generator import AbstractGenerator
 from computed_data import ComputedData
 from gain_loss import GainLoss
 from gain_loss_set import GainLossSet
 ```
-* Optionally, RP2 also provides a logger facility:
+* Optionally, RP2 provides a logger facility:
 ```
 from logger import LOGGER
 ```
