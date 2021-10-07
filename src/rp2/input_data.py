@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-from dataclasses import dataclass
+from typing import cast
 
 from rp2.configuration import Configuration
 from rp2.entry_types import EntrySetType
@@ -21,13 +20,7 @@ from rp2.rp2_error import RP2TypeError
 from rp2.transaction_set import TransactionSet
 
 
-@dataclass(frozen=True, eq=True)
 class InputData:
-    asset: str
-    in_transaction_set: TransactionSet
-    out_transaction_set: TransactionSet
-    intra_transaction_set: TransactionSet
-
     @classmethod
     def type_check(cls, name: str, instance: "InputData") -> "InputData":
         Configuration.type_check_parameter_name(name)
@@ -35,8 +28,62 @@ class InputData:
             raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
         return instance
 
-    def __post_init__(self) -> None:
-        Configuration.type_check_string("asset", self.asset)
-        TransactionSet.type_check("in_transaction_set", self.in_transaction_set, EntrySetType.IN, self.asset, False)
-        TransactionSet.type_check("out_transaction_set", self.out_transaction_set, EntrySetType.OUT, self.asset, True)
-        TransactionSet.type_check("intra_transaction_set", self.intra_transaction_set, EntrySetType.INTRA, self.asset, True)
+    def __init__(
+        self,
+        asset: str,
+        unfiltered_in_transaction_set: TransactionSet,
+        unfiltered_out_transaction_set: TransactionSet,
+        unfiltered_intra_transaction_set: TransactionSet,
+        from_year: int,
+        to_year: int,
+    ):
+        self.__asset: str = Configuration.type_check_string("asset", asset)
+        self.__unfiltered_in_transaction_set: TransactionSet = TransactionSet.type_check(
+            "in_transaction_set", unfiltered_in_transaction_set, EntrySetType.IN, self.asset, False
+        )
+        self.__unfiltered_out_transaction_set: TransactionSet = TransactionSet.type_check(
+            "out_transaction_set", unfiltered_out_transaction_set, EntrySetType.OUT, self.asset, True
+        )
+        self.__unfiltered_intra_transaction_set: TransactionSet = TransactionSet.type_check(
+            "intra_transaction_set", unfiltered_intra_transaction_set, EntrySetType.INTRA, self.asset, True
+        )
+        Configuration.type_check_positive_int("from_year", from_year)
+        Configuration.type_check_positive_int("to_year", to_year, non_zero=True)
+
+        self.__filtered_in_transaction_set: TransactionSet = cast(
+            TransactionSet, self.__unfiltered_in_transaction_set.duplicate(from_year=from_year, to_year=to_year)
+        )
+        self.__filtered_out_transaction_set: TransactionSet = cast(
+            TransactionSet, self.__unfiltered_out_transaction_set.duplicate(from_year=from_year, to_year=to_year)
+        )
+        self.__filtered_intra_transaction_set: TransactionSet = cast(
+            TransactionSet, self.__unfiltered_intra_transaction_set.duplicate(from_year=from_year, to_year=to_year)
+        )
+
+    @property
+    def asset(self) -> str:
+        return self.__asset
+
+    @property
+    def unfiltered_in_transaction_set(self) -> TransactionSet:
+        return self.__unfiltered_in_transaction_set
+
+    @property
+    def unfiltered_out_transaction_set(self) -> TransactionSet:
+        return self.__unfiltered_out_transaction_set
+
+    @property
+    def unfiltered_intra_transaction_set(self) -> TransactionSet:
+        return self.__unfiltered_intra_transaction_set
+
+    @property
+    def filtered_in_transaction_set(self) -> TransactionSet:
+        return self.__filtered_in_transaction_set
+
+    @property
+    def filtered_out_transaction_set(self) -> TransactionSet:
+        return self.__filtered_out_transaction_set
+
+    @property
+    def filtered_intra_transaction_set(self) -> TransactionSet:
+        return self.__filtered_intra_transaction_set
