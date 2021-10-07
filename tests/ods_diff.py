@@ -16,6 +16,7 @@ from argparse import ArgumentParser, Namespace
 from difflib import unified_diff
 from itertools import zip_longest
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Any, List
 
 import ezodf
@@ -55,7 +56,7 @@ def _parse_cell_value(cell: Any) -> Any:
     return value
 
 
-def ods_diff(file1_path: Path, file2_path: Path) -> str:
+def ods_diff(file1_path: Path, file2_path: Path, generate_ascii_representation: bool) -> str:  # pylint: disable=too-many-branches
 
     if not file1_path.exists():
         return f"Error: {file1_path} does not exist"
@@ -69,6 +70,8 @@ def ods_diff(file1_path: Path, file2_path: Path) -> str:
 
     contents1: List[str] = []
     contents2: List[str] = []
+    row_count1: int = 0
+    row_count2: int = 0
     for sheet1 in file1.sheets:
         if sheet1.name not in file2.sheets.names():
             contents2.append(f"{sheet1.name}: sheet not found in '{file2_path}'")
@@ -80,14 +83,31 @@ def ods_diff(file1_path: Path, file2_path: Path) -> str:
         row1: Any = None
         row2: Any = None
         for _, (row1, row2) in enumerate(zip_longest(sheet1.rows(), sheet2.rows())):
+            string_row: str
             if row1:
-                contents1.append(_row_as_string(row1))
+                string_row = _row_as_string(row1)
+                if string_row:
+                    contents1.append(string_row)
+                    row_count1 += 1
             if row2:
-                contents2.append(_row_as_string(row2))
+                string_row = _row_as_string(row2)
+                if string_row:
+                    contents2.append(string_row)
+                    row_count2 += 1
+
+    if row_count1 <= 0 or row_count2 <= 0:
+        return f"Error: {file1_path} has no data in common with {file2_path}"
 
     for sheet2 in file2.sheets:
         if sheet2.name not in file1.sheets.names():
             contents1.append(f"{sheet2.name}: sheet not found in '{file1_path}'")
+
+    if generate_ascii_representation:
+        for file_path, contents in zip([file1_path, file2_path], [contents1, contents2]):
+            with NamedTemporaryFile(mode="w", delete=False) as temp_file:
+                temp_file.write("\n".join(contents))
+                temp_file.flush()
+                print(f"ASCII representation of {file_path}: {temp_file.name}")
 
     return "\n".join(unified_diff(contents1, contents2, lineterm=""))
 
@@ -95,6 +115,12 @@ def ods_diff(file1_path: Path, file2_path: Path) -> str:
 def main() -> None:
 
     parser: ArgumentParser = ArgumentParser(description="Generate yearly capital gain/loss report and account balances for crypto holdings.")
+    parser.add_argument(
+        "-a",
+        "--ascii-representation",
+        action="store_true",
+        help="Save ASCII representation of ODS files in temporary directory",
+    )
     parser.add_argument(
         "ods_file1",
         action="store",
@@ -111,7 +137,7 @@ def main() -> None:
     )
 
     args: Namespace = parser.parse_args()
-    print(ods_diff(Path(args.ods_file1), Path(args.ods_file2)))
+    print(ods_diff(Path(args.ods_file1), Path(args.ods_file2), generate_ascii_representation=args.ascii_representation))
 
 
 if __name__ == "__main__":
