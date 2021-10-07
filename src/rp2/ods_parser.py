@@ -19,7 +19,7 @@ from typing import Any, Dict, List, Optional
 
 import ezodf
 from rp2.abstract_transaction import AbstractTransaction
-from rp2.configuration import Configuration
+from rp2.configuration import MAX_YEAR, Configuration
 from rp2.entry_types import EntrySetType
 from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData
@@ -52,11 +52,11 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
         raise RP2ValueError(f"Error: sheet {asset} does not exist in {Path(input_file_handle.docname).resolve()}")
     input_sheet: Any = input_file_handle.sheets[asset]
 
-    transaction_sets: Dict[EntrySetType, TransactionSet] = {}
+    unfiltered_transaction_sets: Dict[EntrySetType, TransactionSet] = {}
 
-    transaction_sets[EntrySetType.IN] = TransactionSet(configuration, "IN", asset, configuration.from_year, configuration.to_year)
-    transaction_sets[EntrySetType.OUT] = TransactionSet(configuration, "OUT", asset, configuration.from_year, configuration.to_year)
-    transaction_sets[EntrySetType.INTRA] = TransactionSet(configuration, "INTRA", asset, configuration.from_year, configuration.to_year)
+    unfiltered_transaction_sets[EntrySetType.IN] = TransactionSet(configuration, "IN", asset, 0, MAX_YEAR)
+    unfiltered_transaction_sets[EntrySetType.OUT] = TransactionSet(configuration, "OUT", asset, 0, MAX_YEAR)
+    unfiltered_transaction_sets[EntrySetType.INTRA] = TransactionSet(configuration, "INTRA", asset, 0, MAX_YEAR)
 
     current_table_type: Optional[EntrySetType] = None
     current_table_row_count: int = 0
@@ -98,7 +98,7 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
             # New table start
             current_table_row_count = 0
             current_table_type = _get_entry_set_type(cell0_value)
-            if current_table_type and not transaction_sets[current_table_type].is_empty():
+            if current_table_type and not unfiltered_transaction_sets[current_table_type].is_empty():
                 # Found an already-processed table type
                 raise RP2ValueError(f"{asset}({i + 1}): Found more than one {cell0_value} symbol")
         elif _is_table_end(cell0_value):
@@ -120,15 +120,22 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
         elif current_table_type is not None and current_table_row_count > 1:
             # Transaction line
             transaction = _create_transaction(configuration, current_table_type, i, row_values)
-            transaction_sets[current_table_type].add_entry(transaction)
+            unfiltered_transaction_sets[current_table_type].add_entry(transaction)
         current_table_row_count += 1
 
     if current_table_type is not None:
         raise RP2ValueError(f"TABLE END not found for {current_table_type} table")
-    if transaction_sets[EntrySetType.IN].is_empty():
+    if unfiltered_transaction_sets[EntrySetType.IN].is_empty():
         raise RP2ValueError(f"{asset}: IN table not found or empty")
 
-    return InputData(asset, transaction_sets[EntrySetType.IN], transaction_sets[EntrySetType.OUT], transaction_sets[EntrySetType.INTRA])
+    return InputData(
+        asset,
+        unfiltered_transaction_sets[EntrySetType.IN],
+        unfiltered_transaction_sets[EntrySetType.OUT],
+        unfiltered_transaction_sets[EntrySetType.INTRA],
+        configuration.from_year,
+        configuration.to_year,
+    )
 
 
 # Returns all numeric parameters of the constructor: used in construction of __init__ argument pack to parse such parameters as decimals
