@@ -58,15 +58,15 @@ class TestInputParser(unittest.TestCase):
         input_data: InputData = parse_ods(self._good_input_configuration, asset, input_file_handle)
 
         # In table is always present
-        self._verify_non_empty_in_table(input_data.in_transaction_set, asset)
+        self._verify_non_empty_in_table(input_data.unfiltered_in_transaction_set, asset)
         if out_empty:
-            self._verify_empty_table(input_data.out_transaction_set)
+            self._verify_empty_table(input_data.unfiltered_out_transaction_set)
         else:
-            self._verify_non_empty_out_table(input_data.out_transaction_set, asset)
+            self._verify_non_empty_out_table(input_data.unfiltered_out_transaction_set, asset)
         if intra_empty:
-            self._verify_empty_table(input_data.intra_transaction_set)
+            self._verify_empty_table(input_data.unfiltered_intra_transaction_set)
         else:
-            self._verify_non_empty_intra_table(input_data.intra_transaction_set, asset)
+            self._verify_non_empty_intra_table(input_data.unfiltered_intra_transaction_set, asset)
 
     def _verify_empty_table(self, transaction_set: TransactionSet) -> None:
         self.assertTrue(transaction_set.is_empty())
