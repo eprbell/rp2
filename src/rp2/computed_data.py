@@ -13,14 +13,17 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from typing import List, cast
+from typing import Dict, List, Optional, cast
 
 from rp2.balance import BalanceSet
 from rp2.configuration import Configuration
 from rp2.entry_types import EntrySetType, TransactionType
+from rp2.gain_loss import GainLoss
 from rp2.gain_loss_set import GainLossSet
 from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData
+from rp2.intra_transaction import IntraTransaction
+from rp2.out_transaction import OutTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 from rp2.transaction_set import TransactionSet
@@ -96,15 +99,15 @@ class ComputedData:
         return instance
 
     @staticmethod
-    def _filter_yearly_gain_loss_by_year(yearly_gain_loss_list: List[YearlyGainLoss], from_year: int, to_year: int) -> List[YearlyGainLoss]:
-        return [y for y in yearly_gain_loss_list if y.year >= from_year and y.year <= to_year]
+    def _filter_yearly_gain_loss_by_year(unfiltered_yearly_gain_loss_list: List[YearlyGainLoss], from_year: int, to_year: int) -> List[YearlyGainLoss]:
+        return [y for y in unfiltered_yearly_gain_loss_list if y.year >= from_year and y.year <= to_year]
 
-    # from_year is not used when computing average price per unit (because we always start from the beginning): only to_year is relevant.
     @staticmethod
-    def _compute_price_per_unit(in_transaction_set: TransactionSet, to_year: int) -> RP2Decimal:
+    def _compute_price_per_unit(unfiltered_in_transaction_set: TransactionSet, to_year: int) -> RP2Decimal:
         crypto_in_running_sum: RP2Decimal = ZERO
         usd_in_with_fee_running_sum: RP2Decimal = ZERO
-        for entry in in_transaction_set:
+        for entry in unfiltered_in_transaction_set:
+            # from_year is not used when computing average price per unit (because we always start from the beginning): only to_year is relevant.
             if entry.timestamp.year > to_year:
                 break
             transaction: InTransaction = cast(InTransaction, entry)
@@ -115,74 +118,175 @@ class ComputedData:
     def __init__(
         self,
         asset: str,
-        taxable_event_set: TransactionSet,
-        gain_loss_set: GainLossSet,
-        yearly_gain_loss_list: List[YearlyGainLoss],
+        unfiltered_taxable_event_set: TransactionSet,
+        unfiltered_gain_loss_set: GainLossSet,
+        unfiltered_yearly_gain_loss_list: List[YearlyGainLoss],
         input_data: InputData,
         from_year: int,
         to_year: int,
     ) -> None:
+        # pylint: disable=too-many-branches
         InputData.type_check("input_data", input_data)
         Configuration.type_check_positive_int("from_year", from_year)
         Configuration.type_check_positive_int("to_year", to_year, non_zero=True)
 
         self.__asset: str = Configuration.type_check_string("asset", asset)
-        self.__taxable_event_set: TransactionSet = TransactionSet.type_check("taxable_event_set", taxable_event_set, EntrySetType.MIXED, asset, True)
-        self.__gain_loss_set: GainLossSet = GainLossSet.type_check("gain_loss_set", gain_loss_set)
+        TransactionSet.type_check("taxable_event_set", unfiltered_taxable_event_set, EntrySetType.MIXED, asset, True)
+        GainLossSet.type_check("gain_loss_set", unfiltered_gain_loss_set)
 
-        if not isinstance(yearly_gain_loss_list, List):
-            raise RP2TypeError(f"Parameter 'yearly_gain_loss_list' is not of type List: {yearly_gain_loss_list}")
-        self.__yearly_gain_loss_list: List[YearlyGainLoss] = self._filter_yearly_gain_loss_by_year(yearly_gain_loss_list, from_year, to_year)
+        self.__filtered_taxable_event_set: TransactionSet = cast(TransactionSet, unfiltered_taxable_event_set.duplicate(from_year=from_year, to_year=to_year))
+        self.__filtered_gain_loss_set: GainLossSet = cast(GainLossSet, unfiltered_gain_loss_set.duplicate(from_year=from_year, to_year=to_year))
 
-        self.__in_transaction_set: TransactionSet = input_data.in_transaction_set
-        self.__intra_transaction_set: TransactionSet = input_data.intra_transaction_set
-        self.__out_transaction_set: TransactionSet = input_data.out_transaction_set
+        if not isinstance(unfiltered_yearly_gain_loss_list, List):
+            raise RP2TypeError(f"Parameter 'yearly_gain_loss_list' is not of type List: {unfiltered_yearly_gain_loss_list}")
+        self.__filtered_yearly_gain_loss_list: List[YearlyGainLoss] = self._filter_yearly_gain_loss_by_year(
+            unfiltered_yearly_gain_loss_list, from_year, to_year
+        )
 
-        self.__balance_set: BalanceSet = BalanceSet(taxable_event_set.configuration, input_data, to_year)
-        self.__price_per_unit: RP2Decimal = self._compute_price_per_unit(input_data.in_transaction_set, to_year)
+        self.__filtered_in_transaction_set: TransactionSet = input_data.filtered_in_transaction_set
+        self.__filtered_intra_transaction_set: TransactionSet = input_data.filtered_intra_transaction_set
+        self.__filtered_out_transaction_set: TransactionSet = input_data.filtered_out_transaction_set
 
-        if self.__taxable_event_set.asset != self.__asset:
-            raise RP2ValueError(f"Asset mismatch in 'taxable_event_set': expected {self.__asset}, found {self.__taxable_event_set.asset}")
-        if self.__gain_loss_set.asset != self.__asset:
-            raise RP2ValueError(f"Asset mismatch in 'gain_loss_set': expected {self.__asset}, found {self.__gain_loss_set.asset}")
-        if self.__balance_set.asset != self.__asset:
-            raise RP2ValueError(f"Asset mismatch in 'balance_set': expected {self.__asset}, found {self.__balance_set.asset}")
+        self.__filtered_balance_set: BalanceSet = BalanceSet(unfiltered_taxable_event_set.configuration, input_data, to_year)
+        self.__filtered_price_per_unit: RP2Decimal = self._compute_price_per_unit(input_data.unfiltered_in_transaction_set, to_year)
+
+        # Compute crypto running sums
+        self.__crypto_in_running_sum: Dict[InTransaction, RP2Decimal] = {}
+        self.__crypto_out_running_sum: Dict[OutTransaction, RP2Decimal] = {}
+        self.__crypto_out_fee_running_sum: Dict[OutTransaction, RP2Decimal] = {}
+        self.__crypto_intra_fee_running_sum: Dict[IntraTransaction, RP2Decimal] = {}
+        self.__crypto_gain_loss_running_sum: Dict[GainLoss, RP2Decimal] = {}
+
+        crypto_running_sum: RP2Decimal
+        crypto_fee_running_sum: RP2Decimal
+
+        crypto_running_sum = ZERO
+        for entry in input_data.unfiltered_in_transaction_set:
+            in_transaction: InTransaction = cast(InTransaction, entry)
+            crypto_running_sum += in_transaction.crypto_in
+            self.__crypto_in_running_sum[in_transaction] = crypto_running_sum
+
+        crypto_running_sum = ZERO
+        crypto_fee_running_sum = ZERO
+        for entry in input_data.unfiltered_out_transaction_set:
+            out_transaction: OutTransaction = cast(OutTransaction, entry)
+            crypto_running_sum += out_transaction.crypto_out_no_fee
+            crypto_fee_running_sum += out_transaction.crypto_fee
+            self.__crypto_out_running_sum[out_transaction] = crypto_running_sum
+            self.__crypto_out_fee_running_sum[out_transaction] = crypto_fee_running_sum
+
+        crypto_fee_running_sum = ZERO
+        for entry in input_data.unfiltered_intra_transaction_set:
+            intra_transaction: IntraTransaction = cast(IntraTransaction, entry)
+            crypto_fee_running_sum += intra_transaction.crypto_fee
+            self.__crypto_intra_fee_running_sum[intra_transaction] = crypto_fee_running_sum
+
+        crypto_running_sum = ZERO
+        gain_loss: GainLoss
+        for entry in unfiltered_gain_loss_set:
+            gain_loss = cast(GainLoss, entry)
+            crypto_running_sum += gain_loss.crypto_amount
+            self.__crypto_gain_loss_running_sum[gain_loss] = crypto_running_sum
+
+        # Compute in lot sold percentages
+        self.__in_lot_sold_percentage: Dict[InTransaction, RP2Decimal] = {}
+        current_from_lot: Optional[InTransaction] = None
+        current_from_lot_percentage: RP2Decimal = ZERO
+        for entry in self.__filtered_gain_loss_set:
+            gain_loss = cast(GainLoss, entry)
+            if not gain_loss.from_lot or gain_loss.from_lot.timestamp.year < from_year or gain_loss.from_lot.timestamp.year > to_year:
+                continue
+            if gain_loss.from_lot != current_from_lot:
+                if current_from_lot:
+                    self.__in_lot_sold_percentage[current_from_lot] = RP2Decimal("1")
+                    current_from_lot_percentage = ZERO
+                current_from_lot = gain_loss.from_lot
+            current_from_lot_percentage += gain_loss.from_lot_fraction_percentage
+
+        if current_from_lot:
+            self.__in_lot_sold_percentage[current_from_lot] = current_from_lot_percentage
+
+        if self.__filtered_taxable_event_set.asset != self.__asset:
+            raise RP2ValueError(f"Asset mismatch in 'taxable_event_set': expected {self.__asset}, found {self.__filtered_taxable_event_set.asset}")
+        if self.__filtered_gain_loss_set.asset != self.__asset:
+            raise RP2ValueError(f"Asset mismatch in 'gain_loss_set': expected {self.__asset}, found {self.__filtered_gain_loss_set.asset}")
+        if self.__filtered_balance_set.asset != self.__asset:
+            raise RP2ValueError(f"Asset mismatch in 'balance_set': expected {self.__asset}, found {self.__filtered_balance_set.asset}")
 
         if self.__asset != input_data.asset:
             raise RP2ValueError(f"Asset mismatch in 'input_data': expected {self.__asset}, found {input_data.asset}")
 
     @property
     def asset(self) -> str:
+        """Asset this ComputedData instance is about."""
         return self.__asset
 
     @property
     def taxable_event_set(self) -> TransactionSet:
-        return self.__taxable_event_set
+        """Set of taxable events in this ComputedData instance."""
+        return self.__filtered_taxable_event_set
 
     @property
     def gain_loss_set(self) -> GainLossSet:
-        return self.__gain_loss_set
+        """Set of gain/loss mappings in this ComputedData instance."""
+        return self.__filtered_gain_loss_set
 
     @property
     def yearly_gain_loss_list(self) -> List[YearlyGainLoss]:
-        return self.__yearly_gain_loss_list
+        """List of gain/loss summaries in this ComputedData instance, grouped by year."""
+        return self.__filtered_yearly_gain_loss_list
 
     @property
     def in_transaction_set(self) -> TransactionSet:
-        return self.__in_transaction_set
+        """Set of in-transactions in this ComputedData instance."""
+        return self.__filtered_in_transaction_set
 
     @property
     def out_transaction_set(self) -> TransactionSet:
-        return self.__out_transaction_set
+        """Set of out-transactions in this ComputedData instance."""
+        return self.__filtered_out_transaction_set
 
     @property
     def intra_transaction_set(self) -> TransactionSet:
-        return self.__intra_transaction_set
+        """Set of intra-transactions in this ComputedData instance."""
+        return self.__filtered_intra_transaction_set
 
     @property
     def balance_set(self) -> BalanceSet:
-        return self.__balance_set
+        """Set of account balances in this ComputedData instance."""
+        return self.__filtered_balance_set
 
     @property
     def price_per_unit(self) -> RP2Decimal:
-        return self.__price_per_unit
+        """Average price per asset unit."""
+        return self.__filtered_price_per_unit
+
+    def get_crypto_in_running_sum(self, in_transaction: InTransaction) -> RP2Decimal:
+        """Crypto in running sum for a given InTransaction instance."""
+        InTransaction.type_check("in_transaction", in_transaction)
+        return self.__crypto_in_running_sum[in_transaction]
+
+    def get_crypto_out_running_sum(self, out_transaction: OutTransaction) -> RP2Decimal:
+        """Crypto running sum for a given OutTransaction instance."""
+        OutTransaction.type_check("out_transaction", out_transaction)
+        return self.__crypto_out_running_sum[out_transaction]
+
+    def get_crypto_out_fee_running_sum(self, out_transaction: OutTransaction) -> RP2Decimal:
+        """Crypto fee running sum for a given OutTransaction instance."""
+        OutTransaction.type_check("out_transaction", out_transaction)
+        return self.__crypto_out_fee_running_sum[out_transaction]
+
+    def get_crypto_intra_fee_running_sum(self, intra_transaction: IntraTransaction) -> RP2Decimal:
+        """Crypto fee running sum for a given IntraTransaction instance."""
+        IntraTransaction.type_check("intra_transaction", intra_transaction)
+        return self.__crypto_intra_fee_running_sum[intra_transaction]
+
+    def get_crypto_gain_loss_running_sum(self, gain_loss: GainLoss) -> RP2Decimal:
+        """Crypto amount running sum for a given GainLoss instance."""
+        GainLoss.type_check("gain_loss", gain_loss)
+        return self.__crypto_gain_loss_running_sum[gain_loss]
+
+    def get_in_lot_sold_percentage(self, in_transaction: InTransaction) -> RP2Decimal:
+        """Percentage sold for a given InTransaction instance"""
+        InTransaction.type_check("in_transaction", in_transaction)
+        return self.__in_lot_sold_percentage[in_transaction] if in_transaction in self.__in_lot_sold_percentage else ZERO
