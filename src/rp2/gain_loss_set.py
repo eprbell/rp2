@@ -27,6 +27,13 @@ from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
 class GainLossSet(AbstractEntrySet):
+    @classmethod
+    def type_check(cls, name: str, instance: "GainLossSet") -> "GainLossSet":
+        Configuration.type_check_parameter_name(name)
+        if not isinstance(instance, cls):
+            raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
+        return instance
+
     def __init__(
         self,
         configuration: Configuration,
@@ -41,24 +48,13 @@ class GainLossSet(AbstractEntrySet):
         self.__from_lots_to_number_of_fractions: Dict[InTransaction, int] = {}
         self.__transaction_type_2_count: Dict[TransactionType, int] = {transaction_type: 0 for transaction_type in TransactionType}
 
-    @classmethod
-    def type_check(cls, name: str, instance: "GainLossSet") -> "GainLossSet":
-        Configuration.type_check_parameter_name(name)
-        if not isinstance(instance, cls):
-            raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
-        return instance
-
     def add_entry(self, entry: AbstractEntry) -> None:
-        gain_loss: GainLoss = GainLoss.type_check("entry", entry)
-
-        if entry.timestamp.year > self.to_year:
-            return
-
+        GainLoss.type_check("entry", entry)
         super().add_entry(entry)
-        count: int = self.__transaction_type_2_count[gain_loss.taxable_event.transaction_type]
-        self.__transaction_type_2_count[gain_loss.taxable_event.transaction_type] = count + 1
 
     def get_transaction_type_count(self, transaction_type: TransactionType) -> int:
+        TransactionType.type_check("transaction_type", transaction_type)
+        self._check_sort()
         return self.__transaction_type_2_count[transaction_type]
 
     def get_taxable_event_fraction(self, entry: GainLoss) -> int:
@@ -99,8 +95,26 @@ class GainLossSet(AbstractEntrySet):
         current_taxable_event_fraction: int = 0
         current_from_lot_fraction: int = 0
         last_gain_loss_with_from_lot: Optional[GainLoss] = None
+
+        # Reset fields that are recomputed at sort time
+        self.__taxable_events_to_fraction = {}
+        self.__from_lots_to_fraction = {}
+        self.__taxable_events_to_number_of_fractions = {}
+        self.__from_lots_to_number_of_fractions = {}
+        self.__transaction_type_2_count = {transaction_type: 0 for transaction_type in TransactionType}
+
         for entry in self._entry_list:
             gain_loss = cast(GainLoss, entry)
+
+            # We're not using the iterator to avoid infinite recursion (we're looping over
+            # _entry_list directly), so we need to check time filters manually: stop after
+            # to_year so that number of fractions is not affected by years beyond the time filter
+            if gain_loss.timestamp.year > self.to_year:
+                break
+
+            count: int = self.__transaction_type_2_count[gain_loss.taxable_event.transaction_type]
+            self.__transaction_type_2_count[gain_loss.taxable_event.transaction_type] = count + 1
+
             # Access the parent directly via _entry_to_parent because using the get_parent()
             # accessor would cause _sort_entries to be called in an infinite recursive loop
             if gain_loss.from_lot:
