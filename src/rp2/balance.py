@@ -114,7 +114,7 @@ class BalanceSet:
         to_account: Account
 
         # Balances for bought and earned currency
-        for transaction in self.__input_data.in_transaction_set:
+        for transaction in self.__input_data.unfiltered_in_transaction_set:
             if transaction.timestamp.year > to_year:
                 break
             in_transaction: InTransaction = cast(InTransaction, transaction)
@@ -123,7 +123,7 @@ class BalanceSet:
             final_balances[to_account] = final_balances.get(to_account, ZERO) + in_transaction.crypto_in
 
         # Balances for currency that is moved across accounts
-        for transaction in self.__input_data.intra_transaction_set:
+        for transaction in self.__input_data.unfiltered_intra_transaction_set:
             if transaction.timestamp.year > to_year:
                 break
             intra_transaction: IntraTransaction = cast(IntraTransaction, transaction)
@@ -135,7 +135,7 @@ class BalanceSet:
             final_balances[to_account] = final_balances.get(to_account, ZERO) + intra_transaction.crypto_received
 
         # Balances for sold and gifted currency
-        for transaction in self.__input_data.out_transaction_set:
+        for transaction in self.__input_data.unfiltered_out_transaction_set:
             if transaction.timestamp.year > to_year:
                 break
             out_transaction: OutTransaction = cast(OutTransaction, transaction)
