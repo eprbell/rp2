@@ -298,15 +298,15 @@ class Generator(AbstractODTGenerator):
             summary_sheet.append_rows(new_lines)
 
         row_index: int = 0
-        row_index = self.__generate_in_table(transaction_sheet, computed_data.in_transaction_set, computed_data.gain_loss_set, row_index)
-        row_index = self.__generate_out_table(transaction_sheet, computed_data.out_transaction_set, row_index + 2)
-        row_index = self.__generate_intra_table(transaction_sheet, computed_data.intra_transaction_set, row_index + 2)
+        row_index = self.__generate_in_table(transaction_sheet, computed_data, row_index)
+        row_index = self.__generate_out_table(transaction_sheet, computed_data, row_index + 2)
+        row_index = self.__generate_intra_table(transaction_sheet, computed_data, row_index + 2)
 
         row_index = 0
         row_index = self.__generate_gain_loss_summary(output_sheet, computed_data.yearly_gain_loss_list, row_index)
         row_index = self.__generate_account_balances(output_sheet, computed_data.balance_set, row_index + 2)
         row_index = self.__generate_average_price_per_unit(output_sheet, asset, computed_data.price_per_unit, row_index + 2)
-        row_index = self.__generate_gain_loss_detail(output_sheet, asset, computed_data.gain_loss_set, row_index + 2)
+        row_index = self.__generate_gain_loss_detail(output_sheet, asset, computed_data, row_index + 2)
 
         return self.__generate_yearly_gain_loss_summary(summary_sheet, asset, computed_data.yearly_gain_loss_list, summary_row_index)
 
@@ -335,22 +335,38 @@ class Generator(AbstractODTGenerator):
             year = current_year
         return _BorderStyle(year, border_suffix)
 
-    def __generate_in_table(self, sheet: Any, in_transaction_set: TransactionSet, gain_loss_set: GainLossSet, row_index: int) -> int:
+    def __generate_in_table(self, sheet: Any, computed_data: ComputedData, row_index: int) -> int:
         row_index = self._fill_header("In-Flow Detail", _IN_HEADER_NAMES_ROW_1, _IN_HEADER_NAMES_ROW_2, sheet, row_index, 0)
 
-        in_transaction_index: int = row_index
+        in_transaction_set: TransactionSet = computed_data.in_transaction_set
         entry: AbstractEntry
-        crypto_in_running_sum: RP2Decimal = _ZERO
         year: int = 0
         visual_style: str
+        previous_transaction: Optional[InTransaction] = None
+        border_style: _BorderStyle
+        border_suffix: str = ""
         for entry in in_transaction_set:
             transaction: InTransaction = cast(InTransaction, entry)
             highlighted_style: str
             transaction_visual_style: _TransactionVisualStyle = self.__get_transaction_visual_style(transaction, year)
             year = transaction_visual_style.year
+            border_style = self.__get_border_style(entry.timestamp.year, year)
+            border_suffix = border_style.border_suffix
             visual_style = transaction_visual_style.visual_style
             highlighted_style = transaction_visual_style.highlighted_style
-            self._fill_cell(sheet, row_index, 0, "", visual_style="transparent")
+            in_lot_sold_percentage: Optional[RP2Decimal] = computed_data.get_in_lot_sold_percentage(transaction)
+
+            # Write _ZERO only on the first in_transaction if there are no sold lots
+            if in_lot_sold_percentage == _ZERO and previous_transaction is not None:
+                in_lot_sold_percentage = None
+            self._fill_cell(
+                sheet,
+                row_index,
+                0,
+                in_lot_sold_percentage if in_lot_sold_percentage is not None else "",
+                data_style="percent",
+                visual_style="from_lot" + border_suffix if in_lot_sold_percentage is not None else "transparent",
+            )
             self._fill_cell(sheet, row_index, 1, transaction.timestamp, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 2, transaction.asset, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 3, transaction.exchange, visual_style=visual_style)
@@ -358,49 +374,24 @@ class Generator(AbstractODTGenerator):
             self._fill_cell(sheet, row_index, 5, transaction.transaction_type.value.upper(), visual_style=visual_style)
             self._fill_cell(sheet, row_index, 6, transaction.spot_price, data_style="usd", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 7, transaction.crypto_in, data_style="crypto", visual_style=visual_style)
-            crypto_in_running_sum += transaction.crypto_in
-            self._fill_cell(sheet, row_index, 8, crypto_in_running_sum, data_style="crypto", visual_style=visual_style)
+            self._fill_cell(sheet, row_index, 8, computed_data.get_crypto_in_running_sum(transaction), data_style="crypto", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 9, transaction.usd_fee, data_style="usd", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 10, transaction.usd_in_no_fee, data_style="usd", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 11, transaction.usd_in_with_fee, data_style="usd", visual_style=highlighted_style)
             self._fill_cell(sheet, row_index, 12, "YES" if transaction.is_taxable() else "NO", data_style="usd", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 13, "", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 14, transaction.notes, visual_style="transparent")
+            previous_transaction = transaction
             row_index += 1
-
-        current_from_lot: Optional[AbstractTransaction] = None
-        current_from_lot_percentage: RP2Decimal = _ZERO
-        year = 0
-        border_style: _BorderStyle
-        border_suffix: str = ""
-        for entry in gain_loss_set:
-            gain_loss: GainLoss = cast(GainLoss, entry)
-            if not gain_loss.from_lot:
-                continue
-            if gain_loss.from_lot != current_from_lot:
-                if current_from_lot:
-                    border_style = self.__get_border_style(current_from_lot.timestamp.year, year)
-                    year = border_style.year
-                    border_suffix = border_style.border_suffix
-                    self._fill_cell(sheet, in_transaction_index, 0, 1, data_style="percent", visual_style="from_lot" + border_suffix)
-                    in_transaction_index += 1
-                    current_from_lot_percentage = _ZERO
-                current_from_lot = gain_loss.from_lot
-            current_from_lot_percentage += gain_loss.from_lot_fraction_percentage
-        if current_from_lot:
-            border_style = self.__get_border_style(current_from_lot.timestamp.year, year)
-            year = border_style.year
-            border_suffix = border_style.border_suffix
-        self._fill_cell(sheet, in_transaction_index, 0, current_from_lot_percentage, data_style="percent", visual_style="from_lot" + border_suffix)
 
         return row_index
 
-    def __generate_out_table(self, sheet: Any, out_transaction_set: TransactionSet, row_index: int) -> int:
+    def __generate_out_table(self, sheet: Any, computed_data: ComputedData, row_index: int) -> int:
         row_index = self._fill_header("Out-Flow Detail", _OUT_HEADER_NAMES_ROW_1, _OUT_HEADER_NAMES_ROW_2, sheet, row_index, 1)
 
+        out_transaction_set: TransactionSet = computed_data.out_transaction_set
+
         entry: AbstractEntry
-        crypto_out_running_sum: RP2Decimal = _ZERO
-        crypto_fee_running_sum: RP2Decimal = _ZERO
         year: int = 0
         for entry in out_transaction_set:
             transaction: OutTransaction = cast(OutTransaction, entry)
@@ -419,10 +410,8 @@ class Generator(AbstractODTGenerator):
             self._fill_cell(sheet, row_index, 6, transaction.spot_price, visual_style=visual_style, data_style="usd")
             self._fill_cell(sheet, row_index, 7, transaction.crypto_out_no_fee, visual_style=visual_style, data_style="crypto")
             self._fill_cell(sheet, row_index, 8, transaction.crypto_fee, visual_style=visual_style, data_style="crypto")
-            crypto_out_running_sum += transaction.crypto_out_no_fee
-            crypto_fee_running_sum += transaction.crypto_fee
-            self._fill_cell(sheet, row_index, 9, crypto_out_running_sum, data_style="crypto", visual_style=visual_style)
-            self._fill_cell(sheet, row_index, 10, crypto_fee_running_sum, data_style="crypto", visual_style=visual_style)
+            self._fill_cell(sheet, row_index, 9, computed_data.get_crypto_out_running_sum(transaction), data_style="crypto", visual_style=visual_style)
+            self._fill_cell(sheet, row_index, 10, computed_data.get_crypto_out_fee_running_sum(transaction), data_style="crypto", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 11, transaction.crypto_out_no_fee * transaction.spot_price, visual_style=highlighted_style, data_style="usd")
             self._fill_cell(sheet, row_index, 12, transaction.crypto_fee * transaction.spot_price, visual_style=highlighted_style, data_style="usd")
             self._fill_cell(sheet, row_index, 13, "YES" if transaction.is_taxable() else "NO", data_style="usd", visual_style=visual_style)
@@ -431,11 +420,12 @@ class Generator(AbstractODTGenerator):
 
         return row_index
 
-    def __generate_intra_table(self, sheet: Any, intra_transaction_set: TransactionSet, row_index: int) -> int:
+    def __generate_intra_table(self, sheet: Any, computed_data: ComputedData, row_index: int) -> int:
         row_index = self._fill_header("Intra-Flow Detail", _INTRA_HEADER_NAMES_ROW_1, _INTRA_HEADER_NAMES_ROW_2, sheet, row_index, 1)
 
+        intra_transaction_set: TransactionSet = computed_data.intra_transaction_set
+
         entry: AbstractEntry
-        crypto_fee_running_sum: RP2Decimal = _ZERO
         year: int = 0
         for entry in intra_transaction_set:
             transaction: IntraTransaction = cast(IntraTransaction, entry)
@@ -456,8 +446,7 @@ class Generator(AbstractODTGenerator):
             self._fill_cell(sheet, row_index, 8, transaction.crypto_sent, visual_style=visual_style, data_style="crypto")
             self._fill_cell(sheet, row_index, 9, transaction.crypto_received, visual_style=visual_style, data_style="crypto")
             self._fill_cell(sheet, row_index, 10, transaction.crypto_fee, visual_style=visual_style, data_style="crypto")
-            crypto_fee_running_sum += transaction.crypto_fee
-            self._fill_cell(sheet, row_index, 11, crypto_fee_running_sum, data_style="crypto", visual_style=visual_style)
+            self._fill_cell(sheet, row_index, 11, computed_data.get_crypto_intra_fee_running_sum(transaction), data_style="crypto", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 12, transaction.usd_fee, visual_style=highlighted_style, data_style="usd")
             self._fill_cell(sheet, row_index, 13, "YES" if transaction.is_taxable() else "NO", data_style="usd", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 14, transaction.notes, visual_style="transparent")
@@ -531,13 +520,14 @@ class Generator(AbstractODTGenerator):
 
         return row_index + 4
 
-    def __generate_gain_loss_detail(self, sheet: Any, asset: str, gain_loss_set: GainLossSet, row_index: int) -> int:
+    def __generate_gain_loss_detail(self, sheet: Any, asset: str, computed_data: ComputedData, row_index: int) -> int:
 
         row_index = self._fill_header("Gain / Loss Detail", _GAIN_LOSS_DETAIL_HEADER_NAMES_ROW_1, _GAIN_LOSS_DETAIL_HEADER_NAMES_ROW_2, sheet, row_index, 0)
 
+        gain_loss_set: GainLossSet = computed_data.gain_loss_set
+
         taxable_event_style_modifier: str = ""
         from_lot_style_modifier: str = ""
-        crypto_amount_running_sum: RP2Decimal = _ZERO
         year: int = 0
         border_style: _BorderStyle
         for entry in gain_loss_set:
@@ -563,8 +553,7 @@ class Generator(AbstractODTGenerator):
             )
             self._fill_cell(sheet, row_index, 0, gain_loss.crypto_amount, visual_style=transparent_style, data_style="crypto")
             self._fill_cell(sheet, row_index, 1, gain_loss.asset, visual_style=transparent_style)
-            crypto_amount_running_sum += gain_loss.crypto_amount
-            self._fill_cell(sheet, row_index, 2, crypto_amount_running_sum, visual_style=transparent_style, data_style="crypto")
+            self._fill_cell(sheet, row_index, 2, computed_data.get_crypto_gain_loss_running_sum(gain_loss), visual_style=transparent_style, data_style="crypto")
             self._fill_cell(sheet, row_index, 3, gain_loss.usd_gain, visual_style=transparent_style, data_style="usd")
             self._fill_cell(sheet, row_index, 4, "LONG" if gain_loss.is_long_term_capital_gains() else "SHORT", visual_style=transparent_style)
             self._fill_cell(sheet, row_index, 5, gain_loss.taxable_event.timestamp, visual_style=taxable_event_style)
