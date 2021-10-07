@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from copy import copy
 from datetime import datetime
 from typing import Dict, List, Optional, Set
 
@@ -36,13 +37,22 @@ class AbstractEntrySet:
         self.__configuration: Configuration = Configuration.type_check("configuration", configuration)
         self.__entry_set_type: EntrySetType = EntrySetType.type_check_from_string("entry_set_type", entry_set_type)
         self.__asset: str = configuration.type_check_asset("asset", asset)
-        self.__from_year: int = configuration.type_check_positive_int("from_year", from_year)
-        self.__to_year: int = configuration.type_check_positive_int("to_year", to_year, non_zero=True)
+        self._from_year: int = configuration.type_check_positive_int("from_year", from_year)
+        self._to_year: int = configuration.type_check_positive_int("to_year", to_year, non_zero=True)
 
         self._entry_list: List[AbstractEntry] = []  # List for sorting
         self._entry_set: Set[AbstractEntry] = set()  # Set for fast search (at the cost of extra memory)
         self._entry_to_parent: Dict[AbstractEntry, Optional[AbstractEntry]] = {}
         self.__is_sorted: bool = False
+
+    def duplicate(self, from_year: int = 0, to_year: int = MAX_YEAR) -> "AbstractEntrySet":
+        # pylint: disable=protected-access
+        result: AbstractEntrySet = copy(self)
+        result._from_year = from_year
+        result._to_year = to_year
+        # Force sort to recompute fields that are affected by time filter
+        result._force_sort()
+        return result
 
     def __str__(self) -> str:
         output: List[str] = []
@@ -90,11 +100,11 @@ class AbstractEntrySet:
 
     @property
     def from_year(self) -> int:
-        return self.__from_year
+        return self._from_year
 
     @property
     def to_year(self) -> int:
-        return self.__to_year
+        return self._to_year
 
     @property
     def count(self) -> int:
@@ -102,9 +112,6 @@ class AbstractEntrySet:
 
     def add_entry(self, entry: AbstractEntry) -> None:
         AbstractEntry.type_check("entry", entry)
-
-        if entry.timestamp.year > self.to_year:
-            return
 
         if entry.asset != self.asset:
             raise RP2ValueError(f"Attempting to add a {entry.asset} entry to a {self.asset} set")
@@ -147,6 +154,10 @@ class AbstractEntrySet:
             self._sort_entries()
             self.__is_sorted = True
 
+    def _force_sort(self) -> None:
+        self.__is_sorted = False
+        self._check_sort()
+
     def __iter__(self) -> "EntrySetIterator":
         self._check_sort()
         return EntrySetIterator(self)
@@ -163,7 +174,8 @@ class EntrySetIterator:
         while self.__index < self.__entry_set_size:
             result = self.__entry_set._entry_list[self.__index]  # pylint: disable=protected-access
             self.__index += 1
-            # No need to check to_year, since it's already used in add_entry()
+            if result.timestamp.year > self.__entry_set.to_year:
+                raise StopIteration(self)
             if result.timestamp.year >= self.__entry_set.from_year:
                 return result
         raise StopIteration(self)
