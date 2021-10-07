@@ -46,10 +46,6 @@ class TransactionSet(AbstractEntrySet):
 
     def add_entry(self, entry: AbstractEntry) -> None:
         AbstractTransaction.type_check("entry", entry)
-
-        if entry.timestamp.year > self.to_year:
-            return
-
         super().add_entry(entry)
 
     def _validate_entry(self, entry: AbstractEntry) -> None:
