@@ -18,7 +18,7 @@ from typing import Dict, Iterable, Iterator, List, Set, cast
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.computed_data import ComputedData, YearlyGainLoss
-from rp2.configuration import Configuration
+from rp2.configuration import MAX_YEAR, Configuration
 from rp2.entry_types import TransactionType
 from rp2.gain_loss import GainLoss
 from rp2.gain_loss_set import GainLossSet
@@ -36,33 +36,33 @@ def compute_tax(configuration: Configuration, input_data: InputData) -> Computed
     Configuration.type_check("configuration", configuration)
     InputData.type_check("input_data", input_data)
 
-    taxable_event_set: TransactionSet = _create_taxable_event_set(configuration, input_data)
+    unfiltered_taxable_event_set: TransactionSet = _create_unfiltered_taxable_event_set(configuration, input_data)
     LOGGER.debug("%s: Created taxable event set", input_data.asset)
-    gain_loss_set: GainLossSet = _create_gain_and_loss_set(configuration, input_data, taxable_event_set)
+    unfiltered_gain_loss_set: GainLossSet = _create_unfiltered_gain_and_loss_set(configuration, input_data, unfiltered_taxable_event_set)
     LOGGER.debug("%s: Created gain-loss set", input_data.asset)
-    yearly_gain_loss_list: List[YearlyGainLoss] = _create_yearly_gain_loss_list(input_data, gain_loss_set)
+    unfiltered_yearly_gain_loss_list: List[YearlyGainLoss] = _create_unfiltered_yearly_gain_loss_list(input_data, unfiltered_gain_loss_set)
     LOGGER.debug("%s: Created yearly gain-loss list", input_data.asset)
 
     return ComputedData(
         input_data.asset,
-        taxable_event_set,
-        gain_loss_set,
-        yearly_gain_loss_list,
+        unfiltered_taxable_event_set,
+        unfiltered_gain_loss_set,
+        unfiltered_yearly_gain_loss_list,
         input_data,
         configuration.from_year,
         configuration.to_year,
     )
 
 
-def _create_taxable_event_set(configuration: Configuration, input_data: InputData) -> TransactionSet:
+def _create_unfiltered_taxable_event_set(configuration: Configuration, input_data: InputData) -> TransactionSet:
     transaction_set: TransactionSet
     entry: AbstractEntry
     transaction: AbstractTransaction
-    taxable_event_set: TransactionSet = TransactionSet(configuration, "MIXED", input_data.asset, configuration.from_year, configuration.to_year)
+    taxable_event_set: TransactionSet = TransactionSet(configuration, "MIXED", input_data.asset, 0, MAX_YEAR)
     for transaction_set in [
-        input_data.in_transaction_set,
-        input_data.out_transaction_set,
-        input_data.intra_transaction_set,
+        input_data.unfiltered_in_transaction_set,
+        input_data.unfiltered_out_transaction_set,
+        input_data.unfiltered_intra_transaction_set,
     ]:
         for entry in transaction_set:
             transaction = cast(AbstractTransaction, entry)
@@ -72,12 +72,12 @@ def _create_taxable_event_set(configuration: Configuration, input_data: InputDat
     return taxable_event_set
 
 
-def _create_gain_and_loss_set(configuration: Configuration, input_data: InputData, taxable_event_set: TransactionSet) -> GainLossSet:
+def _create_unfiltered_gain_and_loss_set(configuration: Configuration, input_data: InputData, unfiltered_taxable_event_set: TransactionSet) -> GainLossSet:
 
-    gain_loss_set: GainLossSet = GainLossSet(configuration, input_data.asset, from_year=configuration.from_year, to_year=configuration.to_year)
+    gain_loss_set: GainLossSet = GainLossSet(configuration, input_data.asset, 0, MAX_YEAR)
 
-    taxable_event_iterator: Iterator[AbstractTransaction] = iter(cast(Iterable[AbstractTransaction], taxable_event_set))
-    from_lot_iterator: Iterator[InTransaction] = iter(cast(Iterable[InTransaction], input_data.in_transaction_set))
+    taxable_event_iterator: Iterator[AbstractTransaction] = iter(cast(Iterable[AbstractTransaction], unfiltered_taxable_event_set))
+    from_lot_iterator: Iterator[InTransaction] = iter(cast(Iterable[InTransaction], input_data.unfiltered_in_transaction_set))
 
     try:
         gain_loss: GainLoss
@@ -138,12 +138,12 @@ class _YearlyGainLossAmounts:
     usd_gain_loss: RP2Decimal
 
 
-def _create_yearly_gain_loss_list(input_data: InputData, gain_loss_set: GainLossSet) -> List[YearlyGainLoss]:
+def _create_unfiltered_yearly_gain_loss_list(input_data: InputData, unfiltered_gain_loss_set: GainLossSet) -> List[YearlyGainLoss]:
     summaries: Dict[_YearlyGainLossId, _YearlyGainLossAmounts] = {}
     entry: AbstractEntry
     key: _YearlyGainLossId
     value: _YearlyGainLossAmounts
-    for entry in gain_loss_set:
+    for entry in unfiltered_gain_loss_set:
         gain_loss: GainLoss = cast(GainLoss, entry)
         key = _YearlyGainLossId(
             gain_loss.taxable_event.timestamp.year,
@@ -211,15 +211,15 @@ def _verify_computation(
     gain_loss_total_verify: RP2Decimal = ZERO
 
     # Compute USD and crypto total taxable amount
-    for entry in input_data.in_transaction_set:
+    for entry in input_data.unfiltered_in_transaction_set:
         in_transaction: InTransaction = cast(InTransaction, entry)
         usd_taxable_amount_total_verify += in_transaction.usd_taxable_amount
         crypto_earned_amount_total_verify += in_transaction.crypto_taxable_amount
-    for entry in input_data.out_transaction_set:
+    for entry in input_data.unfiltered_out_transaction_set:
         out_transaction: OutTransaction = cast(OutTransaction, entry)
         usd_taxable_amount_total_verify += out_transaction.usd_taxable_amount
         crypto_sold_amount_total_verify += out_transaction.crypto_taxable_amount
-    for entry in input_data.intra_transaction_set:
+    for entry in input_data.unfiltered_intra_transaction_set:
         intra_transaction: IntraTransaction = cast(IntraTransaction, entry)
         usd_taxable_amount_total_verify += intra_transaction.usd_taxable_amount
         crypto_sold_amount_total_verify += intra_transaction.crypto_taxable_amount
@@ -227,7 +227,7 @@ def _verify_computation(
     crypto_taxable_amount_total_verify = crypto_sold_amount_total_verify + crypto_earned_amount_total_verify
 
     # Compute cost basis
-    for entry in input_data.in_transaction_set:
+    for entry in input_data.unfiltered_in_transaction_set:
         in_transaction = cast(InTransaction, entry)
         if crypto_in_amount_total + in_transaction.crypto_in > crypto_sold_amount_total_verify:
             # End of loop: last in transaction covering the amount sold needs to be fractioned
