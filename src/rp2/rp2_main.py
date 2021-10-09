@@ -28,7 +28,7 @@ from rp2.logger import LOG_FILE, LOGGER
 from rp2.ods_parser import open_ods, parse_ods
 from rp2.tax_engine import compute_tax
 
-OUTPUT_PACKAGE = "rp2.plugin.output"
+OUTPUT_PACKAGE = "rp2.plugin.report"
 
 
 def rp2_main() -> None:

@@ -27,7 +27,7 @@ from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError
 
 
-class AbstractODTReportGenerator(AbstractReportGenerator):
+class AbstractODTGenerator(AbstractReportGenerator):
     @staticmethod
     def _initialize_output_file(
         output_dir_path: str,

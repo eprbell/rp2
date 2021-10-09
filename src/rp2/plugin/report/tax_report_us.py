@@ -21,7 +21,7 @@ from rp2.entry_types import TransactionType
 from rp2.gain_loss import GainLoss
 from rp2.gain_loss_set import GainLossSet
 from rp2.logger import LOGGER
-from rp2.plugin.output.abstract_odt_report_generator import AbstractODTReportGenerator
+from rp2.plugin.report.abstract_odt_generator import AbstractODTGenerator
 from rp2.rp2_error import RP2TypeError
 
 
@@ -56,7 +56,7 @@ _SHEET_TO_TYPE: Dict[str, TransactionType] = {
 _TYPE_TO_SHEET: Dict[TransactionType, str] = {transaction_type: sheet_name for sheet_name, transaction_type in _SHEET_TO_TYPE.items()}
 
 
-class Generator(AbstractODTReportGenerator):
+class Generator(AbstractODTGenerator):
 
     MIN_ROWS: int = 20
     MAX_COLUMNS: int = 20
