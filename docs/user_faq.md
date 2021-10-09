@@ -39,7 +39,7 @@
 * **[What Does RP2 Mean?](#what-does-rp2-mean)**
 
 ## How to Verify That I Entered Data Correctly in the Input Spreadsheet?
-TBD
+In rp2_full_report.ods check the Account Balances table in the tax sheets, and make sure they match the actual balances in your accounts. If not, you probably have an error in the input file or missed some transactions.
 
 ## What Is the Timestamp Format?
 TBD
@@ -66,10 +66,10 @@ TBD
 TBD
 
 ## Which Crypto Tax Forms to File?
-Each event has a specific tax treatment: ask a tax professional for the proper answer in any given year. Also read [CoinTracker's summary on this topic](https://www.cointracker.io/blog/what-tax-forms-should-crypto-holders-file).
+Each tax event (mining, staking, selling, donating, etc.) has a specific tax treatment: ask a tax professional about for the correct answer in any given year. Also read [CoinTracker's summary on this topic](https://www.cointracker.io/blog/what-tax-forms-should-crypto-holders-file).
 
 ## How to Report a RP2 Bug without Sharing Personal Information?
-TBD
+See the Reporting Bugs section in the [CONTRIBUTING](../CONTRIBUTING.md#reporting-bugs) document.
 
 ## Can I Avoid Writing a Config File From Scratch?
 TBD
