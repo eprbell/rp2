@@ -26,7 +26,7 @@ from rp2.in_transaction import InTransaction
 from rp2.intra_transaction import IntraTransaction
 from rp2.logger import LOGGER
 from rp2.out_transaction import OutTransaction
-from rp2.plugin.output.abstract_odt_generator import AbstractODTGenerator
+from rp2.plugin.output.abstract_odt_report_generator import AbstractODTReportGenerator
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError
 from rp2.transaction_set import TransactionSet
@@ -234,7 +234,7 @@ _GAIN_LOSS_DETAIL_HEADER_NAMES_ROW_2: List[str] = [
 _ZERO: RP2Decimal = RP2Decimal(0)
 
 
-class Generator(AbstractODTGenerator):
+class Generator(AbstractODTReportGenerator):
 
     MIN_ROWS: int = 40
     MAX_COLUMNS: int = 40

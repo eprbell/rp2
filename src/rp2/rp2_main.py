@@ -20,7 +20,7 @@ from pkgutil import iter_modules
 from types import ModuleType
 from typing import Dict, List
 
-from rp2.abstract_generator import AbstractGenerator
+from rp2.abstract_report_generator import AbstractReportGenerator
 from rp2.computed_data import ComputedData
 from rp2.configuration import VERSION, Configuration
 from rp2.input_data import InputData
@@ -79,7 +79,7 @@ def rp2_main() -> None:
                 continue
             output_module: ModuleType = import_module(plugin_name, package=OUTPUT_PACKAGE)
             if hasattr(output_module, "Generator"):
-                generator: AbstractGenerator = output_module.Generator()  # type: ignore  # mypy issue #1422
+                generator: AbstractReportGenerator = output_module.Generator()  # type: ignore  # mypy issue #1422
                 LOGGER.debug("Generator object: '%s'", generator)
                 LOGGER.info("Generating output for plugin '%s'", plugin_name)
                 if not hasattr(generator, "generate"):

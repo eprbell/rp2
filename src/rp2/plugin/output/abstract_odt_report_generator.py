@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Set
 
 import ezodf
-from rp2.abstract_generator import AbstractGenerator
+from rp2.abstract_report_generator import AbstractReportGenerator
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.computed_data import ComputedData
 from rp2.configuration import Configuration
@@ -27,7 +27,7 @@ from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError
 
 
-class AbstractODTGenerator(AbstractGenerator):
+class AbstractODTReportGenerator(AbstractReportGenerator):
     @staticmethod
     def _initialize_output_file(
         output_dir_path: str,
