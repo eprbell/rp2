@@ -47,7 +47,7 @@
 
 RP2 reads in a user-prepared spreadsheet containing crypto transactions. It then uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates output spreadsheets. It uses the FIFO accounting method.
 
-It has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/src/rp2/plugin/output): the builtin plugins are US-specific, but RP2's architecture makes it possible to contribute additional output generators for different countries or for different US-based cases. The builtin plugins are:
+It has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/src/rp2/plugin/report): the builtin plugins are US-specific, but RP2's architecture makes it possible to contribute additional output generators for different countries or for different US-based cases. The builtin plugins are:
 * tax_report_us: generates a tax report meant to be read by tax preparers (in the format of form 8949);
 * rp2_full_report: generates a comprehensive report, with complete transaction history, lot relationships/fractions and computation details.
 

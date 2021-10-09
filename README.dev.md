@@ -123,8 +123,8 @@ The RP2 source tree is organized as follows:
 * `setup.cfg`: static packaging configuration file;
 * `setup.py`: dynamic packaging configuration file;
 * `src/rp2`: RP2 code, including classes for transactions, gains, tax engine, balances, logger, ODS parser, etc.;
-* `src/rp2/plugin/output/`: output generator plugins;
-* `src/rp2/plugin/output/data/`: spreadsheet templates that are used by the builtin output plugins;
+* `src/rp2/plugin/report/`: report generator plugins;
+* `src/rp2/plugin/report/data/`: spreadsheet templates that are used by the builtin report plugins;
 * `src/stubs/`: RP2 relies on the pyexcel-ezodf library, which doesn't have typing information, so it is added here;
 * `tests/`: unit tests.
 
@@ -168,13 +168,13 @@ LOG_LEVEL=DEBUG bin/rp2.py -o output -p crypto_example_ config/crypto_example.co
 RP2 has considerable unit test coverage to reduce the risk of regression. Unit tests are in the [tests](tests) directory. Please add unit tests for any new code.
 
 ## Plugin Development
-RP2 has a plugin architecture for output generators, which makes it extensible for new use cases. Writing a new plugin is quite easy: the [tax_report_us](src/rp2/plugin/output/tax_report_us.py) generator is a simple example, the [rp2_full_report](src/rp2/plugin/output/rp2_full_report.py) one is more comprehensive.
+RP2 has a plugin architecture for report generators, which makes it extensible for new use cases. Writing a new plugin is quite easy: the [tax_report_us](src/rp2/plugin/report/tax_report_us.py) generator is a simple example, the [rp2_full_report](src/rp2/plugin/report/rp2_full_report.py) one is more comprehensive.
 
 Plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
-* add a new Python file in the src/rp2/plugin/output directory and give it a meaningful name
+* add a new Python file in the src/rp2/plugin/report directory and give it a meaningful name
 * import the following (plus any other RP2 file you might need):
 ```
-from abstract_generator import AbstractGenerator
+from abstract_report_generator import AbstractReportGenerator
 from computed_data import ComputedData
 from gain_loss import GainLoss
 from gain_loss_set import GainLossSet
@@ -183,11 +183,11 @@ from gain_loss_set import GainLossSet
 ```
 from logger import LOGGER
 ```
-* Add a class named Generator, deriving from AbstractGenerator:
+* Add a class named `Generator`, deriving from `AbstractReportGenerator`:
 ```
-class Generator(AbstractGenerator):
+class Generator(AbstractReportGenerator):
 ```
-* Add a generate method with the following signature:
+* Add a `generate()` method with the following signature:
 ```
     def generate(
         self,
@@ -197,9 +197,9 @@ class Generator(AbstractGenerator):
     ) -> None:
 ```
 * write the body of the method. The parameters are:
-  * asset_to_computed_data: dictionary mapping user asset (i.e. cryptocurrency) to the computed tax data for that asset. For each user asset there is one instance of [ComputedData](src/rp2/computed_data.py);
-  * output_dir_path: directory in which to write the output;
-  * output_file_prefix: prefix to be prepended to the output file name.
+  * `asset_to_computed_data`: dictionary mapping user asset (i.e. cryptocurrency) to the computed tax data for that asset. For each user asset there is one instance of [ComputedData](src/rp2/computed_data.py);
+  * `output_dir_path`: directory in which to write the output;
+  * `output_file_prefix`: prefix to be prepended to the output file name.
 
 ## Frequently Asked Developer Questions
 Read the [frequently asked developer questions](docs/developer_faq.md).

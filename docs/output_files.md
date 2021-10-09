@@ -13,7 +13,7 @@
 <!--- limitations under the License. --->
 
 # Output Files
-RP2 generates output files by running the output plugins. It comes with two builtin plugins for US taxes:
+RP2 generates output files by running the report plugins. It comes with two builtin plugins for US taxes:
 * *rp2_full_report*: a comprehensive report containing full transaction history, long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. See [crypto_example_rp2_full_report.ods](../input/golden/crypto_example_rp2_full_report.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down in this document.
 * *tax_report_us*: a US-specific report that can be used to fill form 8949, etc. See [crypto_example_tax_report_us.ods](../input/golden/crypto_example_tax_report_us.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down in this document.
 
