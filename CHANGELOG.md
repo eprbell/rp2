@@ -14,6 +14,11 @@
 
 # RP2 Change Log
 
+## In Progress
+* Verified software is up to date for FY 2021
+* Wrote several answers in User FAQ document
+* Minor fixes
+
 ## v0.8.1
 * Added several new tests (from/to_year command line option variations and new transaction types)
 * Reworked time filter logic to fix two bugs related to -f and -t options:
