@@ -98,7 +98,7 @@ class TestRP2Decimal(unittest.TestCase):
         self.assertTrue(nine % two + decimal4 - decimal1 > one)
 
     def test_bad_rp2_decimal(self) -> None:
-        # pylint: disable=misplaced-comparison-constant, pointless-statement
+        # pylint: disable=pointless-statement
         one: RP2Decimal = RP2Decimal("1")
 
         # Test comparison operators
