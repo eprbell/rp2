@@ -42,37 +42,37 @@
 In rp2_full_report.ods check the Account Balances table in the tax sheets, and make sure they match the actual balances in your accounts. If not, you probably have an error in the input file or missed some transactions.
 
 ## What Is the Timestamp Format?
-TBD
+Timestamp format is [ISO8601](https://en.wikipedia.org/wiki/ISO_8601). See also [examples](https://en.wikipedia.org/wiki/ISO_8601#Combined_date_and_time_representations) of timestamps in this format. Note that RP2 requires full timestamps, with date, time and timezone.
 
 ## How to Handle Conversion of a Cryptocurrency to Another?
-TBD
+Converting from one cryptocurrency to another can be captured in RP2 by splitting the original transaction into two: the first is a SELL-type transaction that describes selling the initial cryptocurrency into fiat (USD). The second one is a BUY-type transaction that describes buying the final cryptocurrency using fiat.
 
 ## How to Handle Airdrops?
-TBD
+Mark the transaction type as AIRDROP. RP2 will collect all such transactions together in the tax_report_us output. Also check question on [which tax forms to file](#which-crypto-tax-forms-to-file).
 
 ## How to Handle Hard Forks?
-TBD
+Mark the transaction type as HARDFORK. RP2 will collect all such transactions together in the tax_report_us output. Also check question on [which tax forms to file](#which-crypto-tax-forms-to-file).
 
 ## How to Handle Income from Mining?
-TBD
+Mark the transaction type as MINING. RP2 will collect all such transactions together in the tax_report_us output. Also check question on [which tax forms to file](#which-crypto-tax-forms-to-file).
 
 ## How to Handle Income from Staking?
-TBD
+Mark the transaction type as STAKING. RP2 will collect all such transactions together in the tax_report_us output. Also check question on [which tax forms to file](#which-crypto-tax-forms-to-file).
 
 ## How to Handle Futures and Options?
 TBD
 
 ## How to Handle NFTs?
-TBD
+RP2 treats NFTs like cryptocurrencies, that is as property. Use a unique asset type for each NFT, both in the config file and in the input spreadsheet: e.g. ETH_BORED_APE_4363. There is debate on whether NFTs should be treated as collectibles instead, but this has not been clarified officially by the IRS yet, to the best of my knowledge. Ask a tax professional for the correct answer in any given year.
 
 ## Which Crypto Tax Forms to File?
-Each tax event (mining, staking, selling, donating, etc.) has a specific tax treatment: ask a tax professional about for the correct answer in any given year. Also read [CoinTracker's summary on this topic](https://www.cointracker.io/blog/what-tax-forms-should-crypto-holders-file).
+Each tax event (mining, staking, selling, donating, etc.) has a specific tax treatment: ask a tax professional for the correct answer in any given year. Also read [CoinTracker's summary on this topic](https://www.cointracker.io/blog/what-tax-forms-should-crypto-holders-file).
 
 ## How to Report a RP2 Bug without Sharing Personal Information?
 See the Reporting Bugs section in the [CONTRIBUTING](../CONTRIBUTING.md#reporting-bugs) document.
 
 ## Can I Avoid Writing a Config File From Scratch?
-TBD
+You can use [crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config) as boilerplate and [Input Files](https://github.com/eprbell/rp2/tree/main/docs/input_files.md) as reference.
 
 ## If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?
 TBD
