@@ -30,8 +30,6 @@
   * [Windows 10](https://github.com/eprbell/rp2/tree/main/README.md#installation-on-windows-10)
   * [Other Unix-like Systems](https://github.com/eprbell/rp2/tree/main/README.md#installation-on-other-unix-like-systems)
 * **[Running](https://github.com/eprbell/rp2/tree/main/README.md#running)**
-  * [Linux, macOS, Windows 10 and Other Unix-like Systems](https://github.com/eprbell/rp2/tree/main/README.md#running-on-linux-macos-windows-10-and-other-unix-like-systems)
-  * [Windows 10](https://github.com/eprbell/rp2/tree/main/README.md#running-on-windows-10)
 * **[Input and Output Files](https://github.com/eprbell/rp2/tree/main/README.md#input-and-output-files)**
 * **[Reporting Bugs](https://github.com/eprbell/rp2/tree/main/README.md#reporting-bugs)**
 * **[Contributing](https://github.com/eprbell/rp2/tree/main/README.md#contributing)**
@@ -40,8 +38,8 @@
 * **[Change Log](https://github.com/eprbell/rp2/tree/main/README.md#change-log)**
 
 ## Introduction
-[RP2](https://pypi.org/project/rp2/) is a privacy-focused, free, [open-source](https://github.com/eprbell/rp2) cryptocurrency tax calculator. Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This task could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
-* it manages the complexity related to coin flows and tax calculation and it generates data that accountants can understand, even if they are not cryptocurrency experts (form 8949, etc.);
+[RP2](https://pypi.org/project/rp2/) is a privacy-focused, free, [open-source](https://github.com/eprbell/rp2) US cryptocurrency tax calculator, that is up to date for Fiscal Year 2021. Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This task could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
+* it manages the complexity related to coin flows and tax calculation and it generates data that accountants can understand (in the format of form 8949), even if they are not cryptocurrency experts;
 * it prioritizes user privacy by storing crypto transactions and tax results on the user's computer and not sending them anywhere else;
 * it's free and open-source.
 
@@ -78,7 +76,7 @@ RP2 groups lot fractions into the following taxable event categories, each of wh
 
 For each of these categories RP2 generates an output spreadsheet with transaction details and computed gains/losses (see [Input and Output Files](https://github.com/eprbell/rp2/tree/main/README.md#input-and-output-files) for more details). Users can give this output to their tax preparer with the rest of their tax documentation. Note that buying cryptocurrency is not a taxable event.
 
-**NOTE ON NFTs**: RP2 treats [NFTs](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-nfts) as cryptocurrencies (that is, as property).
+**NOTE ON NFTs**: Read the [FAQ on NFTs](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-nfts) to learn about how RP2 treats NFTs.
 
 ## License
 RP2 is released under the terms of Apache License Version 2.0. For more information see [LICENSE](https://github.com/eprbell/rp2/tree/main/LICENSE) or <http://www.apache.org/licenses/LICENSE-2.0>.
@@ -135,8 +133,7 @@ Examples of an input spreadsheet and its respective config file:
 
 After reading the input files, RP2 computes taxes and generates output files, which contain information on long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. They are described in detail in the [Output Files](https://github.com/eprbell/rp2/tree/main/docs/output_files.md) section of the documentation.
 
-### Running on Linux, macOS, Windows 10 and Other Unix-like Systems
-Download [crypto_example.ods](https://github.com/eprbell/rp2/tree/main/input/crypto_example.ods) and [crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config). Let's call `<download_directory>` the location of the downloaded files.
+To try RP2 with example files, download [crypto_example.ods](https://github.com/eprbell/rp2/tree/main/input/crypto_example.ods) and [crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config). Let's call `<download_directory>` the location of the downloaded files.
 
 To generate output for the example files open a terminal window (or PowerShell if on Windows) and enter the following commands:
   ```
