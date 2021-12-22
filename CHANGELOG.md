@@ -14,7 +14,7 @@
 
 # RP2 Change Log
 
-## In Progress
+## v0.8.2
 * Verified software is up to date for FY 2021
 * Wrote several answers in User FAQ document
 * Minor fixes
