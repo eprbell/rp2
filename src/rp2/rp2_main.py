@@ -72,14 +72,14 @@ def rp2_main() -> None:
         plugin_name: str
         is_package: bool
         package_found: bool = False
-        for *_, plugin_name, is_package in iter_modules(package.__path__, package.__name__ + "."):  # type: ignore  # mypy issue #1422
+        for *_, plugin_name, is_package in iter_modules(package.__path__, package.__name__ + "."):
             if is_package:
                 continue
             if args.plugin and plugin_name != f"{OUTPUT_PACKAGE}.{args.plugin}":
                 continue
             output_module: ModuleType = import_module(plugin_name, package=OUTPUT_PACKAGE)
             if hasattr(output_module, "Generator"):
-                generator: AbstractReportGenerator = output_module.Generator()  # type: ignore  # mypy issue #1422
+                generator: AbstractReportGenerator = output_module.Generator()
                 LOGGER.debug("Generator object: '%s'", generator)
                 LOGGER.info("Generating output for plugin '%s'", plugin_name)
                 if not hasattr(generator, "generate"):
