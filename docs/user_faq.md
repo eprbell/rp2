@@ -39,25 +39,25 @@
 * **[What Does RP2 Mean?](#what-does-rp2-mean)**
 
 ## How to Verify That I Entered Data Correctly in the Input Spreadsheet?
-In rp2_full_report.ods check the Account Balances table in the tax sheets, and make sure they match the actual balances in your accounts. If not, you probably have an error in the input file or missed some transactions.
+In rp2_full_report.ods check the Account Balances table in the tax sheets, and make sure they match the actual balances of your accounts. If not, you probably have an error in the input file or missed some transactions.
 
 ## What Is the Timestamp Format?
-Timestamp format is [ISO8601](https://en.wikipedia.org/wiki/ISO_8601). See also [examples](https://en.wikipedia.org/wiki/ISO_8601#Combined_date_and_time_representations) of timestamps in this format. Note that RP2 requires full timestamps, with date, time and timezone.
+Timestamp format is [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) (see [examples](https://en.wikipedia.org/wiki/ISO_8601#Combined_date_and_time_representations) of timestamps in this format). Note that RP2 requires full timestamps, with date, time and timezone.
 
 ## How to Handle Conversion of a Cryptocurrency to Another?
 Converting from one cryptocurrency to another can be captured in RP2 by splitting the original transaction into two: the first is a SELL-type transaction that describes selling the initial cryptocurrency into fiat (USD). The second one is a BUY-type transaction that describes buying the final cryptocurrency using fiat.
 
 ## How to Handle Airdrops?
-Mark the transaction type as AIRDROP. RP2 will collect all such transactions together in the tax_report_us output. Also check question on [which tax forms to file](#which-crypto-tax-forms-to-file).
+Mark the transaction type as AIRDROP. RP2 will collect all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file).
 
 ## How to Handle Hard Forks?
-Mark the transaction type as HARDFORK. RP2 will collect all such transactions together in the tax_report_us output. Also check question on [which tax forms to file](#which-crypto-tax-forms-to-file).
+Mark the transaction type as HARDFORK. RP2 will collect all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file).
 
 ## How to Handle Income from Mining?
-Mark the transaction type as MINING. RP2 will collect all such transactions together in the tax_report_us output. Also check question on [which tax forms to file](#which-crypto-tax-forms-to-file).
+Mark the transaction type as MINING. RP2 will collect all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file).
 
 ## How to Handle Income from Staking?
-Mark the transaction type as STAKING. RP2 will collect all such transactions together in the tax_report_us output. Also check question on [which tax forms to file](#which-crypto-tax-forms-to-file).
+Mark the transaction type as STAKING. RP2 will collect all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file).
 
 ## How to Handle Futures and Options?
 TBD
@@ -66,7 +66,9 @@ TBD
 RP2 treats NFTs like cryptocurrencies, that is as property. Use a unique asset type for each NFT, both in the config file and in the input spreadsheet: e.g. ETH_BORED_APE_4363. There is debate on whether NFTs should be treated as collectibles instead, but this has not been clarified officially by the IRS yet, to the best of my knowledge. Ask a tax professional for the correct answer in any given year.
 
 ## Which Crypto Tax Forms to File?
-Each tax event (mining, staking, selling, donating, etc.) has a specific tax treatment: ask a tax professional for the correct answer in any given year. Also read [CoinTracker's summary on this topic](https://www.cointracker.io/blog/what-tax-forms-should-crypto-holders-file).
+RP2 keeps track of in/out lot relationship, lot fractioning and it computes capital gains and losses, but it doesn't generate the final tax forms. The computed information is written to the tax_report_us output, which intended for tax professionals: all taxable events are grouped in different tabs by type (mining, staking, selling, donating, etc.). Each tax event type has a specific tax treatment: your tax professional can transfer the information from the tax_report_us output tabs to the appropriate forms in any given year.
+
+For additional information on which forms to file, read [CoinTracker's summary on this topic](https://www.cointracker.io/blog/what-tax-forms-should-crypto-holders-file).
 
 ## How to Report a RP2 Bug without Sharing Personal Information?
 See the Reporting Bugs section in the [CONTRIBUTING](../CONTRIBUTING.md#reporting-bugs) document.
@@ -75,13 +77,15 @@ See the Reporting Bugs section in the [CONTRIBUTING](../CONTRIBUTING.md#reportin
 You can use [crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config) as boilerplate and [Input Files](https://github.com/eprbell/rp2/tree/main/docs/input_files.md) as reference.
 
 ## If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?
-TBD
+Such fees affect the in/out lot relationships, so RP2 keeps track of them (in the "Investment Expenses" tab of the tax_report_us output). Ask your tax professional about how to handle this tab in any given year.
 
 ## What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We File Taxes Together?
-TBD
+The names of the people filing taxes together should be added to the holders section of the config file (which is used for validation) and also in the holder column of each transaction in the input file. With this information RP2 generates a joint output. Here's an example in which the people filing together are called Alice and Bob:
+* [config/crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config) (see Alice and Bob in the holders section)
+* [input/crypto_example.ods](https://github.com/eprbell/rp2/tree/main/input/crypto_example.ods) (see transactions moving BTC from Bob to Alice in the INTRA table of the BTC tab).
 
 ## What Events Are Taxable?
-TBD
+Selling, swapping, donating, mining, staking, earning cryptocurrency are some common taxable events. For an up-to-date list in any given year, ask your tax professional. For additional information on taxable events, read [CoinTracker's summary on crypto taxes](https://www.cointracker.io/blog/what-tax-forms-should-crypto-holders-file).
 
 ## Who is the Author of RP2?
 The author of RP2 is a Silicon Valley veteran, a software engineer who left the corporate world to become an independent developer and investor. More on eprbell's story [here](https://eprbell.github.io/eprbell//eprbell/status/2021/07/29/the-beginning-of-the-journey.html).
