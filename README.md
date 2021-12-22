@@ -51,9 +51,9 @@ It has a programmable plugin architecture for [output generators](https://github
 
 RP2 has extensive [unit test](https://github.com/eprbell/rp2/tree/main/tests/) coverage to reduce the risk of regression.
 
-The author of RP2 is not a tax professional, but has used RP2 personally for a few years.
-
-**IMPORTANT DISCLAIMER**: RP2 offers no guarantee of correctness (read the [license](https://github.com/eprbell/rp2/tree/main/LICENSE)): always verify results with the help of a tax professional.
+**IMPORTANT DISCLAIMERS**:
+* RP2 offers no guarantee of correctness (read the [license](https://github.com/eprbell/rp2/tree/main/LICENSE)): always verify results with the help of a tax professional.
+* The author of RP2 is not a tax professional, but has used RP2 personally for a few years.
 
 ### How RP2 Operates
 RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Currency Guidance](https://www.irs.gov/newsroom/irs-reminds-taxpayers-to-report-virtual-currency-transactions).
@@ -74,7 +74,7 @@ RP2 groups lot fractions into the following taxable event categories, each of wh
 * [STAKING](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-staking): gains from staking;
 * WAGES: income from crypto wages.
 
-For each of these categories RP2 generates an output spreadsheet with transaction details and computed gains/losses (see [Input and Output Files](https://github.com/eprbell/rp2/tree/main/README.md#input-and-output-files) for more details). Users can give this output to their tax preparer with the rest of their tax documentation. Note that buying cryptocurrency is not a taxable event.
+For each of these categories RP2 generates an output spreadsheet with transaction details and computed gains/losses (see [Input and Output Files](https://github.com/eprbell/rp2/tree/main/README.md#input-and-output-files) for more details). Users can give this output to their tax preparer with the rest of their tax documentation (see also FAQ on [which tax forms to file](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#which-crypto-tax-forms-to-file)). Note that buying cryptocurrency using fiat currency is not a taxable event.
 
 **NOTE ON NFTs**: Read the [FAQ on NFTs](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-nfts) to learn about how RP2 treats NFTs.
 
