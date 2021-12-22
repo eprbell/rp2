@@ -105,7 +105,11 @@ def rp2_main() -> None:
 
 def _setup_argument_parser() -> ArgumentParser:
     parser: ArgumentParser = ArgumentParser(
-        description="Generate yearly capital gain/loss report and account balances for crypto holdings. If this software is useful to you, consider leaving a star on its Github page: https://github.com/eprbell/rp2"
+        description=(
+            "Generate yearly capital gain/loss report and account balances for crypto holdings. "
+            "If this software is useful to you, consider leaving a star on its Github page: "
+            "https://github.com/eprbell/rp2"
+        )
     )
 
     parser.add_argument(
