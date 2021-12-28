@@ -25,6 +25,9 @@
 * **[How to Handle Income from Staking?](#how-to-handle-income-from-staking)**
 * **[How to Handle Futures and Options?](#how-to-handle-futures-and-options)**
 * **[How to Handle NFTs?](#how-to-handle-nfts)**
+
+* **[Can I Avoid Paying Crypto Taxes?](#can-i-avoid-paying-crypto-taxes)**
+* **[Which Resources Can I Use to Learn About Crypto Taxes?](#which-resources-can-i-use-to-learn-about-crypto-taxes)**
 * **[Which Crypto Tax Forms to File?](#which-crypto-tax-forms-to-file)**
 
 * **[How to Report a RP2 Bug without Sharing Personal Information?](#how-to-report-a-rp2-bug-without-sharing-personal-information)**
@@ -38,6 +41,7 @@
 * **[Who is the Author of RP2?](#who-is-the-author-of-rp2)**
 * **[What Does RP2 Mean?](#what-does-rp2-mean)**
 
+
 ## How to Verify That I Entered Data Correctly in the Input Spreadsheet?
 In rp2_full_report.ods check the Account Balances table in the tax sheets, and make sure they match the actual balances of your accounts. If not, you probably have an error in the input file or missed some transactions.
 
@@ -45,7 +49,7 @@ In rp2_full_report.ods check the Account Balances table in the tax sheets, and m
 Timestamp format is [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) (see [examples](https://en.wikipedia.org/wiki/ISO_8601#Combined_date_and_time_representations) of timestamps in this format). Note that RP2 requires full timestamps, with date, time and timezone.
 
 ## How to Handle Conversion of a Cryptocurrency to Another?
-Converting from one cryptocurrency to another can be captured in RP2 by splitting the original transaction into two: the first is a SELL-type transaction that describes selling the initial cryptocurrency into fiat (USD). The second one is a BUY-type transaction that describes buying the final cryptocurrency using fiat.
+Converting from one cryptocurrency to another can be captured in RP2 by splitting the original transaction into two: the first is a SELL-type transaction that describes selling the initial cryptocurrency into fiat. The second one is a BUY-type transaction that describes buying the final cryptocurrency using fiat.
 
 ## How to Handle Airdrops?
 Mark the transaction type as AIRDROP. RP2 will collect all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file).
@@ -65,10 +69,18 @@ TBD
 ## How to Handle NFTs?
 RP2 treats NFTs like cryptocurrencies, that is as property. Use a unique asset type for each NFT, both in the config file and in the input spreadsheet: e.g. ETH_BORED_APE_4363. There is debate on whether NFTs should be treated as collectibles instead, but this has not been clarified officially by the IRS yet, to the best of my knowledge. Ask a tax professional for the correct answer in any given year.
 
+## Can I Avoid Paying Crypto Taxes?
+No. The IRS has made it very clear that [crypto taxes must be paid](https://www.irs.gov/newsroom/irs-reminds-taxpayers-to-report-virtual-currency-transactions).
+
+## Which Resources Can I Use to Learn About Crypto Taxes?
+A good starting point is the [Cryptocurrency Tax FAQ](https://www.reddit.com/r/CryptoTax/comments/re6jal/cryptocurrency_tax_faq/) on Reddit. Also read the question on [which tax forms to file](#which-crypto-tax-forms-to-file) and consult with your tax professional.
+
 ## Which Crypto Tax Forms to File?
 RP2 keeps track of in/out lot relationship, lot fractioning and it computes capital gains and losses, but it doesn't generate the final tax forms. The computed information is written to the tax_report_us output, which intended for tax professionals: all taxable events are grouped in different tabs by type (mining, staking, selling, donating, etc.). Each tax event type has a specific tax treatment: your tax professional can transfer the information from the tax_report_us output tabs to the appropriate forms in any given year.
 
 For additional information on which forms to file, read [CoinTracker's summary on this topic](https://www.cointracker.io/blog/what-tax-forms-should-crypto-holders-file).
+
+Also read the question on [crypto tax resources](#which-resources-can-i-use-to-learn-about-crypto-taxes)
 
 ## How to Report a RP2 Bug without Sharing Personal Information?
 See the Reporting Bugs section in the [CONTRIBUTING](../CONTRIBUTING.md#reporting-bugs) document.
