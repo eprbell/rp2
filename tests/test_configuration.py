@@ -21,17 +21,21 @@ from typing import Any, Optional
 
 import jsonschema  # type: ignore
 from dateutil.tz import tzoffset, tzutc
+from rp2.abstract_country import AbstractCountry
 from rp2.configuration import AccountingMethod, Configuration
+from rp2.plugin.country.us import US
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
 class TestConfiguration(unittest.TestCase):
+    _country: AbstractCountry
     _configuration: Configuration
 
     @classmethod
     def setUpClass(cls) -> None:
-        TestConfiguration._configuration = Configuration("./config/test_data.config")
+        TestConfiguration._country = US()
+        TestConfiguration._configuration = Configuration(TestConfiguration._country, "./config/test_data.config")
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -43,7 +47,7 @@ class TestConfiguration(unittest.TestCase):
             temporary_file.write(json.dumps(config).encode())
             temporary_file.flush()
 
-            result = Configuration(temporary_file.name)
+            result = Configuration(TestConfiguration._country, temporary_file.name)
         os.remove(temporary_file.name)
 
         return result
@@ -73,7 +77,7 @@ class TestConfiguration(unittest.TestCase):
         with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "'spot_price' is a required property"):
             self._test_config(config)
 
-        config["in_header"].update({"spot_price": 8, "crypto_in": 7, "usd_fee": 11, "usd_in_no_fee": 9, "usd_in_with_fee": 10, "notes": 12})
+        config["in_header"].update({"spot_price": 8, "crypto_in": 7, "fiat_fee": 11, "fiat_in_no_fee": 9, "fiat_in_with_fee": 10, "notes": 12})
         with self.assertRaisesRegex(KeyError, "out_header"):
             self._test_config(config)
 
@@ -184,33 +188,35 @@ class TestConfiguration(unittest.TestCase):
             self._test_config(config)
 
     def test_creation(self) -> None:
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'country' is not of type AbstractCountry: .*"):
+            Configuration(None, "./config/test_data.config")  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration_path' has non-string value .*"):
-            Configuration(None)  # type: ignore
+            Configuration(self._country, None)  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration_path' has non-string value .*"):
-            Configuration(111)  # type: ignore
+            Configuration(self._country, 111)  # type: ignore
         with self.assertRaisesRegex(RP2ValueError, "/non/existing/file does not exist"):
-            Configuration("/non/existing/file")
+            Configuration(self._country, "/non/existing/file")
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'accounting_method' is not of type AccountingMethod: .*"):
-            Configuration("./config/test_data.config", accounting_method=None)  # type: ignore
+            Configuration(self._country, "./config/test_data.config", accounting_method=None)  # type: ignore
         with self.assertRaisesRegex(NotImplementedError, ".*'AccountingMethod.LIFO' not implemented yet"):
-            Configuration("./config/test_data.config", accounting_method=AccountingMethod.LIFO)
+            Configuration(self._country, "./config/test_data.config", accounting_method=AccountingMethod.LIFO)
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_year' has non-integer value .*"):
-            Configuration("./config/test_data.config", from_year="foobar")  # type: ignore
+            Configuration(self._country, "./config/test_data.config", from_year="foobar")  # type: ignore
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'from_year' has non-positive value .*"):
-            Configuration("./config/test_data.config", from_year=-1)
+            Configuration(self._country, "./config/test_data.config", from_year=-1)
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'to_year' has non-integer value .*"):
-            Configuration("./config/test_data.config", to_year="foobar")  # type: ignore
+            Configuration(self._country, "./config/test_data.config", to_year="foobar")  # type: ignore
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'to_year' has non-positive value .*"):
-            Configuration("./config/test_data.config", to_year=-1)
+            Configuration(self._country, "./config/test_data.config", to_year=-1)
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'to_year' has zero value"):
-            Configuration("./config/test_data.config", to_year=0)
+            Configuration(self._country, "./config/test_data.config", to_year=0)
 
     def test_argument_packs(self) -> None:
         self.assertEqual(
             str(self._configuration.get_in_table_constructor_argument_pack([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120])),
             (
                 "{'timestamp': 0, 'asset': 60, 'exchange': 10, 'holder': 20, 'transaction_type': 50, 'spot_price': 80, "
-                "'crypto_in': 70, 'usd_fee': 110, 'usd_in_no_fee': 90, 'usd_in_with_fee': 100, 'notes': 120}"
+                "'crypto_in': 70, 'fiat_fee': 110, 'fiat_in_no_fee': 90, 'fiat_in_with_fee': 100, 'notes': 120}"
             ),
         )
         self.assertEqual(
@@ -250,9 +256,9 @@ class TestConfiguration(unittest.TestCase):
         self.assertEqual(self._configuration.get_in_table_column_position("transaction_type"), 5)
         self.assertEqual(self._configuration.get_in_table_column_position("spot_price"), 8)
         self.assertEqual(self._configuration.get_in_table_column_position("crypto_in"), 7)
-        self.assertEqual(self._configuration.get_in_table_column_position("usd_fee"), 11)
-        self.assertEqual(self._configuration.get_in_table_column_position("usd_in_no_fee"), 9)
-        self.assertEqual(self._configuration.get_in_table_column_position("usd_in_with_fee"), 10)
+        self.assertEqual(self._configuration.get_in_table_column_position("fiat_fee"), 11)
+        self.assertEqual(self._configuration.get_in_table_column_position("fiat_in_no_fee"), 9)
+        self.assertEqual(self._configuration.get_in_table_column_position("fiat_in_with_fee"), 10)
         self.assertEqual(self._configuration.get_in_table_column_position("notes"), 12)
 
         self.assertEqual(self._configuration.get_out_table_column_position("timestamp"), 0)
@@ -296,7 +302,7 @@ class TestConfiguration(unittest.TestCase):
             (
                 "Configuration(configuration_path=./config/test_data.config, accounting_method=AccountingMethod.FIFO, from_year=non-specified, "
                 "to_year=non-specified, in_header={'timestamp': 0, 'asset': 6, 'exchange': 1, 'holder': 2, 'transaction_type': 5, 'spot_price': 8, "
-                "'crypto_in': 7, 'usd_fee': 11, 'usd_in_no_fee': 9, 'usd_in_with_fee': 10, 'notes': 12}, out_header={'timestamp': 0, 'asset': 6, "
+                "'crypto_in': 7, 'fiat_fee': 11, 'fiat_in_no_fee': 9, 'fiat_in_with_fee': 10, 'notes': 12}, out_header={'timestamp': 0, 'asset': 6, "
                 "'exchange': 1, 'holder': 2, 'transaction_type': 5, 'spot_price': 8, 'crypto_out_no_fee': 7, 'crypto_fee': 9, 'notes': 12}, "
                 "intra_header={'timestamp': 0, 'asset': 6, 'from_exchange': 1, 'from_holder': 2, 'to_exchange': 3, 'to_holder': 4, "
                 "'spot_price': 8, 'crypto_sent': 7, 'crypto_received': 10, 'notes': 12}, assets=['B1', 'B2', 'B3', 'B4'], "
