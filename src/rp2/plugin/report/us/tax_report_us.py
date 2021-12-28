@@ -16,6 +16,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Set, cast
 
+from rp2.abstract_country import AbstractCountry
 from rp2.computed_data import ComputedData
 from rp2.entry_types import TransactionType
 from rp2.gain_loss import GainLoss
@@ -66,6 +67,7 @@ class Generator(AbstractODTGenerator):
 
     def generate(
         self,
+        country: AbstractCountry,
         asset_to_computed_data: Dict[str, ComputedData],
         output_dir_path: str,
         output_file_prefix: str,
@@ -78,6 +80,7 @@ class Generator(AbstractODTGenerator):
 
         output_file: Any
         output_file = self._initialize_output_file(
+            country=country,
             output_dir_path=output_dir_path,
             output_file_prefix=output_file_prefix,
             output_file_name=self.OUTPUT_FILE,
@@ -140,10 +143,10 @@ class Generator(AbstractODTGenerator):
             self._fill_cell(sheet, row_index, 0, gain_loss.crypto_amount, visual_style=transparent_vs, data_style="crypto")
             self._fill_cell(sheet, row_index, 1, gain_loss.asset, visual_style=transparent_vs)
             self._fill_cell(sheet, row_index, 3, gain_loss.taxable_event.timestamp.strftime("%m/%d/%Y"), visual_style=taxable_event_note_vs)
-            self._fill_cell(sheet, row_index, 4, gain_loss.taxable_event_usd_amount_with_fee_fraction, visual_style=taxable_event_note_vs, data_style="usd")
+            self._fill_cell(sheet, row_index, 4, gain_loss.taxable_event_fiat_amount_with_fee_fraction, visual_style=taxable_event_note_vs, data_style="fiat")
             self._fill_cell(sheet, row_index, 6, "", visual_style=transparent_vs)
             self._fill_cell(sheet, row_index, 7, "", visual_style=transparent_vs)
-            self._fill_cell(sheet, row_index, 8, gain_loss.usd_gain, visual_style=transparent_vs, data_style="usd")
+            self._fill_cell(sheet, row_index, 8, gain_loss.fiat_gain, visual_style=transparent_vs, data_style="fiat")
             self._fill_cell(sheet, row_index, 9, transaction_type, visual_style=taxable_event_note_vs)
             self._fill_cell(sheet, row_index, 11, taxable_event_note, visual_style=taxable_event_note_vs)
             self._fill_cell(sheet, row_index, 12, "LONG" if gain_loss.is_long_term_capital_gains() else "SHORT", visual_style=taxable_event_note_vs)
@@ -160,7 +163,7 @@ class Generator(AbstractODTGenerator):
                     f"{asset}"
                 )
                 self._fill_cell(sheet, row_index, 2, gain_loss.from_lot.timestamp.strftime("%m/%d/%Y"), visual_style=from_lot_note_vs)
-                self._fill_cell(sheet, row_index, 5, gain_loss.usd_cost_basis, visual_style=from_lot_note_vs, data_style="usd")
+                self._fill_cell(sheet, row_index, 5, gain_loss.fiat_cost_basis, visual_style=from_lot_note_vs, data_style="fiat")
                 self._fill_cell(sheet, row_index, 10, from_lot_note, visual_style=from_lot_note_vs)
             else:
                 self._fill_cell(sheet, row_index, 2, "", visual_style=transparent_vs)
