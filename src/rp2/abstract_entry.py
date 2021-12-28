@@ -88,7 +88,7 @@ class AbstractEntry:
     def crypto_balance_change(self) -> RP2Decimal:
         raise NotImplementedError("Abstract property")
 
-    # How much usd was gained / lost with this entry
+    # How much fiat was gained / lost with this entry
     @property
-    def usd_balance_change(self) -> RP2Decimal:
+    def fiat_balance_change(self) -> RP2Decimal:
         raise NotImplementedError("Abstract property")
