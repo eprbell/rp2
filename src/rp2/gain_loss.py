@@ -105,13 +105,13 @@ class GainLoss(AbstractEntry):
             stringify = repr
         class_specific_data = [
             f"crypto_amount={self.crypto_amount:.8f}",
-            f"usd_cost_basis={self.usd_cost_basis:.4f}",
-            f"usd_gain={self.usd_gain:.4f}",
+            f"fiat_cost_basis={self.fiat_cost_basis:.4f}",
+            f"fiat_gain={self.fiat_gain:.4f}",
             f"is_long_term_capital_gains={stringify(self.is_long_term_capital_gains())}",
-            f"taxable_event_usd_amount_with_fee_fraction={self.taxable_event_usd_amount_with_fee_fraction:.4f}",
+            f"taxable_event_fiat_amount_with_fee_fraction={self.taxable_event_fiat_amount_with_fee_fraction:.4f}",
             f"taxable_event_fraction_percentage={self.taxable_event_fraction_percentage:.4%}",
             f"taxable_event={self.taxable_event.to_string(indent=indent + 1, repr_format=repr_format).lstrip()}",
-            f"from_lot_usd_amount_with_fee_fraction={self.from_lot_usd_amount_with_fee_fraction:.4f}",
+            f"from_lot_fiat_amount_with_fee_fraction={self.from_lot_fiat_amount_with_fee_fraction:.4f}",
             f"from_lot_fraction_percentage={self.from_lot_fraction_percentage:.4%}",
             f"from_lot={self.from_lot.to_string(indent=indent + 1, repr_format=repr_format).lstrip() if self.from_lot else 'None'}",
         ]
@@ -148,20 +148,20 @@ class GainLoss(AbstractEntry):
         return self.crypto_amount
 
     @property
-    def usd_balance_change(self) -> RP2Decimal:
-        return self.taxable_event.usd_balance_change
+    def fiat_balance_change(self) -> RP2Decimal:
+        return self.taxable_event.fiat_balance_change
 
     @property
-    def taxable_event_usd_amount_with_fee_fraction(self) -> RP2Decimal:
+    def taxable_event_fiat_amount_with_fee_fraction(self) -> RP2Decimal:
         # We don't simply multiply by taxable_event_fraction_percentage to avoid potential precision loss with small percentages
-        return (self.taxable_event.usd_taxable_amount * self.crypto_amount) / self.taxable_event.crypto_balance_change
+        return (self.taxable_event.fiat_taxable_amount * self.crypto_amount) / self.taxable_event.crypto_balance_change
 
     @property
-    def from_lot_usd_amount_with_fee_fraction(self) -> RP2Decimal:
+    def from_lot_fiat_amount_with_fee_fraction(self) -> RP2Decimal:
         if not self.from_lot:
             return ZERO
         # We don't simply multiply by from_lot_fraction_percentage to avoid potential precision loss with small percentages
-        return (self.from_lot.usd_in_with_fee * self.crypto_amount) / self.from_lot.crypto_balance_change
+        return (self.from_lot.fiat_in_with_fee * self.crypto_amount) / self.from_lot.crypto_balance_change
 
     @property
     def taxable_event_fraction_percentage(self) -> RP2Decimal:
@@ -177,18 +177,18 @@ class GainLoss(AbstractEntry):
         return self.crypto_amount / self.from_lot.crypto_balance_change
 
     @property
-    def usd_cost_basis(self) -> RP2Decimal:
+    def fiat_cost_basis(self) -> RP2Decimal:
         if not self.from_lot:
             # Earn-typed taxable events don't have a from_lot and their cost basis is 0
             if not self.taxable_event.transaction_type.is_earn_type():
                 raise Exception("Internal error: from lot is None but taxable event is not earn-typed")
             return ZERO
         # We don't simply multiply by from_lot_fraction_percentage to avoid potential precision loss with small percentages
-        return (self.from_lot.usd_in_with_fee * self.crypto_amount) / self.from_lot.crypto_balance_change
+        return (self.from_lot.fiat_in_with_fee * self.crypto_amount) / self.from_lot.crypto_balance_change
 
     @property
-    def usd_gain(self) -> RP2Decimal:
-        return self.taxable_event_usd_amount_with_fee_fraction - self.usd_cost_basis
+    def fiat_gain(self) -> RP2Decimal:
+        return self.taxable_event_fiat_amount_with_fee_fraction - self.fiat_cost_basis
 
     def is_long_term_capital_gains(self) -> bool:
         if not self.from_lot:
@@ -196,4 +196,4 @@ class GainLoss(AbstractEntry):
             if not self.taxable_event.transaction_type.is_earn_type():
                 raise Exception("Internal error: from lot is None but taxable event is not earn-typed")
             return False
-        return (self.taxable_event.timestamp - self.from_lot.timestamp).days >= 365
+        return (self.taxable_event.timestamp - self.from_lot.timestamp).days >= self.configuration.country.long_term_capital_gain_period()
