@@ -19,6 +19,7 @@ from rp2.configuration import Configuration
 from rp2.entry_types import TransactionType
 from rp2.in_transaction import InTransaction
 from rp2.intra_transaction import IntraTransaction
+from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
@@ -28,7 +29,7 @@ class TestIntraTransaction(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        TestIntraTransaction._configuration = Configuration("./config/test_data.config")
+        TestIntraTransaction._configuration = Configuration(US(), "./config/test_data.config")
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -50,7 +51,7 @@ class TestIntraTransaction(unittest.TestCase):
 
         IntraTransaction.type_check("my_instance", intra_transaction)
         self.assertTrue(intra_transaction.is_taxable())
-        self.assertEqual(RP2Decimal("0.4"), intra_transaction.usd_taxable_amount)
+        self.assertEqual(RP2Decimal("0.4"), intra_transaction.fiat_taxable_amount)
         self.assertEqual("19", intra_transaction.unique_id)
         self.assertEqual(2021, intra_transaction.timestamp.year)
         self.assertEqual(1, intra_transaction.timestamp.month)
@@ -70,9 +71,9 @@ class TestIntraTransaction(unittest.TestCase):
         self.assertEqual(RP2Decimal("2.0002"), intra_transaction.crypto_sent)
         self.assertEqual(RP2Decimal("1.9998"), intra_transaction.crypto_received)
         self.assertEqual(RP2Decimal("0.0004"), intra_transaction.crypto_fee)
-        self.assertEqual(RP2Decimal("0.4"), intra_transaction.usd_fee)
+        self.assertEqual(RP2Decimal("0.4"), intra_transaction.fiat_fee)
         self.assertEqual(RP2Decimal("0.0004"), intra_transaction.crypto_balance_change)
-        self.assertEqual(RP2Decimal("0.4"), intra_transaction.usd_balance_change)
+        self.assertEqual(RP2Decimal("0.4"), intra_transaction.fiat_balance_change)
 
         self.assertEqual(
             str(intra_transaction),
@@ -89,9 +90,9 @@ class TestIntraTransaction(unittest.TestCase):
   crypto_sent=2.00020000
   crypto_received=1.99980000
   crypto_fee=0.00040000
-  usd_fee=0.4000
+  fiat_fee=0.4000
   is_taxable=True
-  usd_taxable_amount=0.4000""",
+  fiat_taxable_amount=0.4000""",
         )
         self.assertEqual(
             intra_transaction.to_string(2, repr_format=False, extra_data=["foobar", "qwerty"]),
@@ -108,9 +109,9 @@ class TestIntraTransaction(unittest.TestCase):
       crypto_sent=2.00020000
       crypto_received=1.99980000
       crypto_fee=0.00040000
-      usd_fee=0.4000
+      fiat_fee=0.4000
       is_taxable=True
-      usd_taxable_amount=0.4000
+      fiat_taxable_amount=0.4000
       foobar
       qwerty""",
         )
@@ -130,9 +131,9 @@ class TestIntraTransaction(unittest.TestCase):
                 "crypto_sent=2.00020000, "
                 "crypto_received=1.99980000, "
                 "crypto_fee=0.00040000, "
-                "usd_fee=0.4000, "
+                "fiat_fee=0.4000, "
                 "is_taxable=True, "
-                "usd_taxable_amount=0.4000, "
+                "fiat_taxable_amount=0.4000, "
                 "foobar, "
                 "qwerty)"
             ),
@@ -153,13 +154,13 @@ class TestIntraTransaction(unittest.TestCase):
             unique_id=19,
         )
         self.assertFalse(intra_transaction.is_taxable())
-        self.assertEqual(RP2Decimal("0"), intra_transaction.usd_taxable_amount)
+        self.assertEqual(RP2Decimal("0"), intra_transaction.fiat_taxable_amount)
         self.assertEqual("B2", intra_transaction.asset)
         self.assertEqual(TransactionType.MOVE, intra_transaction.transaction_type)
         self.assertEqual(RP2Decimal("0"), intra_transaction.crypto_fee)
-        self.assertEqual(RP2Decimal("0"), intra_transaction.usd_fee)
+        self.assertEqual(RP2Decimal("0"), intra_transaction.fiat_fee)
         self.assertEqual(RP2Decimal("-0"), intra_transaction.crypto_balance_change)
-        self.assertEqual(RP2Decimal("0.0"), intra_transaction.usd_balance_change)
+        self.assertEqual(RP2Decimal("0.0"), intra_transaction.fiat_balance_change)
 
         self.assertEqual(
             str(intra_transaction),
@@ -176,9 +177,9 @@ class TestIntraTransaction(unittest.TestCase):
   crypto_sent=30.00000000
   crypto_received=30.00000000
   crypto_fee=0.00000000
-  usd_fee=0.0000
+  fiat_fee=0.0000
   is_taxable=False
-  usd_taxable_amount=0.0000""",
+  fiat_taxable_amount=0.0000""",
         )
 
     def test_intra_transaction_equality_and_hashing(self) -> None:

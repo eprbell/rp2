@@ -21,6 +21,7 @@ from rp2.gain_loss_set import GainLossSet
 from rp2.in_transaction import InTransaction
 from rp2.intra_transaction import IntraTransaction
 from rp2.out_transaction import OutTransaction
+from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 from rp2_test_output import RP2_TEST_OUTPUT  # pylint: disable=wrong-import-order
@@ -54,7 +55,7 @@ class TestGainLossSet(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls._configuration = Configuration("./config/test_data.config")
+        cls._configuration = Configuration(US(), "./config/test_data.config")
 
         cls._in3 = {}
         cls._in2 = {}

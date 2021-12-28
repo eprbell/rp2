@@ -20,6 +20,7 @@ from rp2.configuration import Configuration
 from rp2.entry_types import TransactionType
 from rp2.in_transaction import InTransaction
 from rp2.out_transaction import OutTransaction
+from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
@@ -29,7 +30,7 @@ class TestInTransaction(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        TestInTransaction._configuration = Configuration("./config/test_data.config")
+        TestInTransaction._configuration = Configuration(US(), "./config/test_data.config")
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -67,14 +68,14 @@ class TestInTransaction(unittest.TestCase):
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
             RP2Decimal("0"),
-            usd_in_no_fee=RP2Decimal("2000.2"),
-            usd_in_with_fee=RP2Decimal("2000.2"),
+            fiat_in_no_fee=RP2Decimal("2000.2"),
+            fiat_in_with_fee=RP2Decimal("2000.2"),
             unique_id=19,
         )
 
         InTransaction.type_check("my_instance", in_transaction)
         self.assertTrue(in_transaction.is_taxable())
-        self.assertEqual(RP2Decimal("2000.2"), in_transaction.usd_taxable_amount)
+        self.assertEqual(RP2Decimal("2000.2"), in_transaction.fiat_taxable_amount)
         self.assertEqual("19", in_transaction.unique_id)
         self.assertEqual(2021, in_transaction.timestamp.year)
         self.assertEqual(1, in_transaction.timestamp.month)
@@ -90,11 +91,11 @@ class TestInTransaction(unittest.TestCase):
         self.assertEqual(TransactionType.INTEREST, in_transaction.transaction_type)
         self.assertEqual(RP2Decimal("1000"), in_transaction.spot_price)
         self.assertEqual(RP2Decimal("2.0002"), in_transaction.crypto_in)
-        self.assertEqual(RP2Decimal("2000.2"), in_transaction.usd_in_no_fee)
-        self.assertEqual(RP2Decimal("2000.2"), in_transaction.usd_in_with_fee)
-        self.assertEqual(RP2Decimal("0"), in_transaction.usd_fee)
+        self.assertEqual(RP2Decimal("2000.2"), in_transaction.fiat_in_no_fee)
+        self.assertEqual(RP2Decimal("2000.2"), in_transaction.fiat_in_with_fee)
+        self.assertEqual(RP2Decimal("0"), in_transaction.fiat_fee)
         self.assertEqual(RP2Decimal("2.0002"), in_transaction.crypto_balance_change)
-        self.assertEqual(RP2Decimal("2000.2"), in_transaction.usd_balance_change)
+        self.assertEqual(RP2Decimal("2000.2"), in_transaction.fiat_balance_change)
 
         self.assertEqual(
             str(in_transaction),
@@ -107,11 +108,11 @@ class TestInTransaction(unittest.TestCase):
   transaction_type=TransactionType.INTEREST
   spot_price=1000.0000
   crypto_in=2.00020000
-  usd_fee=0.0000
-  usd_in_no_fee=2000.2000
-  usd_in_with_fee=2000.2000
+  fiat_fee=0.0000
+  fiat_in_no_fee=2000.2000
+  fiat_in_with_fee=2000.2000
   is_taxable=True
-  usd_taxable_amount=2000.2000""",
+  fiat_taxable_amount=2000.2000""",
         )
         self.assertEqual(
             in_transaction.to_string(2, repr_format=False, extra_data=["foobar", "qwerty"]),
@@ -124,11 +125,11 @@ class TestInTransaction(unittest.TestCase):
       transaction_type=TransactionType.INTEREST
       spot_price=1000.0000
       crypto_in=2.00020000
-      usd_fee=0.0000
-      usd_in_no_fee=2000.2000
-      usd_in_with_fee=2000.2000
+      fiat_fee=0.0000
+      fiat_in_no_fee=2000.2000
+      fiat_in_with_fee=2000.2000
       is_taxable=True
-      usd_taxable_amount=2000.2000
+      fiat_taxable_amount=2000.2000
       foobar
       qwerty""",
         )
@@ -144,11 +145,11 @@ class TestInTransaction(unittest.TestCase):
                 "transaction_type=<TransactionType.INTEREST: 'interest'>, "
                 "spot_price=1000.0000, "
                 "crypto_in=2.00020000, "
-                "usd_fee=0.0000, "
-                "usd_in_no_fee=2000.2000, "
-                "usd_in_with_fee=2000.2000, "
+                "fiat_fee=0.0000, "
+                "fiat_in_no_fee=2000.2000, "
+                "fiat_in_with_fee=2000.2000, "
                 "is_taxable=True, "
-                "usd_taxable_amount=2000.2000, "
+                "fiat_taxable_amount=2000.2000, "
                 "foobar, "
                 "qwerty)"
             ),
@@ -168,11 +169,11 @@ class TestInTransaction(unittest.TestCase):
             unique_id=19,
         )
         self.assertFalse(in_transaction.is_taxable())
-        self.assertEqual(RP2Decimal("0"), in_transaction.usd_taxable_amount)
+        self.assertEqual(RP2Decimal("0"), in_transaction.fiat_taxable_amount)
         self.assertEqual("B2", in_transaction.asset)
         self.assertEqual(TransactionType.BUY, in_transaction.transaction_type)
         self.assertEqual(RP2Decimal("2.0002"), in_transaction.crypto_balance_change)
-        self.assertEqual(RP2Decimal("2020.2"), in_transaction.usd_balance_change)
+        self.assertEqual(RP2Decimal("2020.2"), in_transaction.fiat_balance_change)
 
         self.assertEqual(
             str(in_transaction),
@@ -185,11 +186,11 @@ class TestInTransaction(unittest.TestCase):
   transaction_type=TransactionType.BUY
   spot_price=1000.0000
   crypto_in=2.00020000
-  usd_fee=20.0000
-  usd_in_no_fee=2000.2000
-  usd_in_with_fee=2020.2000
+  fiat_fee=20.0000
+  fiat_in_no_fee=2000.2000
+  fiat_in_with_fee=2020.2000
   is_taxable=False
-  usd_taxable_amount=0.0000""",
+  fiat_taxable_amount=0.0000""",
         )
 
     def test_in_transaction_equality_and_hashing(self) -> None:
@@ -203,8 +204,8 @@ class TestInTransaction(unittest.TestCase):
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
             RP2Decimal("0"),
-            usd_in_no_fee=RP2Decimal("2000.2"),
-            usd_in_with_fee=RP2Decimal("2000.2"),
+            fiat_in_no_fee=RP2Decimal("2000.2"),
+            fiat_in_with_fee=RP2Decimal("2000.2"),
             unique_id=19,
         )
         in_transaction2: InTransaction = InTransaction(
@@ -217,8 +218,8 @@ class TestInTransaction(unittest.TestCase):
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
             RP2Decimal("0"),
-            usd_in_no_fee=RP2Decimal("2000.2"),
-            usd_in_with_fee=RP2Decimal("2000.2"),
+            fiat_in_no_fee=RP2Decimal("2000.2"),
+            fiat_in_with_fee=RP2Decimal("2000.2"),
             unique_id=19,
         )
         in_transaction3: InTransaction = InTransaction(
@@ -231,8 +232,8 @@ class TestInTransaction(unittest.TestCase):
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
             RP2Decimal("0"),
-            usd_in_no_fee=RP2Decimal("2000.2"),
-            usd_in_with_fee=RP2Decimal("2000.2"),
+            fiat_in_no_fee=RP2Decimal("2000.2"),
+            fiat_in_with_fee=RP2Decimal("2000.2"),
             unique_id=20,
         )
         self.assertEqual(in_transaction, in_transaction)
@@ -254,8 +255,8 @@ class TestInTransaction(unittest.TestCase):
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
             RP2Decimal("0"),
-            usd_in_no_fee=RP2Decimal("2000.2"),
-            usd_in_with_fee=RP2Decimal("2000.2"),
+            fiat_in_no_fee=RP2Decimal("2000.2"),
+            fiat_in_with_fee=RP2Decimal("2000.2"),
             unique_id=19,
         )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'indent' has non-integer value"):
@@ -300,8 +301,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
@@ -316,8 +317,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'unique_id' has non-positive value .*"):
@@ -332,8 +333,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=-19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'unique_id' has non-integer .*"):
@@ -348,8 +349,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id="19",  # type: ignore
             )
         with self.assertRaisesRegex(RP2ValueError, "Error parsing parameter 'timestamp': Unknown string format: .*"):
@@ -364,8 +365,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'timestamp' value has no timezone info: .*"):
@@ -380,8 +381,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'timestamp' has non-string value .*"):
@@ -396,8 +397,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'asset' value is not known: .*"):
@@ -412,8 +413,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'asset' has non-string value .*"):
@@ -428,8 +429,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'exchange' value is not known: .*"):
@@ -444,8 +445,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'exchange' has non-string value .*"):
@@ -460,8 +461,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'holder' value is not known: .*"):
@@ -476,8 +477,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'holder' has non-string value .*"):
@@ -492,8 +493,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2ValueError, ".*InTransaction .*, id.*invalid transaction type.*"):
@@ -508,8 +509,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'transaction_type' has invalid transaction type value: .*"):
@@ -524,8 +525,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter .* has invalid transaction type value: .*"):
@@ -540,8 +541,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter .* has non-string value .*"):
@@ -556,8 +557,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2ValueError, ".*InTransaction .*, id.*parameter 'spot_price' cannot be 0"):
@@ -572,8 +573,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2ValueError, ".*InTransaction .*, id.*parameter 'spot_price' cannot be 0"):
@@ -588,8 +589,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("0.00000000000001"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'spot_price' has non-positive value .*"):
@@ -604,8 +605,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("-1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'spot_price' has non-RP2Decimal value .*"):
@@ -620,8 +621,8 @@ class TestInTransaction(unittest.TestCase):
                 "1000",  # type: ignore
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_in' has zero value"):
@@ -636,8 +637,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("0"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_in' has non-positive value .*"):
@@ -652,8 +653,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("-2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_in' has non-RP2Decimal value .*"):
@@ -668,12 +669,12 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 "2.0002",  # type: ignore
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
-        with self.assertRaisesRegex(RP2ValueError, "Parameter 'usd_fee' has non-positive value .*"):
-            # Bad usd fee
+        with self.assertRaisesRegex(RP2ValueError, "Parameter 'fiat_fee' has non-positive value .*"):
+            # Bad fiat fee
             InTransaction(
                 self._configuration,
                 "2021-01-02T08:42:43.882Z",
@@ -684,12 +685,12 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("-20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'usd_fee' has non-RP2Decimal value .*"):
-            # Bad usd fee
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'fiat_fee' has non-RP2Decimal value .*"):
+            # Bad fiat fee
             InTransaction(
                 self._configuration,
                 "2021-01-02T08:42:43.882Z",
@@ -700,12 +701,12 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 "20",  # type: ignore
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
-        with self.assertRaisesRegex(RP2ValueError, "Parameter 'usd_in_no_fee' has non-positive value .*"):
-            # Bad usd in no fee
+        with self.assertRaisesRegex(RP2ValueError, "Parameter 'fiat_in_no_fee' has non-positive value .*"):
+            # Bad fiat in no fee
             InTransaction(
                 self._configuration,
                 "2021-01-02T08:42:43.882Z",
@@ -716,12 +717,12 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("-2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("-2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'usd_in_no_fee' has non-RP2Decimal value .*"):
-            # Bad usd in no fee
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'fiat_in_no_fee' has non-RP2Decimal value .*"):
+            # Bad fiat in no fee
             InTransaction(
                 self._configuration,
                 "2021-01-02T08:42:43.882Z",
@@ -732,12 +733,12 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee="2000.2",  # type: ignore
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee="2000.2",  # type: ignore
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
-        with self.assertRaisesRegex(RP2ValueError, "Parameter 'usd_in_with_fee' has non-positive value .*"):
-            # Bad usd in with fee
+        with self.assertRaisesRegex(RP2ValueError, "Parameter 'fiat_in_with_fee' has non-positive value .*"):
+            # Bad fiat in with fee
             InTransaction(
                 self._configuration,
                 "2021-01-02T08:42:43.882Z",
@@ -748,12 +749,12 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("-2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("-2020.2"),
                 unique_id=19,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'usd_in_with_fee' has non-RP2Decimal value .*"):
-            # Bad usd in with fee
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'fiat_in_with_fee' has non-RP2Decimal value .*"):
+            # Bad fiat in with fee
             InTransaction(
                 self._configuration,
                 "2021-01-02T08:42:43.882Z",
@@ -764,8 +765,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=(1, 2, 3),  # type: ignore
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=(1, 2, 3),  # type: ignore
                 unique_id=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'notes' has non-string value .*"):
@@ -780,8 +781,8 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
                 notes=35.6,  # type: ignore
             )
@@ -797,14 +798,14 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("20"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
                 notes=[1, 2, 3],  # type: ignore
             )
 
         with self.assertLogs(level="WARNING") as log:
-            # Crypto in * spot price != USD in (without fee)
+            # Crypto in * spot price != fiat in (without fee)
             InTransaction(
                 self._configuration,
                 "2021-01-02T08:42:43.882Z",
@@ -815,14 +816,14 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1000"),
-                usd_in_no_fee=RP2Decimal("1900.2"),
-                usd_in_with_fee=RP2Decimal("2000.2"),
+                fiat_in_no_fee=RP2Decimal("1900.2"),
+                fiat_in_with_fee=RP2Decimal("2000.2"),
                 unique_id=19,
             )
-            self.assertTrue(re.search(".* InTransaction .*, id.*crypto_in.*spot_price != usd_in_no_fee:.*", log.output[0]))  # type: ignore
+            self.assertTrue(re.search(".* InTransaction .*, id.*crypto_in.*spot_price != fiat_in_no_fee:.*", log.output[0]))  # type: ignore
 
         with self.assertLogs(level="WARNING") as log:
-            # USD in (with fee) != USD in (without fee) + USD fee
+            # fiat in (with fee) != fiat in (without fee) + fiat fee
             InTransaction(
                 self._configuration,
                 "2021-01-02T08:42:43.882Z",
@@ -833,11 +834,11 @@ class TestInTransaction(unittest.TestCase):
                 RP2Decimal("1000"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("18"),
-                usd_in_no_fee=RP2Decimal("2000.2"),
-                usd_in_with_fee=RP2Decimal("2020.2"),
+                fiat_in_no_fee=RP2Decimal("2000.2"),
+                fiat_in_with_fee=RP2Decimal("2020.2"),
                 unique_id=19,
             )
-            self.assertTrue(re.search(".* InTransaction .*, id.*usd_in_with_fee != usd_in_no_fee.*usd_fee:.*", log.output[0]))  # type: ignore
+            self.assertTrue(re.search(".* InTransaction .*, id.*fiat_in_with_fee != fiat_in_no_fee.*fiat_fee:.*", log.output[0]))  # type: ignore
 
 
 if __name__ == "__main__":

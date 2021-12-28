@@ -19,6 +19,7 @@ from rp2.gain_loss import GainLoss
 from rp2.in_transaction import InTransaction
 from rp2.intra_transaction import IntraTransaction
 from rp2.out_transaction import OutTransaction
+from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
@@ -29,7 +30,7 @@ class TestGainLoss(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        TestGainLoss._configuration = Configuration("./config/test_data.config")
+        TestGainLoss._configuration = Configuration(US(), "./config/test_data.config")
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -117,16 +118,16 @@ class TestGainLoss(unittest.TestCase):
         self.assertEqual(flow.from_lot, None)
         self.assertEqual(flow.timestamp, flow.taxable_event.timestamp)
         self.assertEqual(flow.crypto_balance_change, RP2Decimal("0.1"))
-        self.assertEqual(flow.taxable_event_usd_amount_with_fee_fraction, RP2Decimal("1100"))
+        self.assertEqual(flow.taxable_event_fiat_amount_with_fee_fraction, RP2Decimal("1100"))
         self.assertEqual(
             str(flow),
             """GainLoss:
   id=14->None
   crypto_amount=0.10000000
-  usd_cost_basis=0.0000
-  usd_gain=1100.0000
+  fiat_cost_basis=0.0000
+  fiat_gain=1100.0000
   is_long_term_capital_gains=False
-  taxable_event_usd_amount_with_fee_fraction=1100.0000
+  taxable_event_fiat_amount_with_fee_fraction=1100.0000
   taxable_event_fraction_percentage=100.0000%
   taxable_event=InTransaction:
     id=14
@@ -137,18 +138,18 @@ class TestGainLoss(unittest.TestCase):
     transaction_type=TransactionType.INTEREST
     spot_price=11000.0000
     crypto_in=0.10000000
-    usd_fee=0.0000
-    usd_in_no_fee=1100.0000
-    usd_in_with_fee=1100.0000
+    fiat_fee=0.0000
+    fiat_in_no_fee=1100.0000
+    fiat_in_with_fee=1100.0000
     is_taxable=True
-    usd_taxable_amount=1100.0000
-  from_lot_usd_amount_with_fee_fraction=0.0000
+    fiat_taxable_amount=1100.0000
+  from_lot_fiat_amount_with_fee_fraction=0.0000
   from_lot_fraction_percentage=0.0000%
   from_lot=None""",
         )
         self.assertEqual(
             repr(flow),
-            "GainLoss(id='14->None', crypto_amount=0.10000000, usd_cost_basis=0.0000, usd_gain=1100.0000, is_long_term_capital_gains=False, taxable_event_usd_amount_with_fee_fraction=1100.0000, taxable_event_fraction_percentage=100.0000%, taxable_event=InTransaction(id='14', timestamp='2020-02-21 13:14:08.000000 -0004', asset='B1', exchange='BlockFi', holder='Bob', transaction_type=<TransactionType.INTEREST: 'interest'>, spot_price=11000.0000, crypto_in=0.10000000, usd_fee=0.0000, usd_in_no_fee=1100.0000, usd_in_with_fee=1100.0000, is_taxable=True, usd_taxable_amount=1100.0000), from_lot_usd_amount_with_fee_fraction=0.0000, from_lot_fraction_percentage=0.0000%, from_lot=None)",
+            "GainLoss(id='14->None', crypto_amount=0.10000000, fiat_cost_basis=0.0000, fiat_gain=1100.0000, is_long_term_capital_gains=False, taxable_event_fiat_amount_with_fee_fraction=1100.0000, taxable_event_fraction_percentage=100.0000%, taxable_event=InTransaction(id='14', timestamp='2020-02-21 13:14:08.000000 -0004', asset='B1', exchange='BlockFi', holder='Bob', transaction_type=<TransactionType.INTEREST: 'interest'>, spot_price=11000.0000, crypto_in=0.10000000, fiat_fee=0.0000, fiat_in_no_fee=1100.0000, fiat_in_with_fee=1100.0000, is_taxable=True, fiat_taxable_amount=1100.0000), from_lot_fiat_amount_with_fee_fraction=0.0000, from_lot_fraction_percentage=0.0000%, from_lot=None)",
         )
 
     def test_good_non_interest_gain_loss(self) -> None:
@@ -158,16 +159,16 @@ class TestGainLoss(unittest.TestCase):
         self.assertEqual(flow.from_lot, self._in_buy)
         self.assertEqual(flow.timestamp, flow.taxable_event.timestamp)
         self.assertEqual(flow.crypto_balance_change, RP2Decimal("0.001"))
-        self.assertEqual(flow.taxable_event_usd_amount_with_fee_fraction, RP2Decimal("12.5"))
+        self.assertEqual(flow.taxable_event_fiat_amount_with_fee_fraction, RP2Decimal("12.5"))
         self.assertEqual(
             str(flow),
             """GainLoss:
   id=30->10
   crypto_amount=0.00100000
-  usd_cost_basis=10.0100
-  usd_gain=2.4900
+  fiat_cost_basis=10.0100
+  fiat_gain=2.4900
   is_long_term_capital_gains=True
-  taxable_event_usd_amount_with_fee_fraction=12.5000
+  taxable_event_fiat_amount_with_fee_fraction=12.5000
   taxable_event_fraction_percentage=10.0000%
   taxable_event=IntraTransaction:
     id=30
@@ -182,10 +183,10 @@ class TestGainLoss(unittest.TestCase):
     crypto_sent=0.40000000
     crypto_received=0.39000000
     crypto_fee=0.01000000
-    usd_fee=125.0000
+    fiat_fee=125.0000
     is_taxable=True
-    usd_taxable_amount=125.0000
-  from_lot_usd_amount_with_fee_fraction=10.0100
+    fiat_taxable_amount=125.0000
+  from_lot_fiat_amount_with_fee_fraction=10.0100
   from_lot_fraction_percentage=0.0500%
   from_lot=InTransaction:
     id=10
@@ -196,15 +197,15 @@ class TestGainLoss(unittest.TestCase):
     transaction_type=TransactionType.BUY
     spot_price=10000.0000
     crypto_in=2.00020000
-    usd_fee=20.0000
-    usd_in_no_fee=20002.0000
-    usd_in_with_fee=20022.0000
+    fiat_fee=20.0000
+    fiat_in_no_fee=20002.0000
+    fiat_in_with_fee=20022.0000
     is_taxable=False
-    usd_taxable_amount=0.0000""",
+    fiat_taxable_amount=0.0000""",
         )
         self.assertEqual(
             repr(flow),
-            "GainLoss(id='30->10', crypto_amount=0.00100000, usd_cost_basis=10.0100, usd_gain=2.4900, is_long_term_capital_gains=True, taxable_event_usd_amount_with_fee_fraction=12.5000, taxable_event_fraction_percentage=10.0000%, taxable_event=IntraTransaction(id='30', timestamp='2021-03-10 11:18:58.000000 -0004', asset='B1', from_exchange='Coinbase Pro', from_holder='Bob', to_exchange='BlockFi', to_holder='Alice', transaction_type=<TransactionType.MOVE: 'move'>, spot_price=12500.0000, crypto_sent=0.40000000, crypto_received=0.39000000, crypto_fee=0.01000000, usd_fee=125.0000, is_taxable=True, usd_taxable_amount=125.0000), from_lot_usd_amount_with_fee_fraction=10.0100, from_lot_fraction_percentage=0.0500%, from_lot=InTransaction(id='10', timestamp='2020-01-02 08:42:43.882000 +0000', asset='B1', exchange='Coinbase Pro', holder='Bob', transaction_type=<TransactionType.BUY: 'buy'>, spot_price=10000.0000, crypto_in=2.00020000, usd_fee=20.0000, usd_in_no_fee=20002.0000, usd_in_with_fee=20022.0000, is_taxable=False, usd_taxable_amount=0.0000))",
+            "GainLoss(id='30->10', crypto_amount=0.00100000, fiat_cost_basis=10.0100, fiat_gain=2.4900, is_long_term_capital_gains=True, taxable_event_fiat_amount_with_fee_fraction=12.5000, taxable_event_fraction_percentage=10.0000%, taxable_event=IntraTransaction(id='30', timestamp='2021-03-10 11:18:58.000000 -0004', asset='B1', from_exchange='Coinbase Pro', from_holder='Bob', to_exchange='BlockFi', to_holder='Alice', transaction_type=<TransactionType.MOVE: 'move'>, spot_price=12500.0000, crypto_sent=0.40000000, crypto_received=0.39000000, crypto_fee=0.01000000, fiat_fee=125.0000, is_taxable=True, fiat_taxable_amount=125.0000), from_lot_fiat_amount_with_fee_fraction=10.0100, from_lot_fraction_percentage=0.0500%, from_lot=InTransaction(id='10', timestamp='2020-01-02 08:42:43.882000 +0000', asset='B1', exchange='Coinbase Pro', holder='Bob', transaction_type=<TransactionType.BUY: 'buy'>, spot_price=10000.0000, crypto_in=2.00020000, fiat_fee=20.0000, fiat_in_no_fee=20002.0000, fiat_in_with_fee=20022.0000, is_taxable=False, fiat_taxable_amount=0.0000))",
         )
 
     def test_gain_loss_equality_and_hashing(self) -> None:

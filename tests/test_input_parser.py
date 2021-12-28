@@ -23,6 +23,7 @@ from rp2.input_data import InputData
 from rp2.intra_transaction import IntraTransaction
 from rp2.ods_parser import open_ods, parse_ods
 from rp2.out_transaction import OutTransaction
+from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2Error, RP2TypeError, RP2ValueError
 from rp2.transaction_set import TransactionSet
@@ -39,8 +40,8 @@ class TestInputParser(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        TestInputParser._good_input_configuration = Configuration("./config/test_data.config")
-        TestInputParser._bad_input_configuration = Configuration("./config/test_bad_data.config")
+        TestInputParser._good_input_configuration = Configuration(US(), "./config/test_data.config")
+        TestInputParser._bad_input_configuration = Configuration(US(), "./config/test_bad_data.config")
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -88,9 +89,9 @@ class TestInputParser(unittest.TestCase):
             TransactionType.BUY,
         ]
         spot_prices: List[RP2Decimal] = [RP2Decimal(s) for s in ["11000", "12000", "13000", "14000", "15000"]]
-        usd_taxable_amounts: List[RP2Decimal] = [RP2Decimal(s) for s in ["0", "24000", "39000", "0", "0"]]
+        fiat_taxable_amounts: List[RP2Decimal] = [RP2Decimal(s) for s in ["0", "24000", "39000", "0", "0"]]
         crypto_balance_changes: List[RP2Decimal] = [RP2Decimal(s) for s in ["1", "2", "3", "4", "5"]]
-        usd_balance_changes: List[RP2Decimal] = [RP2Decimal(s) for s in ["11100", "24000", "39000", "56400", "75500"]]
+        fiat_balance_changes: List[RP2Decimal] = [RP2Decimal(s) for s in ["11100", "24000", "39000", "56400", "75500"]]
         is_taxable_values: List[bool] = [False, True, True, False, False]
 
         count: int = 0
@@ -98,9 +99,9 @@ class TestInputParser(unittest.TestCase):
         timestamp: str
         transaction_type: TransactionType
         spot_price: RP2Decimal
-        usd_taxable_amount: RP2Decimal
+        fiat_taxable_amount: RP2Decimal
         crypto_balance_change: RP2Decimal
-        usd_balance_change: RP2Decimal
+        fiat_balance_change: RP2Decimal
         is_taxable: bool
 
         transaction: Optional[InTransaction] = None
@@ -111,9 +112,9 @@ class TestInputParser(unittest.TestCase):
             timestamp,
             transaction_type,
             spot_price,
-            usd_taxable_amount,
+            fiat_taxable_amount,
             crypto_balance_change,
-            usd_balance_change,
+            fiat_balance_change,
             is_taxable,
         ) in zip(  # type: ignore
             in_transaction_set,
@@ -121,9 +122,9 @@ class TestInputParser(unittest.TestCase):
             timestamps,
             transaction_types,
             spot_prices,
-            usd_taxable_amounts,
+            fiat_taxable_amounts,
             crypto_balance_changes,
-            usd_balance_changes,
+            fiat_balance_changes,
             is_taxable_values,
         ):
             if not in_transaction_set or not transaction:  # Unwrap the Optional types to keep mypy happy
@@ -134,9 +135,9 @@ class TestInputParser(unittest.TestCase):
             self.assertEqual(transaction.transaction_type, transaction_type)
             self.assertEqual(transaction.spot_price, spot_price)
             self.assertEqual(transaction.asset, asset)
-            self.assertEqual(transaction.usd_taxable_amount, usd_taxable_amount)
+            self.assertEqual(transaction.fiat_taxable_amount, fiat_taxable_amount)
             self.assertEqual(transaction.crypto_balance_change, crypto_balance_change)
-            self.assertEqual(transaction.usd_balance_change, usd_balance_change)
+            self.assertEqual(transaction.fiat_balance_change, fiat_balance_change)
             self.assertEqual(transaction.is_taxable(), is_taxable)
             previous_transaction = transaction
             count += 1
@@ -159,9 +160,9 @@ class TestInputParser(unittest.TestCase):
             TransactionType.SELL,
         ]
         spot_prices: List[RP2Decimal] = [RP2Decimal(d) for d in ["11200", "12200", "14200", "14300", "20200"]]
-        usd_taxable_amounts: List[RP2Decimal] = [RP2Decimal(d) for d in ["2240", "12200", "71000", "54197", "40602.0"]]
+        fiat_taxable_amounts: List[RP2Decimal] = [RP2Decimal(d) for d in ["2240", "12200", "71000", "54197", "40602.0"]]
         crypto_balance_changes: List[RP2Decimal] = [RP2Decimal(d) for d in ["0.2", "1", "5", "3.79", "2.01"]]
-        usd_balance_changes: List[RP2Decimal] = [RP2Decimal(d) for d in ["2240", "12200", "71000", "54197", "40602.0"]]
+        fiat_balance_changes: List[RP2Decimal] = [RP2Decimal(d) for d in ["2240", "12200", "71000", "54197", "40602.0"]]
         is_taxable_values: List[bool] = [True, True, True, True, True]
 
         count: int = 0
@@ -169,9 +170,9 @@ class TestInputParser(unittest.TestCase):
         timestamp: str
         transaction_type: TransactionType
         spot_price: RP2Decimal
-        usd_taxable_amount: RP2Decimal
+        fiat_taxable_amount: RP2Decimal
         crypto_balance_change: RP2Decimal
-        usd_balance_change: RP2Decimal
+        fiat_balance_change: RP2Decimal
         is_taxable: bool
 
         transaction: Optional[OutTransaction] = None
@@ -183,9 +184,9 @@ class TestInputParser(unittest.TestCase):
             timestamp,
             transaction_type,
             spot_price,
-            usd_taxable_amount,
+            fiat_taxable_amount,
             crypto_balance_change,
-            usd_balance_change,
+            fiat_balance_change,
             is_taxable,
         ) in zip(  # type: ignore
             out_transaction_set,
@@ -193,9 +194,9 @@ class TestInputParser(unittest.TestCase):
             timestamps,
             transaction_types,
             spot_prices,
-            usd_taxable_amounts,
+            fiat_taxable_amounts,
             crypto_balance_changes,
-            usd_balance_changes,
+            fiat_balance_changes,
             is_taxable_values,
         ):
             if not out_transaction_set or not transaction:  # Unwrap the Optional types to keep mypy happy
@@ -206,9 +207,9 @@ class TestInputParser(unittest.TestCase):
             self.assertEqual(transaction.transaction_type, transaction_type)
             self.assertEqual(transaction.spot_price, spot_price)
             self.assertEqual(transaction.asset, asset)
-            self.assertEqual(transaction.usd_taxable_amount, usd_taxable_amount)
+            self.assertEqual(transaction.fiat_taxable_amount, fiat_taxable_amount)
             self.assertEqual(transaction.crypto_balance_change, crypto_balance_change)
-            self.assertEqual(transaction.usd_balance_change, usd_balance_change)
+            self.assertEqual(transaction.fiat_balance_change, fiat_balance_change)
             self.assertEqual(transaction.is_taxable(), is_taxable)
             previous_transaction = transaction
             count += 1
@@ -229,9 +230,9 @@ class TestInputParser(unittest.TestCase):
             TransactionType.MOVE,
         ]
         spot_prices: List[RP2Decimal] = [RP2Decimal(d) for d in ["11400", "0", "14400", "21400"]]
-        usd_taxable_amounts: List[RP2Decimal] = [RP2Decimal(d) for d in ["114", "0", "288", "856"]]
+        fiat_taxable_amounts: List[RP2Decimal] = [RP2Decimal(d) for d in ["114", "0", "288", "856"]]
         crypto_balance_changes: List[RP2Decimal] = [RP2Decimal(d) for d in ["0.01", "0", "0.02", "0.04"]]
-        usd_balance_changes: List[RP2Decimal] = [RP2Decimal(d) for d in ["114", "0", "288", "856"]]
+        fiat_balance_changes: List[RP2Decimal] = [RP2Decimal(d) for d in ["114", "0", "288", "856"]]
         is_taxable_values: List[bool] = [True, False, True, True]
 
         count: int = 0
@@ -239,9 +240,9 @@ class TestInputParser(unittest.TestCase):
         timestamp: str
         transaction_type: TransactionType
         spot_price: RP2Decimal
-        usd_taxable_amount: RP2Decimal
+        fiat_taxable_amount: RP2Decimal
         crypto_balance_change: RP2Decimal
-        usd_balance_change: RP2Decimal
+        fiat_balance_change: RP2Decimal
         is_taxable: bool
 
         transaction: Optional[IntraTransaction] = None
@@ -252,9 +253,9 @@ class TestInputParser(unittest.TestCase):
             timestamp,
             transaction_type,
             spot_price,
-            usd_taxable_amount,
+            fiat_taxable_amount,
             crypto_balance_change,
-            usd_balance_change,
+            fiat_balance_change,
             is_taxable,
         ) in zip(  # type: ignore
             intra_transaction_set,
@@ -262,9 +263,9 @@ class TestInputParser(unittest.TestCase):
             timestamps,
             transaction_types,
             spot_prices,
-            usd_taxable_amounts,
+            fiat_taxable_amounts,
             crypto_balance_changes,
-            usd_balance_changes,
+            fiat_balance_changes,
             is_taxable_values,
         ):
             if not intra_transaction_set or not transaction:  # Unwrap the Optional types to keep mypy happy
@@ -275,9 +276,9 @@ class TestInputParser(unittest.TestCase):
             self.assertEqual(transaction.transaction_type, transaction_type)
             self.assertEqual(transaction.spot_price, spot_price)
             self.assertEqual(transaction.asset, asset)
-            self.assertEqual(transaction.usd_taxable_amount, usd_taxable_amount)
+            self.assertEqual(transaction.fiat_taxable_amount, fiat_taxable_amount)
             self.assertEqual(transaction.crypto_balance_change, crypto_balance_change)
-            self.assertEqual(transaction.usd_balance_change, usd_balance_change)
+            self.assertEqual(transaction.fiat_balance_change, fiat_balance_change)
             self.assertEqual(transaction.is_taxable(), is_taxable)
             previous_transaction = transaction
             count += 1
@@ -315,7 +316,7 @@ class TestInputParser(unittest.TestCase):
             "B27": ErrorAndMessage(RP2ValueError, "Parameter 'asset' value is not known: .*"),
             "B28": ErrorAndMessage(RP2ValueError, "Parameter 'crypto_in' has non-positive value .*"),
             "B29": ErrorAndMessage(RP2ValueError, "Parameter 'spot_price' has non-positive value .*"),
-            "B30": ErrorAndMessage(RP2ValueError, "Parameter 'usd_fee' has non-positive value .*"),
+            "B30": ErrorAndMessage(RP2ValueError, "Parameter 'fiat_fee' has non-positive value .*"),
             "B31": ErrorAndMessage(RP2ValueError, "Found an empty cell while parsing table EntrySetType.IN"),
             "B32": ErrorAndMessage(RP2ValueError, "TABLE END not found for EntrySetType.OUT table"),
             "B33": ErrorAndMessage(RP2ValueError, "Found more than one IN symbol"),
