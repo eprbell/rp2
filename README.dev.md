@@ -34,6 +34,8 @@
   * [Development Workflow](#development-workflow)
   * [Unit Tests](#unit-tests)
 * **[Plugin Development](#plugin-development)**
+  * [Adding Support for a New Country](#adding-support-for-a-new-country)
+  * [Writing a New Report Generator](#writing-a-new-report-generator)
 * **[Frequently Asked Developer Questions](#frequently-asked-developer-questions)**
 
 ## Introduction
@@ -161,23 +163,41 @@ While every commit and push are automatically tested as described, sometimes it'
 
 Logs are stored in the `log` directory. To generate debug logs, prepend the command line with `LOG_LEVEL=DEBUG`, e.g.:
 ```
-LOG_LEVEL=DEBUG bin/rp2.py -o output -p crypto_example_ config/crypto_example.config input/crypto_example.ods
+LOG_LEVEL=DEBUG bin/rp2_us -o output -p crypto_example_ config/crypto_example.config input/crypto_example.ods
 ```
 
 ### Unit Tests
 RP2 has considerable unit test coverage to reduce the risk of regression. Unit tests are in the [tests](tests) directory. Please add unit tests for any new code.
 
 ## Plugin Development
-RP2 has a plugin architecture for report generators, which makes it extensible for new use cases. Writing a new plugin is quite easy: the [tax_report_us](src/rp2/plugin/report/tax_report_us.py) generator is a simple example, the [rp2_full_report](src/rp2/plugin/report/rp2_full_report.py) one is more comprehensive.
+
+RP2 has a plugin architecture for countries and report generators, which makes it extensible for new use cases.
+
+### Adding Support for a New Country
+RP2 has experimental infrastructure to support countries other than the US. It captures this functionality with the [AbstractCountry](src/rp2/abstract_country.py) class, which captures the following:
+* country code (2-letter string in [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format);
+* currency code (3-letter string in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format);
+* long term capital gain period in days (e.g. for the US it's 365).
+
+To add support for a new country, add a new Python file in the `src/rp2/plugin/country` directory and name after the ISO 3166-1 alpha-2 2-letter code for the country. Then define the `long_term_capital_gain_period` with the correct value and add a global function called `rp2_entry()` which simply calls `rp2_main()` and passes it an instance of the new country class. As an example see the [us.py](src/rp2/plugin/country/us.py) file.
+
+Finally add a console script to [setup.cfg](setup.cfg) pointing the new country rp2_entry (see the US example in the console_scripts section of setup.cfg).
+
+As mentioned, the country infrastructure is experimental: if you're interested in adding support for a new country and have feedback or notice missing functionality, open a [PR](CONTRIBUTING.md).
+
+### Writing a New Report Generator
+Writing a new plugin is quite easy: the [tax_report_us](src/rp2/plugin/report/us/tax_report_us.py) generator is a simple example, the [rp2_full_report](src/rp2/plugin/report/rp2_full_report.py) one is more comprehensive.
 
 Plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
-* add a new Python file in the src/rp2/plugin/report directory and give it a meaningful name
+* if the new plugin is not country-specific, add a new Python file in the `src/rp2/plugin/report/` directory and give it a meaningful name
+* if the new plugin is country-specific, add a new Python file in the `src/rp2/plugin/report/<country>` directory and give it a meaningful name (where `<country>` is a 2-letter country code adhering to the ISO 3166-1 alpha-2 format)
 * import the following (plus any other RP2 file you might need):
 ```
-from abstract_report_generator import AbstractReportGenerator
-from computed_data import ComputedData
-from gain_loss import GainLoss
-from gain_loss_set import GainLossSet
+from rp2.abstract_country import AbstractCountry
+from rp2.abstract_report_generator import AbstractReportGenerator
+from rp2.computed_data import ComputedData
+from rp2.gain_loss import GainLoss
+from rp2.gain_loss_set import GainLossSet
 ```
 * Optionally, RP2 provides a logger facility:
 ```
@@ -191,12 +211,14 @@ class Generator(AbstractReportGenerator):
 ```
     def generate(
         self,
+        country: AbstractCountry,
         asset_to_computed_data: Dict[str, ComputedData],
         output_dir_path: str,
         output_file_prefix: str,
     ) -> None:
 ```
 * write the body of the method. The parameters are:
+  * `country`: instance of [AbstractCountry](src/rp2/abstract_country.py); see [Adding Support for a New Country](#adding-support-for-a-new-country) for more details;
   * `asset_to_computed_data`: dictionary mapping user asset (i.e. cryptocurrency) to the computed tax data for that asset. For each user asset there is one instance of [ComputedData](src/rp2/computed_data.py);
   * `output_dir_path`: directory in which to write the output;
   * `output_file_prefix`: prefix to be prepended to the output file name.
