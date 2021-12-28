@@ -19,8 +19,8 @@ from rp2.rp2_error import RP2TypeError
 CRYPTO_DECIMALS: int = 13
 CRYPTO_DECIMAL_MASK: Decimal = Decimal("1." + "0" * int(CRYPTO_DECIMALS))
 
-USD_DECIMALS: int = 2
-USD_DECIMAL_MASK: Decimal = Decimal("1." + "0" * int(USD_DECIMALS))
+FIAT_DECIMALS: int = 2
+FIAT_DECIMAL_MASK: Decimal = Decimal("1." + "0" * int(FIAT_DECIMALS))
 
 
 class RP2Decimal(Decimal):
