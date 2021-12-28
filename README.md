@@ -138,13 +138,13 @@ To try RP2 with example files, download [crypto_example.ods](https://github.com/
 To generate output for the example files open a terminal window (or PowerShell if on Windows) and enter the following commands:
   ```
   cd <download_directory>
-  rp2 -o output -p crypto_example_ crypto_example.config crypto_example.ods
+  rp2_us -o output -p crypto_example_ crypto_example.config crypto_example.ods
   ```
 Results are generated in the `output` directory and logs are stored in the `log` directory.
 
-To print command usage information for the `rp2` command:
+To print command usage information for the `rp2_us` command:
   ```
-  rp2 --help
+  rp2_us --help
   ```
 
 ## Input and Output Files
