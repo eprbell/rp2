@@ -133,9 +133,9 @@ class _YearlyGainLossId:
 @dataclass(frozen=True, eq=True)
 class _YearlyGainLossAmounts:
     crypto_amount: RP2Decimal
-    usd_amount: RP2Decimal
-    usd_cost_basis: RP2Decimal
-    usd_gain_loss: RP2Decimal
+    fiat_amount: RP2Decimal
+    fiat_cost_basis: RP2Decimal
+    fiat_gain_loss: RP2Decimal
 
 
 def _create_unfiltered_yearly_gain_loss_list(input_data: InputData, unfiltered_gain_loss_set: GainLossSet) -> List[YearlyGainLoss]:
@@ -153,14 +153,16 @@ def _create_unfiltered_yearly_gain_loss_list(input_data: InputData, unfiltered_g
         )
         value = summaries.setdefault(key, _YearlyGainLossAmounts(ZERO, ZERO, ZERO, ZERO))
         crypto_amount: RP2Decimal = value.crypto_amount + gain_loss.crypto_amount
-        usd_amount: RP2Decimal = value.usd_amount + gain_loss.taxable_event_usd_amount_with_fee_fraction
-        usd_cost_basis: RP2Decimal = value.usd_cost_basis + gain_loss.usd_cost_basis
-        usd_gain_loss: RP2Decimal = value.usd_gain_loss + gain_loss.usd_gain
-        summaries[key] = _YearlyGainLossAmounts(crypto_amount=crypto_amount, usd_amount=usd_amount, usd_cost_basis=usd_cost_basis, usd_gain_loss=usd_gain_loss)
+        fiat_amount: RP2Decimal = value.fiat_amount + gain_loss.taxable_event_fiat_amount_with_fee_fraction
+        fiat_cost_basis: RP2Decimal = value.fiat_cost_basis + gain_loss.fiat_cost_basis
+        fiat_gain_loss: RP2Decimal = value.fiat_gain_loss + gain_loss.fiat_gain
+        summaries[key] = _YearlyGainLossAmounts(
+            crypto_amount=crypto_amount, fiat_amount=fiat_amount, fiat_cost_basis=fiat_cost_basis, fiat_gain_loss=fiat_gain_loss
+        )
 
     yearly_gain_loss_set: Set[YearlyGainLoss] = set()
     crypto_taxable_amount_total: RP2Decimal = ZERO
-    usd_taxable_amount_total: RP2Decimal = ZERO
+    fiat_taxable_amount_total: RP2Decimal = ZERO
     cost_basis_total: RP2Decimal = ZERO
     gain_loss_total: RP2Decimal = ZERO
     for (key, value) in summaries.items():
@@ -170,17 +172,17 @@ def _create_unfiltered_yearly_gain_loss_list(input_data: InputData, unfiltered_g
             transaction_type=key.transaction_type,
             is_long_term_capital_gains=key.is_long_term_capital_gains,
             crypto_amount=value.crypto_amount,
-            usd_amount=value.usd_amount,
-            usd_cost_basis=value.usd_cost_basis,
-            usd_gain_loss=value.usd_gain_loss,
+            fiat_amount=value.fiat_amount,
+            fiat_cost_basis=value.fiat_cost_basis,
+            fiat_gain_loss=value.fiat_gain_loss,
         )
         yearly_gain_loss_set.add(yearly_gain_loss)
         crypto_taxable_amount_total += yearly_gain_loss.crypto_amount
-        usd_taxable_amount_total += yearly_gain_loss.usd_amount
-        cost_basis_total += yearly_gain_loss.usd_cost_basis
-        gain_loss_total += yearly_gain_loss.usd_gain_loss
+        fiat_taxable_amount_total += yearly_gain_loss.fiat_amount
+        cost_basis_total += yearly_gain_loss.fiat_cost_basis
+        gain_loss_total += yearly_gain_loss.fiat_gain_loss
 
-    _verify_computation(input_data, crypto_taxable_amount_total, usd_taxable_amount_total, cost_basis_total, gain_loss_total)
+    _verify_computation(input_data, crypto_taxable_amount_total, fiat_taxable_amount_total, cost_basis_total, gain_loss_total)
 
     return list(sorted(yearly_gain_loss_set, key=_yearly_gain_loss_sort_criteria, reverse=True))
 
@@ -198,11 +200,11 @@ def _yearly_gain_loss_sort_criteria(yearly_gain_loss: YearlyGainLoss) -> str:
 def _verify_computation(
     input_data: InputData,
     crypto_taxable_amount_total: RP2Decimal,
-    usd_taxable_amount_total: RP2Decimal,
+    fiat_taxable_amount_total: RP2Decimal,
     cost_basis_total: RP2Decimal,
     gain_loss_total: RP2Decimal,
 ) -> None:
-    usd_taxable_amount_total_verify: RP2Decimal = ZERO
+    fiat_taxable_amount_total_verify: RP2Decimal = ZERO
     crypto_earned_amount_total_verify: RP2Decimal = ZERO
     crypto_sold_amount_total_verify: RP2Decimal = ZERO
     crypto_taxable_amount_total_verify: RP2Decimal = ZERO
@@ -210,18 +212,18 @@ def _verify_computation(
     crypto_in_amount_total: RP2Decimal = ZERO
     gain_loss_total_verify: RP2Decimal = ZERO
 
-    # Compute USD and crypto total taxable amount
+    # Compute fiat and crypto total taxable amount
     for entry in input_data.unfiltered_in_transaction_set:
         in_transaction: InTransaction = cast(InTransaction, entry)
-        usd_taxable_amount_total_verify += in_transaction.usd_taxable_amount
+        fiat_taxable_amount_total_verify += in_transaction.fiat_taxable_amount
         crypto_earned_amount_total_verify += in_transaction.crypto_taxable_amount
     for entry in input_data.unfiltered_out_transaction_set:
         out_transaction: OutTransaction = cast(OutTransaction, entry)
-        usd_taxable_amount_total_verify += out_transaction.usd_taxable_amount
+        fiat_taxable_amount_total_verify += out_transaction.fiat_taxable_amount
         crypto_sold_amount_total_verify += out_transaction.crypto_taxable_amount
     for entry in input_data.unfiltered_intra_transaction_set:
         intra_transaction: IntraTransaction = cast(IntraTransaction, entry)
-        usd_taxable_amount_total_verify += intra_transaction.usd_taxable_amount
+        fiat_taxable_amount_total_verify += intra_transaction.fiat_taxable_amount
         crypto_sold_amount_total_verify += intra_transaction.crypto_taxable_amount
 
     crypto_taxable_amount_total_verify = crypto_sold_amount_total_verify + crypto_earned_amount_total_verify
@@ -233,20 +235,20 @@ def _verify_computation(
             # End of loop: last in transaction covering the amount sold needs to be fractioned
             crypto_in_amount: RP2Decimal = crypto_sold_amount_total_verify - crypto_in_amount_total
             crypto_in_amount_total += crypto_in_amount
-            cost_basis_total_verify += (crypto_in_amount / in_transaction.crypto_in) * in_transaction.usd_in_with_fee
+            cost_basis_total_verify += (crypto_in_amount / in_transaction.crypto_in) * in_transaction.fiat_in_with_fee
             break
         crypto_in_amount_total += in_transaction.crypto_in
-        cost_basis_total_verify += in_transaction.usd_in_with_fee
+        cost_basis_total_verify += in_transaction.fiat_in_with_fee
 
-    gain_loss_total_verify = usd_taxable_amount_total_verify - cost_basis_total_verify
+    gain_loss_total_verify = fiat_taxable_amount_total_verify - cost_basis_total_verify
 
     if crypto_taxable_amount_total != crypto_taxable_amount_total_verify:
         raise Exception(
             f"{input_data.asset}: total crypto taxable amount incongruence detected: " f"{crypto_taxable_amount_total} != {crypto_taxable_amount_total_verify}",
         )
-    if usd_taxable_amount_total != usd_taxable_amount_total_verify:
+    if fiat_taxable_amount_total != fiat_taxable_amount_total_verify:
         raise Exception(
-            f"{input_data.asset}: total usd taxable amount incongruence detected: " f"{usd_taxable_amount_total} != {usd_taxable_amount_total_verify}",
+            f"{input_data.asset}: total fiat taxable amount incongruence detected: " f"{fiat_taxable_amount_total} != {fiat_taxable_amount_total_verify}",
         )
     if cost_basis_total != cost_basis_total_verify:
         raise Exception(f"{input_data.asset}: cost basis incongruence detected: {cost_basis_total} != {cost_basis_total_verify}")
