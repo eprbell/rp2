@@ -15,12 +15,14 @@
 
 from typing import Dict
 
+from rp2.abstract_country import AbstractCountry
 from rp2.computed_data import ComputedData
 
 
 class AbstractReportGenerator:
     def generate(
         self,
+        country: AbstractCountry,
         asset_to_computed_data: Dict[str, ComputedData],
         output_dir_path: str,
         output_file_prefix: str,
