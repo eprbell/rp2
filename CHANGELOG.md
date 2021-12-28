@@ -14,6 +14,11 @@
 
 # RP2 Change Log
 
+## v0.9.3
+* added support for programmable country infrastructure: by subclassing AbstractCountry it's now possible to add support for a new country (currently only US is supported).
+* abstracted out currency from APIs and code in general: references to "usd" have been changed to "fiat".
+* updated documentation to reflect changes in this version
+
 ## v0.9.2
 * Verified software is up to date for FY 2021
 * Wrote several answers in User FAQ document
