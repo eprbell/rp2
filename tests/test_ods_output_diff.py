@@ -37,7 +37,7 @@ class TestODSOutputDiff(unittest.TestCase):
         shutil.rmtree(OUTPUT_PATH, ignore_errors=True)
         run(
             [
-                "rp2",
+                "rp2_us",
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
@@ -48,12 +48,12 @@ class TestODSOutputDiff(unittest.TestCase):
             check=True,
         )
         run(
-            ["rp2", "-o", str(OUTPUT_PATH), "-p", "test_data_", str(CONFIG_PATH / Path("test_data.config")), str(INPUT_PATH / Path("test_data.ods"))],
+            ["rp2_us", "-o", str(OUTPUT_PATH), "-p", "test_data_", str(CONFIG_PATH / Path("test_data.config")), str(INPUT_PATH / Path("test_data.ods"))],
             check=True,
         )
         run(
             [
-                "rp2",
+                "rp2_us",
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
@@ -67,7 +67,7 @@ class TestODSOutputDiff(unittest.TestCase):
         # Test to_year
         run(
             [
-                "rp2",
+                "rp2_us",
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
@@ -81,7 +81,7 @@ class TestODSOutputDiff(unittest.TestCase):
         )
         run(
             [
-                "rp2",
+                "rp2_us",
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
@@ -95,7 +95,7 @@ class TestODSOutputDiff(unittest.TestCase):
         )
         run(
             [
-                "rp2",
+                "rp2_us",
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
@@ -109,7 +109,7 @@ class TestODSOutputDiff(unittest.TestCase):
         )
         run(
             [
-                "rp2",
+                "rp2_us",
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
@@ -123,7 +123,7 @@ class TestODSOutputDiff(unittest.TestCase):
         )
         run(
             [
-                "rp2",
+                "rp2_us",
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
@@ -139,7 +139,7 @@ class TestODSOutputDiff(unittest.TestCase):
         # Test from_year
         run(
             [
-                "rp2",
+                "rp2_us",
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
@@ -153,7 +153,7 @@ class TestODSOutputDiff(unittest.TestCase):
         )
         run(
             [
-                "rp2",
+                "rp2_us",
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
@@ -167,7 +167,7 @@ class TestODSOutputDiff(unittest.TestCase):
         )
         run(
             [
-                "rp2",
+                "rp2_us",
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
@@ -181,7 +181,7 @@ class TestODSOutputDiff(unittest.TestCase):
         )
         run(
             [
-                "rp2",
+                "rp2_us",
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
@@ -195,7 +195,7 @@ class TestODSOutputDiff(unittest.TestCase):
         )
         run(
             [
-                "rp2",
+                "rp2_us",
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
@@ -209,7 +209,7 @@ class TestODSOutputDiff(unittest.TestCase):
         )
         run(
             [
-                "rp2",
+                "rp2_us",
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
@@ -225,7 +225,7 @@ class TestODSOutputDiff(unittest.TestCase):
         )
         run(
             [
-                "rp2",
+                "rp2_us",
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
@@ -241,7 +241,7 @@ class TestODSOutputDiff(unittest.TestCase):
         )
         run(
             [
-                "rp2",
+                "rp2_us",
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
