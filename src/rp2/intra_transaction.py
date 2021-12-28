@@ -49,7 +49,7 @@ class IntraTransaction(AbstractTransaction):
         self.__crypto_sent: RP2Decimal = configuration.type_check_positive_decimal("crypto_sent", crypto_sent, non_zero=True)
         self.__crypto_received: RP2Decimal = configuration.type_check_positive_decimal("crypto_received", crypto_received)
         self.__crypto_fee: RP2Decimal
-        self.__usd_fee: RP2Decimal
+        self.__fiat_fee: RP2Decimal
 
         if self.__from_exchange == self.__to_exchange and self.__from_holder == self.__to_holder:
             raise RP2ValueError(
@@ -59,7 +59,7 @@ class IntraTransaction(AbstractTransaction):
             raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.unique_id}): crypto sent < crypto received")
 
         self.__crypto_fee = self.__crypto_sent - self.__crypto_received
-        self.__usd_fee = self.__crypto_fee * self.spot_price
+        self.__fiat_fee = self.__crypto_fee * self.spot_price
 
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
         self.configuration.type_check_positive_int("indent", indent)
@@ -81,9 +81,9 @@ class IntraTransaction(AbstractTransaction):
             f"crypto_sent={self.crypto_sent:.8f}",
             f"crypto_received={self.crypto_received:.8f}",
             f"crypto_fee={self.crypto_fee:.8f}",
-            f"usd_fee={self.usd_fee:.4f}",
+            f"fiat_fee={self.fiat_fee:.4f}",
             f"is_taxable={stringify(self.is_taxable())}",
-            f"usd_taxable_amount={self.usd_taxable_amount:.4f}",
+            f"fiat_taxable_amount={self.fiat_taxable_amount:.4f}",
         ]
         if extra_data:
             class_specific_data.extend(extra_data)
@@ -119,24 +119,24 @@ class IntraTransaction(AbstractTransaction):
         return self.__crypto_fee
 
     @property
-    def usd_fee(self) -> RP2Decimal:
-        return self.__usd_fee
+    def fiat_fee(self) -> RP2Decimal:
+        return self.__fiat_fee
 
     @property
     def crypto_taxable_amount(self) -> RP2Decimal:
         return self.crypto_fee
 
     @property
-    def usd_taxable_amount(self) -> RP2Decimal:
-        return self.usd_fee
+    def fiat_taxable_amount(self) -> RP2Decimal:
+        return self.fiat_fee
 
     @property
     def crypto_balance_change(self) -> RP2Decimal:
         return self.crypto_fee
 
     @property
-    def usd_balance_change(self) -> RP2Decimal:
-        return self.usd_fee
+    def fiat_balance_change(self) -> RP2Decimal:
+        return self.fiat_fee
 
     def is_taxable(self) -> bool:
-        return self.usd_fee > ZERO
+        return self.fiat_fee > ZERO

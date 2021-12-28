@@ -19,7 +19,7 @@ from rp2.abstract_transaction import AbstractTransaction
 from rp2.configuration import Configuration
 from rp2.entry_types import TransactionType
 from rp2.logger import LOGGER
-from rp2.rp2_decimal import USD_DECIMAL_MASK, ZERO, RP2Decimal
+from rp2.rp2_decimal import FIAT_DECIMAL_MASK, ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
@@ -41,9 +41,9 @@ class InTransaction(AbstractTransaction):
         transaction_type: str,
         spot_price: RP2Decimal,
         crypto_in: RP2Decimal,
-        usd_fee: RP2Decimal,
-        usd_in_no_fee: Optional[RP2Decimal] = None,
-        usd_in_with_fee: Optional[RP2Decimal] = None,
+        fiat_fee: RP2Decimal,
+        fiat_in_no_fee: Optional[RP2Decimal] = None,
+        fiat_in_with_fee: Optional[RP2Decimal] = None,
         unique_id: Optional[int] = None,
         notes: Optional[str] = None,
     ) -> None:
@@ -52,20 +52,20 @@ class InTransaction(AbstractTransaction):
         self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
         self.__holder: str = configuration.type_check_holder("holder", holder)
         self.__crypto_in: RP2Decimal = configuration.type_check_positive_decimal("crypto_in", crypto_in, non_zero=True)
-        self.__usd_fee: RP2Decimal = configuration.type_check_positive_decimal("usd_fee", usd_fee)
+        self.__fiat_fee: RP2Decimal = configuration.type_check_positive_decimal("fiat_fee", fiat_fee)
 
-        # USD in with/without fee are optional. They can be derived from crypto in, spot price and usd fee, however some exchanges
+        # Fiat in with/without fee are optional. They can be derived from crypto in, spot price and fiat fee, however some exchanges
         # provide them anyway. If they are provided use them as given by the exchange, if not compute them.
-        self.__usd_in_no_fee: RP2Decimal
-        self.__usd_in_with_fee: RP2Decimal
-        if usd_in_no_fee is None:
-            self.__usd_in_no_fee = self.__crypto_in * self.spot_price
+        self.__fiat_in_no_fee: RP2Decimal
+        self.__fiat_in_with_fee: RP2Decimal
+        if fiat_in_no_fee is None:
+            self.__fiat_in_no_fee = self.__crypto_in * self.spot_price
         else:
-            self.__usd_in_no_fee = configuration.type_check_positive_decimal("usd_in_no_fee", usd_in_no_fee, non_zero=True)
-        if usd_in_with_fee is None:
-            self.__usd_in_with_fee = self.__usd_in_no_fee + self.__usd_fee
+            self.__fiat_in_no_fee = configuration.type_check_positive_decimal("fiat_in_no_fee", fiat_in_no_fee, non_zero=True)
+        if fiat_in_with_fee is None:
+            self.__fiat_in_with_fee = self.__fiat_in_no_fee + self.__fiat_fee
         else:
-            self.__usd_in_with_fee = configuration.type_check_positive_decimal("usd_in_with_fee", usd_in_with_fee, non_zero=True)
+            self.__fiat_in_with_fee = configuration.type_check_positive_decimal("fiat_in_with_fee", fiat_in_with_fee, non_zero=True)
 
         if spot_price == ZERO:
             raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.unique_id}): parameter 'spot_price' cannot be 0")
@@ -73,25 +73,25 @@ class InTransaction(AbstractTransaction):
             raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.unique_id}): invalid transaction type {self.transaction_type}")
 
         # If the values provided by the exchange doesn't match the computed one, log a warning.
-        if not RP2Decimal.is_equal_within_precision(self.__crypto_in * self.spot_price, self.__usd_in_no_fee, USD_DECIMAL_MASK):
+        if not RP2Decimal.is_equal_within_precision(self.__crypto_in * self.spot_price, self.__fiat_in_no_fee, FIAT_DECIMAL_MASK):
             LOGGER.warning(
-                "%s %s (%s, id %s): crypto_in * spot_price != usd_in_no_fee: %f != %f",
+                "%s %s (%s, id %s): crypto_in * spot_price != fiat_in_no_fee: %f != %f",
                 self.asset,
                 type(self).__name__,
                 self.timestamp,
                 self.unique_id,
                 self.__crypto_in * self.spot_price,
-                self.__usd_in_no_fee,
+                self.__fiat_in_no_fee,
             )
-        if not RP2Decimal.is_equal_within_precision(self.__usd_in_with_fee, self.__usd_in_no_fee + self.__usd_fee, USD_DECIMAL_MASK):
+        if not RP2Decimal.is_equal_within_precision(self.__fiat_in_with_fee, self.__fiat_in_no_fee + self.__fiat_fee, FIAT_DECIMAL_MASK):
             LOGGER.warning(
-                "%s %s (%s, id %s): usd_in_with_fee != usd_in_no_fee + usd_fee: %f != %f",
+                "%s %s (%s, id %s): fiat_in_with_fee != fiat_in_no_fee + fiat_fee: %f != %f",
                 self.asset,
                 type(self).__name__,
                 self.timestamp,
                 self.unique_id,
-                self.__usd_in_with_fee,
-                self.__usd_in_no_fee + self.__usd_fee,
+                self.__fiat_in_with_fee,
+                self.__fiat_in_no_fee + self.__fiat_fee,
             )
 
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
@@ -110,11 +110,11 @@ class InTransaction(AbstractTransaction):
             f"transaction_type={stringify(self.transaction_type)}",
             f"spot_price={self.spot_price:.4f}",
             f"crypto_in={self.crypto_in:.8f}",
-            f"usd_fee={self.usd_fee:.4f}",
-            f"usd_in_no_fee={self.usd_in_no_fee:.4f}",
-            f"usd_in_with_fee={self.usd_in_with_fee:.4f}",
+            f"fiat_fee={self.fiat_fee:.4f}",
+            f"fiat_in_no_fee={self.fiat_in_no_fee:.4f}",
+            f"fiat_in_with_fee={self.fiat_in_with_fee:.4f}",
             f"is_taxable={stringify(self.is_taxable())}",
-            f"usd_taxable_amount={self.usd_taxable_amount:.4f}",
+            f"fiat_taxable_amount={self.fiat_taxable_amount:.4f}",
         ]
         if extra_data:
             class_specific_data.extend(extra_data)
@@ -134,16 +134,16 @@ class InTransaction(AbstractTransaction):
         return self.__crypto_in
 
     @property
-    def usd_in_no_fee(self) -> RP2Decimal:
-        return self.__usd_in_no_fee
+    def fiat_in_no_fee(self) -> RP2Decimal:
+        return self.__fiat_in_no_fee
 
     @property
-    def usd_in_with_fee(self) -> RP2Decimal:
-        return self.__usd_in_with_fee
+    def fiat_in_with_fee(self) -> RP2Decimal:
+        return self.__fiat_in_with_fee
 
     @property
-    def usd_fee(self) -> RP2Decimal:
-        return self.__usd_fee
+    def fiat_fee(self) -> RP2Decimal:
+        return self.__fiat_fee
 
     @property
     def crypto_taxable_amount(self) -> RP2Decimal:
@@ -152,9 +152,9 @@ class InTransaction(AbstractTransaction):
         return ZERO
 
     @property
-    def usd_taxable_amount(self) -> RP2Decimal:
+    def fiat_taxable_amount(self) -> RP2Decimal:
         if self.is_taxable():
-            return self.usd_in_with_fee
+            return self.fiat_in_with_fee
         return ZERO
 
     @property
@@ -162,8 +162,8 @@ class InTransaction(AbstractTransaction):
         return self.crypto_in
 
     @property
-    def usd_balance_change(self) -> RP2Decimal:
-        return self.usd_in_with_fee
+    def fiat_balance_change(self) -> RP2Decimal:
+        return self.fiat_in_with_fee
 
     def is_taxable(self) -> bool:
         return self.transaction_type.is_earn_type()
