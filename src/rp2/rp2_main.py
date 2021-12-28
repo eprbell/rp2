@@ -20,6 +20,7 @@ from pkgutil import iter_modules
 from types import ModuleType
 from typing import Dict, List
 
+from rp2.abstract_country import AbstractCountry
 from rp2.abstract_report_generator import AbstractReportGenerator
 from rp2.computed_data import ComputedData
 from rp2.configuration import VERSION, Configuration
@@ -28,14 +29,16 @@ from rp2.logger import LOG_FILE, LOGGER
 from rp2.ods_parser import open_ods, parse_ods
 from rp2.tax_engine import compute_tax
 
-OUTPUT_PACKAGE = "rp2.plugin.report"
+_OUTPUT_PACKAGE = "rp2.plugin.report"
 
 
-def rp2_main() -> None:
+def rp2_main(country: AbstractCountry) -> None:
 
     args: Namespace
     assets: List[str]
     parser: ArgumentParser
+
+    AbstractCountry.type_check("country", country)
 
     parser = _setup_argument_parser()
     args = parser.parse_args()
@@ -43,7 +46,9 @@ def rp2_main() -> None:
     _setup_paths(parser=parser, configuration_file=args.configuration_file, input_file=args.input_file, output_dir=args.output_dir)
 
     try:
-        configuration: Configuration = Configuration(configuration_path=args.configuration_file, from_year=args.from_year, to_year=args.to_year)
+        configuration: Configuration = Configuration(
+            country=country, configuration_path=args.configuration_file, from_year=args.from_year, to_year=args.to_year
+        )
         LOGGER.debug("Configuration object: %s", configuration)
 
         if args.asset:
@@ -67,40 +72,56 @@ def rp2_main() -> None:
 
             asset_to_computed_data[asset] = computed_data
 
-        # Load output plugins and call their generate() method
-        package: ModuleType = import_module(OUTPUT_PACKAGE)
-        plugin_name: str
-        is_package: bool
-        package_found: bool = False
-        for *_, plugin_name, is_package in iter_modules(package.__path__, package.__name__ + "."):
-            if is_package:
-                continue
-            if args.plugin and plugin_name != f"{OUTPUT_PACKAGE}.{args.plugin}":
-                continue
-            output_module: ModuleType = import_module(plugin_name, package=OUTPUT_PACKAGE)
-            if hasattr(output_module, "Generator"):
-                generator: AbstractReportGenerator = output_module.Generator()
-                LOGGER.debug("Generator object: '%s'", generator)
-                LOGGER.info("Generating output for plugin '%s'", plugin_name)
-                if not hasattr(generator, "generate"):
-                    LOGGER.error("Plugin '%s' has no 'generate' method. Exiting...", plugin_name)
-                    sys.exit(1)
-                generator.generate(asset_to_computed_data=asset_to_computed_data, output_dir_path=args.output_dir, output_file_prefix=args.prefix)
-            package_found = True
-
-        if not package_found:
-            if args.plugin:
-                LOGGER.error("Plugin '%s' not found. Exiting...", args.plugin)
-            else:
-                LOGGER.error("No plugin found. Exiting...")
-            sys.exit(1)
-
+        # Run plugins in the top reports directory
+        _find_and_run_plugins(
+            package_path=_OUTPUT_PACKAGE,
+            args=args,
+            country=country,
+            asset_to_computed_data=asset_to_computed_data,
+        )
+        # Run plugins in the country-specific reports directory
+        _find_and_run_plugins(
+            package_path=f"{_OUTPUT_PACKAGE}.{country.country_iso_code}",
+            args=args,
+            country=country,
+            asset_to_computed_data=asset_to_computed_data,
+        )
     except Exception:  # pylint: disable=broad-except
         LOGGER.exception("Fatal exception occurred:")
 
     LOGGER.info("Log file: %s", LOG_FILE)
     LOGGER.info("Generated output directory: %s", args.output_dir)
     LOGGER.info("Done")
+
+
+def _find_and_run_plugins(package_path: str, args: Namespace, country: AbstractCountry, asset_to_computed_data: Dict[str, ComputedData]) -> None:
+    # Load output plugins and call their generate() method
+    package: ModuleType = import_module(package_path)
+    plugin_name: str
+    is_package: bool
+    package_found: bool = False
+    for *_, plugin_name, is_package in iter_modules(package.__path__, package.__name__ + "."):
+        if is_package:
+            continue
+        if args.plugin and plugin_name != f"{_OUTPUT_PACKAGE}.{args.plugin}":
+            continue
+        output_module: ModuleType = import_module(plugin_name, package=_OUTPUT_PACKAGE)
+        if hasattr(output_module, "Generator"):
+            generator: AbstractReportGenerator = output_module.Generator()
+            LOGGER.debug("Generator object: '%s'", generator)
+            LOGGER.info("Generating output for plugin '%s'", plugin_name)
+            if not hasattr(generator, "generate"):
+                LOGGER.error("Plugin '%s' has no 'generate' method. Exiting...", plugin_name)
+                sys.exit(1)
+            generator.generate(country=country, asset_to_computed_data=asset_to_computed_data, output_dir_path=args.output_dir, output_file_prefix=args.prefix)
+        package_found = True
+
+    if not package_found:
+        if args.plugin:
+            LOGGER.error("Plugin '%s' not found. Exiting...", args.plugin)
+        else:
+            LOGGER.error("No plugin found. Exiting...")
+        sys.exit(1)
 
 
 def _setup_argument_parser() -> ArgumentParser:
