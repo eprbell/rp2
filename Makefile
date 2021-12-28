@@ -13,7 +13,7 @@
 # limitations under the License.
 
 BIN := $(wildcard bin/*.py)
-RP2_SRC := $(wildcard src/rp2/*.py) $(wildcard src/rp2/plugin/*.py) $(wildcard src/rp2/plugin/report/*.py)
+RP2_SRC := $(wildcard src/rp2/*.py) $(wildcard src/rp2/plugin/*.py) $(wildcard src/rp2/plugin/*/*.py) $(wildcard src/rp2/plugin/*/*/*.py)
 TEST_SRC := $(wildcard tests/*.py)
 TESTS := $(wildcard tests/test_*.py)
 
