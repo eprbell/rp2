@@ -36,9 +36,9 @@ class YearlyGainLoss:
     transaction_type: TransactionType
     is_long_term_capital_gains: bool
     crypto_amount: RP2Decimal
-    usd_amount: RP2Decimal
-    usd_cost_basis: RP2Decimal
-    usd_gain_loss: RP2Decimal
+    fiat_amount: RP2Decimal
+    fiat_cost_basis: RP2Decimal
+    fiat_gain_loss: RP2Decimal
 
     def __post_init__(self) -> None:
         Configuration.type_check_positive_int("year", self.year)
@@ -46,9 +46,9 @@ class YearlyGainLoss:
         TransactionType.type_check("transaction_type", self.transaction_type)
         Configuration.type_check_bool("is_long_term", self.is_long_term_capital_gains)
         Configuration.type_check_decimal("crypto_amount", self.crypto_amount)
-        Configuration.type_check_decimal("usd_amount", self.usd_amount)
-        Configuration.type_check_decimal("usd_cost_basis", self.usd_cost_basis)
-        Configuration.type_check_decimal("usd_gain_loss", self.usd_gain_loss)
+        Configuration.type_check_decimal("fiat_amount", self.fiat_amount)
+        Configuration.type_check_decimal("fiat_cost_basis", self.fiat_cost_basis)
+        Configuration.type_check_decimal("fiat_gain_loss", self.fiat_gain_loss)
 
     def __eq__(self, other: object) -> bool:
         if not other:
@@ -105,15 +105,15 @@ class ComputedData:
     @staticmethod
     def _compute_price_per_unit(unfiltered_in_transaction_set: TransactionSet, to_year: int) -> RP2Decimal:
         crypto_in_running_sum: RP2Decimal = ZERO
-        usd_in_with_fee_running_sum: RP2Decimal = ZERO
+        fiat_in_with_fee_running_sum: RP2Decimal = ZERO
         for entry in unfiltered_in_transaction_set:
             # from_year is not used when computing average price per unit (because we always start from the beginning): only to_year is relevant.
             if entry.timestamp.year > to_year:
                 break
             transaction: InTransaction = cast(InTransaction, entry)
             crypto_in_running_sum += transaction.crypto_in
-            usd_in_with_fee_running_sum += transaction.usd_in_with_fee
-        return usd_in_with_fee_running_sum / crypto_in_running_sum if crypto_in_running_sum is not ZERO else ZERO
+            fiat_in_with_fee_running_sum += transaction.fiat_in_with_fee
+        return fiat_in_with_fee_running_sum / crypto_in_running_sum if crypto_in_running_sum is not ZERO else ZERO
 
     def __init__(
         self,

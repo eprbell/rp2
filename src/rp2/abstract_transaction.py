@@ -105,7 +105,7 @@ class AbstractTransaction(AbstractEntry):
         raise NotImplementedError("Abstract property")
 
     @property
-    def usd_taxable_amount(self) -> RP2Decimal:
+    def fiat_taxable_amount(self) -> RP2Decimal:
         raise NotImplementedError("Abstract property")
 
     def is_taxable(self) -> bool:
