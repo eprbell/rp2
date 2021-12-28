@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Set
 
 import ezodf
+from rp2.abstract_country import AbstractCountry
 from rp2.abstract_report_generator import AbstractReportGenerator
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.computed_data import ComputedData
@@ -30,6 +31,7 @@ from rp2.rp2_error import RP2TypeError
 class AbstractODTGenerator(AbstractReportGenerator):
     @staticmethod
     def _initialize_output_file(
+        country: AbstractCountry,
         output_dir_path: str,
         output_file_prefix: str,
         output_file_name: str,
@@ -46,7 +48,7 @@ class AbstractODTGenerator(AbstractReportGenerator):
         if Path(output_file_path).exists():
             output_file_path.unlink()
 
-        template_path: str = str(Path(os.path.dirname(__file__)).absolute() / Path("data/template.ods"))
+        template_path: str = str(Path(os.path.dirname(__file__)).absolute() / Path("".join(["data/template_", country.country_iso_code, ".ods"])))
         output_file: Any = ezodf.newdoc("ods", str(output_file_path), template=template_path)
 
         index: int = 0
@@ -71,6 +73,7 @@ class AbstractODTGenerator(AbstractReportGenerator):
 
     def generate(
         self,
+        country: AbstractCountry,
         asset_to_computed_data: Dict[str, ComputedData],
         output_dir_path: str,
         output_file_prefix: str,
