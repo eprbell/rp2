@@ -47,9 +47,9 @@ Here follows an example of an input spreadsheet with 2 sheets (one for BTC and o
   * **transaction_type**: AIRDROP, BUY, HARDFORK, INTEREST, MINING, STAKING or WAGES.
   * **spot_price**: value of 1 unit of the given cryptocurrency at the time the transaction occurred.
   * **crypto_in**: how much of the given cryptocurrency was acquired with the transaction.
-  * **usd_fee**: US dollar value of the transaction fees.
-  * **usd_in_no_fee** (optional): US dollar value of the transaction without fees. If not provided, RP2 will compute this value automatically.
-  * **usd_in_with_fee** (optional): US dollar value of the transaction with fees. If not provided, RP2 will compute this value automatically.
+  * **fiat_fee**: US dollar value of the transaction fees.
+  * **fiat_in_no_fee** (optional): US dollar value of the transaction without fees. If not provided, RP2 will compute this value automatically.
+  * **fiat_in_with_fee** (optional): US dollar value of the transaction with fees. If not provided, RP2 will compute this value automatically.
   * **notes** (optional): user-provided description of the transaction.
 
 ### **OUT**-Transaction Table Format
@@ -63,8 +63,8 @@ Here follows an example of an input spreadsheet with 2 sheets (one for BTC and o
   * **crypto_out_no_fee**: how much of the given cryptocurrency was sold or sent with the transaction (excluding fees).
   * **crypto_fee**: crypto value of the transaction fees.
   * **crypto_out_with_fee** (optional): how much of the given cryptocurrency was sold or sent with the transaction (excluding fees). If not provided, RP2 will compute this value automatically.
-  * **usd_out_no_fee** (optional): US dollar value of the transaction without fees. If not provided, RP2 will compute this value automatically.
-  * **usd_fee** (optional): US dollar value of the transaction fees. If not provided, RP2 will compute this value automatically.
+  * **fiat_out_no_fee** (optional): US dollar value of the transaction without fees. If not provided, RP2 will compute this value automatically.
+  * **fiat_fee** (optional): US dollar value of the transaction fees. If not provided, RP2 will compute this value automatically.
   * **notes** (optional): user-provided description of the transaction.
 
 ### **INTRA**-Transaction Table Format
@@ -100,9 +100,9 @@ The config file is in JSON format and is structured as described below. Note tha
         "transaction_type": <em>&lt;column_number&gt;</em>,
         "spot_price": <em>&lt;column_number&gt;</em>,
         "crypto_in": <em>&lt;column_number&gt;</em>,
-        "usd_fee": <em>&lt;column_number&gt;</em>,
-        "usd_in_no_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
-        "usd_in_with_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
+        "fiat_fee": <em>&lt;column_number&gt;</em>,
+        "fiat_in_no_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
+        "fiat_in_with_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
         "notes": <em>&lt;column_number&gt;</em>&#x1F537;
     },
 
@@ -116,8 +116,8 @@ The config file is in JSON format and is structured as described below. Note tha
         "crypto_out_no_fee": <em>&lt;column_number&gt;</em>,
         "crypto_fee": <em>&lt;column_number&gt;</em>,
         "crypto_out_with_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
-        "usd_out_no_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
-        "usd_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
+        "fiat_out_no_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
+        "fiat_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
         "notes": <em>&lt;column_number&gt;</em>&#x1F537;
     },
 
