@@ -18,6 +18,7 @@ from rp2.computed_data import ComputedData
 from rp2.configuration import Configuration
 from rp2.input_data import InputData
 from rp2.ods_parser import open_ods, parse_ods
+from rp2.plugin.country.us import US
 from rp2.rp2_error import RP2TypeError
 from rp2.tax_engine import compute_tax
 from rp2_test_output import RP2_TEST_OUTPUT  # pylint: disable=wrong-import-order
@@ -29,8 +30,8 @@ class TestTaxEngine(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        TestTaxEngine._good_input_configuration = Configuration("./config/test_data.config")
-        TestTaxEngine._bad_input_configuration = Configuration("./config/test_bad_data.config")
+        TestTaxEngine._good_input_configuration = Configuration(US(), "./config/test_data.config")
+        TestTaxEngine._bad_input_configuration = Configuration(US(), "./config/test_bad_data.config")
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name

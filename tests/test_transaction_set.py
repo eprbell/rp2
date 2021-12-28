@@ -23,6 +23,7 @@ from rp2.entry_types import EntrySetType, TransactionType
 from rp2.in_transaction import InTransaction
 from rp2.intra_transaction import IntraTransaction
 from rp2.out_transaction import OutTransaction
+from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 from rp2.transaction_set import TransactionSet
@@ -33,7 +34,7 @@ class TestTransactionSet(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        TestTransactionSet._configuration = Configuration("./config/test_data.config")
+        TestTransactionSet._configuration = Configuration(US(), "./config/test_data.config")
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -164,18 +165,18 @@ class TestTransactionSet(unittest.TestCase):
             TransactionType.MOVE,
             TransactionType.MOVE,
         ]
-        usd_taxable_amounts: List[RP2Decimal] = [RP2Decimal(s) for s in ["1981.98", "2000.2", "0", "0", "0.4"]]
+        fiat_taxable_amounts: List[RP2Decimal] = [RP2Decimal(s) for s in ["1981.98", "2000.2", "0", "0", "0.4"]]
         crypto_balance_changes: List[RP2Decimal] = [RP2Decimal(s) for s in ["2.2", "2.0002", "3.0002", "0", "0.0004"]]
-        usd_balance_changes: List[RP2Decimal] = [RP2Decimal(s) for s in ["1981.98", "2000.2", "3020.2", "0", "0.4"]]
+        fiat_balance_changes: List[RP2Decimal] = [RP2Decimal(s) for s in ["1981.98", "2000.2", "3020.2", "0", "0.4"]]
 
         count = 0
         expected_transaction: AbstractTransaction
         parent: AbstractTransaction
         unique_id: str
         transaction_type: TransactionType
-        usd_taxable_amount: RP2Decimal
+        fiat_taxable_amount: RP2Decimal
         crypto_balance_change: RP2Decimal
-        usd_balance_change: RP2Decimal
+        fiat_balance_change: RP2Decimal
         for (  # type: ignore
             transaction,
             expected_transaction,
@@ -183,9 +184,9 @@ class TestTransactionSet(unittest.TestCase):
             unique_id,
             timestamp,
             transaction_type,
-            usd_taxable_amount,
+            fiat_taxable_amount,
             crypto_balance_change,
-            usd_balance_change,
+            fiat_balance_change,
         ) in zip(  # type: ignore
             transaction_set,
             transactions,
@@ -193,9 +194,9 @@ class TestTransactionSet(unittest.TestCase):
             unique_ids,
             timestamps,
             transaction_types,
-            usd_taxable_amounts,
+            fiat_taxable_amounts,
             crypto_balance_changes,
-            usd_balance_changes,
+            fiat_balance_changes,
         ):
             self.assertEqual(transaction, expected_transaction)
             self.assertEqual(transaction_set.get_parent(transaction), parent)
@@ -203,9 +204,9 @@ class TestTransactionSet(unittest.TestCase):
             self.assertEqual(transaction.timestamp, parse(timestamp))
             self.assertEqual(transaction.transaction_type, transaction_type)
             self.assertEqual(transaction.asset, "B1")
-            self.assertEqual(transaction.usd_taxable_amount, usd_taxable_amount)
+            self.assertEqual(transaction.fiat_taxable_amount, fiat_taxable_amount)
             self.assertEqual(transaction.crypto_balance_change, crypto_balance_change)
-            self.assertEqual(transaction.usd_balance_change, usd_balance_change)
+            self.assertEqual(transaction.fiat_balance_change, fiat_balance_change)
             count += 1
         self.assertEqual(count, 5)
 

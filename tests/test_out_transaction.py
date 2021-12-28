@@ -20,6 +20,7 @@ from rp2.configuration import Configuration
 from rp2.entry_types import TransactionType
 from rp2.intra_transaction import IntraTransaction
 from rp2.out_transaction import OutTransaction
+from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
@@ -29,7 +30,7 @@ class TestOutTransaction(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        TestOutTransaction._configuration = Configuration("./config/test_data.config")
+        TestOutTransaction._configuration = Configuration(US(), "./config/test_data.config")
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -50,7 +51,7 @@ class TestOutTransaction(unittest.TestCase):
         OutTransaction.type_check("my_instance", out_transaction)
 
         self.assertTrue(out_transaction.is_taxable())
-        self.assertEqual(RP2Decimal("1990.989"), out_transaction.usd_taxable_amount)
+        self.assertEqual(RP2Decimal("1990.989"), out_transaction.fiat_taxable_amount)
         self.assertEqual(RP2Decimal("2.21"), out_transaction.crypto_taxable_amount)
         self.assertEqual("38", out_transaction.unique_id)
         self.assertEqual(2020, out_transaction.timestamp.year)
@@ -67,7 +68,7 @@ class TestOutTransaction(unittest.TestCase):
         self.assertEqual(RP2Decimal("900.9"), out_transaction.spot_price)
         self.assertEqual(RP2Decimal("2.2"), out_transaction.crypto_out_no_fee)
         self.assertEqual(RP2Decimal("2.21"), out_transaction.crypto_balance_change)
-        self.assertEqual(RP2Decimal("1990.989"), out_transaction.usd_balance_change)
+        self.assertEqual(RP2Decimal("1990.989"), out_transaction.fiat_balance_change)
 
         self.assertEqual(
             str(out_transaction),
@@ -82,7 +83,7 @@ class TestOutTransaction(unittest.TestCase):
   crypto_out_no_fee=2.20000000
   crypto_fee=0.01000000
   is_taxable=True
-  usd_taxable_amount=1990.9890""",
+  fiat_taxable_amount=1990.9890""",
         )
         self.assertEqual(
             out_transaction.to_string(2, repr_format=False, extra_data=["foobar", "qwerty"]),
@@ -97,7 +98,7 @@ class TestOutTransaction(unittest.TestCase):
       crypto_out_no_fee=2.20000000
       crypto_fee=0.01000000
       is_taxable=True
-      usd_taxable_amount=1990.9890
+      fiat_taxable_amount=1990.9890
       foobar
       qwerty""",
         )
@@ -115,7 +116,7 @@ class TestOutTransaction(unittest.TestCase):
                 "crypto_out_no_fee=2.20000000, "
                 "crypto_fee=0.01000000, "
                 "is_taxable=True, "
-                "usd_taxable_amount=1990.9890, "
+                "fiat_taxable_amount=1990.9890, "
                 "foobar, "
                 "qwerty)"
             ),
@@ -560,8 +561,8 @@ class TestOutTransaction(unittest.TestCase):
                 "foobar",  # type: ignore
                 unique_id=38,
             )
-        with self.assertRaisesRegex(RP2ValueError, "Parameter 'usd_out_no_fee' has non-positive value .*"):
-            # Bad usd_out_no_fee
+        with self.assertRaisesRegex(RP2ValueError, "Parameter 'fiat_out_no_fee' has non-positive value .*"):
+            # Bad fiat_out_no_fee
             OutTransaction(
                 self._configuration,
                 "6/1/2020 3:59:59 -04:00",
@@ -572,11 +573,11 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                usd_out_no_fee=RP2Decimal("-0.1"),
+                fiat_out_no_fee=RP2Decimal("-0.1"),
                 unique_id=38,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'usd_out_no_fee' has non-RP2Decimal value .*"):
-            # Bad usd_out_no_fee
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'fiat_out_no_fee' has non-RP2Decimal value .*"):
+            # Bad fiat_out_no_fee
             OutTransaction(
                 self._configuration,
                 "6/1/2020 3:59:59 -04:00",
@@ -587,12 +588,12 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                usd_out_no_fee="foobar",  # type: ignore
+                fiat_out_no_fee="foobar",  # type: ignore
                 unique_id=38,
             )
 
-        with self.assertRaisesRegex(RP2ValueError, "Parameter 'usd_fee' has non-positive value .*"):
-            # Bad usd fee
+        with self.assertRaisesRegex(RP2ValueError, "Parameter 'fiat_fee' has non-positive value .*"):
+            # Bad fiat fee
             OutTransaction(
                 self._configuration,
                 "6/1/2020 3:59:59 -04:00",
@@ -603,12 +604,12 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                usd_out_no_fee=RP2Decimal("1800"),
-                usd_fee=RP2Decimal("-10"),
+                fiat_out_no_fee=RP2Decimal("1800"),
+                fiat_fee=RP2Decimal("-10"),
                 unique_id=38,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'usd_fee' has non-RP2Decimal value .*"):
-            # Bad usd fee
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'fiat_fee' has non-RP2Decimal value .*"):
+            # Bad fiat fee
             OutTransaction(
                 self._configuration,
                 "6/1/2020 3:59:59 -04:00",
@@ -619,8 +620,8 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                usd_out_no_fee=RP2Decimal("1800"),
-                usd_fee="foobar",  # type: ignore
+                fiat_out_no_fee=RP2Decimal("1800"),
+                fiat_fee="foobar",  # type: ignore
                 unique_id=38,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'notes' has non-string value .*"):
@@ -665,11 +666,11 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0.1"),
-                usd_out_no_fee=RP2Decimal("1981.98"),
-                usd_fee=RP2Decimal("5.9"),
+                fiat_out_no_fee=RP2Decimal("1981.98"),
+                fiat_fee=RP2Decimal("5.9"),
                 unique_id=38,
             )
-            self.assertTrue(re.search("crypto_fee.*spot_price.*!= usd_fee.*:.*", log.output[0]))  # type: ignore
+            self.assertTrue(re.search("crypto_fee.*spot_price.*!= fiat_fee.*:.*", log.output[0]))  # type: ignore
         with self.assertLogs(level="WARNING") as log:
             OutTransaction(
                 self._configuration,
@@ -681,11 +682,11 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0.1"),
-                usd_out_no_fee=RP2Decimal("1081.98"),
-                usd_fee=RP2Decimal("90.09"),
+                fiat_out_no_fee=RP2Decimal("1081.98"),
+                fiat_fee=RP2Decimal("90.09"),
                 unique_id=38,
             )
-            self.assertTrue(re.search("crypto_out_no_fee.*spot_price.*!= usd_out_no_fee.*:.*", log.output[0]))  # type: ignore
+            self.assertTrue(re.search("crypto_out_no_fee.*spot_price.*!= fiat_out_no_fee.*:.*", log.output[0]))  # type: ignore
 
 
 if __name__ == "__main__":
