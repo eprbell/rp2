@@ -21,6 +21,7 @@ from typing import Any, Dict, List, Optional, Set
 
 from dateutil.parser import parse
 from jsonschema import validate  # type: ignore
+from rp2.abstract_country import AbstractCountry
 from rp2.configuration_schema import CONFIGURATION_SCHEMA
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
@@ -53,12 +54,13 @@ class Configuration:  # pylint: disable=too-many-public-methods
 
     def __init__(
         self,
+        country: AbstractCountry,
         configuration_path: str,
         accounting_method: AccountingMethod = AccountingMethod.FIFO,
         from_year: Optional[int] = None,
         to_year: Optional[int] = None,
     ) -> None:
-
+        self.__country = AbstractCountry.type_check("country", country)
         self.__configuration_path: str = self.type_check_string("configuration_path", configuration_path)
         self.__accounting_method: AccountingMethod = AccountingMethod.type_check("accounting_method", accounting_method)
         self.__from_year: int = self.type_check_positive_int("from_year", from_year) if from_year is not None else 0
@@ -135,6 +137,10 @@ class Configuration:  # pylint: disable=too-many-public-methods
 
         # Joining by separator adds one level of indentation to internal fields (like id) in str mode, which is correct.
         return separator.join(output)
+
+    @property
+    def country(self) -> AbstractCountry:
+        return self.__country
 
     @property
     def configuration_path(self) -> str:
