@@ -22,7 +22,7 @@ from typing import Any, Optional
 import jsonschema  # type: ignore
 from dateutil.tz import tzoffset, tzutc
 from rp2.abstract_country import AbstractCountry
-from rp2.configuration import AccountingMethod, Configuration
+from rp2.configuration import Configuration
 from rp2.plugin.country.us import US
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
@@ -35,7 +35,7 @@ class TestConfiguration(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         TestConfiguration._country = US()
-        TestConfiguration._configuration = Configuration(TestConfiguration._country, "./config/test_data.config")
+        TestConfiguration._configuration = Configuration("./config/test_data.config", TestConfiguration._country)
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -47,7 +47,7 @@ class TestConfiguration(unittest.TestCase):
             temporary_file.write(json.dumps(config).encode())
             temporary_file.flush()
 
-            result = Configuration(TestConfiguration._country, temporary_file.name)
+            result = Configuration(temporary_file.name, TestConfiguration._country)
         os.remove(temporary_file.name)
 
         return result
@@ -189,27 +189,23 @@ class TestConfiguration(unittest.TestCase):
 
     def test_creation(self) -> None:
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'country' is not of type AbstractCountry: .*"):
-            Configuration(None, "./config/test_data.config")  # type: ignore
+            Configuration("./config/test_data.config", None)  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration_path' has non-string value .*"):
-            Configuration(self._country, None)  # type: ignore
+            Configuration(None, self._country)  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration_path' has non-string value .*"):
-            Configuration(self._country, 111)  # type: ignore
+            Configuration(111, self._country)  # type: ignore
         with self.assertRaisesRegex(RP2ValueError, "/non/existing/file does not exist"):
-            Configuration(self._country, "/non/existing/file")
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'accounting_method' is not of type AccountingMethod: .*"):
-            Configuration(self._country, "./config/test_data.config", accounting_method=None)  # type: ignore
-        with self.assertRaisesRegex(NotImplementedError, ".*'AccountingMethod.LIFO' not implemented yet"):
-            Configuration(self._country, "./config/test_data.config", accounting_method=AccountingMethod.LIFO)
+            Configuration("/non/existing/file", self._country)
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_year' has non-integer value .*"):
-            Configuration(self._country, "./config/test_data.config", from_year="foobar")  # type: ignore
+            Configuration("./config/test_data.config", self._country, from_year="foobar")  # type: ignore
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'from_year' has non-positive value .*"):
-            Configuration(self._country, "./config/test_data.config", from_year=-1)
+            Configuration("./config/test_data.config", self._country, from_year=-1)
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'to_year' has non-integer value .*"):
-            Configuration(self._country, "./config/test_data.config", to_year="foobar")  # type: ignore
+            Configuration("./config/test_data.config", self._country, to_year="foobar")  # type: ignore
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'to_year' has non-positive value .*"):
-            Configuration(self._country, "./config/test_data.config", to_year=-1)
+            Configuration("./config/test_data.config", self._country, to_year=-1)
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'to_year' has zero value"):
-            Configuration(self._country, "./config/test_data.config", to_year=0)
+            Configuration("./config/test_data.config", self._country, to_year=0)
 
     def test_argument_packs(self) -> None:
         self.assertEqual(
@@ -300,7 +296,8 @@ class TestConfiguration(unittest.TestCase):
         self.assertEqual(
             str(self._configuration),
             (
-                "Configuration(configuration_path=./config/test_data.config, accounting_method=AccountingMethod.FIFO, from_year=non-specified, "
+                "Configuration(configuration_path=./config/test_data.config, country=US(country_iso_code=us, "
+                "currency_iso_code=usd, long_term_capital_gain_period=365), from_year=non-specified, "
                 "to_year=non-specified, in_header={'timestamp': 0, 'asset': 6, 'exchange': 1, 'holder': 2, 'transaction_type': 5, 'spot_price': 8, "
                 "'crypto_in': 7, 'fiat_fee': 11, 'fiat_in_no_fee': 9, 'fiat_in_with_fee': 10, 'notes': 12}, out_header={'timestamp': 0, 'asset': 6, "
                 "'exchange': 1, 'holder': 2, 'transaction_type': 5, 'spot_price': 8, 'crypto_out_no_fee': 7, 'crypto_fee': 9, 'notes': 12}, "
@@ -486,16 +483,6 @@ class TestConfiguration(unittest.TestCase):
             self._configuration.type_check_bool("my_bool", None)  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'my_bool' has non-bool value .*"):
             self._configuration.type_check_bool("my_bool", "True")  # type: ignore
-
-    def test_accounting_method(self) -> None:
-        self.assertEqual(AccountingMethod.FIFO, AccountingMethod.type_check("accounting_method", AccountingMethod.FIFO))
-
-        with self.assertRaisesRegex(RP2TypeError, "Parameter name is not a string: .*"):
-            AccountingMethod.type_check(None, AccountingMethod.FIFO)  # type: ignore
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'accounting_method' is not of type AccountingMethod: .*"):
-            AccountingMethod.type_check("accounting_method", "fifo")  # type: ignore
-        with self.assertRaisesRegex(NotImplementedError, "Parameter 'accounting_method': 'AccountingMethod.LIFO' not implemented yet"):
-            AccountingMethod.type_check("accounting_method", AccountingMethod.LIFO)
 
 
 if __name__ == "__main__":
