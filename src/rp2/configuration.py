@@ -15,7 +15,6 @@
 import json
 import sys
 from datetime import datetime
-from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 
@@ -30,20 +29,6 @@ VERSION: str = "0.9.3"
 MAX_YEAR: int = sys.maxsize
 
 
-class AccountingMethod(Enum):
-    FIFO: str = "fifo"
-    LIFO: str = "lifo"
-
-    @classmethod
-    def type_check(cls, name: str, instance: "AccountingMethod") -> "AccountingMethod":
-        Configuration.type_check_parameter_name(name)
-        if not isinstance(instance, cls):
-            raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
-        if instance != AccountingMethod.FIFO:
-            raise NotImplementedError(f"Parameter '{name}': '{instance}' not implemented yet ")
-        return instance
-
-
 class Configuration:  # pylint: disable=too-many-public-methods
     @classmethod
     def type_check(cls, name: str, instance: "Configuration") -> "Configuration":
@@ -54,15 +39,13 @@ class Configuration:  # pylint: disable=too-many-public-methods
 
     def __init__(
         self,
-        country: AbstractCountry,
         configuration_path: str,
-        accounting_method: AccountingMethod = AccountingMethod.FIFO,
+        country: AbstractCountry,
         from_year: Optional[int] = None,
         to_year: Optional[int] = None,
     ) -> None:
-        self.__country = AbstractCountry.type_check("country", country)
         self.__configuration_path: str = self.type_check_string("configuration_path", configuration_path)
-        self.__accounting_method: AccountingMethod = AccountingMethod.type_check("accounting_method", accounting_method)
+        self.__country = AbstractCountry.type_check("country", country)
         self.__from_year: int = self.type_check_positive_int("from_year", from_year) if from_year is not None else 0
         self.__to_year: int = self.type_check_positive_int("to_year", to_year, non_zero=True) if to_year is not None else MAX_YEAR
 
@@ -100,7 +83,7 @@ class Configuration:  # pylint: disable=too-many-public-methods
     def __repr__(self) -> str:
         return (
             f"Configuration(configuration_path={self.configuration_path}, "
-            f"accounting_method={self.accounting_method}, "
+            f"country={repr(self.country)}, "
             f"from_year={self.from_year if self.from_year > 0 else 'non-specified'}, "
             f"to_year={self.to_year if self.to_year < MAX_YEAR else 'non-specified'}, "
             f"in_header={self.__in_header}, "
@@ -139,16 +122,12 @@ class Configuration:  # pylint: disable=too-many-public-methods
         return separator.join(output)
 
     @property
-    def country(self) -> AbstractCountry:
-        return self.__country
-
-    @property
     def configuration_path(self) -> str:
         return self.__configuration_path
 
     @property
-    def accounting_method(self) -> AccountingMethod:
-        return self.__accounting_method
+    def country(self) -> AbstractCountry:
+        return self.__country
 
     @property
     def from_year(self) -> int:
