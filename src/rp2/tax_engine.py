@@ -13,8 +13,9 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, Iterator, List, Set, cast
+from typing import Dict, List, Set, cast
 
+from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.computed_data import ComputedData, YearlyGainLoss
@@ -28,17 +29,17 @@ from rp2.intra_transaction import IntraTransaction
 from rp2.logger import LOGGER
 from rp2.out_transaction import OutTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
-from rp2.rp2_error import RP2ValueError
 from rp2.transaction_set import TransactionSet
 
 
-def compute_tax(configuration: Configuration, input_data: InputData) -> ComputedData:
+def compute_tax(configuration: Configuration, accounting_method: AbstractAccountingMethod, input_data: InputData) -> ComputedData:
     Configuration.type_check("configuration", configuration)
+    AbstractAccountingMethod.type_check("accounting_method", accounting_method)
     InputData.type_check("input_data", input_data)
 
     unfiltered_taxable_event_set: TransactionSet = _create_unfiltered_taxable_event_set(configuration, input_data)
     LOGGER.debug("%s: Created taxable event set", input_data.asset)
-    unfiltered_gain_loss_set: GainLossSet = _create_unfiltered_gain_and_loss_set(configuration, input_data, unfiltered_taxable_event_set)
+    unfiltered_gain_loss_set: GainLossSet = _create_unfiltered_gain_and_loss_set(configuration, accounting_method, input_data, unfiltered_taxable_event_set)
     LOGGER.debug("%s: Created gain-loss set", input_data.asset)
     unfiltered_yearly_gain_loss_list: List[YearlyGainLoss] = _create_unfiltered_yearly_gain_loss_list(input_data, unfiltered_gain_loss_set)
     LOGGER.debug("%s: Created yearly gain-loss list", input_data.asset)
@@ -72,53 +73,10 @@ def _create_unfiltered_taxable_event_set(configuration: Configuration, input_dat
     return taxable_event_set
 
 
-def _create_unfiltered_gain_and_loss_set(configuration: Configuration, input_data: InputData, unfiltered_taxable_event_set: TransactionSet) -> GainLossSet:
-
-    gain_loss_set: GainLossSet = GainLossSet(configuration, input_data.asset, 0, MAX_YEAR)
-
-    taxable_event_iterator: Iterator[AbstractTransaction] = iter(cast(Iterable[AbstractTransaction], unfiltered_taxable_event_set))
-    from_lot_iterator: Iterator[InTransaction] = iter(cast(Iterable[InTransaction], input_data.unfiltered_in_transaction_set))
-
-    try:
-        gain_loss: GainLoss
-        taxable_event: AbstractTransaction = next(taxable_event_iterator)
-        taxable_event_amount: RP2Decimal = taxable_event.crypto_taxable_amount
-        from_lot: InTransaction = next(from_lot_iterator)
-        from_lot_amount: RP2Decimal = from_lot.crypto_in
-
-        while True:
-            if taxable_event.transaction_type.is_earn_type():
-                # Handle earn-typed transactions first
-                gain_loss = GainLoss(configuration, taxable_event_amount, taxable_event, None)
-                gain_loss_set.add_entry(gain_loss)
-                taxable_event = next(taxable_event_iterator)
-                taxable_event_amount = taxable_event.crypto_taxable_amount
-                continue
-
-            if taxable_event_amount == from_lot_amount:
-                gain_loss = GainLoss(configuration, taxable_event_amount, taxable_event, from_lot)
-                gain_loss_set.add_entry(gain_loss)
-                taxable_event = next(taxable_event_iterator)
-                taxable_event_amount = taxable_event.crypto_taxable_amount
-                from_lot = next(from_lot_iterator)
-                from_lot_amount = from_lot.crypto_in
-            elif taxable_event_amount < from_lot_amount:
-                gain_loss = GainLoss(configuration, taxable_event_amount, taxable_event, from_lot)
-                gain_loss_set.add_entry(gain_loss)
-                from_lot_amount = from_lot_amount - taxable_event_amount
-                taxable_event = next(taxable_event_iterator)
-                taxable_event_amount = taxable_event.crypto_taxable_amount
-            else:  # taxable_amount > from_lot_amount
-                gain_loss = GainLoss(configuration, from_lot_amount, taxable_event, from_lot)
-                gain_loss_set.add_entry(gain_loss)
-                taxable_event_amount = taxable_event_amount - from_lot_amount
-                from_lot = next(from_lot_iterator)
-                from_lot_amount = from_lot.crypto_in
-    except StopIteration as exception:
-        if cast(Iterator[InTransaction], exception.value) == from_lot_iterator:
-            raise RP2ValueError("Total in-transaction value < total taxable entries") from None
-
-    return gain_loss_set
+def _create_unfiltered_gain_and_loss_set(
+    configuration: Configuration, accounting_method: AbstractAccountingMethod, input_data: InputData, unfiltered_taxable_event_set: TransactionSet
+) -> GainLossSet:
+    return accounting_method.map_in_to_out_lots(configuration, input_data.asset, input_data.unfiltered_in_transaction_set, unfiltered_taxable_event_set)
 
 
 @dataclass(frozen=True, eq=True)
