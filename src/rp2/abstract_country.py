@@ -13,6 +13,8 @@
 # limitations under the License.
 
 
+from typing import List
+
 from rp2.rp2_error import RP2TypeError
 
 
@@ -20,7 +22,7 @@ class AbstractCountry:
     @classmethod
     def type_check(cls, name: str, instance: "AbstractCountry") -> "AbstractCountry":
         if not isinstance(name, str):
-            raise RP2TypeError(f"Parameter name '{name}' has non-string value {repr(name)}")
+            raise RP2TypeError(f"Parameter name is not a string: {repr(name)}")
         if not isinstance(instance, cls):
             raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
         return instance
@@ -38,6 +40,23 @@ class AbstractCountry:
 
         self.__country_iso_code = country_iso_code
         self.__currency_iso_code = currency_iso_code
+
+    def __str__(self) -> str:
+        output: List[str] = []
+        output.append(f"{type(self).__name__}:")
+        output.append(f"  country_iso_code={str(self.country_iso_code)}")
+        output.append(f"  currency_iso_code={str(self.currency_iso_code)}")
+        output.append(f"  long_term_capital_gain_period={str(self.long_term_capital_gain_period())}")
+        return "\n".join(output)
+
+    def __repr__(self) -> str:
+        output: List[str] = []
+        output.append(f"{type(self).__name__}(")
+        output.append(f"country_iso_code={str(self.country_iso_code)}")
+        output.append(f", currency_iso_code={str(self.currency_iso_code)}")
+        output.append(f", long_term_capital_gain_period={str(self.long_term_capital_gain_period())}")
+        output.append(")")
+        return "".join(output)
 
     @property
     def country_iso_code(self) -> str:
