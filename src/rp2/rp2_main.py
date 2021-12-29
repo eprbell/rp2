@@ -20,6 +20,7 @@ from pkgutil import iter_modules
 from types import ModuleType
 from typing import Dict, List
 
+from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.abstract_country import AbstractCountry
 from rp2.abstract_report_generator import AbstractReportGenerator
 from rp2.computed_data import ComputedData
@@ -29,7 +30,8 @@ from rp2.logger import LOG_FILE, LOGGER
 from rp2.ods_parser import open_ods, parse_ods
 from rp2.tax_engine import compute_tax
 
-_OUTPUT_PACKAGE = "rp2.plugin.report"
+_ACCOUNTING_METHOD_PACKAGE = "rp2.plugin.accounting_method"
+_REPORT_GENERATOR_PACKAGE = "rp2.plugin.report"
 
 
 def rp2_main(country: AbstractCountry) -> None:
@@ -40,14 +42,25 @@ def rp2_main(country: AbstractCountry) -> None:
 
     AbstractCountry.type_check("country", country)
 
-    parser = _setup_argument_parser()
+    accounting_methods: List[str] = _find_accounting_methods()
+
+    parser = _setup_argument_parser(accounting_methods)
     args = parser.parse_args()
 
     _setup_paths(parser=parser, configuration_file=args.configuration_file, input_file=args.input_file, output_dir=args.output_dir)
 
     try:
+        LOGGER.info("Country: %s", country.country_iso_code)
+
+        accounting_method_module: ModuleType = import_module(f"{_ACCOUNTING_METHOD_PACKAGE}.{args.method}", package=_ACCOUNTING_METHOD_PACKAGE)
+        if not hasattr(accounting_method_module, "AccountingMethod"):
+            LOGGER.error("Plugin %s doesn't have an AccountingMethod class")
+            sys.exit(1)
+        accounting_method: AbstractAccountingMethod = accounting_method_module.AccountingMethod()
+        LOGGER.info("Accounting Method: %s", args.method)
+
         configuration: Configuration = Configuration(
-            country=country, configuration_path=args.configuration_file, from_year=args.from_year, to_year=args.to_year
+            configuration_path=args.configuration_file, country=country, from_year=args.from_year, to_year=args.to_year
         )
         LOGGER.debug("Configuration object: %s", configuration)
 
@@ -67,21 +80,21 @@ def rp2_main(country: AbstractCountry) -> None:
             input_data: InputData = parse_ods(configuration=configuration, asset=asset, input_file_handle=input_file_handle)
             LOGGER.debug("InputData object: %s", input_data)
 
-            computed_data: ComputedData = compute_tax(configuration=configuration, input_data=input_data)
+            computed_data: ComputedData = compute_tax(configuration=configuration, accounting_method=accounting_method, input_data=input_data)
             LOGGER.debug("ComputedData object: %s", computed_data)
 
             asset_to_computed_data[asset] = computed_data
 
-        # Run plugins in the top reports directory
-        _find_and_run_plugins(
-            package_path=_OUTPUT_PACKAGE,
+        # Run non-country-specific report generators
+        _find_and_run_report_generators(
+            package_path=_REPORT_GENERATOR_PACKAGE,
             args=args,
             country=country,
             asset_to_computed_data=asset_to_computed_data,
         )
-        # Run plugins in the country-specific reports directory
-        _find_and_run_plugins(
-            package_path=f"{_OUTPUT_PACKAGE}.{country.country_iso_code}",
+        # Run country-specific report generators
+        _find_and_run_report_generators(
+            package_path=f"{_REPORT_GENERATOR_PACKAGE}.{country.country_iso_code}",
             args=args,
             country=country,
             asset_to_computed_data=asset_to_computed_data,
@@ -94,8 +107,8 @@ def rp2_main(country: AbstractCountry) -> None:
     LOGGER.info("Done")
 
 
-def _find_and_run_plugins(package_path: str, args: Namespace, country: AbstractCountry, asset_to_computed_data: Dict[str, ComputedData]) -> None:
-    # Load output plugins and call their generate() method
+def _find_and_run_report_generators(package_path: str, args: Namespace, country: AbstractCountry, asset_to_computed_data: Dict[str, ComputedData]) -> None:
+    # Load report generator plugins and call their generate() method
     package: ModuleType = import_module(package_path)
     plugin_name: str
     is_package: bool
@@ -103,9 +116,9 @@ def _find_and_run_plugins(package_path: str, args: Namespace, country: AbstractC
     for *_, plugin_name, is_package in iter_modules(package.__path__, package.__name__ + "."):
         if is_package:
             continue
-        if args.plugin and plugin_name != f"{_OUTPUT_PACKAGE}.{args.plugin}":
+        if args.plugin and plugin_name != f"{_REPORT_GENERATOR_PACKAGE}.{args.plugin}":
             continue
-        output_module: ModuleType = import_module(plugin_name, package=_OUTPUT_PACKAGE)
+        output_module: ModuleType = import_module(plugin_name, package=_REPORT_GENERATOR_PACKAGE)
         if hasattr(output_module, "Generator"):
             generator: AbstractReportGenerator = output_module.Generator()
             LOGGER.debug("Generator object: '%s'", generator)
@@ -120,11 +133,29 @@ def _find_and_run_plugins(package_path: str, args: Namespace, country: AbstractC
         if args.plugin:
             LOGGER.error("Plugin '%s' not found. Exiting...", args.plugin)
         else:
-            LOGGER.error("No plugin found. Exiting...")
+            LOGGER.error("No report generator plugin found. Exiting...")
         sys.exit(1)
 
 
-def _setup_argument_parser() -> ArgumentParser:
+def _find_accounting_methods() -> List[str]:
+    # Load accounting method plugins
+    package: ModuleType = import_module(_ACCOUNTING_METHOD_PACKAGE)
+    plugin_name: str
+    is_package: bool
+    result: List[str] = []
+
+    for *_, plugin_name, is_package in iter_modules(package.__path__, package.__name__ + "."):
+        if is_package:
+            continue
+        result.append(plugin_name.rsplit(".", 1)[1])
+
+    if not result:
+        LOGGER.error("No accounting method plugins found. Exiting...")
+
+    return result
+
+
+def _setup_argument_parser(accounting_methods: List[str]) -> ArgumentParser:
     parser: ArgumentParser = ArgumentParser(
         description=(
             "Generate yearly capital gain/loss report and account balances for crypto holdings. "
@@ -159,11 +190,20 @@ def _setup_argument_parser() -> ArgumentParser:
         type=str,
     )
     parser.add_argument(
+        "-m",
+        "--method",
+        default="fifo",
+        choices=accounting_methods,
+        help="accounting method (default: '%(default)s')",
+        metavar="METHOD",
+        type=str,
+    )
+    parser.add_argument(
         "-o",
         "--output_dir",
         action="store",
         default="output/",
-        help="Write output to OUTPUT_DIR",
+        help="Write output to OUTPUT_DIR  (default: '%(default)s')",
         metavar="OUTPUT_DIR",
         type=str,
     )
