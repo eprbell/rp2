@@ -30,7 +30,7 @@ class TestInTransaction(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        TestInTransaction._configuration = Configuration(US(), "./config/test_data.config")
+        TestInTransaction._configuration = Configuration("./config/test_data.config", US())
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name

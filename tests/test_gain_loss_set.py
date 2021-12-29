@@ -55,7 +55,7 @@ class TestGainLossSet(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls._configuration = Configuration(US(), "./config/test_data.config")
+        cls._configuration = Configuration("./config/test_data.config", US())
 
         cls._in3 = {}
         cls._in2 = {}

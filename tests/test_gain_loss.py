@@ -30,7 +30,7 @@ class TestGainLoss(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        TestGainLoss._configuration = Configuration(US(), "./config/test_data.config")
+        TestGainLoss._configuration = Configuration("./config/test_data.config", US())
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
