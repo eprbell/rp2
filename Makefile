@@ -30,8 +30,8 @@ $(VENV)/bin/activate: requirements.txt Makefile
 
 run: $(VENV)/bin/activate
 	rm -rf log/ output/
-	$(VENV)/bin/rp2 -o output/ -p test_data_ config/test_data.config input/test_data.ods
-	$(VENV)/bin/rp2 -o output/ -p crypto_example_ config/crypto_example.config input/crypto_example.ods
+	$(VENV)/bin/rp2_us -o output/ -p test_data_ config/test_data.config input/test_data.ods
+	$(VENV)/bin/rp2_us -o output/ -p crypto_example_ config/crypto_example.config input/crypto_example.ods
 
 check: $(VENV)/bin/activate
 	$(VENV)/bin/pytest --tb=native --verbose
@@ -49,17 +49,17 @@ archive: clean
 	rm -f rp2.zip || true
 	zip -r rp2.zip .
 
-distribution:
+distribution: all
 	$(VENV)/bin/pip3 install twine
 	rm -rf build/ dist/
 	$(VENV)/bin/python3 setup.py sdist bdist_wheel
 	$(VENV)/bin/python3 -m twine check dist/*
 
-upload_test_distribution:
+upload_test_distribution: distribution
 	$(VENV)/bin/pip3 install twine
 	$(VENV)/bin/python3 -m twine upload --repository testpypi dist/*
 
-upload_distribution:
+upload_distribution: distribution
 	$(VENV)/bin/pip3 install twine
 	$(VENV)/bin/python3 -m twine upload dist/*
 
