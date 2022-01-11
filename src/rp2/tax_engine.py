@@ -13,9 +13,14 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from typing import Dict, List, Set, cast
+from typing import Dict, Iterable, Iterator, List, Optional, Set, cast
 
-from rp2.abstract_accounting_method import AbstractAccountingMethod
+from rp2.abstract_accounting_method import (
+    AbstractAccountingMethod,
+    FromLotsExhaustedException,
+    TaxableEventAndFromLot,
+    TaxableEventsExhaustedException,
+)
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.computed_data import ComputedData, YearlyGainLoss
@@ -29,6 +34,7 @@ from rp2.intra_transaction import IntraTransaction
 from rp2.logger import LOGGER
 from rp2.out_transaction import OutTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
+from rp2.rp2_error import RP2ValueError
 from rp2.transaction_set import TransactionSet
 
 
@@ -41,7 +47,7 @@ def compute_tax(configuration: Configuration, accounting_method: AbstractAccount
     LOGGER.debug("%s: Created taxable event set", input_data.asset)
     unfiltered_gain_loss_set: GainLossSet = _create_unfiltered_gain_and_loss_set(configuration, accounting_method, input_data, unfiltered_taxable_event_set)
     LOGGER.debug("%s: Created gain-loss set", input_data.asset)
-    unfiltered_yearly_gain_loss_list: List[YearlyGainLoss] = _create_unfiltered_yearly_gain_loss_list(input_data, unfiltered_gain_loss_set)
+    unfiltered_yearly_gain_loss_list: List[YearlyGainLoss] = _create_unfiltered_yearly_gain_loss_list(accounting_method, input_data, unfiltered_gain_loss_set)
     LOGGER.debug("%s: Created yearly gain-loss list", input_data.asset)
 
     return ComputedData(
@@ -73,10 +79,91 @@ def _create_unfiltered_taxable_event_set(configuration: Configuration, input_dat
     return taxable_event_set
 
 
+def _get_next_taxable_event_and_from_lot(
+    accounting_method: AbstractAccountingMethod,
+    taxable_event: Optional[AbstractTransaction],
+    from_lot: Optional[InTransaction],
+    taxable_event_amount: RP2Decimal,
+    from_lot_amount: RP2Decimal,
+) -> TaxableEventAndFromLot:
+    new_taxable_event: AbstractTransaction
+    new_from_lot: Optional[InTransaction]
+    new_taxable_event_amount: RP2Decimal
+    new_from_lot_amount: RP2Decimal
+    (new_taxable_event, new_from_lot, new_taxable_event_amount, new_from_lot_amount) = accounting_method.get_next_taxable_event_and_amount(
+        taxable_event, from_lot, taxable_event_amount, from_lot_amount
+    )
+    if from_lot == new_from_lot:
+        (_, new_from_lot, _, new_from_lot_amount) = accounting_method.get_from_lot_for_taxable_event(
+            new_taxable_event, new_from_lot, new_taxable_event_amount, new_from_lot_amount
+        )
+    return TaxableEventAndFromLot(new_taxable_event, new_from_lot, new_taxable_event_amount, new_from_lot_amount)
+
+
 def _create_unfiltered_gain_and_loss_set(
     configuration: Configuration, accounting_method: AbstractAccountingMethod, input_data: InputData, unfiltered_taxable_event_set: TransactionSet
 ) -> GainLossSet:
-    return accounting_method.map_in_to_out_lots(configuration, input_data.asset, input_data.unfiltered_in_transaction_set, unfiltered_taxable_event_set)
+    gain_loss_set: GainLossSet = GainLossSet(configuration, accounting_method, input_data.asset, 0, MAX_YEAR)
+    # Create a fresh instance of accounting method
+    method: AbstractAccountingMethod = accounting_method.__class__()
+    taxable_event_iterator: Iterator[AbstractTransaction] = iter(cast(Iterable[AbstractTransaction], unfiltered_taxable_event_set))
+    from_lot_iterator: Iterator[InTransaction] = iter(cast(Iterable[InTransaction], input_data.unfiltered_in_transaction_set))
+
+    method.initialize(taxable_event_iterator, from_lot_iterator)
+
+    try:
+        gain_loss: GainLoss
+        taxable_event: AbstractTransaction
+        from_lot: Optional[InTransaction]
+        taxable_event_amount: RP2Decimal
+        from_lot_amount: RP2Decimal
+
+        # Retrieve first taxable event and from lot
+        (taxable_event, from_lot, taxable_event_amount, from_lot_amount) = _get_next_taxable_event_and_from_lot(method, None, None, ZERO, ZERO)
+
+        while taxable_event:
+            # Type check values returned by accounting method plugin
+            AbstractTransaction.type_check("taxable_event", taxable_event)
+            if from_lot is None:
+                # There must always be at least one from_lot
+                raise Exception("Parameter 'from_lot' is None")
+            InTransaction.type_check("from_lot", from_lot)
+            Configuration.type_check_positive_decimal("taxable_event_amount", taxable_event_amount)
+            Configuration.type_check_positive_decimal("from_lot_amount", from_lot_amount)
+
+            if taxable_event.transaction_type.is_earn_type():
+                # Handle earn-typed transactions first: they have no from-lot
+                gain_loss = GainLoss(configuration, method, taxable_event_amount, taxable_event, None)
+                gain_loss_set.add_entry(gain_loss)
+                (taxable_event, from_lot, taxable_event_amount, from_lot_amount) = method.get_next_taxable_event_and_amount(
+                    taxable_event, from_lot, ZERO, from_lot_amount
+                )
+                continue
+            if taxable_event_amount == from_lot_amount:
+                gain_loss = GainLoss(configuration, method, taxable_event_amount, taxable_event, from_lot)
+                gain_loss_set.add_entry(gain_loss)
+                (taxable_event, from_lot, taxable_event_amount, from_lot_amount) = _get_next_taxable_event_and_from_lot(
+                    method, taxable_event, from_lot, taxable_event_amount, from_lot_amount
+                )
+            elif taxable_event_amount < from_lot_amount:
+                gain_loss = GainLoss(configuration, method, taxable_event_amount, taxable_event, from_lot)
+                gain_loss_set.add_entry(gain_loss)
+                (taxable_event, from_lot, taxable_event_amount, from_lot_amount) = method.get_next_taxable_event_and_amount(
+                    taxable_event, from_lot, taxable_event_amount, from_lot_amount
+                )
+            else:  # taxable_amount > from_lot_amount
+                gain_loss = GainLoss(configuration, method, from_lot_amount, taxable_event, from_lot)
+                gain_loss_set.add_entry(gain_loss)
+                (taxable_event, from_lot, taxable_event_amount, from_lot_amount) = method.get_from_lot_for_taxable_event(
+                    taxable_event, from_lot, taxable_event_amount, from_lot_amount
+                )
+
+    except FromLotsExhaustedException:
+        raise RP2ValueError("Total in-transaction value < total taxable entries") from None
+    except TaxableEventsExhaustedException:
+        pass
+
+    return gain_loss_set
 
 
 @dataclass(frozen=True, eq=True)
@@ -96,7 +183,9 @@ class _YearlyGainLossAmounts:
     fiat_gain_loss: RP2Decimal
 
 
-def _create_unfiltered_yearly_gain_loss_list(input_data: InputData, unfiltered_gain_loss_set: GainLossSet) -> List[YearlyGainLoss]:
+def _create_unfiltered_yearly_gain_loss_list(
+    accounting_method: AbstractAccountingMethod, input_data: InputData, unfiltered_gain_loss_set: GainLossSet
+) -> List[YearlyGainLoss]:
     summaries: Dict[_YearlyGainLossId, _YearlyGainLossAmounts] = {}
     entry: AbstractEntry
     key: _YearlyGainLossId
@@ -140,7 +229,11 @@ def _create_unfiltered_yearly_gain_loss_list(input_data: InputData, unfiltered_g
         cost_basis_total += yearly_gain_loss.fiat_cost_basis
         gain_loss_total += yearly_gain_loss.fiat_gain_loss
 
-    _verify_computation(input_data, crypto_taxable_amount_total, fiat_taxable_amount_total, cost_basis_total, gain_loss_total)
+    # This code double-checks the results, assuming LIFO accounting: it's a vestige of the past, when there was
+    # no plugin architecture for accounting methods (there was only built-in LIFO). The new accounting method
+    # plugin architecture makes the _verify_computation function hacky: it will be deleted at some point in the future.
+    if repr(accounting_method) == "fifo":
+        _verify_computation(input_data, crypto_taxable_amount_total, fiat_taxable_amount_total, cost_basis_total, gain_loss_total)
 
     return list(sorted(yearly_gain_loss_set, key=_yearly_gain_loss_sort_criteria, reverse=True))
 
