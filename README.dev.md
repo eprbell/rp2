@@ -147,6 +147,9 @@ RP2 code adheres to these principles:
 * f-strings only: every time string interpolation is needed, f-strings are used;
 * logging: logging is done via `logger.LOGGER`;
 * no unnamed tuples: dataclasses or named tuples are used instead;
+* one class per file (with exceptions for trivial classes);
+* files containing a class must have the same name as the class (but lowercase with underscores): e.g. class AbstractEntry lives in file abstract_entry.py;
+* abstract classes' name starts with `Abstract`
 * no imports with `*`.
 
 ### Development Workflow
@@ -155,7 +158,7 @@ RP2 uses pre-commit hooks for quick validation at commit time and continuous int
 While every commit and push are automatically tested as described, sometimes it's useful to run some of the above commands locally without waiting for continuous integration. Here's how to run the most common ones:
 * run unit tests: `pytest --tb=native --verbose`
 * type check: `mypy src tests`
-* lint: `pylint -r y src tests`
+* lint: `pylint -r y src tests/*.py`
 * security check: `bandit -r src`
 * reformat code: `black src tests`
 * sort imports: `isort .`
