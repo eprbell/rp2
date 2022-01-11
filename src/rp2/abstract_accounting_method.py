@@ -12,22 +12,76 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from rp2.configuration import Configuration
-from rp2.gain_loss_set import GainLossSet
+from typing import Iterator, NamedTuple, Optional
+
+from rp2.abstract_transaction import AbstractTransaction
+from rp2.in_transaction import InTransaction
+from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError
-from rp2.transaction_set import TransactionSet
+
+
+class TaxableEventAndFromLot(NamedTuple):
+    taxable_event: AbstractTransaction
+    from_lot: Optional[InTransaction]
+    taxable_event_amount: RP2Decimal
+    from_lot_amount: RP2Decimal
+
+
+class TaxableEventsExhaustedException(Exception):
+    def __init__(self, message: str = "") -> None:
+        self.__message = message
+        super().__init__(self.__message)
+
+    def __repr__(self) -> str:
+        return self.message
+
+    @property
+    def message(self) -> str:
+        return self.__message
+
+
+class FromLotsExhaustedException(Exception):
+    def __init__(self, message: str = "") -> None:
+        self.__message = message
+        super().__init__(self.__message)
+
+    def __repr__(self) -> str:
+        return self.message
+
+    @property
+    def message(self) -> str:
+        return self.__message
 
 
 class AbstractAccountingMethod:
     @classmethod
     def type_check(cls, name: str, instance: "AbstractAccountingMethod") -> "AbstractAccountingMethod":
-        Configuration.type_check_parameter_name(name)
+        if not isinstance(name, str):
+            raise RP2TypeError(f"Parameter name is not a string: {repr(name)}")
         if not isinstance(instance, cls):
             raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
         return instance
 
-    def map_in_to_out_lots(self, configuration: Configuration, from_lot_set: TransactionSet, unfiltered_taxable_event_set: TransactionSet) -> GainLossSet:
-        raise NotImplementedError("Abstract method")
+    # Iterators yield transactions in ascending chronological order
+    def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], from_lot_iterator: Iterator[InTransaction]) -> None:
+        raise NotImplementedError("Abstract function")
+
+    def get_next_taxable_event_and_amount(
+        self, taxable_event: Optional[AbstractTransaction], from_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, from_lot_amount: RP2Decimal
+    ) -> TaxableEventAndFromLot:
+        raise NotImplementedError("Abstract function")
+
+    def get_from_lot_for_taxable_event(
+        self, taxable_event: AbstractTransaction, from_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, from_lot_amount: RP2Decimal
+    ) -> TaxableEventAndFromLot:
+        raise NotImplementedError("Abstract function")
+
+    def validate_from_lot_ancestor_timestamp(self, from_lot: InTransaction, from_lot_parent: InTransaction) -> bool:
+        raise NotImplementedError("Abstract function")
+
+    @property
+    def name(self) -> str:
+        return f"{self.__class__.__module__.rsplit('.', 1)[1]}"
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}"
+        return self.name
