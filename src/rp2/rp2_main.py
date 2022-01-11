@@ -54,7 +54,7 @@ def rp2_main(country: AbstractCountry) -> None:
 
         accounting_method_module: ModuleType = import_module(f"{_ACCOUNTING_METHOD_PACKAGE}.{args.method}", package=_ACCOUNTING_METHOD_PACKAGE)
         if not hasattr(accounting_method_module, "AccountingMethod"):
-            LOGGER.error("Plugin %s doesn't have an AccountingMethod class")
+            LOGGER.error("Accounting method plugin %s doesn't have an AccountingMethod class")
             sys.exit(1)
         accounting_method: AbstractAccountingMethod = accounting_method_module.AccountingMethod()
         LOGGER.info("Accounting Method: %s", args.method)
@@ -90,6 +90,7 @@ def rp2_main(country: AbstractCountry) -> None:
             package_path=_REPORT_GENERATOR_PACKAGE,
             args=args,
             country=country,
+            accounting_method=accounting_method,
             asset_to_computed_data=asset_to_computed_data,
         )
         # Run country-specific report generators
@@ -97,6 +98,7 @@ def rp2_main(country: AbstractCountry) -> None:
             package_path=f"{_REPORT_GENERATOR_PACKAGE}.{country.country_iso_code}",
             args=args,
             country=country,
+            accounting_method=accounting_method,
             asset_to_computed_data=asset_to_computed_data,
         )
     except Exception:  # pylint: disable=broad-except
@@ -107,7 +109,9 @@ def rp2_main(country: AbstractCountry) -> None:
     LOGGER.info("Done")
 
 
-def _find_and_run_report_generators(package_path: str, args: Namespace, country: AbstractCountry, asset_to_computed_data: Dict[str, ComputedData]) -> None:
+def _find_and_run_report_generators(
+    package_path: str, args: Namespace, country: AbstractCountry, accounting_method: AbstractAccountingMethod, asset_to_computed_data: Dict[str, ComputedData]
+) -> None:
     # Load report generator plugins and call their generate() method
     package: ModuleType = import_module(package_path)
     plugin_name: str
@@ -126,12 +130,18 @@ def _find_and_run_report_generators(package_path: str, args: Namespace, country:
             if not hasattr(generator, "generate"):
                 LOGGER.error("Plugin '%s' has no 'generate' method. Exiting...", plugin_name)
                 sys.exit(1)
-            generator.generate(country=country, asset_to_computed_data=asset_to_computed_data, output_dir_path=args.output_dir, output_file_prefix=args.prefix)
+            generator.generate(
+                country=country,
+                accounting_method=repr(accounting_method),
+                asset_to_computed_data=asset_to_computed_data,
+                output_dir_path=args.output_dir,
+                output_file_prefix=args.prefix,
+            )
         package_found = True
 
     if not package_found:
         if args.plugin:
-            LOGGER.error("Plugin '%s' not found. Exiting...", args.plugin)
+            LOGGER.error("Report Generator plugin '%s' not found. Exiting...", args.plugin)
         else:
             LOGGER.error("No report generator plugin found. Exiting...")
         sys.exit(1)
