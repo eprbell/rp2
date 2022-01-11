@@ -68,6 +68,7 @@ class Generator(AbstractODTGenerator):
     def generate(
         self,
         country: AbstractCountry,
+        accounting_method: str,
         asset_to_computed_data: Dict[str, ComputedData],
         output_dir_path: str,
         output_file_prefix: str,
@@ -81,6 +82,7 @@ class Generator(AbstractODTGenerator):
         output_file: Any
         output_file = self._initialize_output_file(
             country=country,
+            accounting_method=accounting_method,
             output_dir_path=output_dir_path,
             output_file_prefix=output_file_prefix,
             output_file_name=self.OUTPUT_FILE,
@@ -100,7 +102,7 @@ class Generator(AbstractODTGenerator):
         index: int = 0
         sheet_name: str
         for sheet_name in output_file.sheets.names():
-            if row_indexes[sheet_name] == Generator.HEADER_ROWS:
+            if sheet_name != "Legend" and row_indexes[sheet_name] == Generator.HEADER_ROWS:
                 sheet_indexes_to_remove.append(index)
             index += 1
 
@@ -115,6 +117,8 @@ class Generator(AbstractODTGenerator):
 
         sheet: Any
         for sheet in output_file.sheets:
+            if sheet.name == "Legend":
+                continue
             sheet_type: TransactionType = _SHEET_TO_TYPE[sheet.name]
             sheet.append_rows(self.MIN_ROWS + gain_loss_set.get_transaction_type_count(sheet_type) + 1)
 
