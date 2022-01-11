@@ -23,8 +23,13 @@ class AbstractReportGenerator:
     def generate(
         self,
         country: AbstractCountry,
+        accounting_method: str,
         asset_to_computed_data: Dict[str, ComputedData],
         output_dir_path: str,
         output_file_prefix: str,
     ) -> None:
         raise NotImplementedError("Abstract method: it must be implemented in the plugin class")
+
+    @classmethod
+    def get_name(cls) -> str:
+        return f"{cls.__module__.rsplit('.', 1)[1]}"
