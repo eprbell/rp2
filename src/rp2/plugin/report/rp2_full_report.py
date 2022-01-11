@@ -53,7 +53,7 @@ class Generator(AbstractODTGenerator):
     MAX_COLUMNS: int = 40
     OUTPUT_FILE: str = "rp2_full_report.ods"
 
-    TEMPLATE_SHEETS_TO_KEEP: Set[str] = {"__Legend", "__Summary"}
+    TEMPLATE_SHEETS_TO_KEEP: Set[str] = {"__Summary"}
 
     __in_header_names_row_1: List[str] = []
     __in_header_names_row: List[str] = []
@@ -263,6 +263,7 @@ class Generator(AbstractODTGenerator):
     def generate(
         self,
         country: AbstractCountry,
+        accounting_method: str,
         asset_to_computed_data: Dict[str, ComputedData],
         output_dir_path: str,
         output_file_prefix: str,
@@ -276,6 +277,7 @@ class Generator(AbstractODTGenerator):
         output_file: Any
         output_file = self._initialize_output_file(
             country=country,
+            accounting_method=accounting_method,
             output_dir_path=output_dir_path,
             output_file_prefix=output_file_prefix,
             output_file_name=self.OUTPUT_FILE,
@@ -554,9 +556,11 @@ class Generator(AbstractODTGenerator):
         gain_loss_set: GainLossSet = computed_data.gain_loss_set
 
         taxable_event_style_modifier: str = ""
-        from_lot_style_modifier: str = ""
+        from_lot_style_modifier: str = "_alt"
         year: int = 0
         border_style: _BorderStyle
+
+        previous_from_lot: Optional[InTransaction] = None
         for entry in gain_loss_set:
             gain_loss: GainLoss = cast(GainLoss, entry)
             border_suffix: str = ""
@@ -578,6 +582,8 @@ class Generator(AbstractODTGenerator):
                 f"{gain_loss.taxable_event.crypto_balance_change:.8f} "
                 f"{asset}"
             )
+            from_lot_style: str
+
             self._fill_cell(sheet, row_index, 0, gain_loss.crypto_amount, visual_style=transparent_style, data_style="crypto")
             self._fill_cell(sheet, row_index, 1, gain_loss.asset, visual_style=transparent_style)
             self._fill_cell(sheet, row_index, 2, computed_data.get_crypto_gain_loss_running_sum(gain_loss), visual_style=transparent_style, data_style="crypto")
@@ -593,8 +599,11 @@ class Generator(AbstractODTGenerator):
                 # Last fraction: change color
                 taxable_event_style_modifier = "" if taxable_event_style_modifier == "_alt" else "_alt"
 
-            from_lot_style: str = f"from_lot{from_lot_style_modifier}{border_suffix}"
             if gain_loss.from_lot:
+                if gain_loss.from_lot != previous_from_lot:
+                    # Last fraction: change color
+                    from_lot_style_modifier = "" if from_lot_style_modifier == "_alt" else "_alt"
+                    from_lot_style = f"from_lot{from_lot_style_modifier}{border_suffix}"
                 current_from_lot_fraction: int = gain_loss_set.get_from_lot_fraction(gain_loss) + 1
                 total_from_lot_fractions: int = gain_loss_set.get_from_lot_number_of_fractions(gain_loss.from_lot)
                 from_lot_note: str = (
@@ -613,10 +622,9 @@ class Generator(AbstractODTGenerator):
                 self._fill_cell(sheet, row_index, 16, gain_loss.from_lot.spot_price, visual_style=from_lot_style, data_style="fiat")
                 self._fill_cell(sheet, row_index, 17, from_lot_note, visual_style=f"from_lot_note{border_suffix}")
 
-                if current_from_lot_fraction == total_from_lot_fractions:
-                    # Last fraction: change color
-                    from_lot_style_modifier = "" if from_lot_style_modifier == "_alt" else "_alt"
+                previous_from_lot = gain_loss.from_lot
             else:
+                from_lot_style = f"from_lot{from_lot_style_modifier}{border_suffix}"
                 for i in range(11, 17):
                     self._fill_cell(sheet, row_index, i, "", visual_style=f"{from_lot_style}{border_suffix}")
 
