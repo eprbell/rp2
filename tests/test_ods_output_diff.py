@@ -29,12 +29,15 @@ LOG_PATH: Path = ROOT_PATH / Path("log")
 OUTPUT_PATH: Path = ROOT_PATH / Path("output")
 
 
+# pylint: disable=too-many-public-methods
 class TestODSOutputDiff(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         # Generate output to compare with golden files
         shutil.rmtree(LOG_PATH, ignore_errors=True)
         shutil.rmtree(OUTPUT_PATH, ignore_errors=True)
+
+        # FIFO tests
         run(
             [
                 "rp2_us",
@@ -52,8 +55,56 @@ class TestODSOutputDiff(unittest.TestCase):
             check=True,
         )
         run(
+            ["rp2_us", "-o", str(OUTPUT_PATH), "-p", "test_data2_", str(CONFIG_PATH / Path("test_data.config")), str(INPUT_PATH / Path("test_data2.ods"))],
+            check=True,
+        )
+        run(
             [
                 "rp2_us",
+                "-o",
+                str(OUTPUT_PATH),
+                "-p",
+                "test_many_year_data_",
+                str(CONFIG_PATH / Path("test_data.config")),
+                str(INPUT_PATH / Path("test_many_year_data.ods")),
+            ],
+            check=True,
+        )
+
+        # LIFO tests
+        run(
+            [
+                "rp2_us",
+                "-m",
+                "lifo",
+                "-o",
+                str(OUTPUT_PATH),
+                "-p",
+                "test_data_",
+                str(CONFIG_PATH / Path("test_data.config")),
+                str(INPUT_PATH / Path("test_data.ods")),
+            ],
+            check=True,
+        )
+        run(
+            [
+                "rp2_us",
+                "-m",
+                "lifo",
+                "-o",
+                str(OUTPUT_PATH),
+                "-p",
+                "test_data2_",
+                str(CONFIG_PATH / Path("test_data.config")),
+                str(INPUT_PATH / Path("test_data2.ods")),
+            ],
+            check=True,
+        )
+        run(
+            [
+                "rp2_us",
+                "-m",
+                "lifo",
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
@@ -207,6 +258,8 @@ class TestODSOutputDiff(unittest.TestCase):
             ],
             check=True,
         )
+
+        # Test both from_year and to_year
         run(
             [
                 "rp2_us",
@@ -260,210 +313,274 @@ class TestODSOutputDiff(unittest.TestCase):
         self.maxDiff = None  # pylint: disable=invalid-name
         self.generate_ascii_representation = True
 
-    def test_data_rp2_full_report_plugin(self) -> None:
+    def test_data_fifo_rp2_full_report_plugin(self) -> None:
         diff: str = ods_diff(
-            GOLDEN_PATH / Path("test_data_rp2_full_report.ods"),
-            OUTPUT_PATH / Path("test_data_rp2_full_report.ods"),
+            GOLDEN_PATH / Path("test_data_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_data_fifo_rp2_full_report.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
 
-    def test_data_tax_report_us_plugin(self) -> None:
+    def test_data_fifo_tax_report_us_plugin(self) -> None:
         diff: str = ods_diff(
-            GOLDEN_PATH / Path("test_data_tax_report_us.ods"),
-            OUTPUT_PATH / Path("test_data_tax_report_us.ods"),
+            GOLDEN_PATH / Path("test_data_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_data_fifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
 
-    def test_many_year_data_rp2_full_report_plugin(self) -> None:
+    def test_data2_fifo_rp2_full_report_plugin(self) -> None:
+        diff: str = ods_diff(
+            GOLDEN_PATH / Path("test_data2_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_data2_fifo_rp2_full_report.ods"),
+            generate_ascii_representation=self.generate_ascii_representation,
+        )
+        self.assertFalse(diff, msg=diff)
+
+    def test_data2_fifo_tax_report_us_plugin(self) -> None:
+        diff: str = ods_diff(
+            GOLDEN_PATH / Path("test_data2_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_data2_fifo_tax_report_us.ods"),
+            generate_ascii_representation=self.generate_ascii_representation,
+        )
+        self.assertFalse(diff, msg=diff)
+
+    def test_many_year_data_fifo_rp2_full_report_plugin(self) -> None:
         diff: str
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_rp2_full_report.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_rp2_full_report.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_fifo_rp2_full_report.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
 
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_0_2016_rp2_full_report.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_0_2016_rp2_full_report.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_0_2016_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_0_2016_fifo_rp2_full_report.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_0_2017_rp2_full_report.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_0_2017_rp2_full_report.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_0_2017_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_0_2017_fifo_rp2_full_report.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_0_2018_rp2_full_report.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_0_2018_rp2_full_report.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_0_2018_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_0_2018_fifo_rp2_full_report.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_0_2019_rp2_full_report.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_0_2019_rp2_full_report.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_0_2019_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_0_2019_fifo_rp2_full_report.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_0_2020_rp2_full_report.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_0_2020_rp2_full_report.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_0_2020_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_0_2020_fifo_rp2_full_report.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_2017_infinity_rp2_full_report.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_2017_infinity_rp2_full_report.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_2017_infinity_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_2017_infinity_fifo_rp2_full_report.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_2018_infinity_rp2_full_report.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_2018_infinity_rp2_full_report.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_2018_infinity_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_2018_infinity_fifo_rp2_full_report.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_2019_infinity_rp2_full_report.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_2019_infinity_rp2_full_report.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_2019_infinity_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_2019_infinity_fifo_rp2_full_report.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_2020_infinity_rp2_full_report.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_2020_infinity_rp2_full_report.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_2020_infinity_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_2020_infinity_fifo_rp2_full_report.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_2021_infinity_rp2_full_report.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_2021_infinity_rp2_full_report.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_2021_infinity_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_2021_infinity_fifo_rp2_full_report.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_2017_2019_rp2_full_report.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_2017_2019_rp2_full_report.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_2017_2019_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_2017_2019_fifo_rp2_full_report.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_2018_2019_rp2_full_report.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_2018_2019_rp2_full_report.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_2018_2019_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_2018_2019_fifo_rp2_full_report.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_2019_2019_rp2_full_report.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_2019_2019_rp2_full_report.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_2019_2019_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_2019_2019_fifo_rp2_full_report.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
 
-    def test_many_year_data_tax_report_us_plugin(self) -> None:
+    def test_many_year_data_fifo_tax_report_us_plugin(self) -> None:
         diff: str
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_tax_report_us.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_tax_report_us.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_fifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
 
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_0_2016_tax_report_us.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_0_2016_tax_report_us.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_0_2016_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_0_2016_fifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_0_2017_tax_report_us.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_0_2017_tax_report_us.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_0_2017_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_0_2017_fifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_0_2018_tax_report_us.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_0_2018_tax_report_us.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_0_2018_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_0_2018_fifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_0_2019_tax_report_us.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_0_2019_tax_report_us.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_0_2019_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_0_2019_fifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_0_2020_tax_report_us.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_0_2020_tax_report_us.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_0_2020_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_0_2020_fifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_2017_infinity_tax_report_us.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_2017_infinity_tax_report_us.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_2017_infinity_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_2017_infinity_fifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_2018_infinity_tax_report_us.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_2018_infinity_tax_report_us.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_2018_infinity_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_2018_infinity_fifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_2019_infinity_tax_report_us.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_2019_infinity_tax_report_us.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_2019_infinity_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_2019_infinity_fifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_2020_infinity_tax_report_us.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_2020_infinity_tax_report_us.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_2020_infinity_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_2020_infinity_fifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_2021_infinity_tax_report_us.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_2021_infinity_tax_report_us.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_2021_infinity_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_2021_infinity_fifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_2017_2019_tax_report_us.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_2017_2019_tax_report_us.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_2017_2019_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_2017_2019_fifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_2018_2019_tax_report_us.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_2018_2019_tax_report_us.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_2018_2019_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_2018_2019_fifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
         diff = ods_diff(
-            GOLDEN_PATH / Path("test_many_year_data_2019_2019_tax_report_us.ods"),
-            OUTPUT_PATH / Path("test_many_year_data_2019_2019_tax_report_us.ods"),
+            GOLDEN_PATH / Path("test_many_year_data_2019_2019_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_2019_2019_fifo_tax_report_us.ods"),
+            generate_ascii_representation=self.generate_ascii_representation,
+        )
+        self.assertFalse(diff, msg=diff)
+
+    def test_data_lifo_rp2_full_report_plugin(self) -> None:
+        diff: str = ods_diff(
+            GOLDEN_PATH / Path("test_data_lifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_data_lifo_rp2_full_report.ods"),
+            generate_ascii_representation=self.generate_ascii_representation,
+        )
+        self.assertFalse(diff, msg=diff)
+
+    def test_data_lifo_tax_report_us_plugin(self) -> None:
+        diff: str = ods_diff(
+            GOLDEN_PATH / Path("test_data_lifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_data_lifo_tax_report_us.ods"),
+            generate_ascii_representation=self.generate_ascii_representation,
+        )
+        self.assertFalse(diff, msg=diff)
+
+    def test_data2_lifo_rp2_full_report_plugin(self) -> None:
+        diff: str = ods_diff(
+            GOLDEN_PATH / Path("test_data2_lifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_data2_lifo_rp2_full_report.ods"),
+            generate_ascii_representation=self.generate_ascii_representation,
+        )
+        self.assertFalse(diff, msg=diff)
+
+    def test_data2_lifo_tax_report_us_plugin(self) -> None:
+        diff: str = ods_diff(
+            GOLDEN_PATH / Path("test_data2_lifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_data2_lifo_tax_report_us.ods"),
+            generate_ascii_representation=self.generate_ascii_representation,
+        )
+        self.assertFalse(diff, msg=diff)
+
+    def test_many_year_data_lifo_rp2_full_report_plugin(self) -> None:
+        diff: str = ods_diff(
+            GOLDEN_PATH / Path("test_many_year_data_lifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_lifo_rp2_full_report.ods"),
+            generate_ascii_representation=self.generate_ascii_representation,
+        )
+        self.assertFalse(diff, msg=diff)
+
+    def test_many_year_data_lifo_tax_report_us_plugin(self) -> None:
+        diff: str = ods_diff(
+            GOLDEN_PATH / Path("test_many_year_data_lifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("test_many_year_data_lifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
 
     def test_crypto_example_rp2_full_report_plugin(self) -> None:
         diff: str = ods_diff(
-            GOLDEN_PATH / Path("crypto_example_rp2_full_report.ods"),
-            OUTPUT_PATH / Path("crypto_example_rp2_full_report.ods"),
+            GOLDEN_PATH / Path("crypto_example_fifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("crypto_example_fifo_rp2_full_report.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
 
     def test_crypto_example_tax_report_us_plugin(self) -> None:
         diff: str = ods_diff(
-            GOLDEN_PATH / Path("crypto_example_tax_report_us.ods"),
-            OUTPUT_PATH / Path("crypto_example_tax_report_us.ods"),
+            GOLDEN_PATH / Path("crypto_example_fifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("crypto_example_fifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
