@@ -19,9 +19,11 @@ from rp2.computed_data import ComputedData
 from rp2.configuration import Configuration
 from rp2.input_data import InputData
 from rp2.ods_parser import open_ods, parse_ods
+from rp2.out_transaction import OutTransaction
 from rp2.plugin.accounting_method.fifo import AccountingMethod
 from rp2.plugin.country.us import US
-from rp2.rp2_error import RP2TypeError
+from rp2.rp2_decimal import RP2Decimal
+from rp2.rp2_error import RP2TypeError, RP2ValueError
 from rp2.tax_engine import compute_tax
 from rp2_test_output import RP2_TEST_OUTPUT  # pylint: disable=wrong-import-order
 
@@ -99,6 +101,28 @@ class TestTaxEngine(unittest.TestCase):
                 self._bad_input_configuration,
                 self._accounting_method,
                 "foobar",  # type: ignore
+            )
+
+        input_data.unfiltered_out_transaction_set.add_entry(
+            OutTransaction(
+                self._good_input_configuration,
+                "6/1/2020 3:59:59 -04:00",
+                asset,
+                "Coinbase Pro",
+                "Bob",
+                "SELL",
+                RP2Decimal("900.9"),
+                RP2Decimal("20.2"),
+                RP2Decimal("1"),
+                unique_id=38,
+            )
+        )
+
+        with self.assertRaisesRegex(RP2ValueError, "Total in-transaction value < total taxable entries"):
+            compute_tax(
+                self._good_input_configuration,
+                self._accounting_method,
+                input_data,
             )
 
 
