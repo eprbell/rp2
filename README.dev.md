@@ -35,7 +35,8 @@
   * [Unit Tests](#unit-tests)
 * **[Plugin Development](#plugin-development)**
   * [Adding Support for a New Country](#adding-support-for-a-new-country)
-  * [Writing a New Report Generator](#writing-a-new-report-generator)
+  * [Adding a New Report Generator](#adding-a-new-report-generator)
+  * [Adding a New Accounting Method](#adding-a-new-accounting-method)
 * **[Frequently Asked Developer Questions](#frequently-asked-developer-questions)**
 
 ## Introduction
@@ -174,7 +175,7 @@ RP2 has considerable unit test coverage to reduce the risk of regression. Unit t
 
 ## Plugin Development
 
-RP2 has a plugin architecture for countries and report generators, which makes it extensible for new use cases.
+RP2 has a plugin architecture for countries, report generators and accounting methods, which makes it extensible for new use cases.
 
 ### Adding Support for a New Country
 RP2 has experimental infrastructure to support countries other than the US. It captures this functionality with the [AbstractCountry](src/rp2/abstract_country.py) class, which captures the following:
@@ -182,16 +183,16 @@ RP2 has experimental infrastructure to support countries other than the US. It c
 * currency code (3-letter string in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format);
 * long term capital gain period in days (e.g. for the US it's 365).
 
-To add support for a new country, add a new Python file in the `src/rp2/plugin/country` directory and name after the ISO 3166-1 alpha-2 2-letter code for the country. Then define the `long_term_capital_gain_period` with the correct value and add a global function called `rp2_entry()` which simply calls `rp2_main()` and passes it an instance of the new country class. As an example see the [us.py](src/rp2/plugin/country/us.py) file.
+To add support for a new country, add a new Python file in the `src/rp2/plugin/country` directory and name after the ISO 3166-1 alpha-2 2-letter code for the country. Then define the `long_term_capital_gain_period` method with the appropriate value and add a global function called `rp2_entry()` which simply calls `rp2_main()` and passes it an instance of the new country class: in fact subclasses of `AbstractCountry` are entry points, not plugins. As an example see the [us.py](src/rp2/plugin/country/us.py) file.
 
 Finally add a console script to [setup.cfg](setup.cfg) pointing the new country rp2_entry (see the US example in the console_scripts section of setup.cfg).
 
-As mentioned, the country infrastructure is experimental: if you're interested in adding support for a new country and have feedback or notice missing functionality, open a [PR](CONTRIBUTING.md).
+**NOTE**: as mentioned, the country infrastructure is experimental. If you're interested in adding support for a new country and have feedback or notice missing functionality, open an [PR](CONTRIBUTING.md).
 
-### Writing a New Report Generator
-Writing a new plugin is quite easy: the [tax_report_us](src/rp2/plugin/report/us/tax_report_us.py) generator is a simple example, the [rp2_full_report](src/rp2/plugin/report/rp2_full_report.py) one is more comprehensive.
+### Adding a New Report Generator
+Report generator plugins translate data structures that result from tax computation into output. Writing a new report generator plugin is quite easy: the [tax_report_us](src/rp2/plugin/report/us/tax_report_us.py) generator is a simple example, the [rp2_full_report](src/rp2/plugin/report/rp2_full_report.py) one is more comprehensive.
 
-Plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
+Report generator plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * if the new plugin is not country-specific, add a new Python file in the `src/rp2/plugin/report/` directory and give it a meaningful name
 * if the new plugin is country-specific, add a new Python file in the `src/rp2/plugin/report/<country>` directory and give it a meaningful name (where `<country>` is a 2-letter country code adhering to the ISO 3166-1 alpha-2 format)
 * import the following (plus any other RP2 file you might need):
@@ -215,6 +216,7 @@ class Generator(AbstractReportGenerator):
     def generate(
         self,
         country: AbstractCountry,
+        accounting_method: str,
         asset_to_computed_data: Dict[str, ComputedData],
         output_dir_path: str,
         output_file_prefix: str,
@@ -222,9 +224,62 @@ class Generator(AbstractReportGenerator):
 ```
 * write the body of the method. The parameters are:
   * `country`: instance of [AbstractCountry](src/rp2/abstract_country.py); see [Adding Support for a New Country](#adding-support-for-a-new-country) for more details;
+  * `accounting_method`: string name of the accounting method used to compute the taxes;
   * `asset_to_computed_data`: dictionary mapping user asset (i.e. cryptocurrency) to the computed tax data for that asset. For each user asset there is one instance of [ComputedData](src/rp2/computed_data.py);
   * `output_dir_path`: directory in which to write the output;
   * `output_file_prefix`: prefix to be prepended to the output file name.
+
+### Adding a New Accounting Method
+Accounting method plugins, modify the behavior of the tax engine. They pair in/out lots according to an algorithm: [FIFO](src/rp2/plugin/accounting_method/fifo.py) and [LIFO](src/rp2/plugin/accounting_method/lifo.py) are examples of accounting method plugins (FIFO is simpler, LIFO more elaborate).
+
+**IMPORTANT NOTE**: Accounting method plugins are an advanced topic and affect the final outcome of the computation: proceed at your own risk!
+
+Accounting method plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
+* add a new Python file in the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
+* import the following (plus any other RP2 file you might need):
+```
+from typing import Iterator, Optional
+
+from rp2.abstract_accounting_method import (
+    AbstractAccountingMethod,
+    FromLotsExhaustedException,
+    TaxableEventAndFromLot,
+    TaxableEventsExhaustedException,
+)
+from rp2.abstract_transaction import AbstractTransaction
+from rp2.in_transaction import InTransaction
+from rp2.rp2_decimal import RP2Decimal
+```
+* Optionally, RP2 provides a logger facility:
+```
+from logger import LOGGER
+```
+* Add an `initialize()` method with the following signature:
+```
+    def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], from_lot_iterator: Iterator[InTransaction]) -> None:
+```
+* write the body of the method. The parameters are:
+  * `taxable_event_iterator`: iterator over TaxableEvent instances (disposed-of lots), in chronological order;
+  * `from_lot_iterator`: iterator over InTransaction instances (acquired lots), in chronological order;
+* Add `get_next_taxable_event_and_amount()` and `get_from_lot_for_taxable_event()` methods with the following signatures:
+```
+    def get_next_taxable_event_and_amount(
+        self, taxable_event: Optional[AbstractTransaction], from_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, from_lot_amount: RP2Decimal
+    ) -> TaxableEventAndFromLot:
+    def get_from_lot_for_taxable_event(
+        self, taxable_event: AbstractTransaction, from_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, from_lot_amount: RP2Decimal
+    ) -> TaxableEventAndFromLot:
+```
+* write the bodies of the methods. The parameters are:
+  * `taxable_event`: the disposed-of lot;
+  * `from_lot`: the acquired lot;
+  * `taxable_event_amount`: the amount that is leftover of the current taxable event;
+  * `from_lot_amount`: the amount that is leftover of the current from lot.
+* Add a `validate_from_lot_ancestor_timestamp()` method with the following signature:
+```
+    def validate_from_lot_ancestor_timestamp(self, from_lot: InTransaction, from_lot_ancestor: InTransaction) -> bool:
+```
+* write the body of the method: it returns `True` if the ancestor's from-lot timestamp is compatible with the current from-lot timestamp according to the accounting method and `False` otherwise: e.g. in FIFO the ancestor must be earlier than the current.
 
 ## Frequently Asked Developer Questions
 Read the [frequently asked developer questions](docs/developer_faq.md).

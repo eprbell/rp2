@@ -41,11 +41,12 @@
 [RP2](https://pypi.org/project/rp2/) is a privacy-focused, free, [open-source](https://github.com/eprbell/rp2) US cryptocurrency tax calculator, that is up to date for Fiscal Year 2021. Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This task could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
 * it manages the complexity related to coin flows and tax calculation and it generates data that accountants can understand (in the format of form 8949), even if they are not cryptocurrency experts;
 * it prioritizes user privacy by storing crypto transactions and tax results on the user's computer and not sending them anywhere else;
-* it's free and open-source.
+* it's free and open-source;
+* it supports the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) and [LIFO](https://www.investopedia.com/terms/l/lifo.asp) accounting methods.
 
-RP2 reads in a user-prepared spreadsheet containing crypto transactions. It then uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates output spreadsheets. It uses the FIFO accounting method.
+RP2 reads in a user-prepared spreadsheet containing crypto transactions. It then uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates output spreadsheets.
 
-It has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/src/rp2/plugin/report): the builtin plugins are US-specific, but RP2's architecture makes it possible to contribute additional output generators for different countries or for different US-based cases. The builtin plugins are:
+It has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/src/rp2/plugin/report), accounting methods and countries. The builtin plugins are US-specific, but RP2's architecture makes it possible to contribute additional output generators for different countries or for different US-based cases. The builtin plugins are:
 * tax_report_us: generates a tax report meant to be read by tax preparers (in the format of form 8949);
 * rp2_full_report: generates a comprehensive report, with complete transaction history, lot relationships/fractions and computation details.
 
@@ -58,7 +59,7 @@ RP2 has extensive [unit test](https://github.com/eprbell/rp2/tree/main/tests/) c
 ### How RP2 Operates
 RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Currency Guidance](https://www.irs.gov/newsroom/irs-reminds-taxpayers-to-report-virtual-currency-transactions).
 
-RP2 uses the FIFO accounting method (lots acquired first are disposed of first): however, in and out lots typically don't have matching amounts, so RP2 fractions them, maps in/out lot fractions and computes the resulting cost bases and capital gains for each lot fraction.
+RP2 suports the FIFO and LIFO accounting methods: however, in and out lots typically don't have matching amounts, so RP2 fractions them, maps in/out lot fractions and computes the resulting cost bases and capital gains for each lot fraction.
 
 RP2 groups lot fractions into the following taxable event categories, each of which has a [specific tax treatment](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#which-crypto-tax-forms-to-file):
 * [AIRDROP](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-airdrops): gains from airdrops;
@@ -67,7 +68,7 @@ RP2 groups lot fractions into the following taxable event categories, each of wh
 * [HARDFORK](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-hard-forks): gains from hard forks;
 * INTEREST: gains from interest;
 * [MINING](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-mining): gains from mining;
-* MOVE: the fee for moving currency between two accounts controlled by the same owner; these may not be taxable or tax deductible but they still affect the FIFO order so they are tracked;
+* MOVE: the fee for moving currency between two accounts controlled by the same owner; these may not be taxable or tax deductible but they still affect the accounting method order so they are tracked;
 * SELL: specifically, sale and [exchange of one cryptocurrency for another](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-conversion-of-a-cryptocurrency-to-another). RP2 splits them in two subcategories:
   * long-term capital gains, if the lot was held for more than 1 year, or
   * short-term capital gains otherwise;

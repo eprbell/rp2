@@ -18,6 +18,7 @@
 
 * **[How to Verify That I Entered Data Correctly in the Input Spreadsheet?](#how-to-verify-that-i-entered-data-correctly-in-the-input-spreadsheet)**
 * **[What Is the Timestamp Format?](#what-is-the-timestamp-format)**
+* **[What Accounting Methods Are Supported?](#what-accounting-methods-are-supported)**
 * **[how to Handle Conversion of a Cryptocurrency to Another?](#how-to-handle-conversion-of-a-cryptocurrency-to-another)**
 * **[How to Handle Airdrops?](#how-to-handle-airdrops)**
 * **[How to Handle Hard Forks?](#how-to-handle-hard-forks)**
@@ -47,6 +48,9 @@ In rp2_full_report.ods check the Account Balances table in the tax sheets, and m
 
 ## What Is the Timestamp Format?
 Timestamp format is [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) (see [examples](https://en.wikipedia.org/wiki/ISO_8601#Combined_date_and_time_representations) of timestamps in this format). Note that RP2 requires full timestamps, with date, time and timezone.
+
+## What Accounting Methods Are Supported?
+Currently the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) and [LIFO](https://www.investopedia.com/terms/l/lifo.asp) accounting methods are supported: they can be selected using the `-m` option on the command line.
 
 ## How to Handle Conversion of a Cryptocurrency to Another?
 Converting from one cryptocurrency to another can be captured in RP2 by splitting the original transaction into two: the first is a SELL-type transaction that describes selling the initial cryptocurrency into fiat. The second one is a BUY-type transaction that describes buying the final cryptocurrency using fiat.
