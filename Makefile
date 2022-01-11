@@ -31,14 +31,18 @@ $(VENV)/bin/activate: requirements.txt Makefile
 run: $(VENV)/bin/activate
 	rm -rf log/ output/
 	$(VENV)/bin/rp2_us -o output/ -p test_data_ config/test_data.config input/test_data.ods
+	$(VENV)/bin/rp2_us -o output/ -p test_many_year_data_ config/test_data.config input/test_data.ods
 	$(VENV)/bin/rp2_us -o output/ -p crypto_example_ config/crypto_example.config input/crypto_example.ods
+	$(VENV)/bin/rp2_us -m lifo -o output/ -p test_data_ config/test_data.config input/test_data.ods
+	$(VENV)/bin/rp2_us -m lifo -o output/ -p test_many_year_data_ config/test_data.config input/test_data.ods
+	$(VENV)/bin/rp2_us -m lifo -o output/ -p crypto_example_ config/crypto_example.config input/crypto_example.ods
 
 check: $(VENV)/bin/activate
 	$(VENV)/bin/pytest --tb=native --verbose
 
 static_analysis: $(VENV)/bin/activate
 	MYPYPATH=$(PYTHONPATH):$(CURDIR)/src/stubs $(VENV)/bin/mypy src/ tests/
-	$(VENV)/bin/pylint -r y src tests/
+	$(VENV)/bin/pylint -r y src tests/*.py
 	$(VENV)/bin/bandit -r src/
 
 reformat: $(VENV)/bin/activate
