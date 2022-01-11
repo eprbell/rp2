@@ -31,7 +31,7 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=160 --statistics
       - name: Lint with pylint
         run: |
-          pylint -r y src tests/
+          pylint -r y src tests/*.py
       - name: Security check with bandit
         run: |
           bandit -r src/
