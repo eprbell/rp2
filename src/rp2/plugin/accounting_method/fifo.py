@@ -25,7 +25,7 @@ from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import RP2Decimal
 
 
-# FIFO accounting method
+# FIFO accounting method. See https://www.investopedia.com/terms/f/fifo.asp.
 class AccountingMethod(AbstractAccountingMethod):
 
     __taxable_event_iterator: Iterator[AbstractTransaction]
