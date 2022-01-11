@@ -14,9 +14,17 @@
 
 # RP2 Change Log
 
+# v0.9.4
+* added accounting-method programmable plugin infrastructure: by subclassing AbstractAccountingMethod it's now possible to add support for a new accounting method (previously only FIFO was hard-coded in)
+* added accounting-method plugins: FIFO, LIFO
+* added accounting-method-specific tests, plus additional tests of internal classes (both new and old)
+* Added Legend sheet to tax_report_us output
+* updated documentation to reflect changes in this version
+* minor fixes
+
 ## v0.9.3
-* added support for programmable country infrastructure: by subclassing AbstractCountry it's now possible to add support for a new country (currently only US is supported).
-* abstracted out currency from APIs and code in general: references to "usd" have been changed to "fiat".
+* added country-specific programmable plugin infrastructure: by subclassing AbstractCountry it's now possible to add support for a new country (currently only US is supported)
+* abstracted out currency from APIs and code in general: references to "usd" have been changed to "fiat"
 * updated documentation to reflect changes in this version
 
 ## v0.9.2
