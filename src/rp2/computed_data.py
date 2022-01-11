@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, cast
+from typing import Dict, List, cast
 
 from rp2.balance import BalanceSet
 from rp2.configuration import Configuration
@@ -190,21 +190,13 @@ class ComputedData:
 
         # Compute in lot sold percentages
         self.__in_lot_sold_percentage: Dict[InTransaction, RP2Decimal] = {}
-        current_from_lot: Optional[InTransaction] = None
-        current_from_lot_percentage: RP2Decimal = ZERO
         for entry in self.__filtered_gain_loss_set:
             gain_loss = cast(GainLoss, entry)
             if not gain_loss.from_lot or gain_loss.from_lot.timestamp.year < from_year or gain_loss.from_lot.timestamp.year > to_year:
                 continue
-            if gain_loss.from_lot != current_from_lot:
-                if current_from_lot:
-                    self.__in_lot_sold_percentage[current_from_lot] = RP2Decimal("1")
-                    current_from_lot_percentage = ZERO
-                current_from_lot = gain_loss.from_lot
-            current_from_lot_percentage += gain_loss.from_lot_fraction_percentage
-
-        if current_from_lot:
-            self.__in_lot_sold_percentage[current_from_lot] = current_from_lot_percentage
+            self.__in_lot_sold_percentage[gain_loss.from_lot] = (
+                self.__in_lot_sold_percentage.setdefault(gain_loss.from_lot, ZERO) + gain_loss.from_lot_fraction_percentage
+            )
 
         if self.__filtered_taxable_event_set.asset != self.__asset:
             raise RP2ValueError(f"Asset mismatch in 'taxable_event_set': expected {self.__asset}, found {self.__filtered_taxable_event_set.asset}")
