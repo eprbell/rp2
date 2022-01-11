@@ -29,9 +29,11 @@ from rp2.rp2_error import RP2TypeError
 
 
 class AbstractODTGenerator(AbstractReportGenerator):
-    @staticmethod
+    @classmethod
     def _initialize_output_file(
+        cls,
         country: AbstractCountry,
+        accounting_method: str,
         output_dir_path: str,
         output_file_prefix: str,
         output_file_name: str,
@@ -44,18 +46,21 @@ class AbstractODTGenerator(AbstractReportGenerator):
         if not isinstance(template_sheets_to_keep, Set):
             raise RP2TypeError(f"Parameter 'template_sheets_to_keep' is not a Set: {template_sheets_to_keep}")
 
-        output_file_path: Path = Path(output_dir_path) / Path(f"{output_file_prefix}{output_file_name}")
+        output_file_path: Path = Path(output_dir_path) / Path(f"{output_file_prefix}{accounting_method}_{output_file_name}")
         if Path(output_file_path).exists():
             output_file_path.unlink()
 
         template_path: str = str(Path(os.path.dirname(__file__)).absolute() / Path("".join(["data/template_", country.country_iso_code, ".ods"])))
         output_file: Any = ezodf.newdoc("ods", str(output_file_path), template=template_path)
+        legend_sheet_name: str = f"__Legend_{cls.get_name()}"
+        template_sheets_to_keep_with_legend: Set[str] = template_sheets_to_keep.copy()
+        template_sheets_to_keep_with_legend.add(legend_sheet_name)
 
         index: int = 0
         sheet_name: str
         sheet_indexes_to_remove: List[int] = []
         for sheet_name in output_file.sheets.names():
-            if sheet_name in template_sheets_to_keep:
+            if sheet_name in template_sheets_to_keep_with_legend:
                 if not sheet_name.startswith("__"):
                     raise Exception(f"Internal error: template sheet '{sheet_name}' doesn't start with '__'")
                 # Template sheets' names start with "__": remove leading "__" from name of sheet we want to keep
@@ -64,6 +69,19 @@ class AbstractODTGenerator(AbstractReportGenerator):
                 # Template sheet we don't want to keep: mark it for removal
                 sheet_indexes_to_remove.append(index)
             index += 1
+
+        # Setup legend sheet
+        legend_sheet: Any = output_file.sheets[legend_sheet_name[2:]]
+        index = 0
+        method_cell_found: bool = False
+        for index in range(0, 100):
+            if legend_sheet[index, 0].value == "Accounting Method":
+                cls._fill_cell(legend_sheet, index, 1, accounting_method.upper(), visual_style="transparent")
+                method_cell_found = True
+                break
+        if not method_cell_found:
+            raise Exception("Internal error: ODS template has no 'Accounting Method' cell in column 0 of Legend sheet")
+        legend_sheet.name = "Legend"
 
         # Remove sheets that were marked for removal
         for index in reversed(sheet_indexes_to_remove):
@@ -74,6 +92,7 @@ class AbstractODTGenerator(AbstractReportGenerator):
     def generate(
         self,
         country: AbstractCountry,
+        accounting_method: str,
         asset_to_computed_data: Dict[str, ComputedData],
         output_dir_path: str,
         output_file_prefix: str,
@@ -88,8 +107,9 @@ class AbstractODTGenerator(AbstractReportGenerator):
 
         sheet[row_index, column_index].style_name = style_name
 
+    @classmethod
     def _fill_cell(
-        self,
+        cls,
         sheet: Any,
         row_index: int,
         column_index: int,
@@ -106,7 +126,7 @@ class AbstractODTGenerator(AbstractReportGenerator):
             # The ezodf API doesn't accept RP2Decimal, so we are forced to cast to float before writing to the spreadsheet
             value = float(value)
         sheet[row_index, column_index].set_value(value)
-        self._apply_style_to_cell(sheet=sheet, row_index=row_index, column_index=column_index, style_name=style_name)
+        cls._apply_style_to_cell(sheet=sheet, row_index=row_index, column_index=column_index, style_name=style_name)
 
     def _fill_header(self, title: str, header_row_1: List[str], header_row_2: List[str], sheet: Any, row_index: int, column_index: int) -> int:
 
