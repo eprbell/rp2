@@ -320,6 +320,9 @@ class TestInputParser(unittest.TestCase):
             "B31": ErrorAndMessage(RP2ValueError, "Found an empty cell while parsing table EntrySetType.IN"),
             "B32": ErrorAndMessage(RP2ValueError, "TABLE END not found for EntrySetType.OUT table"),
             "B33": ErrorAndMessage(RP2ValueError, "Found more than one IN symbol"),
+            "B34": ErrorAndMessage(RP2ValueError, "IN table not found or empty"),
+            "B35": ErrorAndMessage(RP2ValueError, "IN table not found or empty"),
+            "B36": ErrorAndMessage(RP2ValueError, "IN table not found or empty"),
         }
 
         sheet: str
