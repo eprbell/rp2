@@ -82,8 +82,7 @@ A good starting point is the [Cryptocurrency Tax FAQ](https://www.reddit.com/r/C
 ## Which Crypto Tax Forms to File?
 RP2 keeps track of in/out lot relationship, lot fractioning and it computes capital gains and losses, but it doesn't generate the final tax forms. The computed information is written to the tax_report_us output, which intended for tax professionals: all taxable events are grouped in different tabs by type (mining, staking, selling, donating, etc.). Each tax event type has a specific tax treatment: your tax professional can transfer the information from the tax_report_us output tabs to the appropriate forms in any given year.
 
-<!-- markdown-link-check-disable-next-line -->
-For additional information on which forms to file, read [CoinTracker's summary on this topic](https://www.cointracker.io/blog/what-tax-forms-should-crypto-holders-file).
+<!-- markdown-link-check-disable-line -->For additional information on which forms to file, read [CoinTracker's summary on this topic](https://www.cointracker.io/blog/what-tax-forms-should-crypto-holders-file).
 
 Also read the question on [crypto tax resources](#which-resources-can-i-use-to-learn-about-crypto-taxes)
 
