@@ -14,6 +14,10 @@
 
 # RP2 Change Log
 
+# v0.9.5
+* added new LIFO tests
+* minor fixes
+
 # v0.9.4
 * added accounting-method programmable plugin infrastructure: by subclassing AbstractAccountingMethod it's now possible to add support for a new accounting method (previously only FIFO was hard-coded in)
 * added accounting-method plugins: FIFO, LIFO
