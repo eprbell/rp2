@@ -80,6 +80,20 @@ class TestODSOutputDiff(unittest.TestCase):
                 "-o",
                 str(OUTPUT_PATH),
                 "-p",
+                "crypto_example_",
+                str(CONFIG_PATH / Path("crypto_example.config")),
+                str(INPUT_PATH / Path("crypto_example.ods")),
+            ],
+            check=True,
+        )
+        run(
+            [
+                "rp2_us",
+                "-m",
+                "lifo",
+                "-o",
+                str(OUTPUT_PATH),
+                "-p",
                 "test_data_",
                 str(CONFIG_PATH / Path("test_data.config")),
                 str(INPUT_PATH / Path("test_data.ods")),
@@ -569,7 +583,7 @@ class TestODSOutputDiff(unittest.TestCase):
         )
         self.assertFalse(diff, msg=diff)
 
-    def test_crypto_example_rp2_full_report_plugin(self) -> None:
+    def test_crypto_example_fifo_rp2_full_report_plugin(self) -> None:
         diff: str = ods_diff(
             GOLDEN_PATH / Path("crypto_example_fifo_rp2_full_report.ods"),
             OUTPUT_PATH / Path("crypto_example_fifo_rp2_full_report.ods"),
@@ -577,10 +591,26 @@ class TestODSOutputDiff(unittest.TestCase):
         )
         self.assertFalse(diff, msg=diff)
 
-    def test_crypto_example_tax_report_us_plugin(self) -> None:
+    def test_crypto_example_fifo_tax_report_us_plugin(self) -> None:
         diff: str = ods_diff(
             GOLDEN_PATH / Path("crypto_example_fifo_tax_report_us.ods"),
             OUTPUT_PATH / Path("crypto_example_fifo_tax_report_us.ods"),
+            generate_ascii_representation=self.generate_ascii_representation,
+        )
+        self.assertFalse(diff, msg=diff)
+
+    def test_crypto_example_lifo_rp2_full_report_plugin(self) -> None:
+        diff: str = ods_diff(
+            GOLDEN_PATH / Path("crypto_example_lifo_rp2_full_report.ods"),
+            OUTPUT_PATH / Path("crypto_example_lifo_rp2_full_report.ods"),
+            generate_ascii_representation=self.generate_ascii_representation,
+        )
+        self.assertFalse(diff, msg=diff)
+
+    def test_crypto_example_lifo_tax_report_us_plugin(self) -> None:
+        diff: str = ods_diff(
+            GOLDEN_PATH / Path("crypto_example_lifo_tax_report_us.ods"),
+            OUTPUT_PATH / Path("crypto_example_lifo_tax_report_us.ods"),
             generate_ascii_representation=self.generate_ascii_representation,
         )
         self.assertFalse(diff, msg=diff)
