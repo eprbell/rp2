@@ -34,9 +34,9 @@
   * [Development Workflow](#development-workflow)
   * [Unit Tests](#unit-tests)
 * **[Plugin Development](#plugin-development)**
-  * [Adding Support for a New Country](#adding-support-for-a-new-country)
   * [Adding a New Report Generator](#adding-a-new-report-generator)
   * [Adding a New Accounting Method](#adding-a-new-accounting-method)
+  * [Adding Support for a New Country](#adding-support-for-a-new-country)
 * **[Frequently Asked Developer Questions](#frequently-asked-developer-questions)**
 
 ## Introduction
@@ -177,24 +177,12 @@ RP2 has considerable unit test coverage to reduce the risk of regression. Unit t
 
 RP2 has a plugin architecture for countries, report generators and accounting methods, which makes it extensible for new use cases.
 
-### Adding Support for a New Country
-RP2 has experimental infrastructure to support countries other than the US. It captures this functionality with the [AbstractCountry](src/rp2/abstract_country.py) class, which captures the following:
-* country code (2-letter string in [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format);
-* currency code (3-letter string in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format);
-* long term capital gain period in days (e.g. for the US it's 365).
-
-To add support for a new country, add a new Python file in the `src/rp2/plugin/country` directory and name after the ISO 3166-1 alpha-2 2-letter code for the country. Then define the `long_term_capital_gain_period()` method with the appropriate value and add a global function called `rp2_entry()` which simply calls `rp2_main()` and passes it an instance of the new country class: in fact subclasses of `AbstractCountry` are entry points, not plugins. As an example see the [us.py](src/rp2/plugin/country/us.py) file.
-
-Finally add a console script to [setup.cfg](setup.cfg) pointing the new country rp2_entry (see the US example in the console_scripts section of setup.cfg).
-
-**NOTE**: as mentioned, the country infrastructure is experimental. If you're interested in adding support for a new country and have feedback or notice missing functionality, open an [PR](CONTRIBUTING.md).
-
 ### Adding a New Report Generator
 Report generator plugins translate data structures that result from tax computation into output. Writing a new report generator plugin is quite easy: the [tax_report_us](src/rp2/plugin/report/us/tax_report_us.py) generator is a simple example, the [rp2_full_report](src/rp2/plugin/report/rp2_full_report.py) one is more comprehensive.
 
 Report generator plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * if the new plugin is not country-specific, add a new Python file in the `src/rp2/plugin/report/` directory and give it a meaningful name
-* if the new plugin is country-specific, add a new Python file in the `src/rp2/plugin/report/<country>` directory and give it a meaningful name (where `<country>` is a 2-letter country code adhering to the ISO 3166-1 alpha-2 format)
+* if the new plugin is country-specific, add a new Python file in the `src/rp2/plugin/report/<country>` directory and give it a meaningful name (where `<country>` is a 2-letter country code adhering to the [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format)
 * import the following (plus any other RP2 file you might need):
 ```
 from rp2.abstract_country import AbstractCountry
@@ -230,9 +218,9 @@ class Generator(AbstractReportGenerator):
   * `output_file_prefix`: prefix to be prepended to the output file name.
 
 ### Adding a New Accounting Method
-Accounting method plugins, modify the behavior of the tax engine. They pair in/out lots according to an algorithm: [FIFO](src/rp2/plugin/accounting_method/fifo.py) and [LIFO](src/rp2/plugin/accounting_method/lifo.py) are examples of accounting method plugins (FIFO is simpler, LIFO more elaborate).
+Accounting method plugins, modify the behavior of the tax engine. They pair in/out lots according to the given accounting algorithm: [FIFO](src/rp2/plugin/accounting_method/fifo.py) and [LIFO](src/rp2/plugin/accounting_method/lifo.py) are examples of accounting method plugins (FIFO is simpler, LIFO more elaborate).
 
-**IMPORTANT NOTE**: Accounting method plugins are an advanced topic and affect the final outcome of the computation: proceed at your own risk!
+**IMPORTANT NOTE**: Accounting method plugins are an advanced topic and affect tax computation and results: proceed at your own risk!
 
 Accounting method plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * add a new Python file in the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
@@ -280,6 +268,18 @@ from logger import LOGGER
     def validate_from_lot_ancestor_timestamp(self, from_lot: InTransaction, from_lot_ancestor: InTransaction) -> bool:
 ```
 * write the body of the method: it returns `True` if the ancestor's from-lot timestamp is compatible with the current from-lot timestamp according to the accounting method and `False` otherwise: e.g. in FIFO the ancestor must be earlier than the current.
+
+### Adding Support for a New Country
+RP2 has experimental infrastructure to support countries other than the US. It captures this functionality with the [AbstractCountry](src/rp2/abstract_country.py) class, which captures the following:
+* country code (2-letter string in [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format);
+* currency code (3-letter string in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format);
+* long term capital gain period in days (e.g. for the US it's 365).
+
+To add support for a new country, add a new Python file in the `src/rp2/plugin/country` directory and name after the ISO 3166-1 alpha-2 2-letter code for the country. Then define the `long_term_capital_gain_period()` method with the appropriate value and add a global function called `rp2_entry()` which simply calls `rp2_main()` and passes it an instance of the new country class: in fact subclasses of `AbstractCountry` are entry points, not plugins. As an example see the [us.py](src/rp2/plugin/country/us.py) file.
+
+Finally add a console script to [setup.cfg](setup.cfg) pointing the new country rp2_entry (see the US example in the console_scripts section of setup.cfg).
+
+**NOTE**: as mentioned, the country infrastructure is experimental. If you're interested in adding support for a new country and have feedback or notice missing functionality, open an [PR](CONTRIBUTING.md).
 
 ## Frequently Asked Developer Questions
 Read the [frequently asked developer questions](docs/developer_faq.md).
