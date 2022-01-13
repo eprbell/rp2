@@ -14,6 +14,12 @@
 
 # RP2 Change Log
 
+# v.0.9.6
+* fixed a bug in timestamp check: in and out lots were not allowed to have the same timestamp, but in certain scenarios it could happen (e.g. high-frequency trading)
+* fixed a subtle corner-case bug in LIFO, which caused the first gain/loss pair to be incorrect: the minimal input that reproduced the bug is now captured in one of the tests (test_data2.ods, sheet B1). This ensures there will not be a regression.
+* disable a link check in user faq: the link was failing the check (incorrectly) on Github actions
+* added large input test
+
 # v0.9.5
 * added new LIFO tests
 * minor fixes
