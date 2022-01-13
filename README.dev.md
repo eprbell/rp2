@@ -218,7 +218,7 @@ class Generator(AbstractReportGenerator):
   * `output_file_prefix`: prefix to be prepended to the output file name.
 
 ### Adding a New Accounting Method
-Accounting method plugins, modify the behavior of the tax engine. They pair in/out lots according to the given accounting algorithm: [FIFO](src/rp2/plugin/accounting_method/fifo.py) and [LIFO](src/rp2/plugin/accounting_method/lifo.py) are examples of accounting method plugins (FIFO is simpler, LIFO more elaborate).
+Accounting method plugins modify the behavior of the tax engine. They pair in/out lots according to the given accounting algorithm: [FIFO](src/rp2/plugin/accounting_method/fifo.py) and [LIFO](src/rp2/plugin/accounting_method/lifo.py) are examples of accounting method plugins (FIFO is simpler, LIFO more elaborate).
 
 **IMPORTANT NOTE**: Accounting method plugins are an advanced topic and affect tax computation and results: proceed at your own risk!
 
