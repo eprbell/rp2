@@ -51,7 +51,7 @@ class TestLargeInput(unittest.TestCase):
         out_type: List[str] = ["sell", "donate"]
 
         column_total: int = 30
-        table_row_total: int = 1000 if "RP2_TEST_TABLE_SIZE" not in os.environ else int(os.environ.get("RP2_TEST_TABLE_SIZE"))
+        table_row_total: int = 1000 if "RP2_TEST_TABLE_SIZE" not in os.environ else int(str(os.environ.get("RP2_TEST_TABLE_SIZE")))
 
         sheet: Any = ezodf.Table("B1")
         output_file.sheets += sheet
