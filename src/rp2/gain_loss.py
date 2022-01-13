@@ -63,7 +63,7 @@ class GainLoss(AbstractEntry):
                 f"or from-lot amount ({self.__from_lot.crypto_in if self.__from_lot else 0}): {self}"
             )
 
-        if from_lot is not None and taxable_event.timestamp <= from_lot.timestamp:
+        if from_lot is not None and taxable_event.timestamp < from_lot.timestamp:
             raise RP2ValueError(f"Timestamp {taxable_event.timestamp} of taxable_event is earlier than timestamp {from_lot.timestamp} " f"of from_lot: {self}")
 
         if from_lot is not None and taxable_event.asset != from_lot.asset:
