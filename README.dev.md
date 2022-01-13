@@ -183,7 +183,7 @@ RP2 has experimental infrastructure to support countries other than the US. It c
 * currency code (3-letter string in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format);
 * long term capital gain period in days (e.g. for the US it's 365).
 
-To add support for a new country, add a new Python file in the `src/rp2/plugin/country` directory and name after the ISO 3166-1 alpha-2 2-letter code for the country. Then define the `long_term_capital_gain_period` method with the appropriate value and add a global function called `rp2_entry()` which simply calls `rp2_main()` and passes it an instance of the new country class: in fact subclasses of `AbstractCountry` are entry points, not plugins. As an example see the [us.py](src/rp2/plugin/country/us.py) file.
+To add support for a new country, add a new Python file in the `src/rp2/plugin/country` directory and name after the ISO 3166-1 alpha-2 2-letter code for the country. Then define the `long_term_capital_gain_period()` method with the appropriate value and add a global function called `rp2_entry()` which simply calls `rp2_main()` and passes it an instance of the new country class: in fact subclasses of `AbstractCountry` are entry points, not plugins. As an example see the [us.py](src/rp2/plugin/country/us.py) file.
 
 Finally add a console script to [setup.cfg](setup.cfg) pointing the new country rp2_entry (see the US example in the console_scripts section of setup.cfg).
 
