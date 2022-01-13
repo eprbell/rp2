@@ -128,7 +128,7 @@ class AccountingMethod(AbstractSpecificId):
         new_taxable_event_amount: RP2Decimal = new_taxable_event.crypto_taxable_amount
 
         # If the new taxable event has different year than the from lot (and it's not earn-typed), also get a new from lot from the new year
-        if not new_taxable_event.transaction_type.is_earn_type() and taxable_event and taxable_event.timestamp < new_taxable_event.timestamp:
+        if taxable_event and taxable_event.timestamp < new_taxable_event.timestamp:
             if from_lot:
                 # Cache old-year from_lot amount
                 self.__from_lot_2_partial_amount[from_lot] = new_from_lot_amount
