@@ -29,5 +29,6 @@ pre-commit
 pylint
 pytest
 rope
+types-jsonschema
 types-python-dateutil
 -e . # Used by unit tests

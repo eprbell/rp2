@@ -19,7 +19,7 @@ from datetime import datetime
 from tempfile import NamedTemporaryFile
 from typing import Any, Optional
 
-import jsonschema  # type: ignore
+import jsonschema
 from dateutil.tz import tzoffset, tzutc
 from rp2.abstract_country import AbstractCountry
 from rp2.configuration import Configuration
