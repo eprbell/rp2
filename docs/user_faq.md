@@ -92,7 +92,7 @@ Also read the question on [crypto tax resources](#which-resources-can-i-use-to-l
 See the Reporting Bugs section in the [CONTRIBUTING](../CONTRIBUTING.md#reporting-bugs) document.
 
 ## Can I Avoid Writing a Config File From Scratch?
-You can use [crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config) as boilerplate and [Input Files](https://github.com/eprbell/rp2/tree/main/docs/input_files.md) as reference.
+You can use [crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config) as boilerplate and the [Input Files](https://github.com/eprbell/rp2/tree/main/docs/input_files.md) document as reference.
 
 ## If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?
 Such fees affect the in/out lot relationships, so RP2 keeps track of them (in the "Investment Expenses" tab of the tax_report_us output). Ask your tax professional about how to handle this tab in any given year.
