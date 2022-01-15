@@ -15,7 +15,7 @@
 build/
 dist/
 log/*.log
-output/*.ods
+output/
 .~lock*
 .mypy_cache/
 *.pyc
