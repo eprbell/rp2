@@ -369,15 +369,15 @@ class TestGainLossSet(unittest.TestCase):
             gain_loss_set.get_taxable_event_number_of_fractions(out15)
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'transaction' is not of type InTransaction: .*"):
             # Bad get_taxable_event_fractions parameter
-            gain_loss_set.get_from_lot_number_of_fractions(None)  # type: ignore
+            gain_loss_set.get_disposed_of_lot_number_of_fractions(None)  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'transaction' is not of type InTransaction: .*"):
             # Bad get_taxable_event_fractions parameter
-            gain_loss_set.get_from_lot_number_of_fractions(self)  # type: ignore
+            gain_loss_set.get_disposed_of_lot_number_of_fractions(self)  # type: ignore
         with self.assertRaisesRegex(RP2ValueError, "Unknown transaction:.*"):
             # Bad get_taxable_event_fractions parameter
-            gain_loss_set.get_from_lot_number_of_fractions(in3)
+            gain_loss_set.get_disposed_of_lot_number_of_fractions(in3)
         with self.assertRaisesRegex(
-            RP2ValueError, "Timestamp .* of from_lot entry .* is incompatible with timestamp .* of its ancestor .* using .* accounting method: .*"
+            RP2ValueError, "Timestamp .* of disposed_of_lot entry .* is incompatible with timestamp .* of its ancestor .* using .* accounting method: .*"
         ):
             gain_loss_set = GainLossSet(self._configuration, self._accounting_method, asset)
             in_transaction_test: InTransaction = InTransaction(
@@ -397,7 +397,7 @@ class TestGainLossSet(unittest.TestCase):
             for _ in gain_loss_set:
                 pass
         with self.assertRaisesRegex(
-            RP2ValueError, "Timestamp .* of from_lot entry .* is incompatible with timestamp .* of its ancestor .* using .* accounting method: .*"
+            RP2ValueError, "Timestamp .* of disposed_of_lot entry .* is incompatible with timestamp .* of its ancestor .* using .* accounting method: .*"
         ):
             gain_loss_set = GainLossSet(self._configuration, self._accounting_method, asset)
             gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("0.2"), out15, in_transaction_test))
@@ -421,7 +421,7 @@ class TestGainLossSet(unittest.TestCase):
             gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("0.2"), out15, in_transaction_test))
             for _ in gain_loss_set:
                 pass
-        with self.assertRaisesRegex(RP2ValueError, "From-lot crypto amount already exhausted for InTransaction"):
+        with self.assertRaisesRegex(RP2ValueError, "Disposed-of lot crypto amount already exhausted for InTransaction"):
             gain_loss_set = GainLossSet(self._configuration, self._accounting_method, asset)
             gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("1"), out14, in3))
             gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("1"), out16, in3))
@@ -433,7 +433,7 @@ class TestGainLossSet(unittest.TestCase):
             gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("4"), out16, in5))
             for _ in gain_loss_set:
                 pass
-        with self.assertRaisesRegex(RP2ValueError, "Current from-lot amount .* exceeded crypto balance change of from-lot .* GainLoss"):
+        with self.assertRaisesRegex(RP2ValueError, "Current disposed-of lot amount .* exceeded crypto balance change of disposed-of lot .* GainLoss"):
             gain_loss_set = GainLossSet(self._configuration, self._accounting_method, asset)
             gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("0.2"), out15, in3))
             gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("1"), out14, in3))

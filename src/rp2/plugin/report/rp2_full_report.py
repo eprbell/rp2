@@ -556,11 +556,11 @@ class Generator(AbstractODTGenerator):
         gain_loss_set: GainLossSet = computed_data.gain_loss_set
 
         taxable_event_style_modifier: str = ""
-        from_lot_style_modifier: str = "_alt"
+        disposed_of_lot_style_modifier: str = "_alt"
         year: int = 0
         border_style: _BorderStyle
 
-        previous_from_lot: Optional[InTransaction] = None
+        previous_disposed_of_lot: Optional[InTransaction] = None
         for entry in gain_loss_set:
             gain_loss: GainLoss = cast(GainLoss, entry)
             border_suffix: str = ""
@@ -582,7 +582,7 @@ class Generator(AbstractODTGenerator):
                 f"{gain_loss.taxable_event.crypto_balance_change:.8f} "
                 f"{asset}"
             )
-            from_lot_style: str
+            disposed_of_lot_style: str
 
             self._fill_cell(sheet, row_index, 0, gain_loss.crypto_amount, visual_style=transparent_style, data_style="crypto")
             self._fill_cell(sheet, row_index, 1, gain_loss.asset, visual_style=transparent_style)
@@ -599,34 +599,36 @@ class Generator(AbstractODTGenerator):
                 # Last fraction: change color
                 taxable_event_style_modifier = "" if taxable_event_style_modifier == "_alt" else "_alt"
 
-            if gain_loss.from_lot:
-                if gain_loss.from_lot != previous_from_lot:
+            if gain_loss.disposed_of_lot:
+                if gain_loss.disposed_of_lot != previous_disposed_of_lot:
                     # Last fraction: change color
-                    from_lot_style_modifier = "" if from_lot_style_modifier == "_alt" else "_alt"
-                    from_lot_style = f"from_lot{from_lot_style_modifier}{border_suffix}"
-                current_from_lot_fraction: int = gain_loss_set.get_from_lot_fraction(gain_loss) + 1
-                total_from_lot_fractions: int = gain_loss_set.get_from_lot_number_of_fractions(gain_loss.from_lot)
-                from_lot_note: str = (
-                    f"{current_from_lot_fraction}/"
-                    f"{total_from_lot_fractions}: "
+                    disposed_of_lot_style_modifier = "" if disposed_of_lot_style_modifier == "_alt" else "_alt"
+                    disposed_of_lot_style = f"from_lot{disposed_of_lot_style_modifier}{border_suffix}"
+                current_disposed_of_lot_fraction: int = gain_loss_set.get_disposed_of_lot_fraction(gain_loss) + 1
+                total_disposed_of_lot_fractions: int = gain_loss_set.get_disposed_of_lot_number_of_fractions(gain_loss.disposed_of_lot)
+                disposed_of_lot_note: str = (
+                    f"{current_disposed_of_lot_fraction}/"
+                    f"{total_disposed_of_lot_fractions}: "
                     f"{gain_loss.crypto_amount:.8f} of "
-                    f"{gain_loss.from_lot.crypto_balance_change:.8f} "
+                    f"{gain_loss.disposed_of_lot.crypto_balance_change:.8f} "
                     f"{asset}"
                 )
-                self._fill_cell(sheet, row_index, 11, gain_loss.from_lot.timestamp, visual_style=from_lot_style)
-                self._fill_cell(sheet, row_index, 12, gain_loss.from_lot_fraction_percentage, visual_style=from_lot_style, data_style="percent")
-                self._fill_cell(sheet, row_index, 13, gain_loss.from_lot_fiat_amount_with_fee_fraction, visual_style=from_lot_style, data_style="fiat")
-                fiat_fee_fraction: RP2Decimal = gain_loss.from_lot.fiat_fee * gain_loss.from_lot_fraction_percentage
-                self._fill_cell(sheet, row_index, 14, fiat_fee_fraction, visual_style=from_lot_style, data_style="fiat")
+                self._fill_cell(sheet, row_index, 11, gain_loss.disposed_of_lot.timestamp, visual_style=disposed_of_lot_style)
+                self._fill_cell(sheet, row_index, 12, gain_loss.disposed_of_lot_fraction_percentage, visual_style=disposed_of_lot_style, data_style="percent")
+                self._fill_cell(
+                    sheet, row_index, 13, gain_loss.disposed_of_lot_fiat_amount_with_fee_fraction, visual_style=disposed_of_lot_style, data_style="fiat"
+                )
+                fiat_fee_fraction: RP2Decimal = gain_loss.disposed_of_lot.fiat_fee * gain_loss.disposed_of_lot_fraction_percentage
+                self._fill_cell(sheet, row_index, 14, fiat_fee_fraction, visual_style=disposed_of_lot_style, data_style="fiat")
                 self._fill_cell(sheet, row_index, 15, gain_loss.fiat_cost_basis, visual_style=highlighted_style, data_style="fiat")
-                self._fill_cell(sheet, row_index, 16, gain_loss.from_lot.spot_price, visual_style=from_lot_style, data_style="fiat")
-                self._fill_cell(sheet, row_index, 17, from_lot_note, visual_style=f"from_lot_note{border_suffix}")
+                self._fill_cell(sheet, row_index, 16, gain_loss.disposed_of_lot.spot_price, visual_style=disposed_of_lot_style, data_style="fiat")
+                self._fill_cell(sheet, row_index, 17, disposed_of_lot_note, visual_style=f"from_lot_note{border_suffix}")
 
-                previous_from_lot = gain_loss.from_lot
+                previous_disposed_of_lot = gain_loss.disposed_of_lot
             else:
-                from_lot_style = f"from_lot{from_lot_style_modifier}{border_suffix}"
+                disposed_of_lot_style = f"from_lot{disposed_of_lot_style_modifier}{border_suffix}"
                 for i in range(11, 17):
-                    self._fill_cell(sheet, row_index, i, "", visual_style=f"{from_lot_style}{border_suffix}")
+                    self._fill_cell(sheet, row_index, i, "", visual_style=f"{disposed_of_lot_style}{border_suffix}")
 
             row_index += 1
 
