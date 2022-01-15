@@ -13,18 +13,32 @@
 # limitations under the License.
 
 import os
+import shutil
 import unittest
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, List
 
 import ezodf
+from abstract_test_ods_output_diff import AbstractTestODSOutputDiff
 from dateutil.tz import gettz
 
+ROOT_PATH: Path = Path(os.path.dirname(__file__)).parent.absolute()
 
-class TestLargeInput(unittest.TestCase):
+
+class TestLargeInput(AbstractTestODSOutputDiff):
+
+    output_dir: Path
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.output_dir = ROOT_PATH / Path("output") / Path(cls.__module__)
+
+        shutil.rmtree(cls.output_dir, ignore_errors=True)
+
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
+        self.generate_ascii_representation: bool = True
 
     @staticmethod
     def _fill_row(sheet: Any, row_index: int, row: List[Any]) -> int:
@@ -34,12 +48,11 @@ class TestLargeInput(unittest.TestCase):
         return row_index + 1
 
     def _generate_large_input(self) -> None:
-        output_dir_path: Path = Path(os.path.dirname(__file__)).parent.absolute() / Path("output")
-        output_file_path: Path = output_dir_path / "test_large_input.ods"
-        if not output_dir_path.exists():
-            output_dir_path.mkdir(parents=True)
-        if not output_dir_path.is_dir():
-            raise Exception(f"output_dir '{str(output_dir_path)}' exists but it's not a directory")
+        output_file_path: Path = self.output_dir / Path("test_large_input.ods")
+        if not self.output_dir.exists():
+            self.output_dir.mkdir(parents=True)
+        if not self.output_dir.is_dir():
+            raise Exception(f"output_dir '{str(self.output_dir)}' exists but it's not a directory")
 
         output_file: Any = ezodf.newdoc("ods", str(output_file_path), template=None)
         row_index: int = 0
@@ -51,7 +64,7 @@ class TestLargeInput(unittest.TestCase):
         out_type: List[str] = ["sell", "donate"]
 
         column_total: int = 30
-        table_row_total: int = 1000 if "RP2_TEST_TABLE_SIZE" not in os.environ else int(str(os.environ.get("RP2_TEST_TABLE_SIZE")))
+        table_row_total: int = 500 if "RP2_TEST_TABLE_SIZE" not in os.environ else int(str(os.environ.get("RP2_TEST_TABLE_SIZE")))
 
         sheet: Any = ezodf.Table("B1")
         output_file.sheets += sheet
@@ -134,6 +147,8 @@ class TestLargeInput(unittest.TestCase):
 
     def test_large_input(self) -> None:
         self._generate_large_input()
+        for method in self.METHODS:
+            self._run_and_compare(test_name="test_large_input", config="test_large_input", method=method, input_path=self.output_dir)
 
 
 if __name__ == "__main__":

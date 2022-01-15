@@ -14,17 +14,22 @@
 
 # RP2 Change Log
 
-# v.0.9.6
+## v0.9.7
+* added profiler instrumentation
+* added large input test and refactored ODS output test
+* removed rmtree("output") from test_ods_output_diff.py: it modifies the file system, which can cause problems when running tests in parallel (currently not enabled, but that may change in the future).
+* minor fixes
+
+## v0.9.6
 * fixed a bug in timestamp check: in and out lots were not allowed to have the same timestamp, but in certain scenarios it could happen (e.g. high-frequency trading)
 * fixed a subtle corner-case bug in LIFO, which caused the first gain/loss pair to be incorrect: the minimal input that reproduced the bug is now captured in one of the tests (test_data2.ods, sheet B1). This ensures there will not be a regression.
 * disable a link check in user faq: the link was failing the check (incorrectly) on Github actions
-* added large input test
 
-# v0.9.5
+## v0.9.5
 * added new LIFO tests
 * minor fixes
 
-# v0.9.4
+## v0.9.4
 * added accounting-method programmable plugin infrastructure: by subclassing AbstractAccountingMethod it's now possible to add support for a new accounting method (previously only FIFO was hard-coded in)
 * added accounting-method plugins: FIFO, LIFO
 * added accounting-method-specific tests, plus additional tests of internal classes (both new and old)
