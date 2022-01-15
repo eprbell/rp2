@@ -46,9 +46,9 @@ class GainLossSet(AbstractEntrySet):
         super().__init__(configuration, "MIXED", asset, from_year, to_year)
         self.__accounting_method = AbstractAccountingMethod.type_check("accounting_method", accounting_method)
         self.__taxable_events_to_fraction: Dict[GainLoss, int] = {}
-        self.__disposed_of_lots_to_fraction: Dict[GainLoss, int] = {}
+        self.__from_lots_to_fraction: Dict[GainLoss, int] = {}
         self.__taxable_events_to_number_of_fractions: Dict[AbstractTransaction, int] = {}
-        self.__disposed_of_lots_to_number_of_fractions: Dict[InTransaction, int] = {}
+        self.__from_lots_to_number_of_fractions: Dict[InTransaction, int] = {}
         self.__transaction_type_2_count: Dict[TransactionType, int] = {transaction_type: 0 for transaction_type in TransactionType}
 
     def add_entry(self, entry: AbstractEntry) -> None:
@@ -65,10 +65,10 @@ class GainLossSet(AbstractEntrySet):
         self._check_sort()
         return self.__taxable_events_to_fraction[entry]
 
-    def get_disposed_of_lot_fraction(self, entry: GainLoss) -> int:
+    def get_from_lot_fraction(self, entry: GainLoss) -> int:
         self._validate_entry(entry)
         self._check_sort()
-        return self.__disposed_of_lots_to_fraction[entry]
+        return self.__from_lots_to_fraction[entry]
 
     def get_taxable_event_number_of_fractions(self, transaction: AbstractTransaction) -> int:
         AbstractTransaction.type_check("transaction", transaction)
@@ -77,12 +77,12 @@ class GainLossSet(AbstractEntrySet):
         self._check_sort()
         return self.__taxable_events_to_number_of_fractions[transaction]
 
-    def get_disposed_of_lot_number_of_fractions(self, transaction: InTransaction) -> int:
+    def get_from_lot_number_of_fractions(self, transaction: InTransaction) -> int:
         InTransaction.type_check("transaction", transaction)
-        if transaction not in self.__disposed_of_lots_to_number_of_fractions:
+        if transaction not in self.__from_lots_to_number_of_fractions:
             raise RP2ValueError(f"Unknown transaction:\n{transaction}")
         self._check_sort()
-        return self.__disposed_of_lots_to_number_of_fractions[transaction]
+        return self.__from_lots_to_number_of_fractions[transaction]
 
     def _validate_entry(self, entry: AbstractEntry) -> None:
         GainLoss.type_check("entry", entry)
@@ -94,21 +94,21 @@ class GainLossSet(AbstractEntrySet):
         entry: AbstractEntry
         gain_loss: Optional[GainLoss] = None
         # Taxable events are always monotonic over time (sorted by ascending date), so we just need scalars to keep
-        # track of amount and fraction (see also disposed-of-lot comment below). On the other hand disposed-of lots are not always
+        # track of amount and fraction (see also from-lot comment below). On the other hand from lots are not always
         # monotonic over time (they can be in any order, depending on the accounting method), so we need dictionaries
         # to keep track of amount and fraction for each lot.
         current_taxable_event_amount: RP2Decimal = ZERO
         current_taxable_event_fraction: int = 0
-        current_disposed_of_lot_amount: Dict[InTransaction, RP2Decimal] = {}
-        current_disposed_of_lot_fraction: Dict[InTransaction, int] = {}
+        current_from_lot_amount: Dict[InTransaction, RP2Decimal] = {}
+        current_from_lot_fraction: Dict[InTransaction, int] = {}
 
-        last_gain_loss_with_disposed_of_lot: Optional[GainLoss] = None
+        last_gain_loss_with_from_lot: Optional[GainLoss] = None
 
         # Reset fields that are recomputed at sort time
         self.__taxable_events_to_fraction = {}
         self.__taxable_events_to_number_of_fractions = {}
-        self.__disposed_of_lots_to_fraction = {}
-        self.__disposed_of_lots_to_number_of_fractions = {}
+        self.__from_lots_to_fraction = {}
+        self.__from_lots_to_number_of_fractions = {}
         self.__transaction_type_2_count = {transaction_type: 0 for transaction_type in TransactionType}
 
         for entry in self._entry_list:
@@ -123,21 +123,19 @@ class GainLossSet(AbstractEntrySet):
             count: int = self.__transaction_type_2_count[gain_loss.taxable_event.transaction_type]
             self.__transaction_type_2_count[gain_loss.taxable_event.transaction_type] = count + 1
 
-            if gain_loss.disposed_of_lot:
-                # Ensure disposed_of_lot timestamp and its ancestor's validate against accounting method rules.
+            if gain_loss.from_lot:
+                # Ensure from_lot timestamp and its ancestor's validate against accounting method rules.
                 if (
-                    last_gain_loss_with_disposed_of_lot
-                    and last_gain_loss_with_disposed_of_lot.disposed_of_lot
-                    and not self.__accounting_method.validate_disposed_of_lot_ancestor_timestamp(
-                        gain_loss.disposed_of_lot, last_gain_loss_with_disposed_of_lot.disposed_of_lot
-                    )
+                    last_gain_loss_with_from_lot
+                    and last_gain_loss_with_from_lot.from_lot
+                    and not self.__accounting_method.validate_from_lot_ancestor_timestamp(gain_loss.from_lot, last_gain_loss_with_from_lot.from_lot)
                 ):
                     raise RP2ValueError(
-                        f"Timestamp {gain_loss.disposed_of_lot.timestamp} of disposed_of_lot entry (id {gain_loss.disposed_of_lot.unique_id}) "
-                        f"is incompatible with timestamp {last_gain_loss_with_disposed_of_lot.disposed_of_lot.timestamp} of its ancestor "
-                        f"(id {last_gain_loss_with_disposed_of_lot.disposed_of_lot.unique_id}) using {self.__accounting_method} accounting method: {gain_loss}"
+                        f"Timestamp {gain_loss.from_lot.timestamp} of from_lot entry (id {gain_loss.from_lot.unique_id}) "
+                        f"is incompatible with timestamp {last_gain_loss_with_from_lot.from_lot.timestamp} of its ancestor "
+                        f"(id {last_gain_loss_with_from_lot.from_lot.unique_id}) using {self.__accounting_method} accounting method: {gain_loss}"
                     )
-                last_gain_loss_with_disposed_of_lot = gain_loss
+                last_gain_loss_with_from_lot = gain_loss
 
             current_taxable_event_amount += gain_loss.crypto_amount
             self.__taxable_events_to_fraction[gain_loss] = current_taxable_event_fraction
@@ -149,7 +147,7 @@ class GainLossSet(AbstractEntrySet):
                 LOGGER.debug(
                     "%s (%d - %d): current amount == taxable event (%.16f)",
                     gain_loss.unique_id,
-                    current_disposed_of_lot_fraction[gain_loss.disposed_of_lot] if gain_loss.disposed_of_lot in current_disposed_of_lot_fraction else 0,
+                    current_from_lot_fraction[gain_loss.from_lot] if gain_loss.from_lot in current_from_lot_fraction else 0,
                     current_taxable_event_fraction,
                     current_taxable_event_amount,
                 )
@@ -159,7 +157,7 @@ class GainLossSet(AbstractEntrySet):
                 LOGGER.debug(
                     "%s (%d - %d): current amount < taxable event (%.16f < %.16f)",
                     gain_loss.unique_id,
-                    current_disposed_of_lot_fraction[gain_loss.disposed_of_lot] if gain_loss.disposed_of_lot in current_disposed_of_lot_fraction else 0,
+                    current_from_lot_fraction[gain_loss.from_lot] if gain_loss.from_lot in current_from_lot_fraction else 0,
                     current_taxable_event_fraction,
                     current_taxable_event_amount,
                     gain_loss.taxable_event.crypto_balance_change,
@@ -172,69 +170,67 @@ class GainLossSet(AbstractEntrySet):
                     f". {gain_loss}"
                 )
 
-            if gain_loss.disposed_of_lot:
-                current_disposed_of_lot_amount[gain_loss.disposed_of_lot] = (
-                    current_disposed_of_lot_amount.setdefault(gain_loss.disposed_of_lot, ZERO) + gain_loss.crypto_amount
-                )
-                self.__disposed_of_lots_to_fraction[gain_loss] = current_disposed_of_lot_fraction.setdefault(gain_loss.disposed_of_lot, 0)
-                if current_disposed_of_lot_amount[gain_loss.disposed_of_lot] == gain_loss.disposed_of_lot.crypto_balance_change:
+            if gain_loss.from_lot:
+                current_from_lot_amount[gain_loss.from_lot] = current_from_lot_amount.setdefault(gain_loss.from_lot, ZERO) + gain_loss.crypto_amount
+                self.__from_lots_to_fraction[gain_loss] = current_from_lot_fraction.setdefault(gain_loss.from_lot, 0)
+                if current_from_lot_amount[gain_loss.from_lot] == gain_loss.from_lot.crypto_balance_change:
                     # Expected amount reached: delete both fraction and amount from "current" dictionaries
-                    if gain_loss.disposed_of_lot in self.__disposed_of_lots_to_number_of_fractions:
-                        raise RP2ValueError(f"Disposed-of lot crypto amount already exhausted for {gain_loss.disposed_of_lot}")
-                    self.__disposed_of_lots_to_number_of_fractions[gain_loss.disposed_of_lot] = current_disposed_of_lot_fraction[gain_loss.disposed_of_lot] + 1
+                    if gain_loss.from_lot in self.__from_lots_to_number_of_fractions:
+                        raise RP2ValueError(f"From-lot crypto amount already exhausted for {gain_loss.from_lot}")
+                    self.__from_lots_to_number_of_fractions[gain_loss.from_lot] = current_from_lot_fraction[gain_loss.from_lot] + 1
                     LOGGER.debug(
-                        "%s (%d - %d): current amount == disposed-of lot (%.16f)",
+                        "%s (%d - %d): current amount == from-lot (%.16f)",
                         gain_loss.unique_id,
-                        current_disposed_of_lot_fraction[gain_loss.disposed_of_lot],
+                        current_from_lot_fraction[gain_loss.from_lot],
                         current_taxable_event_fraction,
-                        current_disposed_of_lot_amount[gain_loss.disposed_of_lot],
+                        current_from_lot_amount[gain_loss.from_lot],
                     )
-                    del current_disposed_of_lot_amount[gain_loss.disposed_of_lot]
-                    del current_disposed_of_lot_fraction[gain_loss.disposed_of_lot]
-                elif current_disposed_of_lot_amount[gain_loss.disposed_of_lot] < gain_loss.disposed_of_lot.crypto_balance_change:
+                    del current_from_lot_amount[gain_loss.from_lot]
+                    del current_from_lot_fraction[gain_loss.from_lot]
+                elif current_from_lot_amount[gain_loss.from_lot] < gain_loss.from_lot.crypto_balance_change:
                     LOGGER.debug(
-                        "%s (%d - %d): current amount < disposed-of lot (%.16f < %.16f)",
+                        "%s (%d - %d): current amount < from-lot (%.16f < %.16f)",
                         gain_loss.unique_id,
-                        current_disposed_of_lot_fraction[gain_loss.disposed_of_lot],
+                        current_from_lot_fraction[gain_loss.from_lot],
                         current_taxable_event_fraction,
-                        current_disposed_of_lot_amount[gain_loss.disposed_of_lot],
-                        gain_loss.disposed_of_lot.crypto_balance_change,
+                        current_from_lot_amount[gain_loss.from_lot],
+                        gain_loss.from_lot.crypto_balance_change,
                     )
-                    current_disposed_of_lot_fraction[gain_loss.disposed_of_lot] = current_disposed_of_lot_fraction[gain_loss.disposed_of_lot] + 1
+                    current_from_lot_fraction[gain_loss.from_lot] = current_from_lot_fraction[gain_loss.from_lot] + 1
                 else:
                     raise RP2ValueError(
-                        f"Current disposed-of lot amount ({current_disposed_of_lot_amount[gain_loss.disposed_of_lot]}) "
-                        f"exceeded crypto balance change of disposed-of lot ({gain_loss.disposed_of_lot.crypto_balance_change})"
+                        f"Current from-lot amount ({current_from_lot_amount[gain_loss.from_lot]}) "
+                        f"exceeded crypto balance change of from-lot ({gain_loss.from_lot.crypto_balance_change})"
                         f". {gain_loss}"
                     )
 
         # Final housekeeping
 
         # Taxable event: update fractions for last non-exhausted transaction (if any)
-        if last_gain_loss_with_disposed_of_lot:
+        if last_gain_loss_with_from_lot:
             if current_taxable_event_amount > ZERO:
-                if last_gain_loss_with_disposed_of_lot.taxable_event in self.__taxable_events_to_number_of_fractions:
-                    raise RP2ValueError(f"Taxable event crypto amount already exhausted for {last_gain_loss_with_disposed_of_lot.taxable_event}")
-                self.__taxable_events_to_number_of_fractions[last_gain_loss_with_disposed_of_lot.taxable_event] = current_taxable_event_fraction
+                if last_gain_loss_with_from_lot.taxable_event in self.__taxable_events_to_number_of_fractions:
+                    raise RP2ValueError(f"Taxable event crypto amount already exhausted for {last_gain_loss_with_from_lot.taxable_event}")
+                self.__taxable_events_to_number_of_fractions[last_gain_loss_with_from_lot.taxable_event] = current_taxable_event_fraction
                 LOGGER.debug(
                     "%s (%d - %d): taxable event housekeeping",
-                    last_gain_loss_with_disposed_of_lot.unique_id,
-                    current_disposed_of_lot_fraction[last_gain_loss_with_disposed_of_lot.disposed_of_lot]
-                    if last_gain_loss_with_disposed_of_lot.disposed_of_lot in current_disposed_of_lot_fraction
+                    last_gain_loss_with_from_lot.unique_id,
+                    current_from_lot_fraction[last_gain_loss_with_from_lot.from_lot]
+                    if last_gain_loss_with_from_lot.from_lot in current_from_lot_fraction
                     else 0,
                     current_taxable_event_fraction,
                 )
 
-        # Disposed-of lot: update fractions for non-exhausted transactions (if any)
-        for disposed_of_lot, fraction in current_disposed_of_lot_fraction.items():
-            if disposed_of_lot:
-                if disposed_of_lot in self.__disposed_of_lots_to_number_of_fractions:
-                    raise RP2ValueError(f"Disposed-of lot crypto amount already exhausted for {disposed_of_lot}")
-                self.__disposed_of_lots_to_number_of_fractions[disposed_of_lot] = fraction
+        # From lot: update fractions for non-exhausted transactions (if any)
+        for from_lot, fraction in current_from_lot_fraction.items():
+            if from_lot:
+                if from_lot in self.__from_lots_to_number_of_fractions:
+                    raise RP2ValueError(f"From-lot crypto amount already exhausted for {from_lot}")
+                self.__from_lots_to_number_of_fractions[from_lot] = fraction
                 LOGGER.debug(
-                    "%s (%d): disposed_of_lot housekeeping",
-                    disposed_of_lot.unique_id,
-                    current_disposed_of_lot_fraction[disposed_of_lot],
+                    "%s (%d): from_lot housekeeping",
+                    from_lot.unique_id,
+                    current_from_lot_fraction[from_lot],
                 )
 
     def __str__(self) -> str:
@@ -254,10 +250,9 @@ class GainLossSet(AbstractEntrySet):
                 f"      taxable_event_fraction={self.get_taxable_event_fraction(gain_loss) + 1} of "
                 f"{self.get_taxable_event_number_of_fractions(gain_loss.taxable_event)}"
             )
-            if gain_loss.disposed_of_lot:
+            if gain_loss.from_lot:
                 output.append(
-                    f"      disposed_of_lot_fraction={self.get_disposed_of_lot_fraction(gain_loss) + 1} of "
-                    f"{self.get_disposed_of_lot_number_of_fractions(gain_loss.disposed_of_lot)}"
+                    f"      from_lot_fraction={self.get_from_lot_fraction(gain_loss) + 1} of " f"{self.get_from_lot_number_of_fractions(gain_loss.from_lot)}"
                 )
             output.append(f"      parent={parent.unique_id if parent else None}")
         return "\n".join(output)
@@ -286,10 +281,9 @@ class GainLossSet(AbstractEntrySet):
                 f", taxable_event_fraction={self.get_taxable_event_fraction(gain_loss) + 1} of "
                 f"{self.get_taxable_event_number_of_fractions(gain_loss.taxable_event)}"
             )
-            if gain_loss.disposed_of_lot:
+            if gain_loss.from_lot:
                 output.append(
-                    f", disposed_of_lot_fraction={self.get_disposed_of_lot_fraction(gain_loss) + 1} of "
-                    f"{self.get_disposed_of_lot_number_of_fractions(gain_loss.disposed_of_lot)}"
+                    f", from_lot_fraction={self.get_from_lot_fraction(gain_loss) + 1} of " f"{self.get_from_lot_number_of_fractions(gain_loss.from_lot)}"
                 )
             output.append(f", parent={parent.unique_id if parent else None}")
             # Add back trailing ')'

@@ -17,7 +17,7 @@ from typing import Iterator, Optional
 
 from rp2.abstract_accounting_method import (
     AbstractAccountingMethod,
-    TaxableEventAndDisposedOfLot,
+    TaxableEventAndFromLot,
 )
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
@@ -25,22 +25,18 @@ from rp2.rp2_decimal import RP2Decimal
 
 
 class AbstractSpecificId(AbstractAccountingMethod):
-    def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], disposed_of_lot_iterator: Iterator[InTransaction]) -> None:
+    def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], from_lot_iterator: Iterator[InTransaction]) -> None:
         raise NotImplementedError("Abstract function")
 
     def get_next_taxable_event_and_amount(
-        self,
-        taxable_event: Optional[AbstractTransaction],
-        disposed_of_lot: Optional[InTransaction],
-        taxable_event_amount: RP2Decimal,
-        disposed_of_lot_amount: RP2Decimal,
-    ) -> TaxableEventAndDisposedOfLot:
+        self, taxable_event: Optional[AbstractTransaction], from_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, from_lot_amount: RP2Decimal
+    ) -> TaxableEventAndFromLot:
         raise NotImplementedError("Abstract function")
 
-    def get_disposed_of_lot_for_taxable_event(
-        self, taxable_event: AbstractTransaction, disposed_of_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, disposed_of_lot_amount: RP2Decimal
-    ) -> TaxableEventAndDisposedOfLot:
+    def get_from_lot_for_taxable_event(
+        self, taxable_event: AbstractTransaction, from_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, from_lot_amount: RP2Decimal
+    ) -> TaxableEventAndFromLot:
         raise NotImplementedError("Abstract function")
 
-    def validate_disposed_of_lot_ancestor_timestamp(self, disposed_of_lot: InTransaction, disposed_of_lot_parent: InTransaction) -> bool:
+    def validate_from_lot_ancestor_timestamp(self, from_lot: InTransaction, from_lot_parent: InTransaction) -> bool:
         raise NotImplementedError("Abstract function")

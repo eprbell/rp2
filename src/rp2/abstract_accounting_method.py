@@ -20,11 +20,11 @@ from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError
 
 
-class TaxableEventAndDisposedOfLot(NamedTuple):
+class TaxableEventAndFromLot(NamedTuple):
     taxable_event: AbstractTransaction
-    disposed_of_lot: Optional[InTransaction]
+    from_lot: Optional[InTransaction]
     taxable_event_amount: RP2Decimal
-    disposed_of_lot_amount: RP2Decimal
+    from_lot_amount: RP2Decimal
 
 
 class TaxableEventsExhaustedException(Exception):
@@ -40,7 +40,7 @@ class TaxableEventsExhaustedException(Exception):
         return self.__message
 
 
-class DisposedOfLotsExhaustedException(Exception):
+class FromLotsExhaustedException(Exception):
     def __init__(self, message: str = "") -> None:
         self.__message = message
         super().__init__(self.__message)
@@ -63,24 +63,20 @@ class AbstractAccountingMethod:
         return instance
 
     # Iterators yield transactions in ascending chronological order
-    def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], disposed_of_lot_iterator: Iterator[InTransaction]) -> None:
+    def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], from_lot_iterator: Iterator[InTransaction]) -> None:
         raise NotImplementedError("Abstract function")
 
     def get_next_taxable_event_and_amount(
-        self,
-        taxable_event: Optional[AbstractTransaction],
-        disposed_of_lot: Optional[InTransaction],
-        taxable_event_amount: RP2Decimal,
-        disposed_of_lot_amount: RP2Decimal,
-    ) -> TaxableEventAndDisposedOfLot:
+        self, taxable_event: Optional[AbstractTransaction], from_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, from_lot_amount: RP2Decimal
+    ) -> TaxableEventAndFromLot:
         raise NotImplementedError("Abstract function")
 
-    def get_disposed_of_lot_for_taxable_event(
-        self, taxable_event: AbstractTransaction, disposed_of_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, disposed_of_lot_amount: RP2Decimal
-    ) -> TaxableEventAndDisposedOfLot:
+    def get_from_lot_for_taxable_event(
+        self, taxable_event: AbstractTransaction, from_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, from_lot_amount: RP2Decimal
+    ) -> TaxableEventAndFromLot:
         raise NotImplementedError("Abstract function")
 
-    def validate_disposed_of_lot_ancestor_timestamp(self, disposed_of_lot: InTransaction, disposed_of_lot_parent: InTransaction) -> bool:
+    def validate_from_lot_ancestor_timestamp(self, from_lot: InTransaction, from_lot_parent: InTransaction) -> bool:
         raise NotImplementedError("Abstract function")
 
     @property

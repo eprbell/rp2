@@ -16,8 +16,8 @@ from typing import Iterator, Optional
 
 from rp2.abstract_accounting_method import (
     AbstractAccountingMethod,
-    DisposedOfLotsExhaustedException,
-    TaxableEventAndDisposedOfLot,
+    FromLotsExhaustedException,
+    TaxableEventAndFromLot,
     TaxableEventsExhaustedException,
 )
 from rp2.abstract_transaction import AbstractTransaction
@@ -29,44 +29,40 @@ from rp2.rp2_decimal import RP2Decimal
 class AccountingMethod(AbstractAccountingMethod):
 
     __taxable_event_iterator: Iterator[AbstractTransaction]
-    __disposed_of_lot_iterator: Iterator[InTransaction]
+    __from_lot_iterator: Iterator[InTransaction]
 
     # Iterators yield transactions in ascending chronological order
-    def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], disposed_of_lot_iterator: Iterator[InTransaction]) -> None:
+    def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], from_lot_iterator: Iterator[InTransaction]) -> None:
         self.__taxable_event_iterator = taxable_event_iterator
-        self.__disposed_of_lot_iterator = disposed_of_lot_iterator
+        self.__from_lot_iterator = from_lot_iterator
 
     def get_next_taxable_event_and_amount(
-        self,
-        taxable_event: Optional[AbstractTransaction],
-        disposed_of_lot: Optional[InTransaction],
-        taxable_event_amount: RP2Decimal,
-        disposed_of_lot_amount: RP2Decimal,
-    ) -> TaxableEventAndDisposedOfLot:
+        self, taxable_event: Optional[AbstractTransaction], from_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, from_lot_amount: RP2Decimal
+    ) -> TaxableEventAndFromLot:
         try:
             new_taxable_event: AbstractTransaction = next(self.__taxable_event_iterator)
         except StopIteration:
             raise TaxableEventsExhaustedException() from None
-        return TaxableEventAndDisposedOfLot(
+        return TaxableEventAndFromLot(
             taxable_event=new_taxable_event,
-            disposed_of_lot=disposed_of_lot,
+            from_lot=from_lot,
             taxable_event_amount=new_taxable_event.crypto_taxable_amount,
-            disposed_of_lot_amount=disposed_of_lot_amount - taxable_event_amount,
+            from_lot_amount=from_lot_amount - taxable_event_amount,
         )
 
-    def get_disposed_of_lot_for_taxable_event(
-        self, taxable_event: AbstractTransaction, disposed_of_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, disposed_of_lot_amount: RP2Decimal
-    ) -> TaxableEventAndDisposedOfLot:
+    def get_from_lot_for_taxable_event(
+        self, taxable_event: AbstractTransaction, from_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, from_lot_amount: RP2Decimal
+    ) -> TaxableEventAndFromLot:
         try:
-            new_disposed_of_lot: InTransaction = next(self.__disposed_of_lot_iterator)
+            new_from_lot: InTransaction = next(self.__from_lot_iterator)
         except StopIteration:
-            raise DisposedOfLotsExhaustedException() from None
-        return TaxableEventAndDisposedOfLot(
+            raise FromLotsExhaustedException() from None
+        return TaxableEventAndFromLot(
             taxable_event=taxable_event,
-            disposed_of_lot=new_disposed_of_lot,
-            taxable_event_amount=taxable_event_amount - disposed_of_lot_amount,
-            disposed_of_lot_amount=new_disposed_of_lot.crypto_in,
+            from_lot=new_from_lot,
+            taxable_event_amount=taxable_event_amount - from_lot_amount,
+            from_lot_amount=new_from_lot.crypto_in,
         )
 
-    def validate_disposed_of_lot_ancestor_timestamp(self, disposed_of_lot: InTransaction, disposed_of_lot_parent: InTransaction) -> bool:
-        return disposed_of_lot.timestamp >= disposed_of_lot_parent.timestamp
+    def validate_from_lot_ancestor_timestamp(self, from_lot: InTransaction, from_lot_parent: InTransaction) -> bool:
+        return from_lot.timestamp >= from_lot_parent.timestamp
