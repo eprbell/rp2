@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import cProfile
+import os
 import sys
 from argparse import ArgumentParser, Namespace
 from importlib import import_module
@@ -35,7 +37,13 @@ _REPORT_GENERATOR_PACKAGE = "rp2.plugin.report"
 
 
 def rp2_main(country: AbstractCountry) -> None:
+    if "RP2_ENABLE_PROFILER" in os.environ:
+        cProfile.runctx("_rp2_main_internal(country)", globals(), locals())
+    else:
+        _rp2_main_internal(country)
 
+
+def _rp2_main_internal(country: AbstractCountry) -> None:
     args: Namespace
     assets: List[str]
     parser: ArgumentParser
