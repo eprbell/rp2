@@ -114,11 +114,11 @@ The RP2 source tree is organized as follows:
 * `input/golden/`: expected outputs that RP2 tests compare against;
 * `.isort.cfg`: isort configuration;
 * `LICENSE`: license information;
-* `Makefile`: obsolete, will be deleted in the future;
+* `Makefile`: alternative old-school build flow;
 * `MANIFEST.in`: source distribution configuration;
-* `mypy.ini`: Mypy configuration;
+* `mypy.ini`: mypy configuration;
 * `.pre-commit-config.yaml`: pre-commit configuration;
-* `.pylintrc`: Pylint configuration;
+* `.pylintrc`: pylint configuration;
 * `pyproject.toml`: packaging configuration;
 * `README.dev.md`: developer documentation;
 * `README.md`: user documentation;
@@ -126,8 +126,11 @@ The RP2 source tree is organized as follows:
 * `setup.cfg`: static packaging configuration file;
 * `setup.py`: dynamic packaging configuration file;
 * `src/rp2`: RP2 code, including classes for transactions, gains, tax engine, balances, logger, ODS parser, etc.;
+* `src/rp2/plugin/accounting_method/`: accounting method plugins;
+* `src/rp2/plugin/country/`: country plugins/entry points;
 * `src/rp2/plugin/report/`: report generator plugins;
 * `src/rp2/plugin/report/data/`: spreadsheet templates that are used by the builtin report plugins;
+* `src/rp2/plugin/report/<country>`: country-specific report generator plugins;
 * `src/stubs/`: RP2 relies on the pyexcel-ezodf library, which doesn't have typing information, so it is added here;
 * `tests/`: unit tests.
 
@@ -136,8 +139,8 @@ Read the [Contributing](CONTRIBUTING.md) document on pull requests guidelines.
 
 ### Design Guidelines
 RP2 code adheres to these principles:
-* immutability: all data structures are read-only.
-  * class fields are private (prepended with double-underscore). Fields that need public access have a read-only property. Write-properties are never used;
+* immutability: generally data structures are read-only (the only exceptions are for data structures that would incur a major complexity increase without write permission: e.g. node in AVL tree).
+  * class fields are private (prepended with double-underscore). Fields that need public access have a read-only property. Write-properties are not used;
   * @dataclass classes have `frozen=True`
 * runtime checks: parameters of public functions are type-checked at runtime:
   * `Configuration.type_check_*()` for primitive types;

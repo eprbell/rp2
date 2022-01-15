@@ -145,7 +145,9 @@ To generate output for the example files open a terminal window (or PowerShell i
   ```
 Results are generated in the `output` directory and logs are stored in the `log` directory.
 
-The `-m` option is used to select the accounting method (it defaults to FIFO). To print full command usage information for the `rp2_us` command:
+The `-m` option is particularly important, because is selects the accounting method: RP2 supports FIFO and LIFO (if `-m` is not specified it defaults to FIFO).
+
+To print full command usage information for the `rp2_us` command:
   ```
   rp2_us --help
   ```
