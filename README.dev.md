@@ -282,7 +282,7 @@ To add support for a new country, add a new Python file in the `src/rp2/plugin/c
 
 Finally add a console script to [setup.cfg](setup.cfg) pointing the new country rp2_entry (see the US example in the console_scripts section of setup.cfg).
 
-**NOTE**: as mentioned, the country infrastructure is experimental. If you're interested in adding support for a new country and have feedback or notice missing functionality, open an [PR](CONTRIBUTING.md).
+**NOTE**: as mentioned, the country infrastructure is experimental. If you're interested in adding support for a new country and have feedback or notice missing functionality, open a [PR](CONTRIBUTING.md).
 
 ## Frequently Asked Developer Questions
 Read the [frequently asked developer questions](docs/developer_faq.md).
