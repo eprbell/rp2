@@ -19,7 +19,8 @@
 * **[How to Verify That I Entered Data Correctly in the Input Spreadsheet?](#how-to-verify-that-i-entered-data-correctly-in-the-input-spreadsheet)**
 * **[What Is the Timestamp Format?](#what-is-the-timestamp-format)**
 * **[What Accounting Methods Are Supported?](#what-accounting-methods-are-supported)**
-* **[how to Handle Conversion of a Cryptocurrency to Another?](#how-to-handle-conversion-of-a-cryptocurrency-to-another)**
+* **[How to Handle Conversion of a Cryptocurrency to Another?](#how-to-handle-conversion-of-a-cryptocurrency-to-another)**
+* **[How to Switch From Another Tax Software to RP2?](#how-to-switch-from-another-tax-software-to-rp2)**
 * **[How to Handle Airdrops?](#how-to-handle-airdrops)**
 * **[How to Handle Hard Forks?](#how-to-handle-hard-forks)**
 * **[How to Handle Income from Mining?](#how-to-handle-income-from-mining)**
@@ -54,6 +55,31 @@ Currently the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) and [LIFO](h
 
 ## How to Handle Conversion of a Cryptocurrency to Another?
 Converting from one cryptocurrency to another can be captured in RP2 by splitting the original transaction into two: the first is a SELL-type transaction that describes selling the initial cryptocurrency into fiat. The second one is a BUY-type transaction that describes buying the final cryptocurrency using fiat.
+
+## How to Switch From Another Tax Software to RP2?
+In other words, how does RP2 handle transactions that were managed by other software in previous years? In this case the user can just leave out from the RP2 input spreadsheet the transactions/lots that were already sold in previous years.
+
+E.g. suppose the user's first year of trading BTC was 2020 and these were their transactions:
+
+<ol type="a">
+<li> 2020-2-5: buy 1 BTC</li>
+<li> 2020-5-5: buy 2 BTC</li>
+<li> 2020-8-1: sell 1.5 BTC</li>
+<li> 2021: more transactions...</li>
+</ol>
+
+Let's also assume in 2021 they didn't use RP2 and used the FIFO accounting method. This means they sold all of lot a) and 0.5 BTC from lot b).
+
+So if they want to start using RP2 in 2022 for their 2021 taxes, they would just leave out what they already sold and enter the following in the input spreadsheet:
+
+<ol type="a">
+<li> 2020-5-5: buy 1.5 BTC</li>
+<li> 2021: more transactions...</li>
+</ol>
+
+This is because lot a), part of lot b) and lot c) are already accounted for in the pre-RP2 system. The Notes column can be useful here: it can be used to describe why lot b) is partial.
+
+Of course the user still needs to keep all the documentation for previous years as well as for the current year. Also they will need to keep the same accounting method they were using previously: to switch accounting method (e.g. from FIFO to LIFO) it's necessary to speak to a tax professional first.
 
 ## How to Handle Airdrops?
 Mark the transaction type as AIRDROP. RP2 will collect all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file).
