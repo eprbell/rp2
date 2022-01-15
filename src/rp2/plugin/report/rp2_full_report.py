@@ -390,7 +390,7 @@ class Generator(AbstractODTGenerator):
                 0,
                 in_lot_sold_percentage if in_lot_sold_percentage is not None else "",
                 data_style="percent",
-                visual_style="disposed_of_lot" + border_suffix if in_lot_sold_percentage is not None else "transparent",
+                visual_style="from_lot" + border_suffix if in_lot_sold_percentage is not None else "transparent",
             )
             self._fill_cell(sheet, row_index, 1, transaction.timestamp, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 2, transaction.asset, visual_style=visual_style)
@@ -498,7 +498,7 @@ class Generator(AbstractODTGenerator):
             self._fill_cell(sheet, row_index, 4, yearly_gain_loss.transaction_type.value.upper(), visual_style="bold" + border_suffix, data_style="default")
             self._fill_cell(sheet, row_index, 5, yearly_gain_loss.crypto_amount, visual_style="transparent" + border_suffix, data_style="crypto")
             self._fill_cell(sheet, row_index, 6, yearly_gain_loss.fiat_amount, visual_style="taxable_event" + border_suffix, data_style="fiat")
-            self._fill_cell(sheet, row_index, 7, yearly_gain_loss.fiat_cost_basis, visual_style="disposed_of_lot" + border_suffix, data_style="fiat")
+            self._fill_cell(sheet, row_index, 7, yearly_gain_loss.fiat_cost_basis, visual_style="from_lot" + border_suffix, data_style="fiat")
             row_index += 1
 
         return row_index
@@ -603,7 +603,7 @@ class Generator(AbstractODTGenerator):
                 if gain_loss.disposed_of_lot != previous_disposed_of_lot:
                     # Last fraction: change color
                     disposed_of_lot_style_modifier = "" if disposed_of_lot_style_modifier == "_alt" else "_alt"
-                    disposed_of_lot_style = f"disposed_of_lot{disposed_of_lot_style_modifier}{border_suffix}"
+                    disposed_of_lot_style = f"from_lot{disposed_of_lot_style_modifier}{border_suffix}"
                 current_disposed_of_lot_fraction: int = gain_loss_set.get_disposed_of_lot_fraction(gain_loss) + 1
                 total_disposed_of_lot_fractions: int = gain_loss_set.get_disposed_of_lot_number_of_fractions(gain_loss.disposed_of_lot)
                 disposed_of_lot_note: str = (
@@ -622,11 +622,11 @@ class Generator(AbstractODTGenerator):
                 self._fill_cell(sheet, row_index, 14, fiat_fee_fraction, visual_style=disposed_of_lot_style, data_style="fiat")
                 self._fill_cell(sheet, row_index, 15, gain_loss.fiat_cost_basis, visual_style=highlighted_style, data_style="fiat")
                 self._fill_cell(sheet, row_index, 16, gain_loss.disposed_of_lot.spot_price, visual_style=disposed_of_lot_style, data_style="fiat")
-                self._fill_cell(sheet, row_index, 17, disposed_of_lot_note, visual_style=f"disposed_of_lot_note{border_suffix}")
+                self._fill_cell(sheet, row_index, 17, disposed_of_lot_note, visual_style=f"from_lot_note{border_suffix}")
 
                 previous_disposed_of_lot = gain_loss.disposed_of_lot
             else:
-                disposed_of_lot_style = f"disposed_of_lot{disposed_of_lot_style_modifier}{border_suffix}"
+                disposed_of_lot_style = f"from_lot{disposed_of_lot_style_modifier}{border_suffix}"
                 for i in range(11, 17):
                     self._fill_cell(sheet, row_index, i, "", visual_style=f"{disposed_of_lot_style}{border_suffix}")
 
