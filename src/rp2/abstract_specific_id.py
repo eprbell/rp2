@@ -17,7 +17,7 @@ from typing import Iterator, Optional
 
 from rp2.abstract_accounting_method import (
     AbstractAccountingMethod,
-    TaxableEventAndFromLot,
+    TaxableEventAndAcquiredLot,
 )
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
@@ -25,18 +25,22 @@ from rp2.rp2_decimal import RP2Decimal
 
 
 class AbstractSpecificId(AbstractAccountingMethod):
-    def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], from_lot_iterator: Iterator[InTransaction]) -> None:
+    def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], acquired_lot_iterator: Iterator[InTransaction]) -> None:
         raise NotImplementedError("Abstract function")
 
     def get_next_taxable_event_and_amount(
-        self, taxable_event: Optional[AbstractTransaction], from_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, from_lot_amount: RP2Decimal
-    ) -> TaxableEventAndFromLot:
+        self,
+        taxable_event: Optional[AbstractTransaction],
+        acquired_lot: Optional[InTransaction],
+        taxable_event_amount: RP2Decimal,
+        acquired_lot_amount: RP2Decimal,
+    ) -> TaxableEventAndAcquiredLot:
         raise NotImplementedError("Abstract function")
 
-    def get_from_lot_for_taxable_event(
-        self, taxable_event: AbstractTransaction, from_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, from_lot_amount: RP2Decimal
-    ) -> TaxableEventAndFromLot:
+    def get_acquired_lot_for_taxable_event(
+        self, taxable_event: AbstractTransaction, acquired_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, acquired_lot_amount: RP2Decimal
+    ) -> TaxableEventAndAcquiredLot:
         raise NotImplementedError("Abstract function")
 
-    def validate_from_lot_ancestor_timestamp(self, from_lot: InTransaction, from_lot_parent: InTransaction) -> bool:
+    def validate_acquired_lot_ancestor_timestamp(self, acquired_lot: InTransaction, acquired_lot_parent: InTransaction) -> bool:
         raise NotImplementedError("Abstract function")

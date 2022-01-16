@@ -192,10 +192,10 @@ class ComputedData:
         self.__in_lot_sold_percentage: Dict[InTransaction, RP2Decimal] = {}
         for entry in self.__filtered_gain_loss_set:
             gain_loss = cast(GainLoss, entry)
-            if not gain_loss.from_lot or gain_loss.from_lot.timestamp.year < from_year or gain_loss.from_lot.timestamp.year > to_year:
+            if not gain_loss.acquired_lot or gain_loss.acquired_lot.timestamp.year < from_year or gain_loss.acquired_lot.timestamp.year > to_year:
                 continue
-            self.__in_lot_sold_percentage[gain_loss.from_lot] = (
-                self.__in_lot_sold_percentage.setdefault(gain_loss.from_lot, ZERO) + gain_loss.from_lot_fraction_percentage
+            self.__in_lot_sold_percentage[gain_loss.acquired_lot] = (
+                self.__in_lot_sold_percentage.setdefault(gain_loss.acquired_lot, ZERO) + gain_loss.acquired_lot_fraction_percentage
             )
 
         if self.__filtered_taxable_event_set.asset != self.__asset:

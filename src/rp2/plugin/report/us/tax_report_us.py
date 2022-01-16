@@ -142,7 +142,7 @@ class Generator(AbstractODTGenerator):
             )
             transparent_vs: str = f"transparent{border_suffix}"
             taxable_event_note_vs: str = f"taxable_event_note{border_suffix}"
-            from_lot_note_vs: str = f"from_lot_note{border_suffix}"
+            acquired_lot_note_vs: str = f"acquired_lot_note{border_suffix}"
 
             self._fill_cell(sheet, row_index, 0, gain_loss.crypto_amount, visual_style=transparent_vs, data_style="crypto")
             self._fill_cell(sheet, row_index, 1, gain_loss.asset, visual_style=transparent_vs)
@@ -156,19 +156,19 @@ class Generator(AbstractODTGenerator):
             self._fill_cell(sheet, row_index, 12, "LONG" if gain_loss.is_long_term_capital_gains() else "SHORT", visual_style=taxable_event_note_vs)
             self._fill_cell(sheet, row_index, 13, gain_loss.taxable_event.timestamp, visual_style=taxable_event_note_vs)
 
-            if gain_loss.from_lot:
-                current_from_lot_fraction: int = gain_loss_set.get_from_lot_fraction(gain_loss) + 1
-                total_from_lot_fractions: int = gain_loss_set.get_from_lot_number_of_fractions(gain_loss.from_lot)
-                from_lot_note: str = (
-                    f"{current_from_lot_fraction}/"
-                    f"{total_from_lot_fractions}: "
+            if gain_loss.acquired_lot:
+                current_acquired_lot_fraction: int = gain_loss_set.get_acquired_lot_fraction(gain_loss) + 1
+                total_acquired_lot_fractions: int = gain_loss_set.get_acquired_lot_number_of_fractions(gain_loss.acquired_lot)
+                acquired_lot_note: str = (
+                    f"{current_acquired_lot_fraction}/"
+                    f"{total_acquired_lot_fractions}: "
                     f"{gain_loss.crypto_amount:.8f} of "
-                    f"{gain_loss.from_lot.crypto_balance_change:.8f} "
+                    f"{gain_loss.acquired_lot.crypto_balance_change:.8f} "
                     f"{asset}"
                 )
-                self._fill_cell(sheet, row_index, 2, gain_loss.from_lot.timestamp.strftime("%m/%d/%Y"), visual_style=from_lot_note_vs)
-                self._fill_cell(sheet, row_index, 5, gain_loss.fiat_cost_basis, visual_style=from_lot_note_vs, data_style="fiat")
-                self._fill_cell(sheet, row_index, 10, from_lot_note, visual_style=from_lot_note_vs)
+                self._fill_cell(sheet, row_index, 2, gain_loss.acquired_lot.timestamp.strftime("%m/%d/%Y"), visual_style=acquired_lot_note_vs)
+                self._fill_cell(sheet, row_index, 5, gain_loss.fiat_cost_basis, visual_style=acquired_lot_note_vs, data_style="fiat")
+                self._fill_cell(sheet, row_index, 10, acquired_lot_note, visual_style=acquired_lot_note_vs)
             else:
                 self._fill_cell(sheet, row_index, 2, "", visual_style=transparent_vs)
                 self._fill_cell(sheet, row_index, 5, "", visual_style=transparent_vs)

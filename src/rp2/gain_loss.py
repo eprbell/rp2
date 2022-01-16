@@ -31,7 +31,7 @@ class GainLoss(AbstractEntry):
         accounting_method: AbstractAccountingMethod,
         crypto_amount: RP2Decimal,
         taxable_event: AbstractTransaction,
-        from_lot: Optional[InTransaction],
+        acquired_lot: Optional[InTransaction],
     ) -> None:
 
         AbstractAccountingMethod.type_check("accounting_method", accounting_method)
@@ -44,30 +44,32 @@ class GainLoss(AbstractEntry):
         self.__crypto_amount: RP2Decimal = configuration.type_check_positive_decimal("crypto_amount", crypto_amount, non_zero=True)
 
         if not taxable_event.transaction_type.is_earn_type():
-            if from_lot is None:
-                raise RP2TypeError("from_lot must not be None for non-earn-typed taxable_events")
-            InTransaction.type_check("from_lot", from_lot)
+            if acquired_lot is None:
+                raise RP2TypeError("acquired_lot must not be None for non-earn-typed taxable_events")
+            InTransaction.type_check("acquired_lot", acquired_lot)
         else:
             if crypto_amount != taxable_event.crypto_balance_change:
                 raise RP2ValueError(
                     f"crypto_amount must be == taxable_event.crypto_balance_change for earn-typed taxable events, "
                     f"but they differ {crypto_amount} != {taxable_event.crypto_balance_change}"
                 )
-            if from_lot is not None:
-                raise RP2TypeError(f"from_lot must be None for earn-typed taxable_events, instead it's {from_lot}")
-        self.__from_lot: Optional[InTransaction] = from_lot
+            if acquired_lot is not None:
+                raise RP2TypeError(f"acquired_lot must be None for earn-typed taxable_events, instead it's {acquired_lot}")
+        self.__acquired_lot: Optional[InTransaction] = acquired_lot
 
-        if self.__crypto_amount > self.__taxable_event.crypto_balance_change or (self.__from_lot and self.__crypto_amount > self.__from_lot.crypto_in):
+        if self.__crypto_amount > self.__taxable_event.crypto_balance_change or (self.__acquired_lot and self.__crypto_amount > self.__acquired_lot.crypto_in):
             raise RP2ValueError(
                 f"crypto_amount ({self.__crypto_amount}) is greater than taxable event amount ({self.__taxable_event.crypto_balance_change}) "
-                f"or from-lot amount ({self.__from_lot.crypto_in if self.__from_lot else 0}): {self}"
+                f"or acquired-lot amount ({self.__acquired_lot.crypto_in if self.__acquired_lot else 0}): {self}"
             )
 
-        if from_lot is not None and taxable_event.timestamp < from_lot.timestamp:
-            raise RP2ValueError(f"Timestamp {taxable_event.timestamp} of taxable_event is earlier than timestamp {from_lot.timestamp} " f"of from_lot: {self}")
+        if acquired_lot is not None and taxable_event.timestamp < acquired_lot.timestamp:
+            raise RP2ValueError(
+                f"Timestamp {taxable_event.timestamp} of taxable_event is earlier than timestamp {acquired_lot.timestamp} " f"of acquired_lot: {self}"
+            )
 
-        if from_lot is not None and taxable_event.asset != from_lot.asset:
-            raise RP2ValueError(f"taxable_event.asset ({taxable_event.asset}) != from_lot.asset ({from_lot.asset})")
+        if acquired_lot is not None and taxable_event.asset != acquired_lot.asset:
+            raise RP2ValueError(f"taxable_event.asset ({taxable_event.asset}) != acquired_lot.asset ({acquired_lot.asset})")
 
     @classmethod
     def type_check(cls, name: str, instance: "AbstractEntry") -> "GainLoss":
@@ -81,11 +83,11 @@ class GainLoss(AbstractEntry):
             return False
         if not isinstance(other, GainLoss):
             raise RP2TypeError(f"Operand has non-GainLoss value {repr(other)}")
-        self_from_lot_unique_id: Optional[str] = self.from_lot.unique_id if self.from_lot else None
-        other_from_lot_unique_id: Optional[str] = other.from_lot.unique_id if other.from_lot else None
+        self_acquired_lot_unique_id: Optional[str] = self.acquired_lot.unique_id if self.acquired_lot else None
+        other_acquired_lot_unique_id: Optional[str] = other.acquired_lot.unique_id if other.acquired_lot else None
         # By definition, unique_id can uniquely identify a transaction: this works even if it's the ODS line from the spreadsheet,
         # since there are no cross-asset transactions (so a spreadsheet line points to a unique transaction for that asset).
-        result: bool = self.taxable_event.unique_id == other.taxable_event.unique_id and self_from_lot_unique_id == other_from_lot_unique_id
+        result: bool = self.taxable_event.unique_id == other.taxable_event.unique_id and self_acquired_lot_unique_id == other_acquired_lot_unique_id
         return result
 
     def __ne__(self, other: object) -> bool:
@@ -94,7 +96,7 @@ class GainLoss(AbstractEntry):
     def __hash__(self) -> int:
         # By definition, unique_id can uniquely identify a transaction: this works even if it's the ODS line from the spreadsheet,
         # since there are no cross-asset transactions (so a spreadsheet line points to a unique transaction for that asset).
-        return hash((self.taxable_event.unique_id, self.from_lot.unique_id if self.from_lot else None))
+        return hash((self.taxable_event.unique_id, self.acquired_lot.unique_id if self.acquired_lot else None))
 
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
         self.configuration.type_check_positive_int("indent", indent)
@@ -114,9 +116,9 @@ class GainLoss(AbstractEntry):
             f"taxable_event_fiat_amount_with_fee_fraction={self.taxable_event_fiat_amount_with_fee_fraction:.4f}",
             f"taxable_event_fraction_percentage={self.taxable_event_fraction_percentage:.4%}",
             f"taxable_event={self.taxable_event.to_string(indent=indent + 1, repr_format=repr_format).lstrip()}",
-            f"from_lot_fiat_amount_with_fee_fraction={self.from_lot_fiat_amount_with_fee_fraction:.4f}",
-            f"from_lot_fraction_percentage={self.from_lot_fraction_percentage:.4%}",
-            f"from_lot={self.from_lot.to_string(indent=indent + 1, repr_format=repr_format).lstrip() if self.from_lot else 'None'}",
+            f"acquired_lot_fiat_amount_with_fee_fraction={self.acquired_lot_fiat_amount_with_fee_fraction:.4f}",
+            f"acquired_lot_fraction_percentage={self.acquired_lot_fraction_percentage:.4%}",
+            f"acquired_lot={self.acquired_lot.to_string(indent=indent + 1, repr_format=repr_format).lstrip() if self.acquired_lot else 'None'}",
         ]
         if extra_data:
             class_specific_data.extend(extra_data)
@@ -125,10 +127,10 @@ class GainLoss(AbstractEntry):
 
     @property
     def unique_id(self) -> str:
-        if not self.from_lot:
-            # earn-typed taxable event doesn't have from lot
+        if not self.acquired_lot:
+            # earn-typed taxable event doesn't have acquired lot
             return f"{self.taxable_event.unique_id}->None"
-        return f"{self.taxable_event.unique_id}->{self.from_lot.unique_id}"
+        return f"{self.taxable_event.unique_id}->{self.acquired_lot.unique_id}"
 
     @property
     def timestamp(self) -> datetime:
@@ -139,8 +141,8 @@ class GainLoss(AbstractEntry):
         return self.__taxable_event
 
     @property
-    def from_lot(self) -> Optional[InTransaction]:
-        return self.__from_lot
+    def acquired_lot(self) -> Optional[InTransaction]:
+        return self.__acquired_lot
 
     @property
     def crypto_amount(self) -> RP2Decimal:
@@ -160,43 +162,43 @@ class GainLoss(AbstractEntry):
         return (self.taxable_event.fiat_taxable_amount * self.crypto_amount) / self.taxable_event.crypto_balance_change
 
     @property
-    def from_lot_fiat_amount_with_fee_fraction(self) -> RP2Decimal:
-        if not self.from_lot:
+    def acquired_lot_fiat_amount_with_fee_fraction(self) -> RP2Decimal:
+        if not self.acquired_lot:
             return ZERO
-        # We don't simply multiply by from_lot_fraction_percentage to avoid potential precision loss with small percentages
-        return (self.from_lot.fiat_in_with_fee * self.crypto_amount) / self.from_lot.crypto_balance_change
+        # We don't simply multiply by acquired_lot_fraction_percentage to avoid potential precision loss with small percentages
+        return (self.acquired_lot.fiat_in_with_fee * self.crypto_amount) / self.acquired_lot.crypto_balance_change
 
     @property
     def taxable_event_fraction_percentage(self) -> RP2Decimal:
         return self.crypto_amount / self.taxable_event.crypto_balance_change
 
     @property
-    def from_lot_fraction_percentage(self) -> RP2Decimal:
-        if not self.from_lot:
-            # Earn-typed taxable events don't have a from_lot
+    def acquired_lot_fraction_percentage(self) -> RP2Decimal:
+        if not self.acquired_lot:
+            # Earn-typed taxable events don't have a acquired_lot
             if not self.taxable_event.transaction_type.is_earn_type():
-                raise Exception("Internal error: from lot is None but taxable event is not earn-typed")
+                raise Exception("Internal error: acquired lot is None but taxable event is not earn-typed")
             return ZERO
-        return self.crypto_amount / self.from_lot.crypto_balance_change
+        return self.crypto_amount / self.acquired_lot.crypto_balance_change
 
     @property
     def fiat_cost_basis(self) -> RP2Decimal:
-        if not self.from_lot:
-            # Earn-typed taxable events don't have a from_lot and their cost basis is 0
+        if not self.acquired_lot:
+            # Earn-typed taxable events don't have a acquired_lot and their cost basis is 0
             if not self.taxable_event.transaction_type.is_earn_type():
-                raise Exception("Internal error: from lot is None but taxable event is not earn-typed")
+                raise Exception("Internal error: acquired lot is None but taxable event is not earn-typed")
             return ZERO
-        # We don't simply multiply by from_lot_fraction_percentage to avoid potential precision loss with small percentages
-        return (self.from_lot.fiat_in_with_fee * self.crypto_amount) / self.from_lot.crypto_balance_change
+        # We don't simply multiply by acquired_lot_fraction_percentage to avoid potential precision loss with small percentages
+        return (self.acquired_lot.fiat_in_with_fee * self.crypto_amount) / self.acquired_lot.crypto_balance_change
 
     @property
     def fiat_gain(self) -> RP2Decimal:
         return self.taxable_event_fiat_amount_with_fee_fraction - self.fiat_cost_basis
 
     def is_long_term_capital_gains(self) -> bool:
-        if not self.from_lot:
-            # Earn-typed taxable events don't have a from lot and are always considered short term capital gains
+        if not self.acquired_lot:
+            # Earn-typed taxable events don't have a acquired lot and are always considered short term capital gains
             if not self.taxable_event.transaction_type.is_earn_type():
-                raise Exception("Internal error: from lot is None but taxable event is not earn-typed")
+                raise Exception("Internal error: acquired lot is None but taxable event is not earn-typed")
             return False
-        return (self.taxable_event.timestamp - self.from_lot.timestamp).days >= self.configuration.country.long_term_capital_gain_period()
+        return (self.taxable_event.timestamp - self.acquired_lot.timestamp).days >= self.configuration.country.long_term_capital_gain_period()

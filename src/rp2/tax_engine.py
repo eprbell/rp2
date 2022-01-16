@@ -17,8 +17,8 @@ from typing import Dict, Iterable, Iterator, List, Optional, Set, cast
 
 from rp2.abstract_accounting_method import (
     AbstractAccountingMethod,
-    FromLotsExhaustedException,
-    TaxableEventAndFromLot,
+    AcquiredLotsExhaustedException,
+    TaxableEventAndAcquiredLot,
     TaxableEventsExhaustedException,
 )
 from rp2.abstract_entry import AbstractEntry
@@ -79,25 +79,25 @@ def _create_unfiltered_taxable_event_set(configuration: Configuration, input_dat
     return taxable_event_set
 
 
-def _get_next_taxable_event_and_from_lot(
+def _get_next_taxable_event_and_acquired_lot(
     accounting_method: AbstractAccountingMethod,
     taxable_event: Optional[AbstractTransaction],
-    from_lot: Optional[InTransaction],
+    acquired_lot: Optional[InTransaction],
     taxable_event_amount: RP2Decimal,
-    from_lot_amount: RP2Decimal,
-) -> TaxableEventAndFromLot:
+    acquired_lot_amount: RP2Decimal,
+) -> TaxableEventAndAcquiredLot:
     new_taxable_event: AbstractTransaction
-    new_from_lot: Optional[InTransaction]
+    new_acquired_lot: Optional[InTransaction]
     new_taxable_event_amount: RP2Decimal
-    new_from_lot_amount: RP2Decimal
-    (new_taxable_event, new_from_lot, new_taxable_event_amount, new_from_lot_amount) = accounting_method.get_next_taxable_event_and_amount(
-        taxable_event, from_lot, taxable_event_amount, from_lot_amount
+    new_acquired_lot_amount: RP2Decimal
+    (new_taxable_event, new_acquired_lot, new_taxable_event_amount, new_acquired_lot_amount) = accounting_method.get_next_taxable_event_and_amount(
+        taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount
     )
-    if from_lot == new_from_lot:
-        (_, new_from_lot, _, new_from_lot_amount) = accounting_method.get_from_lot_for_taxable_event(
-            new_taxable_event, new_from_lot, new_taxable_event_amount, new_from_lot_amount
+    if acquired_lot == new_acquired_lot:
+        (_, new_acquired_lot, _, new_acquired_lot_amount) = accounting_method.get_acquired_lot_for_taxable_event(
+            new_taxable_event, new_acquired_lot, new_taxable_event_amount, new_acquired_lot_amount
         )
-    return TaxableEventAndFromLot(new_taxable_event, new_from_lot, new_taxable_event_amount, new_from_lot_amount)
+    return TaxableEventAndAcquiredLot(new_taxable_event, new_acquired_lot, new_taxable_event_amount, new_acquired_lot_amount)
 
 
 def _create_unfiltered_gain_and_loss_set(
@@ -107,58 +107,58 @@ def _create_unfiltered_gain_and_loss_set(
     # Create a fresh instance of accounting method
     method: AbstractAccountingMethod = accounting_method.__class__()
     taxable_event_iterator: Iterator[AbstractTransaction] = iter(cast(Iterable[AbstractTransaction], unfiltered_taxable_event_set))
-    from_lot_iterator: Iterator[InTransaction] = iter(cast(Iterable[InTransaction], input_data.unfiltered_in_transaction_set))
+    acquired_lot_iterator: Iterator[InTransaction] = iter(cast(Iterable[InTransaction], input_data.unfiltered_in_transaction_set))
 
-    method.initialize(taxable_event_iterator, from_lot_iterator)
+    method.initialize(taxable_event_iterator, acquired_lot_iterator)
 
     try:
         gain_loss: GainLoss
         taxable_event: AbstractTransaction
-        from_lot: Optional[InTransaction]
+        acquired_lot: Optional[InTransaction]
         taxable_event_amount: RP2Decimal
-        from_lot_amount: RP2Decimal
+        acquired_lot_amount: RP2Decimal
 
-        # Retrieve first taxable event and from lot
-        (taxable_event, from_lot, taxable_event_amount, from_lot_amount) = _get_next_taxable_event_and_from_lot(method, None, None, ZERO, ZERO)
+        # Retrieve first taxable event and acquired lot
+        (taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount) = _get_next_taxable_event_and_acquired_lot(method, None, None, ZERO, ZERO)
 
         while taxable_event:
             # Type check values returned by accounting method plugin
             AbstractTransaction.type_check("taxable_event", taxable_event)
-            if from_lot is None:
-                # There must always be at least one from_lot
-                raise Exception("Parameter 'from_lot' is None")
-            InTransaction.type_check("from_lot", from_lot)
+            if acquired_lot is None:
+                # There must always be at least one acquired_lot
+                raise Exception("Parameter 'acquired_lot' is None")
+            InTransaction.type_check("acquired_lot", acquired_lot)
             Configuration.type_check_positive_decimal("taxable_event_amount", taxable_event_amount)
-            Configuration.type_check_positive_decimal("from_lot_amount", from_lot_amount)
+            Configuration.type_check_positive_decimal("acquired_lot_amount", acquired_lot_amount)
 
             if taxable_event.transaction_type.is_earn_type():
-                # Handle earn-typed transactions first: they have no from-lot
+                # Handle earn-typed transactions first: they have no acquired-lot
                 gain_loss = GainLoss(configuration, method, taxable_event_amount, taxable_event, None)
                 gain_loss_set.add_entry(gain_loss)
-                (taxable_event, from_lot, taxable_event_amount, from_lot_amount) = method.get_next_taxable_event_and_amount(
-                    taxable_event, from_lot, ZERO, from_lot_amount
+                (taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount) = method.get_next_taxable_event_and_amount(
+                    taxable_event, acquired_lot, ZERO, acquired_lot_amount
                 )
                 continue
-            if taxable_event_amount == from_lot_amount:
-                gain_loss = GainLoss(configuration, method, taxable_event_amount, taxable_event, from_lot)
+            if taxable_event_amount == acquired_lot_amount:
+                gain_loss = GainLoss(configuration, method, taxable_event_amount, taxable_event, acquired_lot)
                 gain_loss_set.add_entry(gain_loss)
-                (taxable_event, from_lot, taxable_event_amount, from_lot_amount) = _get_next_taxable_event_and_from_lot(
-                    method, taxable_event, from_lot, taxable_event_amount, from_lot_amount
+                (taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount) = _get_next_taxable_event_and_acquired_lot(
+                    method, taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount
                 )
-            elif taxable_event_amount < from_lot_amount:
-                gain_loss = GainLoss(configuration, method, taxable_event_amount, taxable_event, from_lot)
+            elif taxable_event_amount < acquired_lot_amount:
+                gain_loss = GainLoss(configuration, method, taxable_event_amount, taxable_event, acquired_lot)
                 gain_loss_set.add_entry(gain_loss)
-                (taxable_event, from_lot, taxable_event_amount, from_lot_amount) = method.get_next_taxable_event_and_amount(
-                    taxable_event, from_lot, taxable_event_amount, from_lot_amount
+                (taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount) = method.get_next_taxable_event_and_amount(
+                    taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount
                 )
-            else:  # taxable_amount > from_lot_amount
-                gain_loss = GainLoss(configuration, method, from_lot_amount, taxable_event, from_lot)
+            else:  # taxable_amount > acquired_lot_amount
+                gain_loss = GainLoss(configuration, method, acquired_lot_amount, taxable_event, acquired_lot)
                 gain_loss_set.add_entry(gain_loss)
-                (taxable_event, from_lot, taxable_event_amount, from_lot_amount) = method.get_from_lot_for_taxable_event(
-                    taxable_event, from_lot, taxable_event_amount, from_lot_amount
+                (taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount) = method.get_acquired_lot_for_taxable_event(
+                    taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount
                 )
 
-    except FromLotsExhaustedException:
+    except AcquiredLotsExhaustedException:
         raise RP2ValueError("Total in-transaction value < total taxable entries") from None
     except TaxableEventsExhaustedException:
         pass
