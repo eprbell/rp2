@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any, List
 
 import ezodf
-from abstract_test_ods_output_diff import AbstractTestODSOutputDiff
+from abstract_test_ods_output_diff import AbstractTestODSOutputDiff, OutputPlugins
 from dateutil.tz import gettz
 
 ROOT_PATH: Path = Path(os.path.dirname(__file__)).parent.absolute()
@@ -36,9 +36,14 @@ class TestLargeInput(AbstractTestODSOutputDiff):
 
         shutil.rmtree(cls.output_dir, ignore_errors=True)
 
+        cls._generate_large_input(cls.output_dir)
+        for method in AbstractTestODSOutputDiff.METHODS:
+            AbstractTestODSOutputDiff._generate(
+                cls.output_dir, test_name="test_large_input", config="test_large_input", method=method, input_path=cls.output_dir
+            )
+
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
-        self.generate_ascii_representation: bool = True
 
     @staticmethod
     def _fill_row(sheet: Any, row_index: int, row: List[Any]) -> int:
@@ -47,12 +52,13 @@ class TestLargeInput(AbstractTestODSOutputDiff):
             sheet[row_index, col_index].set_value(element)
         return row_index + 1
 
-    def _generate_large_input(self) -> None:
-        output_file_path: Path = self.output_dir / Path("test_large_input.ods")
-        if not self.output_dir.exists():
-            self.output_dir.mkdir(parents=True)
-        if not self.output_dir.is_dir():
-            raise Exception(f"output_dir '{str(self.output_dir)}' exists but it's not a directory")
+    @classmethod
+    def _generate_large_input(cls, output_dir: Path) -> None:
+        output_file_path: Path = output_dir / Path("test_large_input.ods")
+        if not output_dir.exists():
+            output_dir.mkdir(parents=True)
+        if not output_dir.is_dir():
+            raise Exception(f"output_dir '{str(output_dir)}' exists but it's not a directory")
 
         output_file: Any = ezodf.newdoc("ods", str(output_file_path), template=None)
         row_index: int = 0
@@ -71,8 +77,8 @@ class TestLargeInput(AbstractTestODSOutputDiff):
 
         sheet.reset(size=(table_row_total * 2 + 100, column_total))
 
-        row_index = self._fill_row(sheet, row_index, ["IN"])
-        row_index = self._fill_row(
+        row_index = cls._fill_row(sheet, row_index, ["IN"])
+        row_index = cls._fill_row(
             sheet,
             row_index,
             [
@@ -88,7 +94,7 @@ class TestLargeInput(AbstractTestODSOutputDiff):
             ],
         )
         for i in range(0, table_row_total):
-            row_index = self._fill_row(
+            row_index = cls._fill_row(
                 sheet,
                 row_index,
                 [
@@ -104,12 +110,12 @@ class TestLargeInput(AbstractTestODSOutputDiff):
             )
             if i < table_row_total * 0.99:
                 timestamp += timedelta(minutes=1)
-        row_index = self._fill_row(sheet, row_index, ["TABLE END"])
+        row_index = cls._fill_row(sheet, row_index, ["TABLE END"])
 
-        row_index = self._fill_row(sheet, row_index, [""])
+        row_index = cls._fill_row(sheet, row_index, [""])
 
-        row_index = self._fill_row(sheet, row_index, ["OUT"])
-        row_index = self._fill_row(
+        row_index = cls._fill_row(sheet, row_index, ["OUT"])
+        row_index = cls._fill_row(
             sheet,
             row_index,
             [
@@ -125,7 +131,7 @@ class TestLargeInput(AbstractTestODSOutputDiff):
             ],
         )
         for i in range(0, table_row_total):
-            row_index = self._fill_row(
+            row_index = cls._fill_row(
                 sheet,
                 row_index,
                 [
@@ -141,14 +147,17 @@ class TestLargeInput(AbstractTestODSOutputDiff):
             )
             if i < table_row_total * 0.80:
                 timestamp += timedelta(minutes=1)
-        row_index = self._fill_row(sheet, row_index, ["TABLE END"])
+        row_index = cls._fill_row(sheet, row_index, ["TABLE END"])
 
         output_file.save()
 
-    def test_large_input(self) -> None:
-        self._generate_large_input()
+    def test_large_input_rp2_full_report(self) -> None:
         for method in self.METHODS:
-            self._run_and_compare(test_name="test_large_input", config="test_large_input", method=method, input_path=self.output_dir)
+            self._compare(output_dir=self.output_dir, test_name="test_large_input", method=method, output_plugin=OutputPlugins.RP2_FULL_REPORT)
+
+    def test_large_input_tax_report_us(self) -> None:
+        for method in self.METHODS:
+            self._compare(output_dir=self.output_dir, test_name="test_large_input", method=method, output_plugin=OutputPlugins.TAX_REPORT_US)
 
 
 if __name__ == "__main__":

@@ -14,6 +14,7 @@
 
 import os
 import unittest
+from enum import Enum
 from pathlib import Path
 from subprocess import run
 from typing import List, Optional
@@ -26,22 +27,21 @@ CONFIG_PATH: Path = ROOT_PATH / Path("config")
 INPUT_PATH: Path = ROOT_PATH / Path("input")
 GOLDEN_PATH: Path = INPUT_PATH / Path("golden")
 
-OUTPUT_PLUGINS: List[str] = ["rp2_full_report", "tax_report_us"]
+
+class OutputPlugins(Enum):
+    RP2_FULL_REPORT = "rp2_full_report"
+    TAX_REPORT_US = "tax_report_us"
 
 
 class AbstractTestODSOutputDiff(unittest.TestCase):
 
     METHODS: List[str] = ["fifo", "lifo"]
-    output_dir: Path
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
-        self.generate_ascii_representation: bool = True
 
-    def _run_and_compare(
-        self, test_name: str, config: str, method: str, input_path: Path = INPUT_PATH, to_year: Optional[int] = None, from_year: Optional[int] = None
-    ) -> None:
-        config = test_name if config is None else config
+    @staticmethod
+    def __get_time_interval(to_year: Optional[int] = None, from_year: Optional[int] = None) -> str:
         time_interval: str = ""
         if from_year and to_year:
             time_interval = f"{from_year}_{to_year}_"
@@ -49,13 +49,28 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
             time_interval = f"{from_year}_infinity_"
         elif not from_year and to_year:
             time_interval = f"0_{to_year}_"
+        return time_interval
+
+    @classmethod
+    def _generate(
+        cls,
+        output_dir: Path,
+        test_name: str,
+        config: str,
+        method: str,
+        input_path: Path = INPUT_PATH,
+        to_year: Optional[int] = None,
+        from_year: Optional[int] = None,
+    ) -> None:
+        config = test_name if config is None else config
+        time_interval: str = cls.__get_time_interval(to_year, from_year)
 
         arguments: List[str] = [
             "rp2_us",
             "-m",
             method,
             "-o",
-            str(self.output_dir),
+            str(output_dir),
             "-p",
             f"{test_name}_{time_interval}",
         ]
@@ -72,10 +87,13 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
 
         run(arguments, check=True)
 
-        for output_plugin in OUTPUT_PLUGINS:
-            diff: str
-            output_file_name: Path = Path(f"{test_name}_{time_interval}{method}_{output_plugin}.ods")
-            full_output_file_name: Path = self.output_dir / output_file_name
-            full_golden_file_name: Path = GOLDEN_PATH / output_file_name
-            diff = ods_diff(full_golden_file_name, full_output_file_name, generate_ascii_representation=self.generate_ascii_representation)
-            self.assertFalse(diff, msg=diff)
+    def _compare(
+        self, output_dir: Path, test_name: str, method: str, output_plugin: OutputPlugins, to_year: Optional[int] = None, from_year: Optional[int] = None
+    ) -> None:
+        time_interval: str = self.__get_time_interval(to_year, from_year)
+        diff: str
+        output_file_name: Path = Path(f"{test_name}_{time_interval}{method}_{output_plugin.value}.ods")
+        full_output_file_name: Path = output_dir / output_file_name
+        full_golden_file_name: Path = GOLDEN_PATH / output_file_name
+        diff = ods_diff(full_golden_file_name, full_output_file_name, generate_ascii_representation=True)
+        self.assertFalse(diff, msg=diff)
