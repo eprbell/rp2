@@ -70,6 +70,7 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
         configuration: Configuration = Configuration(
             configuration_path=args.configuration_file, country=country, from_year=args.from_year, to_year=args.to_year
         )
+        LOGGER.info("Configuration file: %s", args.configuration_file)
         LOGGER.debug("Configuration object: %s", configuration)
 
         if args.asset:
@@ -81,6 +82,7 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
         asset_to_computed_data: Dict[str, ComputedData] = {}
         asset: str
 
+        LOGGER.info("Input file: %s", args.input_file)
         input_file_handle: object = open_ods(configuration=configuration, input_file_path=args.input_file)
         for asset in assets:
             LOGGER.info("Processing %s", asset)
