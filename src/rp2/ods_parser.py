@@ -107,7 +107,7 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
         elif current_table_type is not None and current_table_row_count == 1:
             # Header line: make sure it's not transaction data
             try:
-                transaction = _create_transaction(configuration, current_table_type, i, row_values)
+                transaction = _create_transaction(configuration, current_table_type, i + 1, row_values)
             except Exception:  # pylint: disable=broad-except  # nosec
                 # Couldn't create transaction as expected: this is a table header
                 # TODO: this could still be a transaction but with some bad fields that would  # pylint: disable=fixme
@@ -119,7 +119,7 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
                 raise RP2ValueError(f"{asset}({i + 1}): Found data with no header")
         elif current_table_type is not None and current_table_row_count > 1:
             # Transaction line
-            transaction = _create_transaction(configuration, current_table_type, i, row_values)
+            transaction = _create_transaction(configuration, current_table_type, i + 1, row_values)
             unfiltered_transaction_sets[current_table_type].add_entry(transaction)
         current_table_row_count += 1
 
