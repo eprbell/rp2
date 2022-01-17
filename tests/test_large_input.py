@@ -70,7 +70,7 @@ class TestLargeInput(AbstractTestODSOutputDiff):
         out_type: List[str] = ["sell", "donate"]
 
         column_total: int = 30
-        table_row_total: int = 500 if "RP2_TEST_TABLE_SIZE" not in os.environ else int(str(os.environ.get("RP2_TEST_TABLE_SIZE")))
+        table_row_total: int = 200 if "RP2_TEST_TABLE_SIZE" not in os.environ else int(str(os.environ.get("RP2_TEST_TABLE_SIZE")))
 
         sheet: Any = ezodf.Table("B1")
         output_file.sheets += sheet
@@ -108,7 +108,7 @@ class TestLargeInput(AbstractTestODSOutputDiff):
                     0,
                 ],
             )
-            if i < table_row_total * 0.99:
+            if i < table_row_total * 0.93:
                 timestamp += timedelta(minutes=1)
         row_index = cls._fill_row(sheet, row_index, ["TABLE END"])
 
