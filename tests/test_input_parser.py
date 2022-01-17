@@ -73,7 +73,7 @@ class TestInputParser(unittest.TestCase):
         self.assertTrue(transaction_set.is_empty())
 
     def _verify_non_empty_in_table(self, in_transaction_set: TransactionSet, asset: str) -> None:
-        unique_ids: List[str] = ["3", "2", "6", "5", "4"]
+        unique_ids: List[str] = ["4", "3", "7", "6", "5"]
         timestamps: List[str] = [
             "2020-01-01T08:41Z",
             "2020-02-01T11:18Z",
@@ -144,7 +144,7 @@ class TestInputParser(unittest.TestCase):
         self.assertEqual(count, 5)
 
     def _verify_non_empty_out_table(self, out_transaction_set: TransactionSet, asset: str) -> None:
-        unique_ids: List[str] = ["15", "14", "16", "12", "13"]
+        unique_ids: List[str] = ["16", "15", "17", "13", "14"]
         timestamps: List[str] = [
             "2020-01-11T11:15Z",
             "2020-02-11T19:58Z",
@@ -216,7 +216,7 @@ class TestInputParser(unittest.TestCase):
         self.assertEqual(count, 5)
 
     def _verify_non_empty_intra_table(self, intra_transaction_set: TransactionSet, asset: str) -> None:
-        unique_ids: List[str] = ["25", "23", "24", "22"]
+        unique_ids: List[str] = ["26", "24", "25", "23"]
         timestamps: List[str] = [
             "2020-01-21T18:33:14.342Z",
             "2020-02-21T20:23:31Z",
