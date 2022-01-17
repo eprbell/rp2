@@ -27,7 +27,7 @@ from rp2.in_transaction import InTransaction
 from rp2.intra_transaction import IntraTransaction
 from rp2.logger import LOGGER
 from rp2.out_transaction import OutTransaction
-from rp2.plugin.report.abstract_odt_generator import AbstractODTGenerator
+from rp2.plugin.report.abstract_ods_generator import AbstractODSGenerator
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError
 from rp2.transaction_set import TransactionSet
@@ -44,16 +44,24 @@ class _BorderStyle(NamedTuple):
     border_suffix: str
 
 
+class _AssetAndYear(NamedTuple):
+    asset: str
+    year: int
+
+
 _ZERO: RP2Decimal = RP2Decimal(0)
 
 
-class Generator(AbstractODTGenerator):
+class Generator(AbstractODSGenerator):
 
     MIN_ROWS: int = 40
     MAX_COLUMNS: int = 40
     OUTPUT_FILE: str = "rp2_full_report.ods"
 
     TEMPLATE_SHEETS_TO_KEEP: Set[str] = {"__Summary"}
+
+    __in_out_sheet_transaction_2_row: Dict[AbstractTransaction, int] = {}
+    __tax_sheet_year_2_row: Dict[_AssetAndYear, int] = {}
 
     __in_header_names_row_1: List[str] = []
     __in_header_names_row: List[str] = []
@@ -230,13 +238,13 @@ class Generator(AbstractODTGenerator):
             f"Taxable Event {currency_code}",
             "Taxable Event",
             "Taxable Event",
-            "In Lot",
-            "In Lot",
-            f"In Lot {currency_code}",
-            f"In Lot {currency_code}",
-            f"In Lot {currency_code}",
-            "In Lot",
-            "In Lot Fraction",
+            "Acquired Lot",
+            "Acquired Lot",
+            f"Acquired Lot {currency_code}",
+            f"Acquired Lot {currency_code}",
+            f"Acquired Lot {currency_code}",
+            "Acquired Lot",
+            "Acquired Lot Fraction",
         ]
 
         self.__gain_loss_detail_header_names_row_2 = [
@@ -297,6 +305,14 @@ class Generator(AbstractODTGenerator):
         output_file.save()
         LOGGER.info("Plugin '%s' output: %s", __name__, Path(output_file.docname).resolve())
 
+    @staticmethod
+    def get_in_out_sheet_name(asset: str) -> str:
+        return f"{asset} In-Out"
+
+    @staticmethod
+    def get_tax_sheet_name(asset: str) -> str:
+        return f"{asset} Tax"
+
     def __get_number_of_rows_in_transaction_sheet(self, computed_data: ComputedData) -> int:
         return self.MIN_ROWS + computed_data.in_transaction_set.count + computed_data.out_transaction_set.count + computed_data.intra_transaction_set.count
 
@@ -305,8 +321,8 @@ class Generator(AbstractODTGenerator):
 
     def __generate_asset(self, computed_data: ComputedData, output_file: Any, summary_row_index: int) -> int:
         asset: str = computed_data.asset
-        transaction_sheet_name: str = f"{asset} In-Out"
-        output_sheet_name: str = f"{asset} Tax"
+        transaction_sheet_name: str = self.get_in_out_sheet_name(asset)
+        output_sheet_name: str = self.get_tax_sheet_name(asset)
 
         transaction_sheet: Any = ezodf.Table(transaction_sheet_name)
         output_sheet: Any = ezodf.Table(output_sheet_name)
@@ -406,6 +422,9 @@ class Generator(AbstractODTGenerator):
             self._fill_cell(sheet, row_index, 12, "YES" if transaction.is_taxable() else "NO", data_style="fiat", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 13, "", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 14, transaction.notes, visual_style="transparent")
+
+            self.__in_out_sheet_transaction_2_row[transaction] = row_index + 1
+
             previous_transaction = transaction
             row_index += 1
 
@@ -441,6 +460,9 @@ class Generator(AbstractODTGenerator):
             self._fill_cell(sheet, row_index, 12, transaction.crypto_fee * transaction.spot_price, visual_style=highlighted_style, data_style="fiat")
             self._fill_cell(sheet, row_index, 13, "YES" if transaction.is_taxable() else "NO", data_style="fiat", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 14, transaction.notes, visual_style="transparent")
+
+            self.__in_out_sheet_transaction_2_row[transaction] = row_index + 1
+
             row_index += 1
 
         return row_index
@@ -475,6 +497,9 @@ class Generator(AbstractODTGenerator):
             self._fill_cell(sheet, row_index, 12, transaction.fiat_fee, visual_style=highlighted_style, data_style="fiat")
             self._fill_cell(sheet, row_index, 13, "YES" if transaction.is_taxable() else "NO", data_style="fiat", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 14, transaction.notes, visual_style="transparent")
+
+            self.__in_out_sheet_transaction_2_row[transaction] = row_index + 1
+
             row_index += 1
 
         return row_index
@@ -547,6 +572,26 @@ class Generator(AbstractODTGenerator):
 
         return row_index + 4
 
+    def __get_hyperlinked_transaction_value(self, transaction: AbstractTransaction, value: Any) -> str:
+        row: Optional[int] = self.__get_in_out_sheet_row(transaction)
+        if not row:
+            # This may occur if command line time filters are activated
+            return f"{value}"
+        if isinstance(value, (RP2Decimal, int, float)):
+            return f'=HYPERLINK("#{self.get_in_out_sheet_name(transaction.asset)}.a{row}:z{row}"; {value})'
+        return f'=HYPERLINK("#{self.get_in_out_sheet_name(transaction.asset)}.a{row}:z{row}"; "{value}")'
+
+    def __get_hyperlinked_summary_value(self, asset: str, value: Any, year: int) -> Any:
+        row: int = self.__tax_sheet_year_2_row[_AssetAndYear(asset, year)]
+        if isinstance(value, (RP2Decimal, int, float)):
+            return f'=HYPERLINK("#{self.get_tax_sheet_name(asset)}.a{row}:z{row}"; {value})'
+        return f'=HYPERLINK("#{self.get_tax_sheet_name(asset)}.a{row}:z{row}"; "{value}")'
+
+    def __get_in_out_sheet_row(self, transaction: AbstractTransaction) -> Optional[int]:
+        if transaction not in self.__in_out_sheet_transaction_2_row:
+            return None
+        return self.__in_out_sheet_transaction_2_row[transaction]
+
     def __generate_gain_loss_detail(self, sheet: Any, asset: str, computed_data: ComputedData, row_index: int) -> int:
 
         row_index = self._fill_header(
@@ -565,6 +610,8 @@ class Generator(AbstractODTGenerator):
             gain_loss: GainLoss = cast(GainLoss, entry)
             border_suffix: str = ""
             border_style = self.__get_border_style(gain_loss.taxable_event.timestamp.year, year)
+            if gain_loss.taxable_event.timestamp.year != year:
+                self.__tax_sheet_year_2_row[_AssetAndYear(asset, gain_loss.taxable_event.timestamp.year)] = row_index + 1
             year = border_style.year
             border_suffix = border_style.border_suffix
             transparent_style: str = f"transparent{border_suffix}"
@@ -589,12 +636,47 @@ class Generator(AbstractODTGenerator):
             self._fill_cell(sheet, row_index, 2, computed_data.get_crypto_gain_loss_running_sum(gain_loss), visual_style=transparent_style, data_style="crypto")
             self._fill_cell(sheet, row_index, 3, gain_loss.fiat_gain, visual_style=transparent_style, data_style="fiat")
             self._fill_cell(sheet, row_index, 4, "LONG" if gain_loss.is_long_term_capital_gains() else "SHORT", visual_style=transparent_style)
-            self._fill_cell(sheet, row_index, 5, gain_loss.taxable_event.timestamp, visual_style=taxable_event_style)
-            self._fill_cell(sheet, row_index, 6, transaction_type, visual_style=taxable_event_style)
-            self._fill_cell(sheet, row_index, 7, gain_loss.taxable_event_fraction_percentage, visual_style=taxable_event_style, data_style="percent")
-            self._fill_cell(sheet, row_index, 8, gain_loss.taxable_event_fiat_amount_with_fee_fraction, visual_style=highlighted_style, data_style="fiat")
-            self._fill_cell(sheet, row_index, 9, gain_loss.taxable_event.spot_price, visual_style=taxable_event_style, data_style="fiat")
-            self._fill_cell(sheet, row_index, 10, taxable_event_note, visual_style=f"taxable_event_note{border_suffix}")
+            self._fill_cell(
+                sheet,
+                row_index,
+                5,
+                self.__get_hyperlinked_transaction_value(gain_loss.taxable_event, gain_loss.taxable_event.timestamp),
+                visual_style=taxable_event_style,
+            )
+            self._fill_cell(
+                sheet, row_index, 6, self.__get_hyperlinked_transaction_value(gain_loss.taxable_event, transaction_type), visual_style=taxable_event_style
+            )
+            self._fill_cell(
+                sheet,
+                row_index,
+                7,
+                self.__get_hyperlinked_transaction_value(gain_loss.taxable_event, gain_loss.taxable_event_fraction_percentage),
+                visual_style=taxable_event_style,
+                data_style="percent",
+            )
+            self._fill_cell(
+                sheet,
+                row_index,
+                8,
+                self.__get_hyperlinked_transaction_value(gain_loss.taxable_event, gain_loss.taxable_event_fiat_amount_with_fee_fraction),
+                visual_style=highlighted_style,
+                data_style="fiat",
+            )
+            self._fill_cell(
+                sheet,
+                row_index,
+                9,
+                self.__get_hyperlinked_transaction_value(gain_loss.taxable_event, gain_loss.taxable_event.spot_price),
+                visual_style=taxable_event_style,
+                data_style="fiat",
+            )
+            self._fill_cell(
+                sheet,
+                row_index,
+                10,
+                self.__get_hyperlinked_transaction_value(gain_loss.taxable_event, taxable_event_note),
+                visual_style=f"taxable_event_note{border_suffix}",
+            )
             if current_taxable_event_fraction == total_taxable_event_fractions:
                 # Last fraction: change color
                 taxable_event_style_modifier = "" if taxable_event_style_modifier == "_alt" else "_alt"
@@ -603,7 +685,7 @@ class Generator(AbstractODTGenerator):
                 if gain_loss.acquired_lot != previous_acquired_lot:
                     # Last fraction: change color
                     acquired_lot_style_modifier = "" if acquired_lot_style_modifier == "_alt" else "_alt"
-                    acquired_lot_style = f"acquired_lot{acquired_lot_style_modifier}{border_suffix}"
+                acquired_lot_style = f"acquired_lot{acquired_lot_style_modifier}{border_suffix}"
                 current_acquired_lot_fraction: int = gain_loss_set.get_acquired_lot_fraction(gain_loss) + 1
                 total_acquired_lot_fractions: int = gain_loss_set.get_acquired_lot_number_of_fractions(gain_loss.acquired_lot)
                 acquired_lot_note: str = (
@@ -613,20 +695,67 @@ class Generator(AbstractODTGenerator):
                     f"{gain_loss.acquired_lot.crypto_balance_change:.8f} "
                     f"{asset}"
                 )
-                self._fill_cell(sheet, row_index, 11, gain_loss.acquired_lot.timestamp, visual_style=acquired_lot_style)
-                self._fill_cell(sheet, row_index, 12, gain_loss.acquired_lot_fraction_percentage, visual_style=acquired_lot_style, data_style="percent")
-                self._fill_cell(sheet, row_index, 13, gain_loss.acquired_lot_fiat_amount_with_fee_fraction, visual_style=acquired_lot_style, data_style="fiat")
+                self._fill_cell(
+                    sheet,
+                    row_index,
+                    11,
+                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot.timestamp),
+                    visual_style=acquired_lot_style,
+                )
+                self._fill_cell(
+                    sheet,
+                    row_index,
+                    12,
+                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot_fraction_percentage),
+                    visual_style=acquired_lot_style,
+                    data_style="percent",
+                )
+                self._fill_cell(
+                    sheet,
+                    row_index,
+                    13,
+                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot_fiat_amount_with_fee_fraction),
+                    visual_style=acquired_lot_style,
+                    data_style="fiat",
+                )
                 fiat_fee_fraction: RP2Decimal = gain_loss.acquired_lot.fiat_fee * gain_loss.acquired_lot_fraction_percentage
-                self._fill_cell(sheet, row_index, 14, fiat_fee_fraction, visual_style=acquired_lot_style, data_style="fiat")
-                self._fill_cell(sheet, row_index, 15, gain_loss.fiat_cost_basis, visual_style=highlighted_style, data_style="fiat")
-                self._fill_cell(sheet, row_index, 16, gain_loss.acquired_lot.spot_price, visual_style=acquired_lot_style, data_style="fiat")
-                self._fill_cell(sheet, row_index, 17, acquired_lot_note, visual_style=f"acquired_lot_note{border_suffix}")
+                self._fill_cell(
+                    sheet,
+                    row_index,
+                    14,
+                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, fiat_fee_fraction),
+                    visual_style=acquired_lot_style,
+                    data_style="fiat",
+                )
+                self._fill_cell(
+                    sheet,
+                    row_index,
+                    15,
+                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.fiat_cost_basis),
+                    visual_style=highlighted_style,
+                    data_style="fiat",
+                )
+                self._fill_cell(
+                    sheet,
+                    row_index,
+                    16,
+                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot.spot_price),
+                    visual_style=acquired_lot_style,
+                    data_style="fiat",
+                )
+                self._fill_cell(
+                    sheet,
+                    row_index,
+                    17,
+                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, acquired_lot_note),
+                    visual_style=f"acquired_lot_note{border_suffix}",
+                )
 
                 previous_acquired_lot = gain_loss.acquired_lot
             else:
                 acquired_lot_style = f"acquired_lot{acquired_lot_style_modifier}{border_suffix}"
                 for i in range(11, 17):
-                    self._fill_cell(sheet, row_index, i, "", visual_style=f"{acquired_lot_style}{border_suffix}")
+                    self._fill_cell(sheet, row_index, i, "", visual_style=f"{acquired_lot_style}")
 
             row_index += 1
 
@@ -636,14 +765,25 @@ class Generator(AbstractODTGenerator):
         for gain_loss in yearly_gain_loss_list:
             visual_style: str = "transparent"
             capital_gains_type: str = "LONG" if gain_loss.is_long_term_capital_gains else "SHORT"
-            self._fill_cell(sheet, row_index, 0, gain_loss.year, visual_style=visual_style)
-            self._fill_cell(sheet, row_index, 1, asset, visual_style=visual_style)
-            self._fill_cell(sheet, row_index, 2, gain_loss.fiat_gain_loss, visual_style=visual_style, data_style="fiat")
-            self._fill_cell(sheet, row_index, 3, capital_gains_type, visual_style=visual_style)
-            self._fill_cell(sheet, row_index, 4, gain_loss.transaction_type.value.upper(), visual_style=visual_style)
-            self._fill_cell(sheet, row_index, 5, gain_loss.crypto_amount, visual_style=visual_style, data_style="crypto")
-            self._fill_cell(sheet, row_index, 6, gain_loss.fiat_amount, visual_style=visual_style, data_style="fiat")
-            self._fill_cell(sheet, row_index, 7, gain_loss.fiat_cost_basis, visual_style=visual_style, data_style="fiat")
+            year: int = gain_loss.year
+            self._fill_cell(sheet, row_index, 0, self.__get_hyperlinked_summary_value(asset, year, year), visual_style=visual_style)
+            self._fill_cell(sheet, row_index, 1, self.__get_hyperlinked_summary_value(asset, asset, year), visual_style=visual_style)
+            self._fill_cell(
+                sheet, row_index, 2, self.__get_hyperlinked_summary_value(asset, gain_loss.fiat_gain_loss, year), visual_style=visual_style, data_style="fiat"
+            )
+            self._fill_cell(sheet, row_index, 3, self.__get_hyperlinked_summary_value(asset, capital_gains_type, year), visual_style=visual_style)
+            self._fill_cell(
+                sheet, row_index, 4, self.__get_hyperlinked_summary_value(asset, gain_loss.transaction_type.value.upper(), year), visual_style=visual_style
+            )
+            self._fill_cell(
+                sheet, row_index, 5, self.__get_hyperlinked_summary_value(asset, gain_loss.crypto_amount, year), visual_style=visual_style, data_style="crypto"
+            )
+            self._fill_cell(
+                sheet, row_index, 6, self.__get_hyperlinked_summary_value(asset, gain_loss.fiat_amount, year), visual_style=visual_style, data_style="fiat"
+            )
+            self._fill_cell(
+                sheet, row_index, 7, self.__get_hyperlinked_summary_value(asset, gain_loss.fiat_cost_basis, year), visual_style=visual_style, data_style="fiat"
+            )
             row_index += 1
 
         return row_index
