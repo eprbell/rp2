@@ -28,7 +28,7 @@ from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError
 
 
-class AbstractODTGenerator(AbstractReportGenerator):
+class AbstractODSGenerator(AbstractReportGenerator):
     @classmethod
     def _initialize_output_file(
         cls,
@@ -121,11 +121,19 @@ class AbstractODTGenerator(AbstractReportGenerator):
         Configuration.type_check_string("visual_style", visual_style)
         Configuration.type_check_string("data_style", data_style)
 
+        is_formula: bool = False
+        if isinstance(value, str) and value and value[0] == "=":
+            # If the value starts with '=' it is assumed to be a formula
+            is_formula = True
+
         style_name = f"{visual_style}_{data_style}"
         if isinstance(value, RP2Decimal):
             # The ezodf API doesn't accept RP2Decimal, so we are forced to cast to float before writing to the spreadsheet
             value = float(value)
-        sheet[row_index, column_index].set_value(value)
+        if is_formula:
+            sheet[row_index, column_index].formula = value
+        else:
+            sheet[row_index, column_index].set_value(value)
         cls._apply_style_to_cell(sheet=sheet, row_index=row_index, column_index=column_index, style_name=style_name)
 
     def _fill_header(self, title: str, header_row_1: List[str], header_row_2: List[str], sheet: Any, row_index: int, column_index: int) -> int:
