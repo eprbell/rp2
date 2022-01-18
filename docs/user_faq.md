@@ -27,14 +27,14 @@
 * **[How to Handle Income from Staking?](#how-to-handle-income-from-staking)**
 * **[How to Handle Futures and Options?](#how-to-handle-futures-and-options)**
 * **[How to Handle NFTs?](#how-to-handle-nfts)**
+* **[Can I Avoid Writing a Config File From Scratch?](#can-i-avoid-writing-a-config-file-from-scratch)**
+* **[How to Browse Information in My Tax Report?](#how-to-browse-information-in-my-tax-report)**
 
 * **[Can I Avoid Paying Crypto Taxes?](#can-i-avoid-paying-crypto-taxes)**
 * **[Which Resources Can I Use to Learn About Crypto Taxes?](#which-resources-can-i-use-to-learn-about-crypto-taxes)**
 * **[Which Crypto Tax Forms to File?](#which-crypto-tax-forms-to-file)**
 
 * **[How to Report a RP2 Bug without Sharing Personal Information?](#how-to-report-a-rp2-bug-without-sharing-personal-information)**
-
-* **[Can I Avoid Writing a Config File From Scratch?](#can-i-avoid-writing-a-config-file-from-scratch)**
 
 * **[If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?](#if-i-transfer-cryptocurrency-between-two-accounts-i-own-is-the-fee-taxable)**
 * **[What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We File Taxes Together?](#what-if-i-transfer-cryptocurrency-from-my-account-to-my-spouses-account-and-we-file-taxes-together)**
@@ -99,6 +99,14 @@ TBD
 ## How to Handle NFTs?
 RP2 treats NFTs like cryptocurrencies, that is as property. Use a unique asset type for each NFT, both in the config file and in the input spreadsheet: e.g. ETH_BORED_APE_4363. There is debate on whether NFTs should be treated as collectibles instead, but this has not been clarified officially by the IRS yet, to the best of my knowledge. Ask a tax professional for the correct answer in any given year.
 
+## Can I Avoid Writing a Config File From Scratch?
+You can use [crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config) as boilerplate and the [Input Files](https://github.com/eprbell/rp2/tree/main/docs/input_files.md) document as reference.
+
+## How to Browse Information in My Tax Report?
+The rp2_full_report output contains full tax computation details. Part of its contents are hyperlinked to facilitate quick information lookup (on LibreOffice, CTRL-click on a cell to jump to the target):
+  * taxable events and acquired lots in *cryptocurrency* Tax sheet are hyperlinked to their definition line in the cryptocurrency* In-Out sheet;
+  * summary lines in the Summary sheet are now hyperlinked to the first line of the given year in the *cryptocurrency* Tax sheet.
+
 ## Can I Avoid Paying Crypto Taxes?
 No. The IRS has made it very clear that [crypto taxes must be paid](https://www.irs.gov/newsroom/irs-reminds-taxpayers-to-report-virtual-currency-transactions).
 
@@ -116,9 +124,6 @@ Also read the question on [crypto tax resources](#which-resources-can-i-use-to-l
 
 ## How to Report a RP2 Bug without Sharing Personal Information?
 See the Reporting Bugs section in the [CONTRIBUTING](../CONTRIBUTING.md#reporting-bugs) document.
-
-## Can I Avoid Writing a Config File From Scratch?
-You can use [crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config) as boilerplate and the [Input Files](https://github.com/eprbell/rp2/tree/main/docs/input_files.md) document as reference.
 
 ## If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?
 Such fees affect the in/out lot relationships, so RP2 keeps track of them (in the "Investment Expenses" tab of the tax_report_us output). Ask your tax professional about how to handle this tab in any given year.

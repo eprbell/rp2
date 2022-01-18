@@ -233,8 +233,8 @@ from typing import Iterator, Optional
 
 from rp2.abstract_accounting_method import (
     AbstractAccountingMethod,
-    FromLotsExhaustedException,
-    TaxableEventAndFromLot,
+    AcquiredLotsExhaustedException,
+    TaxableEventAndAcquiredLot,
     TaxableEventsExhaustedException,
 )
 from rp2.abstract_transaction import AbstractTransaction
@@ -247,30 +247,38 @@ from logger import LOGGER
 ```
 * Add an `initialize()` method with the following signature:
 ```
-    def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], from_lot_iterator: Iterator[InTransaction]) -> None:
+    def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], acquired_lot_iterator: Iterator[InTransaction]) -> None:
 ```
 * write the body of the method. The parameters are:
   * `taxable_event_iterator`: iterator over TaxableEvent instances (disposed-of lots), in chronological order;
-  * `from_lot_iterator`: iterator over InTransaction instances (acquired lots), in chronological order;
-* Add `get_next_taxable_event_and_amount()` and `get_from_lot_for_taxable_event()` methods with the following signatures:
+  * `acquired_lot_iterator`: iterator over InTransaction instances (acquired lots), in chronological order;
+* Add `get_next_taxable_event_and_amount()` and `get_acquired_lot_for_taxable_event()` methods with the following signatures:
 ```
     def get_next_taxable_event_and_amount(
-        self, taxable_event: Optional[AbstractTransaction], from_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, from_lot_amount: RP2Decimal
-    ) -> TaxableEventAndFromLot:
-    def get_from_lot_for_taxable_event(
-        self, taxable_event: AbstractTransaction, from_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, from_lot_amount: RP2Decimal
-    ) -> TaxableEventAndFromLot:
+        self,
+        taxable_event: Optional[AbstractTransaction],
+        acquired_lot: Optional[InTransaction],
+        taxable_event_amount: RP2Decimal,
+        acquired_lot_amount: RP2Decimal,
+    ) -> TaxableEventAndAcquiredLot:
+    def get_acquired_lot_for_taxable_event(
+        self,
+        taxable_event: AbstractTransaction,
+        acquired_lot: Optional[InTransaction],
+        taxable_event_amount: RP2Decimal,
+        acquired_lot_amount: RP2Decimal
+    ) -> TaxableEventAndAcquiredLot:
 ```
 * write the bodies of the methods. The parameters are:
   * `taxable_event`: the disposed-of lot;
-  * `from_lot`: the acquired lot;
+  * `acquired_lot`: the acquired lot;
   * `taxable_event_amount`: the amount that is leftover of the current taxable event;
-  * `from_lot_amount`: the amount that is leftover of the current from lot.
-* Add a `validate_from_lot_ancestor_timestamp()` method with the following signature:
+  * `acquired_lot_amount`: the amount that is leftover of the current acquired lot.
+* Add a `validate_acquired_lot_ancestor_timestamp()` method with the following signature:
 ```
-    def validate_from_lot_ancestor_timestamp(self, from_lot: InTransaction, from_lot_ancestor: InTransaction) -> bool:
+    def validate_acquired_lot_ancestor_timestamp(self, acquired_lot: InTransaction, acquired_lot_parent: InTransaction) -> bool:
 ```
-* write the body of the method: it returns `True` if the ancestor's from-lot timestamp is compatible with the current from-lot timestamp according to the accounting method and `False` otherwise: e.g. in FIFO the ancestor must be earlier than the current.
+* write the body of the method: it returns `True` if the ancestor's acquired lot timestamp is compatible with the current acquired lot timestamp according to the accounting method and `False` otherwise: e.g. in FIFO the ancestor must be earlier than the current. The ancestor lot has been processed before the current one, according to the logic of the accounting method.
 
 ### Adding Support for a New Country
 RP2 has experimental infrastructure to support countries other than the US. It captures this functionality with the [AbstractCountry](src/rp2/abstract_country.py) class, which captures the following:
