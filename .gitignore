@@ -13,11 +13,12 @@
 # limitations under the License.
 
 build/
+.DS_Store
 dist/
 log/*.log
-output/
 .~lock*
 .mypy_cache/
+output/
 *.pyc
 __pycache__/
 src/rp2.egg-info/
