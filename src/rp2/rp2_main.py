@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import cProfile
+from datetime import date
 import os
 import sys
 from argparse import ArgumentParser, Namespace
@@ -26,7 +27,7 @@ from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.abstract_country import AbstractCountry
 from rp2.abstract_report_generator import AbstractReportGenerator
 from rp2.computed_data import ComputedData
-from rp2.configuration import VERSION, Configuration
+from rp2.configuration import MAX_DATE, MIN_DATE, VERSION, Configuration
 from rp2.input_data import InputData
 from rp2.logger import LOG_FILE, LOGGER
 from rp2.ods_parser import open_ods, parse_ods
@@ -68,7 +69,7 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
         LOGGER.info("Accounting Method: %s", args.method)
 
         configuration: Configuration = Configuration(
-            configuration_path=args.configuration_file, country=country, from_year=args.from_year, to_year=args.to_year
+            configuration_path=args.configuration_file, country=country, from_date=args.from_date, to_date=args.to_date
         )
         LOGGER.info("Configuration file: %s", args.configuration_file)
         LOGGER.debug("Configuration object: %s", configuration)
@@ -194,12 +195,12 @@ def _setup_argument_parser(accounting_methods: List[str]) -> ArgumentParser:
     )
     parser.add_argument(
         "-f",
-        "--from_year",
+        "--from_date",
         action="store",
-        default=None,
-        help="Generate report from the given YEAR",
-        metavar="YEAR",
-        type=int,
+        default=MIN_DATE,
+        help="Generate report from the given date (in ISO 8601 format: e.g. YYYY-MM-DD)",
+        metavar="DATE",
+        type=date.fromisoformat,
     )
     parser.add_argument(
         "-l",
@@ -238,12 +239,12 @@ def _setup_argument_parser(accounting_methods: List[str]) -> ArgumentParser:
     )
     parser.add_argument(
         "-t",
-        "--to_year",
+        "--to_date",
         action="store",
-        default=None,
-        help="Generate report up to the given YEAR",
-        metavar="YEAR",
-        type=int,
+        default=MAX_DATE,
+        help="Generate report up to the given date (in ISO 8601 format: e.g. YYYY-MM-DD)",
+        metavar="DATE",
+        type=date.fromisoformat,
     )
     parser.add_argument(
         "-v",

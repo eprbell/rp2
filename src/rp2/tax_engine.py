@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from dataclasses import dataclass
-from typing import Dict, Iterable, Iterator, List, Optional, Set, cast
+from typing import Iterable, Iterator, Optional, cast
 
 from rp2.abstract_accounting_method import (
     AbstractAccountingMethod,
@@ -23,16 +22,13 @@ from rp2.abstract_accounting_method import (
 )
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
-from rp2.computed_data import ComputedData, YearlyGainLoss
-from rp2.configuration import MAX_YEAR, Configuration
-from rp2.entry_types import TransactionType
+from rp2.computed_data import ComputedData
+from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.gain_loss import GainLoss
 from rp2.gain_loss_set import GainLossSet
 from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData
-from rp2.intra_transaction import IntraTransaction
 from rp2.logger import LOGGER
-from rp2.out_transaction import OutTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2ValueError
 from rp2.transaction_set import TransactionSet
@@ -47,17 +43,14 @@ def compute_tax(configuration: Configuration, accounting_method: AbstractAccount
     LOGGER.debug("%s: Created taxable event set", input_data.asset)
     unfiltered_gain_loss_set: GainLossSet = _create_unfiltered_gain_and_loss_set(configuration, accounting_method, input_data, unfiltered_taxable_event_set)
     LOGGER.debug("%s: Created gain-loss set", input_data.asset)
-    unfiltered_yearly_gain_loss_list: List[YearlyGainLoss] = _create_unfiltered_yearly_gain_loss_list(accounting_method, input_data, unfiltered_gain_loss_set)
-    LOGGER.debug("%s: Created yearly gain-loss list", input_data.asset)
 
     return ComputedData(
         input_data.asset,
         unfiltered_taxable_event_set,
         unfiltered_gain_loss_set,
-        unfiltered_yearly_gain_loss_list,
         input_data,
-        configuration.from_year,
-        configuration.to_year,
+        configuration.from_date,
+        configuration.to_date,
     )
 
 
@@ -65,7 +58,7 @@ def _create_unfiltered_taxable_event_set(configuration: Configuration, input_dat
     transaction_set: TransactionSet
     entry: AbstractEntry
     transaction: AbstractTransaction
-    taxable_event_set: TransactionSet = TransactionSet(configuration, "MIXED", input_data.asset, 0, MAX_YEAR)
+    taxable_event_set: TransactionSet = TransactionSet(configuration, "MIXED", input_data.asset, MIN_DATE, MAX_DATE)
     for transaction_set in [
         input_data.unfiltered_in_transaction_set,
         input_data.unfiltered_out_transaction_set,
@@ -103,7 +96,7 @@ def _get_next_taxable_event_and_acquired_lot(
 def _create_unfiltered_gain_and_loss_set(
     configuration: Configuration, accounting_method: AbstractAccountingMethod, input_data: InputData, unfiltered_taxable_event_set: TransactionSet
 ) -> GainLossSet:
-    gain_loss_set: GainLossSet = GainLossSet(configuration, accounting_method, input_data.asset, 0, MAX_YEAR)
+    gain_loss_set: GainLossSet = GainLossSet(configuration, accounting_method, input_data.asset, MIN_DATE, MAX_DATE)
     # Create a fresh instance of accounting method
     method: AbstractAccountingMethod = accounting_method.__class__()
     taxable_event_iterator: Iterator[AbstractTransaction] = iter(cast(Iterable[AbstractTransaction], unfiltered_taxable_event_set))
@@ -164,144 +157,3 @@ def _create_unfiltered_gain_and_loss_set(
         pass
 
     return gain_loss_set
-
-
-@dataclass(frozen=True, eq=True)
-class _YearlyGainLossId:
-    year: int
-    asset: str
-    transaction_type: TransactionType
-    is_long_term_capital_gains: bool
-
-
-# Frozen and eq are not set because we don't need to hash instances and we need to modify fields (see _create_yearly_gain_loss_list)
-@dataclass(frozen=True, eq=True)
-class _YearlyGainLossAmounts:
-    crypto_amount: RP2Decimal
-    fiat_amount: RP2Decimal
-    fiat_cost_basis: RP2Decimal
-    fiat_gain_loss: RP2Decimal
-
-
-def _create_unfiltered_yearly_gain_loss_list(
-    accounting_method: AbstractAccountingMethod, input_data: InputData, unfiltered_gain_loss_set: GainLossSet
-) -> List[YearlyGainLoss]:
-    summaries: Dict[_YearlyGainLossId, _YearlyGainLossAmounts] = {}
-    entry: AbstractEntry
-    key: _YearlyGainLossId
-    value: _YearlyGainLossAmounts
-    for entry in unfiltered_gain_loss_set:
-        gain_loss: GainLoss = cast(GainLoss, entry)
-        key = _YearlyGainLossId(
-            gain_loss.taxable_event.timestamp.year,
-            gain_loss.asset,
-            gain_loss.taxable_event.transaction_type,
-            gain_loss.is_long_term_capital_gains(),
-        )
-        value = summaries.setdefault(key, _YearlyGainLossAmounts(ZERO, ZERO, ZERO, ZERO))
-        crypto_amount: RP2Decimal = value.crypto_amount + gain_loss.crypto_amount
-        fiat_amount: RP2Decimal = value.fiat_amount + gain_loss.taxable_event_fiat_amount_with_fee_fraction
-        fiat_cost_basis: RP2Decimal = value.fiat_cost_basis + gain_loss.fiat_cost_basis
-        fiat_gain_loss: RP2Decimal = value.fiat_gain_loss + gain_loss.fiat_gain
-        summaries[key] = _YearlyGainLossAmounts(
-            crypto_amount=crypto_amount, fiat_amount=fiat_amount, fiat_cost_basis=fiat_cost_basis, fiat_gain_loss=fiat_gain_loss
-        )
-
-    yearly_gain_loss_set: Set[YearlyGainLoss] = set()
-    crypto_taxable_amount_total: RP2Decimal = ZERO
-    fiat_taxable_amount_total: RP2Decimal = ZERO
-    cost_basis_total: RP2Decimal = ZERO
-    gain_loss_total: RP2Decimal = ZERO
-    for (key, value) in summaries.items():
-        yearly_gain_loss: YearlyGainLoss = YearlyGainLoss(
-            year=key.year,
-            asset=key.asset,
-            transaction_type=key.transaction_type,
-            is_long_term_capital_gains=key.is_long_term_capital_gains,
-            crypto_amount=value.crypto_amount,
-            fiat_amount=value.fiat_amount,
-            fiat_cost_basis=value.fiat_cost_basis,
-            fiat_gain_loss=value.fiat_gain_loss,
-        )
-        yearly_gain_loss_set.add(yearly_gain_loss)
-        crypto_taxable_amount_total += yearly_gain_loss.crypto_amount
-        fiat_taxable_amount_total += yearly_gain_loss.fiat_amount
-        cost_basis_total += yearly_gain_loss.fiat_cost_basis
-        gain_loss_total += yearly_gain_loss.fiat_gain_loss
-
-    # This code double-checks the results, assuming LIFO accounting: it's a vestige of the past, when there was
-    # no plugin architecture for accounting methods (there was only built-in LIFO). The new accounting method
-    # plugin architecture makes the _verify_computation function hacky: it will be deleted at some point in the future.
-    if repr(accounting_method) == "fifo":
-        _verify_computation(input_data, crypto_taxable_amount_total, fiat_taxable_amount_total, cost_basis_total, gain_loss_total)
-
-    return list(sorted(yearly_gain_loss_set, key=_yearly_gain_loss_sort_criteria, reverse=True))
-
-
-def _yearly_gain_loss_sort_criteria(yearly_gain_loss: YearlyGainLoss) -> str:
-    return (
-        f"{yearly_gain_loss.asset}"
-        f" {yearly_gain_loss.year}"
-        f" {'LONG' if yearly_gain_loss.is_long_term_capital_gains else 'SHORT'}"
-        f" {yearly_gain_loss.transaction_type.value}"
-    )
-
-
-# Internal sanity check: ensure the sum total of gains and losses from taxable flows matches the one from taxable events and InTransactions
-def _verify_computation(
-    input_data: InputData,
-    crypto_taxable_amount_total: RP2Decimal,
-    fiat_taxable_amount_total: RP2Decimal,
-    cost_basis_total: RP2Decimal,
-    gain_loss_total: RP2Decimal,
-) -> None:
-    fiat_taxable_amount_total_verify: RP2Decimal = ZERO
-    crypto_earned_amount_total_verify: RP2Decimal = ZERO
-    crypto_sold_amount_total_verify: RP2Decimal = ZERO
-    crypto_taxable_amount_total_verify: RP2Decimal = ZERO
-    cost_basis_total_verify: RP2Decimal = ZERO
-    crypto_in_amount_total: RP2Decimal = ZERO
-    gain_loss_total_verify: RP2Decimal = ZERO
-
-    # Compute fiat and crypto total taxable amount
-    for entry in input_data.unfiltered_in_transaction_set:
-        in_transaction: InTransaction = cast(InTransaction, entry)
-        fiat_taxable_amount_total_verify += in_transaction.fiat_taxable_amount
-        crypto_earned_amount_total_verify += in_transaction.crypto_taxable_amount
-    for entry in input_data.unfiltered_out_transaction_set:
-        out_transaction: OutTransaction = cast(OutTransaction, entry)
-        fiat_taxable_amount_total_verify += out_transaction.fiat_taxable_amount
-        crypto_sold_amount_total_verify += out_transaction.crypto_taxable_amount
-    for entry in input_data.unfiltered_intra_transaction_set:
-        intra_transaction: IntraTransaction = cast(IntraTransaction, entry)
-        fiat_taxable_amount_total_verify += intra_transaction.fiat_taxable_amount
-        crypto_sold_amount_total_verify += intra_transaction.crypto_taxable_amount
-
-    crypto_taxable_amount_total_verify = crypto_sold_amount_total_verify + crypto_earned_amount_total_verify
-
-    # Compute cost basis
-    for entry in input_data.unfiltered_in_transaction_set:
-        in_transaction = cast(InTransaction, entry)
-        if crypto_in_amount_total + in_transaction.crypto_in > crypto_sold_amount_total_verify:
-            # End of loop: last in transaction covering the amount sold needs to be fractioned
-            crypto_in_amount: RP2Decimal = crypto_sold_amount_total_verify - crypto_in_amount_total
-            crypto_in_amount_total += crypto_in_amount
-            cost_basis_total_verify += (crypto_in_amount / in_transaction.crypto_in) * in_transaction.fiat_in_with_fee
-            break
-        crypto_in_amount_total += in_transaction.crypto_in
-        cost_basis_total_verify += in_transaction.fiat_in_with_fee
-
-    gain_loss_total_verify = fiat_taxable_amount_total_verify - cost_basis_total_verify
-
-    if crypto_taxable_amount_total != crypto_taxable_amount_total_verify:
-        raise Exception(
-            f"{input_data.asset}: total crypto taxable amount incongruence detected: " f"{crypto_taxable_amount_total} != {crypto_taxable_amount_total_verify}",
-        )
-    if fiat_taxable_amount_total != fiat_taxable_amount_total_verify:
-        raise Exception(
-            f"{input_data.asset}: total fiat taxable amount incongruence detected: " f"{fiat_taxable_amount_total} != {fiat_taxable_amount_total_verify}",
-        )
-    if cost_basis_total != cost_basis_total_verify:
-        raise Exception(f"{input_data.asset}: cost basis incongruence detected: {cost_basis_total} != {cost_basis_total_verify}")
-    if gain_loss_total != gain_loss_total_verify:
-        raise Exception(f"{input_data.asset}: total gain/loss incongruence detected: {gain_loss_total} != {gain_loss_total_verify}")

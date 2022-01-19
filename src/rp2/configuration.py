@@ -13,8 +13,7 @@
 # limitations under the License.
 
 import json
-import sys
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 
@@ -26,7 +25,9 @@ from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 VERSION: str = "0.9.7"
-MAX_YEAR: int = sys.maxsize
+
+MIN_DATE: date = date(1970, 1, 1)
+MAX_DATE: date = date(9999, 12, 31)
 
 
 class Configuration:  # pylint: disable=too-many-public-methods
@@ -41,16 +42,20 @@ class Configuration:  # pylint: disable=too-many-public-methods
         self,
         configuration_path: str,
         country: AbstractCountry,
-        from_year: Optional[int] = None,
-        to_year: Optional[int] = None,
+        from_date: date = MIN_DATE,
+        to_date: date = MAX_DATE,
     ) -> None:
         self.__configuration_path: str = self.type_check_string("configuration_path", configuration_path)
         self.__country = AbstractCountry.type_check("country", country)
-        self.__from_year: int = self.type_check_positive_int("from_year", from_year) if from_year is not None else 0
-        self.__to_year: int = self.type_check_positive_int("to_year", to_year, non_zero=True) if to_year is not None else MAX_YEAR
+        if not isinstance(from_date, date):
+            raise RP2TypeError("Parameter 'from_date' is not of type date")
+        self.__from_date: date = from_date
+        if not isinstance(to_date, date):
+            raise RP2TypeError("Parameter 'to_date' is not of type date")
+        self.__to_date: date = to_date
 
-        if self.__from_year > self.__to_year:
-            raise RP2ValueError("Parameter from_year cannot be greater than to_year")
+        if self.__from_date > self.__to_date:
+            raise RP2ValueError("Parameter from_date cannot be greater than to_date")
 
         self.__in_header: Dict[str, int]
         self.__out_header: Dict[str, int]
@@ -84,8 +89,8 @@ class Configuration:  # pylint: disable=too-many-public-methods
         return (
             f"Configuration(configuration_path={self.configuration_path}, "
             f"country={repr(self.country)}, "
-            f"from_year={self.from_year if self.from_year > 0 else 'non-specified'}, "
-            f"to_year={self.to_year if self.to_year < MAX_YEAR else 'non-specified'}, "
+            f"from_date={self.from_date if self.from_date > MIN_DATE else 'non-specified'}, "
+            f"to_date={self.to_date if self.to_date < MAX_DATE else 'non-specified'}, "
             f"in_header={self.__in_header}, "
             f"out_header={self.__out_header}, "
             f"intra_header={self.__intra_header}, "
@@ -130,12 +135,12 @@ class Configuration:  # pylint: disable=too-many-public-methods
         return self.__country
 
     @property
-    def from_year(self) -> int:
-        return self.__from_year
+    def from_date(self) -> date:
+        return self.__from_date
 
     @property
-    def to_year(self) -> int:
-        return self.__to_year
+    def to_date(self) -> date:
+        return self.__to_date
 
     @property
     def assets(self) -> Set[str]:

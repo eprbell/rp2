@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import date
 from typing import cast
 
-from rp2.configuration import Configuration
+from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.entry_types import EntrySetType
 from rp2.rp2_error import RP2TypeError
 from rp2.transaction_set import TransactionSet
@@ -34,8 +35,8 @@ class InputData:
         unfiltered_in_transaction_set: TransactionSet,
         unfiltered_out_transaction_set: TransactionSet,
         unfiltered_intra_transaction_set: TransactionSet,
-        from_year: int,
-        to_year: int,
+        from_date: date = MIN_DATE,
+        to_date: date = MAX_DATE,
     ):
         self.__asset: str = Configuration.type_check_string("asset", asset)
         self.__unfiltered_in_transaction_set: TransactionSet = TransactionSet.type_check(
@@ -47,17 +48,19 @@ class InputData:
         self.__unfiltered_intra_transaction_set: TransactionSet = TransactionSet.type_check(
             "intra_transaction_set", unfiltered_intra_transaction_set, EntrySetType.INTRA, self.asset, True
         )
-        Configuration.type_check_positive_int("from_year", from_year)
-        Configuration.type_check_positive_int("to_year", to_year, non_zero=True)
+        if not isinstance(from_date, date):
+            raise RP2TypeError("Parameter 'from_date' is not of type date")
+        if not isinstance(to_date, date):
+            raise RP2TypeError("Parameter 'to_date' is not of type date")
 
         self.__filtered_in_transaction_set: TransactionSet = cast(
-            TransactionSet, self.__unfiltered_in_transaction_set.duplicate(from_year=from_year, to_year=to_year)
+            TransactionSet, self.__unfiltered_in_transaction_set.duplicate(from_date=from_date, to_date=to_date)
         )
         self.__filtered_out_transaction_set: TransactionSet = cast(
-            TransactionSet, self.__unfiltered_out_transaction_set.duplicate(from_year=from_year, to_year=to_year)
+            TransactionSet, self.__unfiltered_out_transaction_set.duplicate(from_date=from_date, to_date=to_date)
         )
         self.__filtered_intra_transaction_set: TransactionSet = cast(
-            TransactionSet, self.__unfiltered_intra_transaction_set.duplicate(from_year=from_year, to_year=to_year)
+            TransactionSet, self.__unfiltered_intra_transaction_set.duplicate(from_date=from_date, to_date=to_date)
         )
 
     @property

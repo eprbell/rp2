@@ -19,7 +19,7 @@ from typing import Any, Dict, List, Optional
 
 import ezodf
 from rp2.abstract_transaction import AbstractTransaction
-from rp2.configuration import MAX_YEAR, Configuration
+from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.entry_types import EntrySetType
 from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData
@@ -54,9 +54,9 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
 
     unfiltered_transaction_sets: Dict[EntrySetType, TransactionSet] = {}
 
-    unfiltered_transaction_sets[EntrySetType.IN] = TransactionSet(configuration, "IN", asset, 0, MAX_YEAR)
-    unfiltered_transaction_sets[EntrySetType.OUT] = TransactionSet(configuration, "OUT", asset, 0, MAX_YEAR)
-    unfiltered_transaction_sets[EntrySetType.INTRA] = TransactionSet(configuration, "INTRA", asset, 0, MAX_YEAR)
+    unfiltered_transaction_sets[EntrySetType.IN] = TransactionSet(configuration, "IN", asset, MIN_DATE, MAX_DATE)
+    unfiltered_transaction_sets[EntrySetType.OUT] = TransactionSet(configuration, "OUT", asset, MIN_DATE, MAX_DATE)
+    unfiltered_transaction_sets[EntrySetType.INTRA] = TransactionSet(configuration, "INTRA", asset, MIN_DATE, MAX_DATE)
 
     current_table_type: Optional[EntrySetType] = None
     current_table_row_count: int = 0
@@ -133,8 +133,8 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
         unfiltered_transaction_sets[EntrySetType.IN],
         unfiltered_transaction_sets[EntrySetType.OUT],
         unfiltered_transaction_sets[EntrySetType.INTRA],
-        configuration.from_year,
-        configuration.to_year,
+        configuration.from_date,
+        configuration.to_date,
     )
 
 

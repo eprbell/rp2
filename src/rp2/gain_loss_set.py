@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import date
 from typing import Dict, List, Optional, cast
 
 from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_entry_set import AbstractEntrySet
 from rp2.abstract_transaction import AbstractTransaction
-from rp2.configuration import MAX_YEAR, Configuration
+from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.entry_types import TransactionType
 from rp2.gain_loss import GainLoss
 from rp2.in_transaction import InTransaction
@@ -40,10 +41,10 @@ class GainLossSet(AbstractEntrySet):
         configuration: Configuration,
         accounting_method: AbstractAccountingMethod,
         asset: str,
-        from_year: int = 0,
-        to_year: int = MAX_YEAR,
+        from_date: date = MIN_DATE,
+        to_date: date = MAX_DATE,
     ) -> None:
-        super().__init__(configuration, "MIXED", asset, from_year, to_year)
+        super().__init__(configuration, "MIXED", asset, from_date, to_date)
         self.__accounting_method = AbstractAccountingMethod.type_check("accounting_method", accounting_method)
         self.__taxable_events_to_fraction: Dict[GainLoss, int] = {}
         self.__acquired_lots_to_fraction: Dict[GainLoss, int] = {}
@@ -116,8 +117,8 @@ class GainLossSet(AbstractEntrySet):
 
             # We're not using the iterator to avoid infinite recursion (we're looping over
             # _entry_list directly), so we need to check time filters manually: stop after
-            # to_year so that number of fractions is not affected by years beyond the time filter
-            if gain_loss.timestamp.year > self.to_year:
+            # to_date so that number of fractions is not affected by lots outside the time filter
+            if gain_loss.timestamp.date() > self.to_date:
                 break
 
             count: int = self.__transaction_type_2_count[gain_loss.taxable_event.transaction_type]
@@ -242,8 +243,8 @@ class GainLossSet(AbstractEntrySet):
         output.append(f"{type(self).__name__}:")
         output.append(f"  configuration={self.configuration.configuration_path}")
         output.append(f"  asset={self.asset}")
-        output.append(f"  from_year={str(self.from_year) if self.from_year > 0 else 'non-specified'}")
-        output.append(f"  to_year={str(self.to_year) if self.to_year < MAX_YEAR else 'non-specified'}")
+        output.append(f"  from_date={str(self.from_date) if self.from_date > MIN_DATE else 'non-specified'}")
+        output.append(f"  to_date={str(self.to_date) if self.to_date < MAX_DATE else 'non-specified'}")
         output.append("  entries=")
         for entry in self:
             parent: Optional[AbstractEntry]
@@ -267,8 +268,8 @@ class GainLossSet(AbstractEntrySet):
         output.append(f"{type(self).__name__}(")
         output.append(f"configuration={repr(self.configuration.configuration_path)}")
         output.append(f", asset={repr(self.asset)}")
-        output.append(f", from_year={repr(self.from_year) if self.from_year > 0 else 'non-specified'}")
-        output.append(f", to_year={repr(self.to_year) if self.to_year < MAX_YEAR else 'non-specified'}")
+        output.append(f", from_date={repr(self.from_date) if self.from_date > MIN_DATE else 'non-specified'}")
+        output.append(f", to_date={repr(self.to_date) if self.to_date < MAX_DATE else 'non-specified'}")
         output.append(", entries=[")
         count: int = 0
         for entry in self:

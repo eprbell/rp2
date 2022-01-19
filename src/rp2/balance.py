@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from dataclasses import dataclass
+from datetime import date
 from typing import Callable, Dict, List, Optional, cast
 
 from rp2.configuration import Configuration
@@ -91,12 +92,12 @@ class BalanceSet:
             raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
         return instance
 
-    # from_year is not used when computing average price per unit: only to_year is relevant.
+    # from_date is not used when computing average price per unit: only to_date is relevant.
     def __init__(
         self,
         configuration: Configuration,
         input_data: InputData,
-        to_year: int,
+        to_date: date,
     ) -> None:
 
         Configuration.type_check("configuration", configuration)
@@ -115,7 +116,7 @@ class BalanceSet:
 
         # Balances for bought and earned currency
         for transaction in self.__input_data.unfiltered_in_transaction_set:
-            if transaction.timestamp.year > to_year:
+            if transaction.timestamp.date() > to_date:
                 break
             in_transaction: InTransaction = cast(InTransaction, transaction)
             to_account = Account(in_transaction.exchange, in_transaction.holder)
@@ -124,7 +125,7 @@ class BalanceSet:
 
         # Balances for currency that is moved across accounts
         for transaction in self.__input_data.unfiltered_intra_transaction_set:
-            if transaction.timestamp.year > to_year:
+            if transaction.timestamp.date() > to_date:
                 break
             intra_transaction: IntraTransaction = cast(IntraTransaction, transaction)
             from_account = Account(intra_transaction.from_exchange, intra_transaction.from_holder)
@@ -136,7 +137,7 @@ class BalanceSet:
 
         # Balances for sold and gifted currency
         for transaction in self.__input_data.unfiltered_out_transaction_set:
-            if transaction.timestamp.year > to_year:
+            if transaction.timestamp.date() > to_date:
                 break
             out_transaction: OutTransaction = cast(OutTransaction, transaction)
             from_account = Account(out_transaction.exchange, out_transaction.holder)

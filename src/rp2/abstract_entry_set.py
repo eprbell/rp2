@@ -13,11 +13,11 @@
 # limitations under the License.
 
 from copy import copy
-from datetime import datetime
+from datetime import date, datetime
 from typing import Dict, List, Optional, Set
 
 from rp2.abstract_entry import AbstractEntry
-from rp2.configuration import MAX_YEAR, Configuration
+from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.entry_types import EntrySetType
 from rp2.in_transaction import InTransaction
 from rp2.intra_transaction import IntraTransaction
@@ -31,25 +31,29 @@ class AbstractEntrySet:
         configuration: Configuration,
         entry_set_type: str,
         asset: str,
-        from_year: int,
-        to_year: int,
+        from_date: date = MIN_DATE,
+        to_date: date = MAX_DATE,
     ) -> None:
         self.__configuration: Configuration = Configuration.type_check("configuration", configuration)
         self.__entry_set_type: EntrySetType = EntrySetType.type_check_from_string("entry_set_type", entry_set_type)
         self.__asset: str = configuration.type_check_asset("asset", asset)
-        self._from_year: int = configuration.type_check_positive_int("from_year", from_year)
-        self._to_year: int = configuration.type_check_positive_int("to_year", to_year, non_zero=True)
+        if not isinstance(from_date, date):
+            raise RP2TypeError("Parameter 'from_date' is not of type date")
+        self._from_date: date = from_date
+        if not isinstance(to_date, date):
+            raise RP2TypeError("Parameter 'to_date' is not of type date")
+        self._to_date: date = to_date
 
         self._entry_list: List[AbstractEntry] = []  # List for sorting
         self._entry_set: Set[AbstractEntry] = set()  # Set for fast search (at the cost of extra memory)
         self._entry_to_parent: Dict[AbstractEntry, Optional[AbstractEntry]] = {}
         self.__is_sorted: bool = False
 
-    def duplicate(self, from_year: int = 0, to_year: int = MAX_YEAR) -> "AbstractEntrySet":
+    def duplicate(self, from_date: date = MIN_DATE, to_date: date = MAX_DATE) -> "AbstractEntrySet":
         # pylint: disable=protected-access
         result: AbstractEntrySet = copy(self)
-        result._from_year = from_year
-        result._to_year = to_year
+        result._from_date = from_date
+        result._to_date = to_date
         # Force sort to recompute fields that are affected by time filter
         result._force_sort()
         return result
@@ -60,8 +64,8 @@ class AbstractEntrySet:
         output.append(f"  configuration={str(self.__configuration.configuration_path)}")
         output.append(f"  entry_set_type={str(self.entry_set_type)}")
         output.append(f"  asset={str(self.asset)}")
-        output.append(f"  from_year={str(self.from_year) if self.from_year > 0 else 'non-specified'}")
-        output.append(f"  to_year={str(self.to_year) if self.to_year < MAX_YEAR else 'non-specified'}")
+        output.append(f"  from_date={self._from_date if self._from_date > MIN_DATE else 'non-specified'}")
+        output.append(f"  to_date={self._to_date if self._to_date < MAX_DATE else 'non-specified'}")
         output.append("  entries=")
         for entry in self:
             parent: Optional[AbstractEntry]
@@ -75,8 +79,8 @@ class AbstractEntrySet:
         output.append(f"configuration={repr(self.__configuration.configuration_path)}")
         output.append(f", entry_set_type={repr(self.entry_set_type)}")
         output.append(f", asset={repr(self.asset)}")
-        output.append(f", from_year={repr(self.from_year) if self.from_year > 0 else 'non-specified'}")
-        output.append(f", to_year={repr(self.to_year) if self.to_year < MAX_YEAR else 'non-specified'}")
+        output.append(f", from_date={repr(self._from_date) if self._from_date > MIN_DATE else 'non-specified'}")
+        output.append(f", to_date={repr(self._to_date) if self._to_date < MAX_DATE else 'non-specified'}")
         output.append(", entries=[")
         for entry in self:
             parent: Optional[AbstractEntry]
@@ -99,12 +103,12 @@ class AbstractEntrySet:
         return self.__asset
 
     @property
-    def from_year(self) -> int:
-        return self._from_year
+    def from_date(self) -> date:
+        return self._from_date
 
     @property
-    def to_year(self) -> int:
-        return self._to_year
+    def to_date(self) -> date:
+        return self._to_date
 
     @property
     def count(self) -> int:
@@ -174,9 +178,9 @@ class EntrySetIterator:
         while self.__index < self.__entry_set_size:
             result = self.__entry_set._entry_list[self.__index]  # pylint: disable=protected-access
             self.__index += 1
-            if result.timestamp.year > self.__entry_set.to_year:
+            if result.timestamp.date() > self.__entry_set.to_date:
                 raise StopIteration(self)
-            if result.timestamp.year >= self.__entry_set.from_year:
+            if result.timestamp.date() >= self.__entry_set.from_date:
                 return result
         raise StopIteration(self)
 

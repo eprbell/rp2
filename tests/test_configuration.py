@@ -196,16 +196,14 @@ class TestConfiguration(unittest.TestCase):
             Configuration(111, self._country)  # type: ignore
         with self.assertRaisesRegex(RP2ValueError, "/non/existing/file does not exist"):
             Configuration("/non/existing/file", self._country)
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_year' has non-integer value .*"):
-            Configuration("./config/test_data.config", self._country, from_year="foobar")  # type: ignore
-        with self.assertRaisesRegex(RP2ValueError, "Parameter 'from_year' has non-positive value .*"):
-            Configuration("./config/test_data.config", self._country, from_year=-1)
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'to_year' has non-integer value .*"):
-            Configuration("./config/test_data.config", self._country, to_year="foobar")  # type: ignore
-        with self.assertRaisesRegex(RP2ValueError, "Parameter 'to_year' has non-positive value .*"):
-            Configuration("./config/test_data.config", self._country, to_year=-1)
-        with self.assertRaisesRegex(RP2ValueError, "Parameter 'to_year' has zero value"):
-            Configuration("./config/test_data.config", self._country, to_year=0)
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_date' is not of type date"):
+            Configuration("./config/test_data.config", self._country, from_date=None)  # type: ignore
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_date' is not of type date"):
+            Configuration("./config/test_data.config", self._country, from_date="foobar")  # type: ignore
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'to_date' is not of type date"):
+            Configuration("./config/test_data.config", self._country, to_date=None)  # type: ignore
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'to_date' is not of type date"):
+            Configuration("./config/test_data.config", self._country, to_date="foobar")  # type: ignore
 
     def test_argument_packs(self) -> None:
         self.assertEqual(
@@ -297,8 +295,8 @@ class TestConfiguration(unittest.TestCase):
             str(self._configuration),
             (
                 "Configuration(configuration_path=./config/test_data.config, country=US(country_iso_code=us, "
-                "currency_iso_code=usd, long_term_capital_gain_period=365), from_year=non-specified, "
-                "to_year=non-specified, in_header={'timestamp': 0, 'asset': 6, 'exchange': 1, 'holder': 2, 'transaction_type': 5, 'spot_price': 8, "
+                "currency_iso_code=usd, long_term_capital_gain_period=365), from_date=non-specified, "
+                "to_date=non-specified, in_header={'timestamp': 0, 'asset': 6, 'exchange': 1, 'holder': 2, 'transaction_type': 5, 'spot_price': 8, "
                 "'crypto_in': 7, 'fiat_fee': 11, 'fiat_in_no_fee': 9, 'fiat_in_with_fee': 10, 'notes': 12}, out_header={'timestamp': 0, 'asset': 6, "
                 "'exchange': 1, 'holder': 2, 'transaction_type': 5, 'spot_price': 8, 'crypto_out_no_fee': 7, 'crypto_fee': 9, 'notes': 12}, "
                 "intra_header={'timestamp': 0, 'asset': 6, 'from_exchange': 1, 'from_holder': 2, 'to_exchange': 3, 'to_holder': 4, "

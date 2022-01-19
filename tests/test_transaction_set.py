@@ -292,21 +292,18 @@ class TestTransactionSet(unittest.TestCase):
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'asset' value is not known: .*"):
             # Bad asset
             TransactionSet(self._configuration, "IN", "Qwerty")
-        with self.assertRaisesRegex(RP2ValueError, "Parameter 'from_year' has non-positive value .*"):
-            # Bad from_year
-            TransactionSet(self._configuration, "IN", "B1", -1111)
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_year' has non-integer value .*"):
-            # Bad from_year
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_date' is not of type date"):
+            # Bad from_date
+            TransactionSet(self._configuration, "IN", "B1", "2018")  # type: ignore
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_date' is not of type date"):
+            # Bad from_date
             TransactionSet(self._configuration, "IN", "B1", "foobar")  # type: ignore
-        with self.assertRaisesRegex(RP2ValueError, "Parameter 'to_year' has non-positive value .*"):
-            # Bad to_year
-            TransactionSet(self._configuration, "IN", "B1", 2018, -1111)
-        with self.assertRaisesRegex(RP2ValueError, "Parameter 'to_year' has zero value"):
-            # Bad to_year
-            TransactionSet(self._configuration, "IN", "B1", 2018, 0)
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'to_year' has non-integer value .*"):
-            # Bad to_year
-            TransactionSet(self._configuration, "IN", "B1", 2018, "foobar")  # type: ignore
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_date' is not of type date"):
+            # Bad to_date
+            TransactionSet(self._configuration, "IN", "B1", "2018-01-03", "2019-07")  # type: ignore
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_date' is not of type date"):
+            # Bad to_date
+            TransactionSet(self._configuration, "IN", "B1", "2018-01-03", 0)  # type: ignore
 
         in_transaction_set = TransactionSet(self._configuration, "IN", "B1")
         out_transaction_set = TransactionSet(self._configuration, "OUT", "B1")

@@ -12,14 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import date
 import os
 import unittest
 from enum import Enum
 from pathlib import Path
 from subprocess import run
-from typing import List, Optional
+from typing import List
 
 from ods_diff import ods_diff
+from rp2.configuration import MAX_DATE, MIN_DATE
 
 ROOT_PATH: Path = Path(os.path.dirname(__file__)).parent.absolute()
 
@@ -41,14 +43,14 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
         self.maxDiff = None  # pylint: disable=invalid-name
 
     @staticmethod
-    def __get_time_interval(to_year: Optional[int] = None, from_year: Optional[int] = None) -> str:
+    def __get_time_interval(from_date: date = MIN_DATE, to_date: date = MAX_DATE) -> str:
         time_interval: str = ""
-        if from_year and to_year:
-            time_interval = f"{from_year}_{to_year}_"
-        elif from_year and not to_year:
-            time_interval = f"{from_year}_infinity_"
-        elif not from_year and to_year:
-            time_interval = f"0_{to_year}_"
+        if from_date > MIN_DATE and to_date < MAX_DATE:
+            time_interval = f"{from_date}_{to_date}_"
+        elif from_date > MIN_DATE and to_date >= MAX_DATE:
+            time_interval = f"{from_date}_infinity_"
+        elif from_date <= MIN_DATE and to_date < MAX_DATE:
+            time_interval = f"0_{to_date}_"
         return time_interval
 
     @classmethod
@@ -59,11 +61,11 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
         config: str,
         method: str,
         input_path: Path = INPUT_PATH,
-        to_year: Optional[int] = None,
-        from_year: Optional[int] = None,
+        from_date: date = MIN_DATE,
+        to_date: date = MAX_DATE,
     ) -> None:
         config = test_name if config is None else config
-        time_interval: str = cls.__get_time_interval(to_year, from_year)
+        time_interval: str = cls.__get_time_interval(from_date, to_date)
 
         arguments: List[str] = [
             "rp2_us",
@@ -74,10 +76,10 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
             "-p",
             f"{test_name}_{time_interval}",
         ]
-        if from_year:
-            arguments.extend(["-f", str(from_year)])
-        if to_year:
-            arguments.extend(["-t", str(to_year)])
+        if from_date:
+            arguments.extend(["-f", str(from_date)])
+        if to_date:
+            arguments.extend(["-t", str(to_date)])
         arguments.extend(
             [
                 str(CONFIG_PATH / Path(f"{config}.config")),
@@ -88,9 +90,9 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
         run(arguments, check=True)
 
     def _compare(
-        self, output_dir: Path, test_name: str, method: str, output_plugin: OutputPlugins, to_year: Optional[int] = None, from_year: Optional[int] = None
+        self, output_dir: Path, test_name: str, method: str, output_plugin: OutputPlugins, from_date: date = MIN_DATE, to_date: date = MAX_DATE
     ) -> None:
-        time_interval: str = self.__get_time_interval(to_year, from_year)
+        time_interval: str = self.__get_time_interval(from_date, to_date)
         diff: str
         output_file_name: Path = Path(f"{test_name}_{time_interval}{method}_{output_plugin.value}.ods")
         full_output_file_name: Path = output_dir / output_file_name

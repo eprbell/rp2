@@ -572,11 +572,11 @@ class Generator(AbstractODSGenerator):
 
         return row_index + 4
 
-    def __get_hyperlinked_transaction_value(self, transaction: AbstractTransaction, value: Any) -> str:
+    def __get_hyperlinked_transaction_value(self, transaction: AbstractTransaction, value: Any) -> Any:
         row: Optional[int] = self.__get_in_out_sheet_row(transaction)
         if not row:
             # This may occur if command line time filters are activated
-            return f"{value}"
+            return value
         if isinstance(value, (RP2Decimal, int, float)):
             return f'=HYPERLINK("#{self.get_in_out_sheet_name(transaction.asset)}.a{row}:z{row}"; {value})'
         return f'=HYPERLINK("#{self.get_in_out_sheet_name(transaction.asset)}.a{row}:z{row}"; "{value}")'
