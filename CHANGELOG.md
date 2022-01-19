@@ -14,6 +14,14 @@
 
 # RP2 Change Log
 
+## v0.9.8
+* added hyperlinks to rp2_full_report output:
+  * taxable events and acquired lots in tax sheet are now hyperlinked to their definition line in the in-out sheet. In LibreOffice, CTRL-click on them to jump to the target (on Mac Command-click)
+  * summary lines in the Summary sheet are now hyperlinked to the first line of the given year in the tax sheet
+* modified time filter CLI options (-f and -t) to accept a full date (YYYY-MM-DD): so it's now possible to filter transactions before and after a given day
+* major refactoring: renamed "from lot" and "in lot" to "acquired lot" throughout identifiers, strings, templates, documentation, etc.
+* updated documentation to reflect changes in this version
+
 ## v0.9.7
 * added profiler instrumentation
 * added large input test and refactored ODS output test
