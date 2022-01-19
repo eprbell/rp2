@@ -44,7 +44,7 @@ Here follows an example of an input spreadsheet with 2 sheets (one for BTC and o
   * **asset**: which cryptocurrency was transacted (e.g. BTC, ETH, etc.). It must match the name of the spreadsheet and one of the values in the **assets** section of the config file.
   * **exchange**: exchange or wallet on which the transaction occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.). It must match one of the values in the **exchanges** section of the config file.
   * **holder**: exchange account or wallet owner. It must match one of the values in the **holders** section of the config file.
-  * **transaction_type**: AIRDROP, BUY, HARDFORK, INTEREST, MINING, STAKING or WAGES.
+  * **transaction_type**: AIRDROP, BUY, DONATE, GIFT, HARDFORK, INTEREST, MINING, STAKING or WAGES.
   * **spot_price**: value of 1 unit of the given cryptocurrency at the time the transaction occurred.
   * **crypto_in**: how much of the given cryptocurrency was acquired with the transaction.
   * **fiat_fee**: US dollar value of the transaction fees.
