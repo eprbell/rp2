@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+from datetime import date
 from typing import Dict
 
 from rp2.abstract_country import AbstractCountry
@@ -27,6 +28,8 @@ class AbstractReportGenerator:
         asset_to_computed_data: Dict[str, ComputedData],
         output_dir_path: str,
         output_file_prefix: str,
+        from_date: date,
+        to_date: date,
     ) -> None:
         raise NotImplementedError("Abstract method: it must be implemented in the plugin class")
 

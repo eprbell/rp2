@@ -103,6 +103,8 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
             country=country,
             accounting_method=accounting_method,
             asset_to_computed_data=asset_to_computed_data,
+            from_date=configuration.from_date,
+            to_date=configuration.to_date,
         )
         # Run country-specific report generators
         _find_and_run_report_generators(
@@ -111,6 +113,8 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
             country=country,
             accounting_method=accounting_method,
             asset_to_computed_data=asset_to_computed_data,
+            from_date=configuration.from_date,
+            to_date=configuration.to_date,
         )
     except Exception:  # pylint: disable=broad-except
         LOGGER.exception("Fatal exception occurred:")
@@ -121,7 +125,13 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
 
 
 def _find_and_run_report_generators(
-    package_path: str, args: Namespace, country: AbstractCountry, accounting_method: AbstractAccountingMethod, asset_to_computed_data: Dict[str, ComputedData]
+    package_path: str,
+    args: Namespace,
+    country: AbstractCountry,
+    accounting_method: AbstractAccountingMethod,
+    asset_to_computed_data: Dict[str, ComputedData],
+    from_date: date,
+    to_date: date,
 ) -> None:
     # Load report generator plugins and call their generate() method
     package: ModuleType = import_module(package_path)
@@ -147,6 +157,8 @@ def _find_and_run_report_generators(
                 asset_to_computed_data=asset_to_computed_data,
                 output_dir_path=args.output_dir,
                 output_file_prefix=args.prefix,
+                from_date=from_date,
+                to_date=to_date,
             )
         package_found = True
 

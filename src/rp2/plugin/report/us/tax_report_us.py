@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import date
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Set, cast
@@ -72,6 +73,8 @@ class Generator(AbstractODSGenerator):
         asset_to_computed_data: Dict[str, ComputedData],
         output_dir_path: str,
         output_file_prefix: str,
+        from_date: date,
+        to_date: date,
     ) -> None:
 
         row_indexes: Dict[str, int] = {sheet_name.value: self.HEADER_ROWS for sheet_name in SheetNames}
@@ -87,6 +90,8 @@ class Generator(AbstractODSGenerator):
             output_file_prefix=output_file_prefix,
             output_file_name=self.OUTPUT_FILE,
             template_sheets_to_keep=_TEMPLATE_SHEETS_TO_KEEP,
+            from_date=from_date,
+            to_date=to_date,
         )
 
         asset: str

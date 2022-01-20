@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import date
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Set
@@ -21,7 +22,7 @@ from rp2.abstract_country import AbstractCountry
 from rp2.abstract_report_generator import AbstractReportGenerator
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.computed_data import ComputedData
-from rp2.configuration import Configuration
+from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.in_transaction import InTransaction
 from rp2.out_transaction import OutTransaction
 from rp2.rp2_decimal import RP2Decimal
@@ -38,6 +39,8 @@ class AbstractODSGenerator(AbstractReportGenerator):
         output_file_prefix: str,
         output_file_name: str,
         template_sheets_to_keep: Set[str],
+        from_date: date,
+        to_date: date,
     ) -> Any:
 
         Configuration.type_check_string("output_dir_path", output_dir_path)
@@ -78,6 +81,8 @@ class AbstractODSGenerator(AbstractReportGenerator):
             if legend_sheet[index, 0].value == "Accounting Method":
                 cls._fill_cell(legend_sheet, index, 1, accounting_method.upper(), visual_style="transparent")
                 method_cell_found = True
+                cls._fill_cell(legend_sheet, index + 1, 1, from_date if from_date != MIN_DATE else "non-specified", visual_style="transparent")
+                cls._fill_cell(legend_sheet, index + 2, 1, to_date if to_date != MAX_DATE else "non-specified", visual_style="transparent")
                 break
         if not method_cell_found:
             raise Exception("Internal error: ODS template has no 'Accounting Method' cell in column 0 of Legend sheet")
@@ -96,6 +101,8 @@ class AbstractODSGenerator(AbstractReportGenerator):
         asset_to_computed_data: Dict[str, ComputedData],
         output_dir_path: str,
         output_file_prefix: str,
+        from_date: date,
+        to_date: date,
     ) -> None:
         raise NotImplementedError("Abstract method: it must be implemented in the plugin class")
 
