@@ -14,6 +14,11 @@
 
 # RP2 Change Log
 
+## v0.9.9
+* add DONATE and GIFT-typed InTransactions
+* changed Legend sheet to include time filter information
+* updated documentation to reflect changes in this version
+
 ## v0.9.8
 * added hyperlinks to rp2_full_report output:
   * taxable events and acquired lots in tax sheet are now hyperlinked to their definition line in the in-out sheet. In LibreOffice, CTRL-click on them to jump to the target (on Mac Command-click)
