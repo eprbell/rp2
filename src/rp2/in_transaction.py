@@ -69,7 +69,12 @@ class InTransaction(AbstractTransaction):
 
         if spot_price == ZERO:
             raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.unique_id}): parameter 'spot_price' cannot be 0")
-        if self.transaction_type != TransactionType.BUY and not self.transaction_type.is_earn_type():
+        if (
+            self.transaction_type != TransactionType.BUY
+            and self.transaction_type != TransactionType.GIFT
+            and self.transaction_type != TransactionType.DONATE
+            and not self.transaction_type.is_earn_type()
+        ):
             raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.unique_id}): invalid transaction type {self.transaction_type}")
 
         # If the values provided by the exchange doesn't match the computed one, log a warning.
