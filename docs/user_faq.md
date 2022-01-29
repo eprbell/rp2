@@ -82,7 +82,7 @@ This is because lot a), part of lot b) and lot c) are already accounted for in t
 Of course the user still needs to keep all the documentation for previous years as well as for the current year. Also they will need to keep the same accounting method they were using previously: to switch accounting method (e.g. from FIFO to LIFO) it's necessary to speak to a tax professional first.
 
 ### Can I Avoid Writing a Config File from Scratch?
-You can use [crypto_example.config](../config/crypto_example.config) as boilerplate and the [Input Files](../input_files.md) document as reference.
+You can use [crypto_example.config](../config/crypto_example.config) as boilerplate and the [Input Files](input_files.md) document as reference.
 
 ### Is My Tax Report Browsable?
 The rp2_full_report output contains full tax computation details. Part of its contents are hyperlinked to enble browsing: in LibreOffice, CTRL-click (on Mac, Command-click) on a cell to jump to the target:
