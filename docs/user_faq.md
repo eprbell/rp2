@@ -38,6 +38,7 @@
 * **[If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?](#if-i-transfer-cryptocurrency-between-two-accounts-i-own-is-the-fee-taxable)**
 * **[What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We File Taxes Together?](#what-if-i-transfer-cryptocurrency-from-my-account-to-my-spouses-account-and-we-file-taxes-together)**
 * **[How to Handle Airdrops?](#how-to-handle-airdrops)**
+* **[How to Handle Gifts and Donations?](#how-to-handle-gifts-and-donations)**
 * **[How to Handle Hard Forks?](#how-to-handle-hard-forks)**
 * **[How to Handle Income from Mining?](#how-to-handle-income-from-mining)**
 * **[How to Handle Income from Staking?](#how-to-handle-income-from-staking)**
@@ -135,6 +136,9 @@ The names of the people filing taxes together should be added to the holders sec
 
 ### How to Handle Airdrops?
 Mark the transaction type as AIRDROP. RP2 will collect all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file).
+
+### How to Handle Gifts and Donations?
+Mark the transaction type as GIFT or DONATION: this applies to IN transactions (if receiving the crypto) or OUT transactions (if giving the crypto).
 
 ### How to Handle Hard Forks?
 Mark the transaction type as HARDFORK. RP2 will collect all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file).
