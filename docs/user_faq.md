@@ -28,13 +28,15 @@
 * **[What Does RP2 Mean?](#what-does-rp2-mean)**
 
 **[Tax Questions](#tax-questions)**
+* **[What Events Are Taxable?](#what-events-are-taxable)**
 * **[Can I Avoid Paying Crypto Taxes?](#can-i-avoid-paying-crypto-taxes)**
 * **[Which Resources Can I Use to Learn About Crypto Taxes?](#which-resources-can-i-use-to-learn-about-crypto-taxes)**
 * **[Which Crypto Tax Forms to File?](#which-crypto-tax-forms-to-file)**
 
 **[Tax Scenarios](#tax-scenarios)**
-* **[What Events Are Taxable?](#what-events-are-taxable)**
 * **[How to Handle Conversion of a Cryptocurrency to Another?](#how-to-handle-conversion-of-a-cryptocurrency-to-another)**
+* **[If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?](#if-i-transfer-cryptocurrency-between-two-accounts-i-own-is-the-fee-taxable)**
+* **[What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We File Taxes Together?](#what-if-i-transfer-cryptocurrency-from-my-account-to-my-spouses-account-and-we-file-taxes-together)**
 * **[How to Handle Airdrops?](#how-to-handle-airdrops)**
 * **[How to Handle Hard Forks?](#how-to-handle-hard-forks)**
 * **[How to Handle Income from Mining?](#how-to-handle-income-from-mining)**
@@ -42,10 +44,8 @@
 * **[How to Handle Cost-only DeFi Transactions?](#how-to-handle-cost-only-defi-transactions)**
 * **[How to Handle DeFi Bridging?](#how-to-handle-defi-bridging)**
 * **[How to Handle DeFi Yield from Locked-up Crypto?](#how-to-handle-defi-yield-from-locked-up-crypto)**
-* **[How to Handle Futures and Options?](#how-to-handle-futures-and-options)**
 * **[How to Handle NFTs?](#how-to-handle-nfts)**
-* **[If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?](#if-i-transfer-cryptocurrency-between-two-accounts-i-own-is-the-fee-taxable)**
-* **[What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We File Taxes Together?](#what-if-i-transfer-cryptocurrency-from-my-account-to-my-spouses-account-and-we-file-taxes-together)**
+* **[How to Handle Futures and Options?](#how-to-handle-futures-and-options)**
 
 ## General Questions
 
@@ -100,6 +100,9 @@ It's a humorous reference to Warren Buffett’s claim that Bitcoin is [“rat po
 
 ## Tax Questions
 
+### What Events Are Taxable?
+Selling, swapping, donating, mining, staking, earning cryptocurrency are some common taxable events. For an up-to-date list in any given year, ask your tax professional. For additional information on taxable events read the [Cryptocurrency Tax FAQ](https://www.reddit.com/r/CryptoTax/comments/re6jal/cryptocurrency_tax_faq/) on Reddit and [CoinTracker's summary on crypto taxes](https://www.cointracker.io/blog/what-tax-forms-should-crypto-holders-file).
+
 ### Can I Avoid Paying Crypto Taxes?
 No. The IRS has made it clear that [crypto taxes must be paid](https://www.irs.gov/newsroom/irs-reminds-taxpayers-to-report-virtual-currency-transactions).
 
@@ -119,11 +122,16 @@ Also read the question on [crypto tax resources](#which-resources-can-i-use-to-l
 
 ## Tax Scenarios
 
-### What Events Are Taxable?
-Selling, swapping, donating, mining, staking, earning cryptocurrency are some common taxable events. For an up-to-date list in any given year, ask your tax professional. For additional information on taxable events read the [Cryptocurrency Tax FAQ](https://www.reddit.com/r/CryptoTax/comments/re6jal/cryptocurrency_tax_faq/) on Reddit and [CoinTracker's summary on crypto taxes](https://www.cointracker.io/blog/what-tax-forms-should-crypto-holders-file).
-
 ### How to Handle Conversion of a Cryptocurrency to Another?
 Converting from one cryptocurrency to another can be captured in RP2 by splitting the original transaction into two: the first is a SELL-type transaction that describes selling the initial cryptocurrency into fiat. The second one is a BUY-type transaction that describes buying the final cryptocurrency using fiat.
+
+### If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?
+Such fees affect the in/out lot relationships, so RP2 keeps track of them (in the "Investment Expenses" tab of the tax_report_us output). Ask your tax professional about how to handle this tab in any given year.
+
+### What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We File Taxes Together?
+The names of the people filing taxes together should be added to the holders section of the config file (which is used for validation) and also in the holder column of each transaction in the input file. With this information RP2 generates a joint output. Here's an example in which the people filing together are called Alice and Bob:
+* [config/crypto_example.config](../config/crypto_example.config) (see Alice and Bob in the holders section)
+* [input/crypto_example.ods](../input/crypto_example.ods) (see transactions moving BTC from Bob to Alice in the INTRA table of the BTC tab).
 
 ### How to Handle Airdrops?
 Mark the transaction type as AIRDROP. RP2 will collect all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file).
@@ -150,25 +158,17 @@ In RP2 such native crypto costs can be captured via an [OUT/SELL transaction](in
 Remember to use the Notes field to provide context about the nature of the transaction.
 
 ### How to Handle DeFi Bridging?
-There is an ongoing debate on how to manage DeFi bridging from a tax perspective. I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to express many tax scenarios in different ways. Check this [RP2 issue](https://github.com/eprbell/rp2/issues/4) for a brainstorming on the subject and consult your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
+There is an ongoing debate on how to manage DeFi bridging from a tax perspective. I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Check this [RP2 issue](https://github.com/eprbell/rp2/issues/4) for a brainstorming on the subject and consult your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
 
 ### How to Handle DeFi Yield from Locked-up Crypto?
 DeFi opens up new scenarios that have their own tax implications. For example:
 * lock 100 DRIP forever and then get 1 DRIP per day back for a max of 365 days;
 * buy a "node" that consumes 10 STRONG, but after that the node produces 0.1 STRONG per day, forever.
 
-There is an ongoing debate on how to capture this scenario from a tax perspective: how is the locked-forever crypto handled? Are the first yields considered "recovered" capital and the following ones staking? I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to express many tax scenarios in different ways. Check this [RP2 issue](https://github.com/eprbell/rp2/issues/4) for a brainstorming on the subject and consult your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
-
-### How to Handle Futures and Options?
-Calling for help on this question: if you have insight on this please open an issue or a PR.
+There is an ongoing debate on how to capture this scenario from a tax perspective: how is the locked-forever crypto handled? Are the first yields considered "recovered" capital and the following ones staking? I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Check this [RP2 issue](https://github.com/eprbell/rp2/issues/4) for a brainstorming on the subject and consult your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
 
 ### How to Handle NFTs?
 RP2 treats NFTs like cryptocurrencies, that is as property. Use a unique asset type for each NFT, both in the config file and in the input spreadsheet: e.g. ETH_BORED_APE_4363. There is debate on whether NFTs should be treated as collectibles instead, but this has not been clarified officially by the IRS yet, to the best of my knowledge. Ask a tax professional for the correct answer in any given year.
 
-### If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?
-Such fees affect the in/out lot relationships, so RP2 keeps track of them (in the "Investment Expenses" tab of the tax_report_us output). Ask your tax professional about how to handle this tab in any given year.
-
-### What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We File Taxes Together?
-The names of the people filing taxes together should be added to the holders section of the config file (which is used for validation) and also in the holder column of each transaction in the input file. With this information RP2 generates a joint output. Here's an example in which the people filing together are called Alice and Bob:
-* [config/crypto_example.config](../config/crypto_example.config) (see Alice and Bob in the holders section)
-* [input/crypto_example.ods](../input/crypto_example.ods) (see transactions moving BTC from Bob to Alice in the INTRA table of the BTC tab).
+### How to Handle Futures and Options?
+Calling for help on this question: if you have insight on this please open an issue or a PR.
