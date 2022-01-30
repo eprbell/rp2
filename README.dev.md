@@ -139,7 +139,7 @@ Read the [Contributing](CONTRIBUTING.md) document on pull requests guidelines.
 
 ### Design Guidelines
 RP2 code adheres to these principles:
-* immutability: generally data structures are read-only (the only exceptions are for data structures that would incur a major complexity increase without write permission: e.g. node in AVL tree).
+* immutability: generally data structures are read-only (the only exceptions are for data structures that would incur a major complexity increase without write permission: e.g. AVL tree node).
   * class fields are private (prepended with double-underscore). Fields that need public access have a read-only property. Write-properties are not used;
   * @dataclass classes have `frozen=True`
 * runtime checks: parameters of public functions are type-checked at runtime:
@@ -220,6 +220,8 @@ class Generator(AbstractReportGenerator):
   * `output_dir_path`: directory in which to write the output;
   * `output_file_prefix`: prefix to be prepended to the output file name.
 
+**NOTE**: If you're interested in adding support for a new report generator, open a [PR](CONTRIBUTING.md).
+
 ### Adding a New Accounting Method
 Accounting method plugins modify the behavior of the tax engine. They pair in/out lots according to the given accounting algorithm: [FIFO](src/rp2/plugin/accounting_method/fifo.py) and [LIFO](src/rp2/plugin/accounting_method/lifo.py) are examples of accounting method plugins (FIFO is simpler, LIFO more elaborate).
 
@@ -279,6 +281,8 @@ from logger import LOGGER
     def validate_acquired_lot_ancestor_timestamp(self, acquired_lot: InTransaction, acquired_lot_parent: InTransaction) -> bool:
 ```
 * write the body of the method: it returns `True` if the ancestor's acquired lot timestamp is compatible with the current acquired lot timestamp according to the accounting method and `False` otherwise: e.g. in FIFO the ancestor must be earlier than the current. The ancestor lot has been processed before the current one, according to the logic of the accounting method.
+
+**NOTE**: If you're interested in adding support for a new accounting method, open a [PR](CONTRIBUTING.md).
 
 ### Adding Support for a New Country
 RP2 has experimental infrastructure to support countries other than the US. It captures this functionality with the [AbstractCountry](src/rp2/abstract_country.py) class, which captures the following:
