@@ -15,42 +15,39 @@
 # RP2 Frequently Asked Questions (User)
 
 ## Table of Contents
-
-**[General Questions](#general-questions)**
-* **[How to Verify that I Entered Data Correctly in the Input Spreadsheet?](#how-to-verify-that-i-entered-data-correctly-in-the-input-spreadsheet)**
-* **[What Is the Timestamp Format?](#what-is-the-timestamp-format)**
-* **[What Accounting Methods Are Supported?](#what-accounting-methods-are-supported)**
-* **[How to Switch from Another Tax Software to RP2?](#how-to-switch-from-another-tax-software-to-rp2)**
-* **[Can I Avoid Writing a Config File from Scratch?](#can-i-avoid-writing-a-config-file-from-scratch)**
-* **[Is My Tax Report Browsable?](#is-my-tax-report-browsable)**
-* **[How to Report a RP2 Bug Without Sharing Personal Information?](#how-to-report-a-rp2-bug-without-sharing-personal-information)**
-* **[Who is the Author of RP2?](#who-is-the-author-of-rp2)**
-* **[What Does RP2 Mean?](#what-does-rp2-mean)**
-
-**[Tax Questions](#tax-questions)**
-* **[What Events Are Taxable?](#what-events-are-taxable)**
-* **[Can I Avoid Paying Crypto Taxes?](#can-i-avoid-paying-crypto-taxes)**
-* **[Which Resources Can I Use to Learn About Crypto Taxes?](#which-resources-can-i-use-to-learn-about-crypto-taxes)**
-* **[Which Crypto Tax Forms to File?](#which-crypto-tax-forms-to-file)**
-
-**[Tax Scenarios](#tax-scenarios)**
-* **[What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We File Taxes Together?](#what-if-i-transfer-cryptocurrency-from-my-account-to-my-spouses-account-and-we-file-taxes-together)**
-* **[How to Handle a Transfer of Funds from a Wallet or Exchange to Another?](#how-to-handle-a-transfer-of-funds-from-a-wallet-or-exchange-to-another)**
-* **[If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?](#if-i-transfer-cryptocurrency-between-two-accounts-i-own-is-the-fee-taxable)**
-* **[How to Handle Conversion of a Cryptocurrency to Another?](#how-to-handle-conversion-of-a-cryptocurrency-to-another)**
-* **[How to Handle Airdrops?](#how-to-handle-airdrops)**
-* **[How to Handle Donations?](#how-to-handle-donations)**
-* **[How to Handle Gifts?](#how-to-handle-gifts)**
-* **[How to Handle Hard Forks?](#how-to-handle-hard-forks)**
-* **[How to Handle Crypto Interest?](#how-to-handle-crypto-interest)**
-* **[How to Handle Income from Mining?](#how-to-handle-income-from-mining)**
-* **[How to Handle Income from Staking?](#how-to-handle-income-from-staking)**
-* **[How to Handle Income from Crypto Wages?](#how-to-handle-income-from-crypto-wages)**
-* **[How to Handle Cost-only DeFi Transactions?](#how-to-handle-cost-only-defi-transactions)**
-* **[How to Handle DeFi Bridging?](#how-to-handle-defi-bridging)**
-* **[How to Handle DeFi Yield from Locked-up Crypto?](#how-to-handle-defi-yield-from-locked-up-crypto)**
-* **[How to Handle NFTs?](#how-to-handle-nfts)**
-* **[How to Handle Futures and Options?](#how-to-handle-futures-and-options)**
+* **[General Questions](#general-questions)**
+  * [How to Verify that I Entered Data Correctly in the Input Spreadsheet?](#how-to-verify-that-i-entered-data-correctly-in-the-input-spreadsheet)**
+  * [What Is the Timestamp Format?](#what-is-the-timestamp-format)**
+  * [What Accounting Methods Are Supported?](#what-accounting-methods-are-supported)**
+  * [How to Switch from Another Tax Software to RP2?](#how-to-switch-from-another-tax-software-to-rp2)**
+  * [Can I Avoid Writing a Config File from Scratch?](#can-i-avoid-writing-a-config-file-from-scratch)**
+  * [Is My Tax Report Browsable?](#is-my-tax-report-browsable)**
+  * [How to Report a RP2 Bug Without Sharing Personal Information?](#how-to-report-a-rp2-bug-without-sharing-personal-information)**
+  * [Who is the Author of RP2?](#who-is-the-author-of-rp2)**
+  * [What Does RP2 Mean?](#what-does-rp2-mean)**
+* **[Tax Questions](#tax-questions)**
+  * [What Events Are Taxable?](#what-events-are-taxable)**
+  * [Can I Avoid Paying Crypto Taxes?](#can-i-avoid-paying-crypto-taxes)**
+  * [Which Resources Can I Use to Learn About Crypto Taxes?](#which-resources-can-i-use-to-learn-about-crypto-taxes)**
+  * [Which Crypto Tax Forms to File?](#which-crypto-tax-forms-to-file)**
+* **[Tax Scenarios](#tax-scenarios)**
+  * [What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We File Taxes Together?](#what-if-i-transfer-cryptocurrency-from-my-account-to-my-spouses-account-and-we-file-taxes-together)**
+  * [How to Handle a Transfer of Funds from a Wallet or Exchange to Another?](#how-to-handle-a-transfer-of-funds-from-a-wallet-or-exchange-to-another)**
+  * [If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?](#if-i-transfer-cryptocurrency-between-two-accounts-i-own-is-the-fee-taxable)**
+  * [How to Handle Conversion of a Cryptocurrency to Another?](#how-to-handle-conversion-of-a-cryptocurrency-to-another)**
+  * [How to Handle Airdrops?](#how-to-handle-airdrops)**
+  * [How to Handle Donations?](#how-to-handle-donations)**
+  * [How to Handle Gifts?](#how-to-handle-gifts)**
+  * [How to Handle Hard Forks?](#how-to-handle-hard-forks)**
+  * [How to Handle Crypto Interest?](#how-to-handle-crypto-interest)**
+  * [How to Handle Income from Mining?](#how-to-handle-income-from-mining)**
+  * [How to Handle Income from Staking?](#how-to-handle-income-from-staking)**
+  * [How to Handle Income from Crypto Wages?](#how-to-handle-income-from-crypto-wages)**
+  * [How to Handle Cost-only DeFi Transactions?](#how-to-handle-cost-only-defi-transactions)**
+  * [How to Handle DeFi Bridging?](#how-to-handle-defi-bridging)**
+  * [How to Handle DeFi Yield from Locked-up Crypto?](#how-to-handle-defi-yield-from-locked-up-crypto)**
+  * [How to Handle NFTs?](#how-to-handle-nfts)**
+  * [How to Handle Futures and Options?](#how-to-handle-futures-and-options)**
 
 ## General Questions
 
