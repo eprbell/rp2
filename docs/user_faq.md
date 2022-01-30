@@ -34,14 +34,18 @@
 * **[Which Crypto Tax Forms to File?](#which-crypto-tax-forms-to-file)**
 
 **[Tax Scenarios](#tax-scenarios)**
-* **[How to Handle Conversion of a Cryptocurrency to Another?](#how-to-handle-conversion-of-a-cryptocurrency-to-another)**
-* **[If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?](#if-i-transfer-cryptocurrency-between-two-accounts-i-own-is-the-fee-taxable)**
 * **[What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We File Taxes Together?](#what-if-i-transfer-cryptocurrency-from-my-account-to-my-spouses-account-and-we-file-taxes-together)**
+* **[How to Handle a Transfer of Funds from a Wallet or Exchange to Another?](#how-to-handle-a-transfer-of-funds-from-a-wallet-or-exchange-to-another)**
+* **[If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?](#if-i-transfer-cryptocurrency-between-two-accounts-i-own-is-the-fee-taxable)**
+* **[How to Handle Conversion of a Cryptocurrency to Another?](#how-to-handle-conversion-of-a-cryptocurrency-to-another)**
 * **[How to Handle Airdrops?](#how-to-handle-airdrops)**
-* **[How to Handle Gifts and Donations?](#how-to-handle-gifts-and-donations)**
+* **[How to Handle Donations?](#how-to-handle-donations)**
+* **[How to Handle Gifts?](#how-to-handle-gifts)**
 * **[How to Handle Hard Forks?](#how-to-handle-hard-forks)**
+* **[How to Handle Crypto Interest?](#how-to-handle-crypto-interest)**
 * **[How to Handle Income from Mining?](#how-to-handle-income-from-mining)**
 * **[How to Handle Income from Staking?](#how-to-handle-income-from-staking)**
+* **[How to Handle Income from Crypto Wages?](#how-to-handle-income-from-crypto-wages)**
 * **[How to Handle Cost-only DeFi Transactions?](#how-to-handle-cost-only-defi-transactions)**
 * **[How to Handle DeFi Bridging?](#how-to-handle-defi-bridging)**
 * **[How to Handle DeFi Yield from Locked-up Crypto?](#how-to-handle-defi-yield-from-locked-up-crypto)**
@@ -126,31 +130,45 @@ Also read the question on [crypto tax resources](#which-resources-can-i-use-to-l
 
 ## Tax Scenarios
 
-### How to Handle Conversion of a Cryptocurrency to Another?
-Converting from one cryptocurrency to another can be captured in RP2 by splitting the original transaction into two: the first is a SELL-type transaction that describes selling the initial cryptocurrency into fiat. The second one is a BUY-type transaction that describes buying the final cryptocurrency using fiat.
-
-### If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?
-Such fees affect the in/out lot relationships, so RP2 keeps track of them (in the "Investment Expenses" tab of the tax_report_us output). Ask your tax professional about how to handle this tab in any given year.
-
 ### What if I Transfer Cryptocurrency from My Account to My Spouse's Account and We File Taxes Together?
 The names of the people filing taxes together should be added to the holders section of the config file (which is used for validation) and also in the holder column of each transaction in the input file. With this information RP2 generates a joint output. Here's an example in which the people filing together are called Alice and Bob:
 * [config/crypto_example.config](../config/crypto_example.config) (see Alice and Bob in the holders section)
 * [input/crypto_example.ods](../input/crypto_example.ods) (see transactions moving BTC from Bob to Alice in the INTRA table of the BTC tab).
 
-### How to Handle Airdrops?
-Mark the transaction type as AIRDROP. RP2 will collect all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file).
+See the [input files](input_files.md) section of the documentation for format details.
 
-### How to Handle Gifts and Donations?
-Mark the transaction type as GIFT or DONATION: this applies to IN transactions (if receiving the crypto) or OUT transactions (if giving the crypto).
+### How to Handle a Transfer of Funds from a Wallet or Exchange to Another?
+If the both the source and destination accounts belong to the same owner (or to people filing together), use an INTRA transaction. Otherwise, use an OUT transaction. See the [input files](input_files.md) section of the documentation for format details.
+
+### If I Transfer Cryptocurrency Between Two Accounts I Own, Is the Fee Taxable?
+Such fees affect the in/out lot relationships, so RP2 keeps track of them (in the "Investment Expenses" tab of the tax_report_us output). Ask your tax professional about how to handle this tab in any given year.
+
+### How to Handle Conversion of a Cryptocurrency to Another?
+Converting from one cryptocurrency to another can be captured in RP2 by splitting the original transaction into two: the first is a SELL-type transaction that describes selling the initial cryptocurrency into fiat. The second one is a BUY-type transaction that describes buying the final cryptocurrency using fiat. See the [input files](input_files.md) section of the documentation for format details.
+
+### How to Handle Airdrops?
+Mark the transaction type as AIRDROP. RP2 will collect gain/loss computations for all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
+
+### How to Handle Donations?
+Mark the transaction type as DONATION: this applies to IN transactions (if receiving the crypto) or OUT transactions (if giving the crypto). RP2 will collect gain/loss computations for all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
+
+### How to Handle Gifts?
+Mark the transaction type as GIFT: this applies to IN transactions (if receiving the crypto) or OUT transactions (if giving the crypto). RP2 will collect gain/loss computations for all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle Hard Forks?
-Mark the transaction type as HARDFORK. RP2 will collect all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file).
+Mark the transaction type as HARDFORK. RP2 will collect gain/loss computations for all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
+
+### How to Handle Crypto Interest?
+Mark the transaction type as INTEREST. RP2 will collect gain/loss computations for all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle Income from Mining?
-Mark the transaction type as MINING. RP2 will collect all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file).
+Mark the transaction type as MINING. RP2 will collect gain/loss computations for all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle Income from Staking?
-Mark the transaction type as STAKING. RP2 will collect all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file).
+Mark the transaction type as STAKING. RP2 will collect gain/loss computations for all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
+
+### How to Handle Income from Crypto Wages?
+Mark the transaction type as WAGES. RP2 will collect gain/loss computations for all such transactions together in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle Cost-only DeFi Transactions?
 DeFi opens up new scenarios that have their own tax implications. For example:
@@ -162,7 +180,7 @@ In RP2 such native crypto costs can be captured via an [OUT/SELL transaction](in
 * `crypto_out`=*100%_of_cost*, `crypto_fee`=*0%_of_cost* or
 * `crypto_out`=*0%_of_cost*, `crypto_fee`=*100%_of_cost*.
 
-Remember to use the Notes field to provide context about the nature of the transaction.
+Remember to use the Notes field to provide context about the nature of the transaction.  See the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle DeFi Bridging?
 There is an ongoing debate on how to manage DeFi bridging from a tax perspective. I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Check this [RP2 issue](https://github.com/eprbell/rp2/issues/4) for a brainstorming on the subject and consult your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
