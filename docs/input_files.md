@@ -39,7 +39,7 @@ The input spreadsheet is in .ods format and contains one or more sheets. Each sh
   * the second row is the table header: the meaning of each header cell is defined in the **out_header** section of the config file
   * the following rows describe one **OUT**-transaction each
   * the last row contains the **TABLE END** keyword in column A
-* The **INTRA**-table (optional) contains transactions describing crypto moving across accounts owned by the same person (or multiple people filing taxes together):
+* The **INTRA**-table (optional) contains transactions describing crypto moving across accounts owned by the same person (or multiple people filing taxes jointly):
   * the first row contains the **INTRA** keyword in column A
   * the second row is the table header: the meaning of each header cell is defined in the **intra_header** section of the config file
   * the following rows describe one **INTRA**-transaction each
@@ -84,7 +84,7 @@ Here follows an example of an input spreadsheet with 2 sheets (one for BTC and o
   * **from_exchange**: exchange or wallet from which the transfer of cryptocurrency occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.). It must match one of the values in the **exchanges** section of the config file.
   * **from_holder**: owner of the exchange account or wallet from which the transfer of cryptocurrency occurred. It must match one of the values in the **holders** section of the config file.
   * **to_exchange**: exchange or wallet to which the transfer of cryptocurrency occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.). It must match one of the values in the **exchanges** section of the config file.
-  * **to_holder**: owner of the exchange account or wallet to which the transfer of cryptocurrency occurred. Typically this is the same value as from_holder (unless multiple people are filing taxes together). It must match one of the values in the **holders** section of the config file.
+  * **to_holder**: owner of the exchange account or wallet to which the transfer of cryptocurrency occurred. Typically this is the same value as from_holder (unless multiple people are filing taxes jointly). It must match one of the values in the **holders** section of the config file.
   * **spot_price** (optional): value of 1 unit of the given cryptocurrency at the time the transaction occurred. Sometimes if fee is zero, exchanges don't provide this value.
   * **crypto_sent**: how much of the given cryptocurrency was sent with the transaction.
   * **crypto_received**: how much of the given cryptocurrency was received with the transaction.
@@ -99,7 +99,7 @@ The config file is in JSON format and is structured as described below. Note tha
 * *`<...>`* must be substituted with user-provided values, and, specifically, *`<column_number>`* must be substituted with 0 for column A in the input spreadsheet, 1 for B, etc;
 * the `assets` section contains all cryptocurrencies the user transacted with;
 * the `exchanges` section can contain both exchange and wallet identifiers;
-* the `holders` section typically contains only one name, unless multiple people are filing taxes together;
+* the `holders` section typically contains only one name, unless multiple people are filing taxes jointly;
 <pre>
 {
     "in_header": {
