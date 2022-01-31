@@ -180,7 +180,7 @@ In RP2 such native crypto costs can be captured via an [OUT/SELL transaction](in
 * `crypto_out`=*100%_of_cost*, `crypto_fee`=*0%_of_cost* or
 * `crypto_out`=*0%_of_cost*, `crypto_fee`=*100%_of_cost*.
 
-Remember to use the Notes field to provide context about the nature of the transaction.  See the [input files](input_files.md) section of the documentation for format details.
+Remember to use the Notes field to provide context about the nature of the transaction. See the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle DeFi Bridging?
 There is an ongoing debate on how to manage DeFi bridging from a tax perspective. I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Check this [RP2 issue](https://github.com/eprbell/rp2/issues/4) for a brainstorming on the subject and consult your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
@@ -196,7 +196,7 @@ DeFi opens up new scenarios that have their own tax implications. For example:
 There is an ongoing debate on how to capture this scenario from a tax perspective: how is the locked-forever crypto handled? Are the first yields considered "recovered" capital and the following ones staking? I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Check this [RP2 issue](https://github.com/eprbell/rp2/issues/4) for a brainstorming on the subject and consult your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
 
 ### How to Handle NFTs?
-RP2 treats NFTs like cryptocurrencies, that is as property. Use a unique asset type for each NFT, both in the config file and in the input spreadsheet: e.g. ETH_BORED_APE_4363. There is debate on whether NFTs should be treated as collectibles instead, but this has not been clarified officially by the IRS yet, to the best of my knowledge. Ask a tax professional for the correct answer in any given year.
+RP2 treats NFTs like cryptocurrencies, that is as property. Use a unique asset type for each NFT, both in the config file and in the input spreadsheet (see the [input files](input_files.md) section of the documentation for format details): e.g. ETH_BORED_APE_4363. There is debate on whether NFTs should be treated as collectibles instead, but this has not been clarified officially by the IRS yet, to the best of my knowledge. Ask a tax professional for the correct answer in any given year.
 
 ### How to Handle Futures and Options?
 Calling for help on this question: if you have insight on this please open an issue or a PR.
