@@ -90,7 +90,7 @@ Of course the user still needs to keep all the documentation for previous years 
 You can use [crypto_example.config](../config/crypto_example.config) as boilerplate and the [Input Files](input_files.md) document as reference.
 
 ### Is My Tax Report Browsable?
-The rp2_full_report output contains full tax computation details. Part of its contents are hyperlinked to enble browsing: in LibreOffice, CTRL-click (on Mac, Command-click) on a cell to jump to the target:
+The rp2_full_report output contains full tax computation details. Part of its contents are hyperlinked to enable browsing: in LibreOffice, CTRL-click (on Mac, Command-click) on a cell to jump to the target:
   * taxable events and acquired lots in the *cryptocurrency* Tax sheet are hyperlinked to their definition line in the *cryptocurrency* In-Out sheet;
   * summary lines in the Summary sheet are hyperlinked to the first line of the given year in the *cryptocurrency* Tax sheet.
 
