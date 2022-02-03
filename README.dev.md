@@ -153,13 +153,13 @@ RP2 code adheres to these principles:
 * no unnamed tuples: dataclasses or named tuples are used instead;
 * one class per file (with exceptions for trivial classes);
 * files containing a class must have the same name as the class (but lowercase with underscores): e.g. class AbstractEntry lives in file abstract_entry.py;
-* abstract classes' name starts with `Abstract`
+* abstract class names start with `Abstract`
 * no imports with `*`.
 
 ### Development Workflow
 RP2 uses pre-commit hooks for quick validation at commit time and continuous integration via Github actions for deeper testing. Pre-commit hooks invoke: flake8, black, isort, pyupgrade and more. Github actions invoke: mypy, pylint, bandit, unit tests (on Linux, Mac and Windows), markdown link check and more.
 
-While every commit and push are automatically tested as described, sometimes it's useful to run some of the above commands locally without waiting for continuous integration. Here's how to run the most common ones:
+While every commit and push is automatically tested as described, sometimes it's useful to run some of the above commands locally without waiting for continuous integration. Here's how to run the most common ones:
 * run unit tests: `pytest --tb=native --verbose`
 * type check: `mypy src tests`
 * lint: `pylint -r y src tests/*.py`
@@ -177,7 +177,6 @@ LOG_LEVEL=DEBUG bin/rp2_us -o output -p crypto_example_ config/crypto_example.co
 RP2 has considerable unit test coverage to reduce the risk of regression. Unit tests are in the [tests](tests) directory. Please add unit tests for any new code.
 
 ## Plugin Development
-
 RP2 has a plugin architecture for countries, report generators and accounting methods, which makes it extensible for new use cases.
 
 ### Adding a New Report Generator
@@ -228,7 +227,7 @@ Accounting method plugins modify the behavior of the tax engine. They pair in/ou
 **IMPORTANT NOTE**: Accounting method plugins are an advanced topic and affect tax computation and results: proceed at your own risk!
 
 Accounting method plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
-* add a new Python file in the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
+* add a new Python file to the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
 * import the following (plus any other RP2 file you might need):
 ```
 from typing import Iterator, Optional
@@ -251,7 +250,7 @@ from logger import LOGGER
 ```
     def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], acquired_lot_iterator: Iterator[InTransaction]) -> None:
 ```
-* write the body of the method. The parameters are:
+* write the body of `initialize()`. This method is passed iterators on taxable events and aquired lots and performs accounting-method-specific initialization (e.g. it might iterate over the iterators and add the elements to custom data structures). The parameters are:
   * `taxable_event_iterator`: iterator over TaxableEvent instances (disposed-of lots), in chronological order;
   * `acquired_lot_iterator`: iterator over InTransaction instances (acquired lots), in chronological order;
 * Add `get_next_taxable_event_and_amount()` and `get_acquired_lot_for_taxable_event()` methods with the following signatures:
@@ -271,11 +270,12 @@ from logger import LOGGER
         acquired_lot_amount: RP2Decimal
     ) -> TaxableEventAndAcquiredLot:
 ```
-* write the bodies of the methods. The parameters are:
+* write the bodies of the methods. The parameters/return values are:
   * `taxable_event`: the disposed-of lot;
   * `acquired_lot`: the acquired lot;
   * `taxable_event_amount`: the amount that is leftover of the current taxable event;
   * `acquired_lot_amount`: the amount that is leftover of the current acquired lot.
+  * it returns TaxableEventAndAcquiredLot, which captures a new taxable event/acquired lot pair. Notice that in most cases only one of the two is new and the other stays the same and only gets its amount adjusted. However in some special cases that depend on the semantics of the plugin, one of these methods may need to update both taxable event and aquired lot (e.g. in the LIFO version of `get_next_taxable_event_and_amount()`, if the new taxable event has a timestamp with a new year, then the method also has to look for a new acquired lot in the same new year).
 * Add a `validate_acquired_lot_ancestor_timestamp()` method with the following signature:
 ```
     def validate_acquired_lot_ancestor_timestamp(self, acquired_lot: InTransaction, acquired_lot_parent: InTransaction) -> bool:
@@ -285,12 +285,12 @@ from logger import LOGGER
 **NOTE**: If you're interested in adding support for a new accounting method, open a [PR](CONTRIBUTING.md).
 
 ### Adding Support for a New Country
-RP2 has experimental infrastructure to support countries other than the US. It captures this functionality with the [AbstractCountry](src/rp2/abstract_country.py) class, which captures the following:
+RP2 has experimental infrastructure to support countries other than the US. The abstract superclass is [AbstractCountry](src/rp2/abstract_country.py), which captures the following:
 * country code (2-letter string in [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format);
 * currency code (3-letter string in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format);
 * long term capital gain period in days (e.g. for the US it's 365).
 
-To add support for a new country, add a new Python file in the `src/rp2/plugin/country` directory and name after the ISO 3166-1 alpha-2 2-letter code for the country. Then define the `long_term_capital_gain_period()` method with the appropriate value and add a global function called `rp2_entry()` which simply calls `rp2_main()` and passes it an instance of the new country class: in fact subclasses of `AbstractCountry` are entry points, not plugins. As an example see the [us.py](src/rp2/plugin/country/us.py) file.
+To add support for a new country, add a new Python file to the `src/rp2/plugin/country` directory and name it after the ISO 3166-1 alpha-2 2-letter code for the country. Then define the `long_term_capital_gain_period()` method with the appropriate value and add a global function called `rp2_entry()` which simply calls `rp2_main()` and passes it an instance of the new country class: in fact subclasses of `AbstractCountry` are entry points, not plugins. As an example see the [us.py](src/rp2/plugin/country/us.py) file.
 
 Finally add a console script to [setup.cfg](setup.cfg) pointing the new country rp2_entry (see the US example in the console_scripts section of setup.cfg).
 
