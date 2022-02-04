@@ -50,7 +50,7 @@ class AccountingMethod(AbstractAccountingMethod):
         return TaxableEventAndAcquiredLot(
             taxable_event=new_taxable_event,
             acquired_lot=acquired_lot,
-            taxable_event_amount=new_taxable_event.crypto_taxable_amount,
+            taxable_event_amount=new_taxable_event.crypto_balance_change,
             acquired_lot_amount=acquired_lot_amount - taxable_event_amount,
         )
 

@@ -131,7 +131,7 @@ class AccountingMethod(AbstractSpecificId):
             new_taxable_event: AbstractTransaction = next(self.__taxable_event_iterator)
         except StopIteration:
             raise TaxableEventsExhaustedException() from None
-        new_taxable_event_amount: RP2Decimal = new_taxable_event.crypto_taxable_amount
+        new_taxable_event_amount: RP2Decimal = new_taxable_event.crypto_balance_change
 
         # If the new taxable event has different year than the acquired lot (and it's not earn-typed), also get a new acquired lot from the new year
         if taxable_event and taxable_event.timestamp < new_taxable_event.timestamp:
@@ -139,7 +139,7 @@ class AccountingMethod(AbstractSpecificId):
                 # Cache old-year acquired_lot amount
                 self.__acquired_lot_2_partial_amount[acquired_lot] = new_acquired_lot_amount
             (_, new_acquired_lot, _, new_acquired_lot_amount) = self.get_acquired_lot_for_taxable_event(
-                new_taxable_event, acquired_lot, new_taxable_event.crypto_taxable_amount, new_acquired_lot_amount
+                new_taxable_event, acquired_lot, new_taxable_event_amount, new_acquired_lot_amount
             )
 
         return TaxableEventAndAcquiredLot(
