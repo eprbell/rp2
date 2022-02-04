@@ -462,7 +462,7 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 9, computed_data.get_crypto_out_running_sum(transaction), data_style="crypto", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 10, computed_data.get_crypto_out_fee_running_sum(transaction), data_style="crypto", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 11, transaction.crypto_out_no_fee * transaction.spot_price, visual_style=highlighted_style, data_style="fiat")
-            self._fill_cell(sheet, row_index, 12, transaction.crypto_fee * transaction.spot_price, visual_style=highlighted_style, data_style="fiat")
+            self._fill_cell(sheet, row_index, 12, transaction.crypto_fee * transaction.spot_price, visual_style=visual_style, data_style="fiat")
             self._fill_cell(sheet, row_index, 13, "YES" if transaction.is_taxable() else "NO", data_style="fiat", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 14, transaction.notes, visual_style="transparent")
 
