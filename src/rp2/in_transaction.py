@@ -159,7 +159,16 @@ class InTransaction(AbstractTransaction):
     @property
     def fiat_taxable_amount(self) -> RP2Decimal:
         if self.is_taxable():
+            # InTransactions that have is_taxable() set to True should not have any fees, but we return fiat_in_with_fee conservatively
             return self.fiat_in_with_fee
+        return ZERO
+
+    @property
+    def crypto_deduction(self) -> RP2Decimal:
+        return ZERO
+
+    @property
+    def fiat_deduction(self) -> RP2Decimal:
         return ZERO
 
     @property

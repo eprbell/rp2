@@ -131,6 +131,14 @@ class IntraTransaction(AbstractTransaction):
         return self.fiat_fee
 
     @property
+    def crypto_deduction(self) -> RP2Decimal:
+        return ZERO
+
+    @property
+    def fiat_deduction(self) -> RP2Decimal:
+        return ZERO
+
+    @property
     def crypto_balance_change(self) -> RP2Decimal:
         return self.crypto_fee
 

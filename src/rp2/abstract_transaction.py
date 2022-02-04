@@ -100,12 +100,24 @@ class AbstractTransaction(AbstractEntry):
     def notes(self) -> str:
         return self.__notes
 
+    # Crypto amount that is taxed
     @property
     def crypto_taxable_amount(self) -> RP2Decimal:
         raise NotImplementedError("Abstract property")
 
+    # Fiat amount that is taxed
     @property
     def fiat_taxable_amount(self) -> RP2Decimal:
+        raise NotImplementedError("Abstract property")
+
+    # Crypto amount that is not taxed
+    @property
+    def crypto_deduction(self) -> RP2Decimal:
+        raise NotImplementedError("Abstract property")
+
+    # Fiat amount that is not taxed
+    @property
+    def fiat_deduction(self) -> RP2Decimal:
         raise NotImplementedError("Abstract property")
 
     def is_taxable(self) -> bool:
