@@ -14,6 +14,12 @@
 
 # RP2 Change Log
 
+## v0.9.10
+* fixed issue #6: OUT transaction fee is now a deduction as per https://www.irs.gov/publications/p544 and https://taxbit.com/cryptocurrency-tax-guide (previously it was considered part of proceeds and therefore taxed)
+* restructured User FAQ document
+* added several questions to User FAQ document (many of them DeFi-related)
+* various edits and improvements throughout entire documentation
+
 ## v0.9.9
 * add DONATE and GIFT-typed InTransactions
 * changed Legend sheet to include time filter information
