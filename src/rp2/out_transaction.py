@@ -164,13 +164,24 @@ class OutTransaction(AbstractTransaction):
     def fiat_fee(self) -> RP2Decimal:
         return self.__fiat_fee
 
+    # IRS Publication 544 (https://www.irs.gov/publications/p544) explains that sale expenses are deducted from the sale price
+    # (see "Example 1" in the "Gain or Loss From Sales and Exchanges" section). A less formal explanation:
+    # https://taxbit.com/cryptocurrency-tax-guide. Therefore the fee is considered a deduction and the outgoing amount is not.
     @property
     def crypto_taxable_amount(self) -> RP2Decimal:
-        return self.crypto_balance_change
+        return self.crypto_out_no_fee
 
     @property
     def fiat_taxable_amount(self) -> RP2Decimal:
-        return self.fiat_balance_change
+        return self.fiat_out_no_fee
+
+    @property
+    def crypto_deduction(self) -> RP2Decimal:
+        return self.crypto_fee
+
+    @property
+    def fiat_deduction(self) -> RP2Decimal:
+        return self.fiat_fee
 
     @property
     def crypto_balance_change(self) -> RP2Decimal:
