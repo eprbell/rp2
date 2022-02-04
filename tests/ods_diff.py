@@ -22,6 +22,7 @@ from typing import Any, List
 import ezodf
 from rp2.rp2_decimal import CRYPTO_DECIMALS
 
+_PURGE_HYPERLIKS = True
 
 def _row_as_string(row: Any) -> str:
     values: List[str] = []
@@ -46,6 +47,8 @@ def _parse_cell_value(cell: Any) -> Any:
     try:
         if cell.formula:
             value = cell.formula
+            if _PURGE_HYPERLIKS and value.startswith("=HYPERLINK"):
+                value = value.split(";")[1].lstrip(' "').rstrip('")')
         elif cell.value or cell.value == 0:
             value = round(float(cell.value), CRYPTO_DECIMALS)
             if value == -0.0:

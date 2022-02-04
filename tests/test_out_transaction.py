@@ -51,8 +51,8 @@ class TestOutTransaction(unittest.TestCase):
         OutTransaction.type_check("my_instance", out_transaction)
 
         self.assertTrue(out_transaction.is_taxable())
-        self.assertEqual(RP2Decimal("1990.989"), out_transaction.fiat_taxable_amount)
-        self.assertEqual(RP2Decimal("2.21"), out_transaction.crypto_taxable_amount)
+        self.assertEqual(RP2Decimal("1981.98"), out_transaction.fiat_taxable_amount)
+        self.assertEqual(RP2Decimal("2.2"), out_transaction.crypto_taxable_amount)
         self.assertEqual("38", out_transaction.unique_id)
         self.assertEqual(2020, out_transaction.timestamp.year)
         self.assertEqual(6, out_transaction.timestamp.month)
@@ -83,7 +83,7 @@ class TestOutTransaction(unittest.TestCase):
   crypto_out_no_fee=2.20000000
   crypto_fee=0.01000000
   is_taxable=True
-  fiat_taxable_amount=1990.9890""",
+  fiat_taxable_amount=1981.9800""",
         )
         self.assertEqual(
             out_transaction.to_string(2, repr_format=False, extra_data=["foobar", "qwerty"]),
@@ -98,7 +98,7 @@ class TestOutTransaction(unittest.TestCase):
       crypto_out_no_fee=2.20000000
       crypto_fee=0.01000000
       is_taxable=True
-      fiat_taxable_amount=1990.9890
+      fiat_taxable_amount=1981.9800
       foobar
       qwerty""",
         )
@@ -116,7 +116,7 @@ class TestOutTransaction(unittest.TestCase):
                 "crypto_out_no_fee=2.20000000, "
                 "crypto_fee=0.01000000, "
                 "is_taxable=True, "
-                "fiat_taxable_amount=1990.9890, "
+                "fiat_taxable_amount=1981.9800, "
                 "foobar, "
                 "qwerty)"
             ),

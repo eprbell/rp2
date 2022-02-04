@@ -160,7 +160,7 @@ class TestInputParser(unittest.TestCase):
             TransactionType.SELL,
         ]
         spot_prices: List[RP2Decimal] = [RP2Decimal(d) for d in ["11200", "12200", "14200", "14300", "20200"]]
-        fiat_taxable_amounts: List[RP2Decimal] = [RP2Decimal(d) for d in ["2240", "12200", "71000", "54197", "40602.0"]]
+        fiat_taxable_amounts: List[RP2Decimal] = [RP2Decimal(d) for d in ["2240", "12200", "71000", "54197", "40400.0"]]
         crypto_balance_changes: List[RP2Decimal] = [RP2Decimal(d) for d in ["0.2", "1", "5", "3.79", "2.01"]]
         fiat_balance_changes: List[RP2Decimal] = [RP2Decimal(d) for d in ["2240", "12200", "71000", "54197", "40602.0"]]
         is_taxable_values: List[bool] = [True, True, True, True, True]
