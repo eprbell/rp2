@@ -188,7 +188,10 @@ class GainLoss(AbstractEntry):
             if not self.taxable_event.transaction_type.is_earn_type():
                 raise Exception("Internal error: acquired lot is None but taxable event is not earn-typed")
             return ZERO
-        # We don't simply multiply by acquired_lot_fraction_percentage to avoid potential precision loss with small percentages
+        # The cost basis is fiat_in + fee (as explained in https://www.irs.gov/publications/p544 and
+        # https://taxbit.com/cryptocurrency-tax-guide).
+        # Also note that we don't simply multiply by acquired_lot_fraction_percentage to avoid potential precision loss
+        # with small percentages.
         return (self.acquired_lot.fiat_in_with_fee * self.crypto_amount) / self.acquired_lot.crypto_balance_change
 
     @property
