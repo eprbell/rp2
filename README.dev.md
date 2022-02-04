@@ -153,7 +153,7 @@ RP2 code adheres to these principles:
 * no unnamed tuples: dataclasses or named tuples are used instead;
 * one class per file (with exceptions for trivial classes);
 * files containing a class must have the same name as the class (but lowercase with underscores): e.g. class AbstractEntry lives in file abstract_entry.py;
-* abstract class names start with `Abstract`
+* abstract class names start with `Abstract`;
 * no imports with `*`.
 
 ### Development Workflow

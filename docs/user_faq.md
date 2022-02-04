@@ -131,7 +131,7 @@ RP2 keeps track of in/out lot relationship, lot fractioning and it computes capi
 
 For additional information on which forms to file read:
 <!-- markdown-link-check-disable -->
-* [CoinTracker's summary on this topic](https://www.cointracker.io/blog/what-tax-forms-should-crypto-holders-file).
+* [CoinTracker's summary on this topic](https://www.cointracker.io/blog/what-tax-forms-should-crypto-holders-file)
 <!-- markdown-link-check-enable-->
 * [IRS Virtual Currency FAQ](https://www.irs.gov/individuals/international-taxpayers/frequently-asked-questions-on-virtual-currency-transactions)
 
