@@ -191,9 +191,14 @@ def _find_accounting_methods() -> List[str]:
 def _setup_argument_parser(accounting_methods: List[str]) -> ArgumentParser:
     parser: ArgumentParser = ArgumentParser(
         description=(
-            "Generate yearly capital gain/loss report and account balances for crypto holdings. "
-            "If this software is useful to you, consider leaving a star on its Github page: "
-            "https://github.com/eprbell/rp2"
+            "Generate capital gain/loss report and account balances for crypto holdings."
+            ""
+            "Documentation: https://github.com/eprbell/rp2/blob/main/README.md"
+            "FAQ: https://github.com/eprbell/rp2/blob/main/docs/user_faq.md"
+            ""
+            "If this software is useful to you, consider supporting it by:"
+            "- leaving a star on Github (https://github.com/eprbell/rp2) or"
+            "- donating (https://eprbell.github.io/eprbell/donations.html)"
         )
     )
 
