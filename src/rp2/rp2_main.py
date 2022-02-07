@@ -16,7 +16,7 @@ import cProfile
 from datetime import date
 import os
 import sys
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from importlib import import_module
 from pathlib import Path
 from pkgutil import iter_modules
@@ -191,15 +191,13 @@ def _find_accounting_methods() -> List[str]:
 def _setup_argument_parser(accounting_methods: List[str]) -> ArgumentParser:
     parser: ArgumentParser = ArgumentParser(
         description=(
-            "Generate capital gain/loss report and account balances for crypto holdings."
-            ""
-            "Documentation: https://github.com/eprbell/rp2/blob/main/README.md"
-            "FAQ: https://github.com/eprbell/rp2/blob/main/docs/user_faq.md"
-            ""
-            "If this software is useful to you, consider supporting it by:"
-            "- leaving a star on Github (https://github.com/eprbell/rp2) or"
-            "- donating (https://eprbell.github.io/eprbell/donations.html)"
-        )
+            "Generate capital gain/loss report and balances for crypto holdings. Links:\n"
+            "- documentation: https://github.com/eprbell/rp2/blob/main/README.md\n"
+            "- FAQ: https://github.com/eprbell/rp2/blob/main/docs/user_faq.md\n"
+            "- donations: https://eprbell.github.io/eprbell/donations.html\n"
+            "- leave a star on Github: https://github.com/eprbell/rp2"
+        ),
+        formatter_class=RawTextHelpFormatter,
     )
 
     parser.add_argument(
