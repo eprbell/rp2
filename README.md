@@ -33,6 +33,7 @@
 * **[Input and Output Files](https://github.com/eprbell/rp2/tree/main/README.md#input-and-output-files)**
 * **[Reporting Bugs](https://github.com/eprbell/rp2/tree/main/README.md#reporting-bugs)**
 * **[Contributing](https://github.com/eprbell/rp2/tree/main/README.md#contributing)**
+* **[RP2 Ecosystem](https://github.com/eprbell/rp2/tree/main/README.md#rp2-ecosystem)**
 * **[Developer Documentation](https://github.com/eprbell/rp2/tree/main/README.md#developer-documentation)**
 * **[Frequently Asked Questions](https://github.com/eprbell/rp2/tree/main/README.md#frequently-asked-questions)**
 * **[Donations](https://github.com/eprbell/rp2/tree/main/README.md#donations)**
@@ -161,7 +162,21 @@ Read the [input files](https://github.com/eprbell/rp2/tree/main/docs/input_files
 Read the [Contributing](https://github.com/eprbell/rp2/tree/main/CONTRIBUTING.md#reporting-bugs) document.
 
 ## Contributing
-Read the [Contributing](https://github.com/eprbell/rp2/tree/main/CONTRIBUTING.md) document.
+Read the [Contributing](CONTRIBUTING.md) document.
+
+## RP2 Ecosystem
+This is a call for projects: come and help us expand RP2's functionality!
+
+RP2 is the first project of what could be a powerful, community-driven suite of open-source, crypto tax software.
+
+RP2 is intendend as the core of a larger set of projects, maintained by the community. These project can extend RP2's capability, usefulness and ease of use. Here are some initial ideas:
+* RP2 data loader: retrieve crypto data from exchanges (via both REST API and CSV files) and generate an input ODS file and a config file that can be fed directly to RP2;
+* RP2 GUI: make RP2 more user-friendly and accessible to people who are not familiar with the CLI;
+* RP2 high-level interface: RP2 captures complex tax events using a few powerful, low-level primitives, aggregated in patterns. A higher level tool, might abstract out these patterns and present them to the user in a friendlier way (for example it may capture a complex concept like DeFi bridging as a primitive, rather than a pattern);
+* RP2 [plugins](https://github.com/eprbell/rp2/tree/main/README.dev.md#plugin-development): RP2 can be expanded via its programmable plugin architecture, which enables creation of new output generators, countries and accounting methods;
+* more...
+
+If you'd like to start an ecosystem project, please open an [issue](https://github.com/eprbell/rp2/issues) to let the RP2 community know!
 
 ## Developer Documentation
 Read the [developer documentation](https://github.com/eprbell/rp2/tree/main/README.dev.md).
