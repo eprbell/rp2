@@ -31,9 +31,9 @@
   * [Other Unix-like Systems](https://github.com/eprbell/rp2/tree/main/README.md#installation-on-other-unix-like-systems)
 * **[Running](https://github.com/eprbell/rp2/tree/main/README.md#running)**
 * **[Input and Output Files](https://github.com/eprbell/rp2/tree/main/README.md#input-and-output-files)**
+* **[RP2 Ecosystem](https://github.com/eprbell/rp2/tree/main/README.md#rp2-ecosystem)**
 * **[Reporting Bugs](https://github.com/eprbell/rp2/tree/main/README.md#reporting-bugs)**
 * **[Contributing](https://github.com/eprbell/rp2/tree/main/README.md#contributing)**
-* **[RP2 Ecosystem](https://github.com/eprbell/rp2/tree/main/README.md#rp2-ecosystem)**
 * **[Developer Documentation](https://github.com/eprbell/rp2/tree/main/README.md#developer-documentation)**
 * **[Frequently Asked Questions](https://github.com/eprbell/rp2/tree/main/README.md#frequently-asked-questions)**
 * **[Donations](https://github.com/eprbell/rp2/tree/main/README.md#donations)**
@@ -158,12 +158,6 @@ To print full command usage information for the `rp2_us` command:
 ## Input and Output Files
 Read the [input files](https://github.com/eprbell/rp2/tree/main/docs/input_files.md) and [output files](https://github.com/eprbell/rp2/tree/main/docs/output_files.md) documentation.
 
-## Reporting Bugs
-Read the [Contributing](https://github.com/eprbell/rp2/tree/main/CONTRIBUTING.md#reporting-bugs) document.
-
-## Contributing
-Read the [Contributing](CONTRIBUTING.md) document.
-
 ## RP2 Ecosystem
 This is a call for projects: come and help us expand RP2's functionality!
 
@@ -177,6 +171,12 @@ RP2 is intendend as the core of a larger set of projects, maintained by the comm
 * more...
 
 If you'd like to start an ecosystem project, please open an [issue](https://github.com/eprbell/rp2/issues) to let the RP2 community know!
+
+## Reporting Bugs
+Read the [Contributing](https://github.com/eprbell/rp2/tree/main/CONTRIBUTING.md#reporting-bugs) document.
+
+## Contributing
+Read the [Contributing](CONTRIBUTING.md) document.
 
 ## Developer Documentation
 Read the [developer documentation](https://github.com/eprbell/rp2/tree/main/README.dev.md).
