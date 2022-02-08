@@ -133,7 +133,7 @@ class AbstractODSGenerator(AbstractReportGenerator):
             # If the value starts with '=' it is assumed to be a formula
             is_formula = True
 
-        style_name = f"{visual_style}_{data_style}"
+        style_name: str = f"{visual_style}_{data_style}"
         if isinstance(value, RP2Decimal):
             # The ezodf API doesn't accept RP2Decimal, so we are forced to cast to float before writing to the spreadsheet
             value = float(value)
