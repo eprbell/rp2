@@ -174,7 +174,7 @@ If you'd like to start an ecosystem project, please open an [issue](https://gith
 Read the [Contributing](https://github.com/eprbell/rp2/tree/main/CONTRIBUTING.md#reporting-bugs) document.
 
 ## Contributing
-Read the [Contributing](CONTRIBUTING.md) document.
+Read the [Contributing](https://github.com/eprbell/rp2/tree/main/CONTRIBUTING.md) document.
 
 ## Developer Documentation
 Read the [developer documentation](https://github.com/eprbell/rp2/tree/main/README.dev.md).
