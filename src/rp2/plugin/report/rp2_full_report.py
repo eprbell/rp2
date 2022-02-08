@@ -65,7 +65,7 @@ class Generator(AbstractODSGenerator):
     __tax_sheet_year_2_row: Dict[_AssetAndYear, int] = {}
 
     __in_header_names_row_1: List[str] = []
-    __in_header_names_row: List[str] = []
+    __in_header_names_row_2: List[str] = []
     __out_header_names_row_1: List[str] = []
     __out_header_names_row_2: List[str] = []
     __intra_header_names_row_1: List[str] = []
@@ -81,7 +81,7 @@ class Generator(AbstractODSGenerator):
 
         currency_code: str = country.currency_iso_code.upper()
 
-        self.__in_header_names_row_1 = [
+        self.__in_header_names_row_1: List[str] = [
             "",
             "",
             "",
@@ -99,7 +99,7 @@ class Generator(AbstractODSGenerator):
             "",
         ]
 
-        self.__in_header_names_row = [
+        self.__in_header_names_row_2: List[str] = [
             "Sent/Sold",
             "Timestamp",
             "Asset",
@@ -117,7 +117,7 @@ class Generator(AbstractODSGenerator):
             "Notes",
         ]
 
-        self.__out_header_names_row_1 = [
+        self.__out_header_names_row_1: List[str] = [
             "",
             "",
             "",
@@ -134,7 +134,7 @@ class Generator(AbstractODSGenerator):
             "",
         ]
 
-        self.__out_header_names_row_2 = [
+        self.__out_header_names_row_2: List[str] = [
             "Timestamp",
             "Asset",
             "Exchange",
@@ -151,7 +151,7 @@ class Generator(AbstractODSGenerator):
             "Notes",
         ]
 
-        self.__intra_header_names_row_1 = [
+        self.__intra_header_names_row_1: List[str] = [
             "",
             "",
             "From",
@@ -168,7 +168,7 @@ class Generator(AbstractODSGenerator):
             "",
         ]
 
-        self.__intra_header_names_row_2 = [
+        self.__intra_header_names_row_2: List[str] = [
             "Timestamp",
             "Asset",
             "Exchange",
@@ -185,7 +185,7 @@ class Generator(AbstractODSGenerator):
             "Notes",
         ]
 
-        self.__balance_header_names_row_1 = [
+        self.__balance_header_names_row_1: List[str] = [
             "",
             "",
             "",
@@ -195,7 +195,7 @@ class Generator(AbstractODSGenerator):
             "Final",
         ]
 
-        self.__balance_header_names_row_2 = [
+        self.__balance_header_names_row_2: List[str] = [
             "Exchange",
             "Holder",
             "Asset",
@@ -205,7 +205,7 @@ class Generator(AbstractODSGenerator):
             "Balance",
         ]
 
-        self.__gain_loss_summary_header_names_row_1 = [
+        self.__gain_loss_summary_header_names_row_1: List[str] = [
             "",
             "",
             "Capital",
@@ -216,7 +216,7 @@ class Generator(AbstractODSGenerator):
             f"{currency_code} Total",
         ]
 
-        self.__gain_loss_summary_header_names_row_2 = [
+        self.__gain_loss_summary_header_names_row_2: List[str] = [
             "Year",
             "Asset",
             "Gains",
@@ -227,7 +227,7 @@ class Generator(AbstractODSGenerator):
             "Cost Basis",
         ]
 
-        self.__gain_loss_detail_header_names_row_1 = [
+        self.__gain_loss_detail_header_names_row_1: List[str] = [
             "Crypto",
             "",
             "Crypto Amt",
@@ -248,7 +248,7 @@ class Generator(AbstractODSGenerator):
             "Acquired Lot Fraction",
         ]
 
-        self.__gain_loss_detail_header_names_row_2 = [
+        self.__gain_loss_detail_header_names_row_2: List[str] = [
             "Amount",
             "Asset",
             "Running Sum",
@@ -382,7 +382,7 @@ class Generator(AbstractODSGenerator):
         return _BorderStyle(year, border_suffix)
 
     def __generate_in_table(self, sheet: Any, computed_data: ComputedData, row_index: int) -> int:
-        row_index = self._fill_header("In-Flow Detail", self.__in_header_names_row_1, self.__in_header_names_row, sheet, row_index, 0)
+        row_index = self._fill_header("In-Flow Detail", self.__in_header_names_row_1, self.__in_header_names_row_2, sheet, row_index, 0)
 
         in_transaction_set: TransactionSet = computed_data.in_transaction_set
         entry: AbstractEntry
