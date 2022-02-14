@@ -14,6 +14,13 @@
 
 # RP2 Change Log
 
+# In Progress
+* refactored to_string() method to be top-level, so that it's easier to use in external projects.
+* added [RP2 Ecosystem](https://github.com/eprbell/rp2/tree/main/README.md#rp2-ecosystem) paragraph to README.md
+* added a few more FAQs to user frequently asked questions document
+* improved CLI description
+* minor fixes
+
 ## v0.9.10
 * fixed [issue #6](https://github.com/eprbell/rp2/issues/6): OUT transaction fee is now a deduction as per https://www.irs.gov/publications/p544 and https://taxbit.com/cryptocurrency-tax-guide (previously it was considered part of proceeds and therefore taxed)
 * restructured User FAQ document
