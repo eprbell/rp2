@@ -14,7 +14,7 @@
 
 # RP2 Change Log
 
-# In Progress
+# v0.9.11
 * refactored to_string() method to be top-level, so that it's easier to use in external projects.
 * added [RP2 Ecosystem](https://github.com/eprbell/rp2/tree/main/README.md#rp2-ecosystem) paragraph to README.md
 * added a few more FAQs to user frequently asked questions document
