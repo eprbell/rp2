@@ -29,6 +29,32 @@ VERSION: str = "0.9.10"
 MIN_DATE: date = date(1970, 1, 1)
 MAX_DATE: date = date(9999, 12, 31)
 
+# Parametrized and extensible method to generate string representation
+def to_string(indent: int = 0, repr_format: bool = True, data: Optional[List[str]] = None) -> str:
+    padding: str
+    output: List[str] = []
+    separator: str
+    if not data:
+        return ""
+
+    if repr_format:
+        padding = ""
+        separator = ", "
+        data[0] = f"{'  ' * indent}{data[0]}"
+    else:
+        padding = "  " * indent
+        separator = "\n  "
+
+    if data:
+        for line in data:
+            output.append(f"{padding}{line}")
+
+    if repr_format:
+        output[-1] += ")"
+
+    # Joining by separator adds one level of indentation to internal fields (like id) in str mode, which is correct.
+    return separator.join(output)
+
 
 class Configuration:  # pylint: disable=too-many-public-methods
     @classmethod
@@ -98,33 +124,6 @@ class Configuration:  # pylint: disable=too-many-public-methods
             f"exchanges={self.__sorted_exchanges}, "
             f"holders={self.__sorted_holders})"
         )
-
-    # Parametrized and extensible method to generate string representation
-    @staticmethod
-    def to_string(indent: int = 0, repr_format: bool = True, data: Optional[List[str]] = None) -> str:
-        padding: str
-        output: List[str] = []
-        separator: str
-        if not data:
-            return ""
-
-        if repr_format:
-            padding = ""
-            separator = ", "
-            data[0] = f"{'  ' * indent}{data[0]}"
-        else:
-            padding = "  " * indent
-            separator = "\n  "
-
-        if data:
-            for line in data:
-                output.append(f"{padding}{line}")
-
-        if repr_format:
-            output[-1] += ")"
-
-        # Joining by separator adds one level of indentation to internal fields (like id) in str mode, which is correct.
-        return separator.join(output)
 
     @property
     def configuration_path(self) -> str:
