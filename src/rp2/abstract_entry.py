@@ -15,7 +15,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from rp2.configuration import Configuration
+from rp2.configuration import Configuration, to_string
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError
 
@@ -47,7 +47,7 @@ class AbstractEntry:
         if extra_data:
             class_specific_data.extend(extra_data)
 
-        return self.configuration.to_string(indent=indent, repr_format=repr_format, data=class_specific_data)
+        return to_string(indent=indent, repr_format=repr_format, data=class_specific_data)
 
     def __str__(self) -> str:
         return self.to_string(indent=0, repr_format=False)
