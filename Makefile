@@ -68,7 +68,7 @@ upload_distribution: distribution
 	$(VENV)/bin/python3 -m twine upload dist/*
 
 clean:
-	rm -rf $(VENV) .mypy_cache/ build dist/ log/ output/ src/rp2.egg-info/
+	rm -rf $(VENV) .mypy_cache/ build dist/ log/ output/ src/*.egg-info/
 	find . -type f -name '*.pyc' -delete
 
 .PHONY: all archive check clean lint reformat run securitycheck typecheck
