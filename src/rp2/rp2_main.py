@@ -230,7 +230,7 @@ def _setup_argument_parser(accounting_methods: List[str]) -> ArgumentParser:
         "--method",
         default="fifo",
         choices=accounting_methods,
-        help="accounting method (default: '%(default)s')",
+        help=f"accounting method (default: '%(default)s'). Supported values: {', '.join(accounting_methods)}",
         metavar="METHOD",
         type=str,
     )
