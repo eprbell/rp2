@@ -148,7 +148,7 @@ Also read the question on [crypto tax resources](#which-resources-can-i-use-to-l
 ## Tax Scenarios
 
 ### What if I and My Spouse File Taxes Jointly?
-The names of the people filing taxes jointly should be added to the holders section of the config file (which is used for validation) and also in the holder column of each transaction in the input file. With this information RP2 generates a joint output. Here's an example in which the people filing jointly are called Alice and Bob:
+The names of people filing taxes jointly should be added to the holders section of the config file (which is used for validation) and also in the holder column of each transaction in the input file. With this information RP2 generates a joint output. Here's an example in which the people filing jointly are called Alice and Bob:
 * [config/crypto_example.config](../config/crypto_example.config) (see Alice and Bob in the holders section)
 * [input/crypto_example.ods](../input/crypto_example.ods) (see transactions moving BTC from Bob to Alice in the INTRA table of the BTC tab).
 
