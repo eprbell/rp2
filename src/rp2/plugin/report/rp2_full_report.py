@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from datetime import date
+import logging
 from pathlib import Path
 from typing import Any, Dict, List, NamedTuple, Optional, Set, cast
 
@@ -26,13 +27,15 @@ from rp2.gain_loss import GainLoss
 from rp2.gain_loss_set import GainLossSet
 from rp2.in_transaction import InTransaction
 from rp2.intra_transaction import IntraTransaction
-from rp2.logger import LOGGER
+from rp2.logger import create_logger
 from rp2.out_transaction import OutTransaction
 from rp2.plugin.report.abstract_ods_generator import AbstractODSGenerator
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError
 from rp2.transaction_set import TransactionSet
 
+
+LOGGER: logging.Logger = create_logger("rp2_full_report")
 
 class _TransactionVisualStyle(NamedTuple):
     year: int
