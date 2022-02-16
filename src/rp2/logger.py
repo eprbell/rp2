@@ -21,20 +21,25 @@ from typing import Optional
 LOG_FILE: str = f"./log/rp2_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S_%f')}.log"
 Path("./log").mkdir(parents=True, exist_ok=True)
 
-LOGGER: logging.Logger = logging.getLogger("rp2")
-LOGGER.setLevel(logging.DEBUG)
+def create_logger(logger_name: str="rp2") -> logging.Logger:
+    logger: logging.Logger = logging.getLogger(logger_name)
+    logger.setLevel(logging.DEBUG)
 
-_console_handler: logging.StreamHandler = logging.StreamHandler()
-_console_format: logging.Formatter = logging.Formatter("%(levelname)s: %(message)s")
-_console_handler.setLevel(logging.INFO)
-_console_handler.setFormatter(_console_format)
+    _console_handler: logging.StreamHandler = logging.StreamHandler()
+    _console_format: logging.Formatter = logging.Formatter("%(levelname)s: %(message)s")
+    _console_handler.setLevel(logging.INFO)
+    _console_handler.setFormatter(_console_format)
 
-_file_handler: logging.FileHandler = logging.FileHandler(LOG_FILE)
-_file_format: logging.Formatter = logging.Formatter("%(asctime)s/%(name)s/%(levelname)s: %(message)s")
-_log_level: Optional[str] = os.environ.get("LOG_LEVEL")
-_log_level = "INFO" if not _log_level else _log_level
-_file_handler.setLevel(_log_level)
-_file_handler.setFormatter(_file_format)
+    _file_handler: logging.FileHandler = logging.FileHandler(LOG_FILE)
+    _file_format: logging.Formatter = logging.Formatter("%(asctime)s/%(name)s/%(levelname)s: %(message)s")
+    _log_level: Optional[str] = os.environ.get("LOG_LEVEL")
+    _log_level = "INFO" if not _log_level else _log_level
+    _file_handler.setLevel(_log_level)
+    _file_handler.setFormatter(_file_format)
 
-LOGGER.addHandler(_console_handler)
-LOGGER.addHandler(_file_handler)
+    logger.addHandler(_console_handler)
+    logger.addHandler(_file_handler)
+
+    return logger
+
+LOGGER: logging.Logger = create_logger()
