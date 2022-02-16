@@ -14,7 +14,10 @@
 
 # RP2 Change Log
 
-# v0.9.11
+## v0.9.12
+* Added support for multiple logger names (e.g. plugins can use different logger names than core RP2 code).
+
+## v0.9.11
 * refactored to_string() method to be top-level, so that it's easier to use in external projects.
 * added [RP2 Ecosystem](https://github.com/eprbell/rp2/tree/main/README.md#rp2-ecosystem) paragraph to README.md
 * added a few more FAQs to user frequently asked questions document
