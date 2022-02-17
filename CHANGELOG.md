@@ -14,6 +14,9 @@
 
 # RP2 Change Log
 
+## v0.9.13
+* Add py.typed to rp2 package to indicate type hint support.
+
 ## v0.9.12
 * Added support for multiple logger names (e.g. plugins can use different logger names than core RP2 code).
 
