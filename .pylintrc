@@ -17,6 +17,7 @@ disable=
     C0114, # missing-module-docstring
     C0115, # missing-class-docstring
     C0116, # missing-function-docstring
+    C0411, # wrong-import-order
     R0801, # similar lines in 2 files
     R0902, # too-many-instance-attributes
     R0903, # too-few-public-methods

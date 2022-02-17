@@ -21,7 +21,8 @@ from typing import Optional
 LOG_FILE: str = f"./log/rp2_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S_%f')}.log"
 Path("./log").mkdir(parents=True, exist_ok=True)
 
-def create_logger(logger_name: str="rp2") -> logging.Logger:
+
+def create_logger(logger_name: str = "rp2") -> logging.Logger:
     logger: logging.Logger = logging.getLogger(logger_name)
     logger.setLevel(logging.DEBUG)
 
@@ -41,5 +42,6 @@ def create_logger(logger_name: str="rp2") -> logging.Logger:
     logger.addHandler(_file_handler)
 
     return logger
+
 
 LOGGER: logging.Logger = create_logger()

@@ -21,6 +21,7 @@ from typing import Any, Optional
 
 import jsonschema
 from dateutil.tz import tzoffset, tzutc
+
 from rp2.abstract_country import AbstractCountry
 from rp2.configuration import Configuration
 from rp2.plugin.country.us import US

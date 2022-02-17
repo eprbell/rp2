@@ -13,10 +13,10 @@
 # limitations under the License.
 
 import cProfile
-from datetime import date
 import os
 import sys
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
+from datetime import date
 from importlib import import_module
 from pathlib import Path
 from pkgutil import iter_modules

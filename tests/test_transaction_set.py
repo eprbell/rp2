@@ -16,6 +16,7 @@ import unittest
 from typing import List, Optional, cast
 
 from dateutil.parser import parse
+
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.configuration import Configuration

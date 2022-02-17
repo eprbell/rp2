@@ -15,6 +15,7 @@
 import unittest
 
 from dateutil.tz import tzutc
+
 from rp2.configuration import Configuration
 from rp2.entry_types import TransactionType
 from rp2.in_transaction import InTransaction

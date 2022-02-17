@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import date
 import os
 import unittest
+from datetime import date
 from enum import Enum
 from pathlib import Path
 from subprocess import run
 from typing import List
 
 from ods_diff import ods_diff
+
 from rp2.configuration import MAX_DATE, MIN_DATE
 
 ROOT_PATH: Path = Path(os.path.dirname(__file__)).parent.absolute()

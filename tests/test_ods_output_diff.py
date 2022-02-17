@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import date
 import os
 import shutil
 import unittest
+from datetime import date
 from pathlib import Path
 
 from abstract_test_ods_output_diff import AbstractTestODSOutputDiff, OutputPlugins

@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import date
 import logging
+from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, NamedTuple, Optional, Set, cast
 
 import ezodf
+
 from rp2.abstract_country import AbstractCountry
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
@@ -34,8 +35,8 @@ from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError
 from rp2.transaction_set import TransactionSet
 
-
 LOGGER: logging.Logger = create_logger("rp2_full_report")
+
 
 class _TransactionVisualStyle(NamedTuple):
     year: int

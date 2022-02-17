@@ -20,9 +20,11 @@ from tempfile import NamedTemporaryFile
 from typing import Any, List
 
 import ezodf
+
 from rp2.rp2_decimal import CRYPTO_DECIMALS
 
 _PURGE_HYPERLIKS = True
+
 
 def _row_as_string(row: Any) -> str:
     values: List[str] = []

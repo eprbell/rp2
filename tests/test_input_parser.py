@@ -16,6 +16,7 @@ import unittest
 from typing import Dict, List, NamedTuple, Optional, Type
 
 from dateutil.parser import parse
+
 from rp2.configuration import Configuration
 from rp2.entry_types import TransactionType
 from rp2.in_transaction import InTransaction

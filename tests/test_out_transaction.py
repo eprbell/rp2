@@ -16,6 +16,7 @@ import re
 import unittest
 
 from dateutil.tz import tzoffset
+
 from rp2.configuration import Configuration
 from rp2.entry_types import TransactionType
 from rp2.intra_transaction import IntraTransaction

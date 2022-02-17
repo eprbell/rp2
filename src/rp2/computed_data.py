@@ -15,8 +15,8 @@
 from dataclasses import dataclass
 from datetime import date
 from typing import Dict, List, Set, cast
-from rp2.abstract_entry import AbstractEntry
 
+from rp2.abstract_entry import AbstractEntry
 from rp2.balance import BalanceSet
 from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.entry_types import EntrySetType, TransactionType

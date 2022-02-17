@@ -19,6 +19,7 @@ from typing import Any, Dict, List, Optional, Set
 
 from dateutil.parser import parse
 from jsonschema import validate
+
 from rp2.abstract_country import AbstractCountry
 from rp2.configuration_schema import CONFIGURATION_SCHEMA
 from rp2.rp2_decimal import ZERO, RP2Decimal

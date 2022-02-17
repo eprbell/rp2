@@ -14,6 +14,8 @@
 
 import unittest
 
+from rp2_test_output import RP2_TEST_OUTPUT  # pylint: disable=wrong-import-order
+
 from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.computed_data import ComputedData
 from rp2.configuration import Configuration
@@ -25,7 +27,6 @@ from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 from rp2.tax_engine import compute_tax
-from rp2_test_output import RP2_TEST_OUTPUT  # pylint: disable=wrong-import-order
 
 
 class TestTaxEngine(unittest.TestCase):

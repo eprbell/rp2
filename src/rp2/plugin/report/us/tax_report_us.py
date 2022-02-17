@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 from datetime import date
 from enum import Enum
-import logging
 from pathlib import Path
 from typing import Any, Dict, List, Set, cast
 
@@ -28,6 +28,7 @@ from rp2.plugin.report.abstract_ods_generator import AbstractODSGenerator
 from rp2.rp2_error import RP2TypeError
 
 LOGGER: logging.Logger = create_logger("tax_report_us")
+
 
 class SheetNames(Enum):
     AIRDROPS: str = "Airdrops"

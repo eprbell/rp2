@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import date
 import os
+from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, Set
 
 import ezodf
+
 from rp2.abstract_country import AbstractCountry
 from rp2.abstract_report_generator import AbstractReportGenerator
 from rp2.abstract_transaction import AbstractTransaction
