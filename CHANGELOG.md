@@ -14,6 +14,12 @@
 
 # RP2 Change Log
 
+## v0.9.14
+* added support for Income-type InTransaction (to capture misc income like Coinbase Earn)
+* renamed old unique_id field to internal_id and added a new unique_id field to all transactions, which captures hash for IntraTransactions and exchange-specific unique ids for In/OutTransactions
+* updated documentation to reflect latest changes
+* minor fixes and refactoring
+
 ## v0.9.13
 * Add py.typed to rp2 package to indicate type hint support.
 
