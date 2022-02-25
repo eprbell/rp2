@@ -34,14 +34,14 @@ class IntraTransaction(AbstractTransaction):
         spot_price: Optional[RP2Decimal],
         crypto_sent: RP2Decimal,
         crypto_received: RP2Decimal,
-        unique_id: Optional[int] = None,
+        internal_id: Optional[int] = None,
         notes: Optional[str] = None,
     ) -> None:
         if spot_price is None:
             # Sometimes, when fee is 0 in IntraTransactions, exchanges don't provide the spot_price: this is OK because
             # if the fee is 0, spot price isn't needed. In this case spot price is assigned 0.
             spot_price = ZERO
-        super().__init__(configuration, timestamp, asset, "MOVE", spot_price, unique_id, notes)
+        super().__init__(configuration, timestamp, asset, "MOVE", spot_price, internal_id, notes)
 
         self.__from_exchange: str = configuration.type_check_exchange("from_exchange", from_exchange)
         self.__from_holder: str = configuration.type_check_holder("from_holder", from_holder)
@@ -53,9 +53,15 @@ class IntraTransaction(AbstractTransaction):
         self.__fiat_fee: RP2Decimal
 
         if self.__from_exchange == self.__to_exchange and self.__from_holder == self.__to_holder:
-            LOGGER.warning("%s %s (%s, id %s): from/to exchanges/holders are the same: sending to self", self.asset, type(self).__name__, str(self.timestamp), self.unique_id)
+            LOGGER.warning(
+                "%s %s (%s, id %s): from/to exchanges/holders are the same: sending to self",
+                self.asset,
+                type(self).__name__,
+                str(self.timestamp),
+                self.internal_id,
+            )
         if self.__crypto_sent < self.__crypto_received:
-            raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.unique_id}): crypto sent < crypto received")
+            raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.internal_id}): crypto sent < crypto received")
 
         self.__crypto_fee = self.__crypto_sent - self.__crypto_received
         self.__fiat_fee = self.__crypto_fee * self.spot_price

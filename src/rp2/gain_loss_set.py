@@ -134,9 +134,9 @@ class GainLossSet(AbstractEntrySet):
                     )
                 ):
                     raise RP2ValueError(
-                        f"Timestamp {gain_loss.acquired_lot.timestamp} of acquired_lot entry (id {gain_loss.acquired_lot.unique_id}) "
+                        f"Timestamp {gain_loss.acquired_lot.timestamp} of acquired_lot entry (id {gain_loss.acquired_lot.internal_id}) "
                         f"is incompatible with timestamp {last_gain_loss_with_acquired_lot.acquired_lot.timestamp} of its ancestor "
-                        f"(id {last_gain_loss_with_acquired_lot.acquired_lot.unique_id}) using {self.__accounting_method} accounting method: {gain_loss}"
+                        f"(id {last_gain_loss_with_acquired_lot.acquired_lot.internal_id}) using {self.__accounting_method} accounting method: {gain_loss}"
                     )
                 last_gain_loss_with_acquired_lot = gain_loss
 
@@ -149,7 +149,7 @@ class GainLossSet(AbstractEntrySet):
                 self.__taxable_events_to_number_of_fractions[gain_loss.taxable_event] = current_taxable_event_fraction + 1
                 LOGGER.debug(
                     "%s (%d - %d): current amount == taxable event (%.16f)",
-                    gain_loss.unique_id,
+                    gain_loss.internal_id,
                     current_acquired_lot_fraction[gain_loss.acquired_lot] if gain_loss.acquired_lot in current_acquired_lot_fraction else 0,
                     current_taxable_event_fraction,
                     current_taxable_event_amount,
@@ -159,7 +159,7 @@ class GainLossSet(AbstractEntrySet):
             elif current_taxable_event_amount < gain_loss.taxable_event.crypto_balance_change:
                 LOGGER.debug(
                     "%s (%d - %d): current amount < taxable event (%.16f < %.16f)",
-                    gain_loss.unique_id,
+                    gain_loss.internal_id,
                     current_acquired_lot_fraction[gain_loss.acquired_lot] if gain_loss.acquired_lot in current_acquired_lot_fraction else 0,
                     current_taxable_event_fraction,
                     current_taxable_event_amount,
@@ -185,7 +185,7 @@ class GainLossSet(AbstractEntrySet):
                     self.__acquired_lots_to_number_of_fractions[gain_loss.acquired_lot] = current_acquired_lot_fraction[gain_loss.acquired_lot] + 1
                     LOGGER.debug(
                         "%s (%d - %d): current amount == acquired lot amount (%.16f)",
-                        gain_loss.unique_id,
+                        gain_loss.internal_id,
                         current_acquired_lot_fraction[gain_loss.acquired_lot],
                         current_taxable_event_fraction,
                         current_acquired_lot_amount[gain_loss.acquired_lot],
@@ -195,7 +195,7 @@ class GainLossSet(AbstractEntrySet):
                 elif current_acquired_lot_amount[gain_loss.acquired_lot] < gain_loss.acquired_lot.crypto_balance_change:
                     LOGGER.debug(
                         "%s (%d - %d): current amount < acquired lot amount (%.16f < %.16f)",
-                        gain_loss.unique_id,
+                        gain_loss.internal_id,
                         current_acquired_lot_fraction[gain_loss.acquired_lot],
                         current_taxable_event_fraction,
                         current_acquired_lot_amount[gain_loss.acquired_lot],
@@ -219,7 +219,7 @@ class GainLossSet(AbstractEntrySet):
                 self.__taxable_events_to_number_of_fractions[last_gain_loss_with_acquired_lot.taxable_event] = current_taxable_event_fraction
                 LOGGER.debug(
                     "%s (%d - %d): taxable event housekeeping",
-                    last_gain_loss_with_acquired_lot.unique_id,
+                    last_gain_loss_with_acquired_lot.internal_id,
                     current_acquired_lot_fraction[last_gain_loss_with_acquired_lot.acquired_lot]
                     if last_gain_loss_with_acquired_lot.acquired_lot in current_acquired_lot_fraction
                     else 0,
@@ -234,7 +234,7 @@ class GainLossSet(AbstractEntrySet):
                 self.__acquired_lots_to_number_of_fractions[acquired_lot] = fraction
                 LOGGER.debug(
                     "%s (%d): acquired_lot housekeeping",
-                    acquired_lot.unique_id,
+                    acquired_lot.internal_id,
                     current_acquired_lot_fraction[acquired_lot],
                 )
 
@@ -260,7 +260,7 @@ class GainLossSet(AbstractEntrySet):
                     f"      acquired_lot_fraction={self.get_acquired_lot_fraction(gain_loss) + 1} of "
                     f"{self.get_acquired_lot_number_of_fractions(gain_loss.acquired_lot)}"
                 )
-            output.append(f"      parent={parent.unique_id if parent else None}")
+            output.append(f"      parent={parent.internal_id if parent else None}")
         return "\n".join(output)
 
     def __repr__(self) -> str:
@@ -292,7 +292,7 @@ class GainLossSet(AbstractEntrySet):
                     f", acquired_lot_fraction={self.get_acquired_lot_fraction(gain_loss) + 1} of "
                     f"{self.get_acquired_lot_number_of_fractions(gain_loss.acquired_lot)}"
                 )
-            output.append(f", parent={parent.unique_id if parent else None}")
+            output.append(f", parent={parent.internal_id if parent else None}")
             # Add back trailing ')'
             output.append(")")
             count += 1

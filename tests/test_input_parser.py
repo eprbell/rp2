@@ -74,7 +74,7 @@ class TestInputParser(unittest.TestCase):
         self.assertTrue(transaction_set.is_empty())
 
     def _verify_non_empty_in_table(self, in_transaction_set: TransactionSet, asset: str) -> None:
-        unique_ids: List[str] = ["4", "3", "7", "6", "5"]
+        internal_ids: List[str] = ["4", "3", "7", "6", "5"]
         timestamps: List[str] = [
             "2020-01-01T08:41Z",
             "2020-02-01T11:18Z",
@@ -96,7 +96,7 @@ class TestInputParser(unittest.TestCase):
         is_taxable_values: List[bool] = [False, True, True, False, False]
 
         count: int = 0
-        unique_id: str
+        internal_id: str
         timestamp: str
         transaction_type: TransactionType
         spot_price: RP2Decimal
@@ -109,7 +109,7 @@ class TestInputParser(unittest.TestCase):
         previous_transaction: Optional[InTransaction] = None
         for (  # type: ignore
             transaction,
-            unique_id,
+            internal_id,
             timestamp,
             transaction_type,
             spot_price,
@@ -119,7 +119,7 @@ class TestInputParser(unittest.TestCase):
             is_taxable,
         ) in zip(  # type: ignore
             in_transaction_set,
-            unique_ids,
+            internal_ids,
             timestamps,
             transaction_types,
             spot_prices,
@@ -131,7 +131,7 @@ class TestInputParser(unittest.TestCase):
             if not in_transaction_set or not transaction:  # Unwrap the Optional types to keep mypy happy
                 raise Exception("Internal error: in_transaction_set or transaction are None")
             self.assertEqual(in_transaction_set.get_parent(transaction), previous_transaction)
-            self.assertEqual(transaction.unique_id, unique_id)
+            self.assertEqual(transaction.internal_id, internal_id)
             self.assertEqual(transaction.timestamp, parse(timestamp))
             self.assertEqual(transaction.transaction_type, transaction_type)
             self.assertEqual(transaction.spot_price, spot_price)
@@ -145,7 +145,7 @@ class TestInputParser(unittest.TestCase):
         self.assertEqual(count, 5)
 
     def _verify_non_empty_out_table(self, out_transaction_set: TransactionSet, asset: str) -> None:
-        unique_ids: List[str] = ["16", "15", "17", "13", "14"]
+        internal_ids: List[str] = ["16", "15", "17", "13", "14"]
         timestamps: List[str] = [
             "2020-01-11T11:15Z",
             "2020-02-11T19:58Z",
@@ -167,7 +167,7 @@ class TestInputParser(unittest.TestCase):
         is_taxable_values: List[bool] = [True, True, True, True, True]
 
         count: int = 0
-        unique_id: str
+        internal_id: str
         timestamp: str
         transaction_type: TransactionType
         spot_price: RP2Decimal
@@ -181,7 +181,7 @@ class TestInputParser(unittest.TestCase):
 
         for (  # type: ignore
             transaction,
-            unique_id,
+            internal_id,
             timestamp,
             transaction_type,
             spot_price,
@@ -191,7 +191,7 @@ class TestInputParser(unittest.TestCase):
             is_taxable,
         ) in zip(  # type: ignore
             out_transaction_set,
-            unique_ids,
+            internal_ids,
             timestamps,
             transaction_types,
             spot_prices,
@@ -203,7 +203,7 @@ class TestInputParser(unittest.TestCase):
             if not out_transaction_set or not transaction:  # Unwrap the Optional types to keep mypy happy
                 raise Exception("Internal error: in_transaction_set or transaction are None")
             self.assertEqual(out_transaction_set.get_parent(transaction), previous_transaction)
-            self.assertEqual(transaction.unique_id, unique_id)
+            self.assertEqual(transaction.internal_id, internal_id)
             self.assertEqual(transaction.timestamp, parse(timestamp))
             self.assertEqual(transaction.transaction_type, transaction_type)
             self.assertEqual(transaction.spot_price, spot_price)
@@ -217,7 +217,7 @@ class TestInputParser(unittest.TestCase):
         self.assertEqual(count, 5)
 
     def _verify_non_empty_intra_table(self, intra_transaction_set: TransactionSet, asset: str) -> None:
-        unique_ids: List[str] = ["26", "24", "25", "23"]
+        internal_ids: List[str] = ["26", "24", "25", "23"]
         timestamps: List[str] = [
             "2020-01-21T18:33:14.342Z",
             "2020-02-21T20:23:31Z",
@@ -237,7 +237,7 @@ class TestInputParser(unittest.TestCase):
         is_taxable_values: List[bool] = [True, False, True, True]
 
         count: int = 0
-        unique_id: str
+        internal_id: str
         timestamp: str
         transaction_type: TransactionType
         spot_price: RP2Decimal
@@ -250,7 +250,7 @@ class TestInputParser(unittest.TestCase):
         previous_transaction: Optional[IntraTransaction] = None
         for (  # type: ignore
             transaction,
-            unique_id,
+            internal_id,
             timestamp,
             transaction_type,
             spot_price,
@@ -260,7 +260,7 @@ class TestInputParser(unittest.TestCase):
             is_taxable,
         ) in zip(  # type: ignore
             intra_transaction_set,
-            unique_ids,
+            internal_ids,
             timestamps,
             transaction_types,
             spot_prices,
@@ -272,7 +272,7 @@ class TestInputParser(unittest.TestCase):
             if not intra_transaction_set or not transaction:  # Unwrap the Optional types to keep mypy happy
                 raise Exception("Internal error: intra_transaction_set or transaction are None")
             self.assertEqual(intra_transaction_set.get_parent(transaction), previous_transaction)
-            self.assertEqual(transaction.unique_id, unique_id)
+            self.assertEqual(transaction.internal_id, internal_id)
             self.assertEqual(transaction.timestamp, parse(timestamp))
             self.assertEqual(transaction.transaction_type, transaction_type)
             self.assertEqual(transaction.spot_price, spot_price)

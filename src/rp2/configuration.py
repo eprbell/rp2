@@ -187,7 +187,7 @@ class Configuration:  # pylint: disable=too-many-public-methods
         return self.__intra_header[input_parameter]
 
     @classmethod
-    def type_check_unique_id(cls, name: str, value: int) -> int:
+    def type_check_internal_id(cls, name: str, value: int) -> int:
         return cls.type_check_positive_int(name, value)
 
     @classmethod

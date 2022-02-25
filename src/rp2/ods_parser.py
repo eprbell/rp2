@@ -156,14 +156,14 @@ def _get_decimal_constructor_argument_names(class_name: str) -> List[str]:
     return result
 
 
-# Add configuration and unique_id to argument pack and turn floats to strings to maximize decimal precision. See comment inside the function.
+# Add configuration and internal_id to argument pack and turn floats to strings to maximize decimal precision. See comment inside the function.
 def _process_constructor_argument_pack(
     configuration: Configuration,
     argument_pack: Dict[str, Any],
-    unique_id: int,
+    internal_id: int,
     class_name: str,
 ) -> Dict[str, Any]:
-    argument_pack.update({"configuration": configuration, "unique_id": unique_id})
+    argument_pack.update({"configuration": configuration, "internal_id": internal_id})
     numeric_parameters: List[str] = _get_decimal_constructor_argument_names(class_name)
     for numeric_parameter in numeric_parameters:
         if numeric_parameter in argument_pack:
@@ -180,23 +180,23 @@ def _process_constructor_argument_pack(
 def _create_transaction(
     configuration: Configuration,
     entry_set_type: EntrySetType,
-    unique_id: int,
+    internal_id: int,
     row_values: List[Any],
 ) -> AbstractTransaction:
     transaction: AbstractTransaction
     EntrySetType.type_check("entry_set_type", entry_set_type)
-    configuration.type_check_unique_id("unique_id", unique_id)
+    configuration.type_check_internal_id("internal_id", internal_id)
     if entry_set_type == EntrySetType.IN:
         argument_pack: Dict[str, Any] = configuration.get_in_table_constructor_argument_pack(row_values)
-        argument_pack = _process_constructor_argument_pack(configuration, argument_pack, unique_id, "InTransaction")
+        argument_pack = _process_constructor_argument_pack(configuration, argument_pack, internal_id, "InTransaction")
         transaction = InTransaction(**argument_pack)
     elif entry_set_type == EntrySetType.OUT:
         argument_pack = configuration.get_out_table_constructor_argument_pack(row_values)
-        argument_pack = _process_constructor_argument_pack(configuration, argument_pack, unique_id, "OutTransaction")
+        argument_pack = _process_constructor_argument_pack(configuration, argument_pack, internal_id, "OutTransaction")
         transaction = OutTransaction(**argument_pack)
     elif entry_set_type == EntrySetType.INTRA:
         argument_pack = configuration.get_intra_table_constructor_argument_pack(row_values)
-        argument_pack = _process_constructor_argument_pack(configuration, argument_pack, unique_id, "IntraTransaction")
+        argument_pack = _process_constructor_argument_pack(configuration, argument_pack, internal_id, "IntraTransaction")
         transaction = IntraTransaction(**argument_pack)
     return transaction
 

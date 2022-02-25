@@ -37,10 +37,10 @@ class OutTransaction(AbstractTransaction):
         crypto_out_with_fee: Optional[RP2Decimal] = None,
         fiat_out_no_fee: Optional[RP2Decimal] = None,
         fiat_fee: Optional[RP2Decimal] = None,
-        unique_id: Optional[int] = None,
+        internal_id: Optional[int] = None,
         notes: Optional[str] = None,
     ) -> None:
-        super().__init__(configuration, timestamp, asset, transaction_type, spot_price, unique_id, notes)
+        super().__init__(configuration, timestamp, asset, transaction_type, spot_price, internal_id, notes)
 
         self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
         self.__holder: str = configuration.type_check_holder("holder", holder)
@@ -69,9 +69,11 @@ class OutTransaction(AbstractTransaction):
         self.__fiat_out_with_fee = self.__fiat_out_no_fee + self.__fiat_fee
 
         if spot_price == ZERO:
-            raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.unique_id}): parameter 'spot_price' cannot be 0")
+            raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.internal_id}): parameter 'spot_price' cannot be 0")
         if self.transaction_type not in (TransactionType.DONATE, TransactionType.GIFT, TransactionType.SELL):
-            raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.unique_id}): invalid transaction type {self.transaction_type}")
+            raise RP2ValueError(
+                f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.internal_id}): invalid transaction type {self.transaction_type}"
+            )
 
         # If the values provided by the exchange doesn't match the computed one, log a warning.
         if not RP2Decimal.is_equal_within_precision(self.__crypto_out_with_fee, self.__crypto_out_no_fee + self.__crypto_fee, FIAT_DECIMAL_MASK):
@@ -80,7 +82,7 @@ class OutTransaction(AbstractTransaction):
                 self.asset,
                 type(self).__name__,
                 self.timestamp,
-                self.unique_id,
+                self.internal_id,
                 self.__crypto_out_with_fee,
                 self.__crypto_out_no_fee + self.__crypto_fee,
             )
@@ -91,7 +93,7 @@ class OutTransaction(AbstractTransaction):
                 self.asset,
                 type(self).__name__,
                 self.timestamp,
-                self.unique_id,
+                self.internal_id,
                 self.__crypto_fee * self.spot_price,
                 self.__fiat_fee,
             )
@@ -102,7 +104,7 @@ class OutTransaction(AbstractTransaction):
                 self.asset,
                 type(self).__name__,
                 self.timestamp,
-                self.unique_id,
+                self.internal_id,
                 self.__crypto_out_no_fee * self.spot_price,
                 self.__fiat_out_no_fee,
             )

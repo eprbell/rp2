@@ -306,17 +306,17 @@ class TestConfiguration(unittest.TestCase):
             ),
         )
 
-    def test_unique_id(self) -> None:
-        self.assertEqual(13, self._configuration.type_check_unique_id("unique_id", 13))
+    def test_internal_id(self) -> None:
+        self.assertEqual(13, self._configuration.type_check_internal_id("internal_id", 13))
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter name is not a string: .*"):
-            self._configuration.type_check_unique_id(None, 10)  # type: ignore
-        with self.assertRaisesRegex(RP2ValueError, "Parameter 'unique_id' has non-positive value .*"):
-            self._configuration.type_check_unique_id("unique_id", -23)
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'unique_id' has non-integer value .*"):
-            self._configuration.type_check_unique_id("unique_id", 7.7)  # type: ignore
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'unique_id' has non-integer value .*"):
-            self._configuration.type_check_unique_id("unique_id", None)  # type: ignore
+            self._configuration.type_check_internal_id(None, 10)  # type: ignore
+        with self.assertRaisesRegex(RP2ValueError, "Parameter 'internal_id' has non-positive value .*"):
+            self._configuration.type_check_internal_id("internal_id", -23)
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'internal_id' has non-integer value .*"):
+            self._configuration.type_check_internal_id("internal_id", 7.7)  # type: ignore
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'internal_id' has non-integer value .*"):
+            self._configuration.type_check_internal_id("internal_id", None)  # type: ignore
 
     def test_timestamp(self) -> None:
         date: datetime = self._configuration.type_check_timestamp_from_string("timestamp", "2020-06-21T23:29:03.117Z")

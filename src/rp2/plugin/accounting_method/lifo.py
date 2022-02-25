@@ -80,9 +80,9 @@ class AccountingMethod(AbstractSpecificId):
                     acquired_lot_avl = AVLTree()
                     index = 0
                 acquired_lot_list.append(acquired_lot)
-                # Key is <timestamp>_<unique_id>
+                # Key is <timestamp>_<internal_id>
                 acquired_lot_avl.insert_node(
-                    f"{self._get_avl_node_key(acquired_lot.timestamp, acquired_lot.unique_id)}", AcquiredLotAndIndex(acquired_lot, index)
+                    f"{self._get_avl_node_key(acquired_lot.timestamp, acquired_lot.internal_id)}", AcquiredLotAndIndex(acquired_lot, index)
                 )
                 index += 1
         except StopIteration:
@@ -90,13 +90,13 @@ class AccountingMethod(AbstractSpecificId):
             pass
         self._store_acquired_lots_for_year(year, acquired_lot_list, acquired_lot_avl)
 
-    # AVL tree node keys have this format: <timestamp>_<unique_id>. The unique_id part is needed to disambiguate transactions
-    # that have the same timestamp. Timestamp is in format "YYYYmmddHHMMSS.ffffff" and unique_id is padded right in a string of fixed
+    # AVL tree node keys have this format: <timestamp>_<internal_id>. The internal_id part is needed to disambiguate transactions
+    # that have the same timestamp. Timestamp is in format "YYYYmmddHHMMSS.ffffff" and internal_id is padded right in a string of fixed
     # length (KEY_DISAMBIGUATOR_LENGTH).
-    def _get_avl_node_key(self, timestamp: datetime, unique_id: str) -> str:
-        return f"{timestamp.strftime('%Y%m%d%H%M%S.%f')}_{unique_id:0>{self.KEY_DISAMBIGUATOR_LENGTH}}"
+    def _get_avl_node_key(self, timestamp: datetime, internal_id: str) -> str:
+        return f"{timestamp.strftime('%Y%m%d%H%M%S.%f')}_{internal_id:0>{self.KEY_DISAMBIGUATOR_LENGTH}}"
 
-    # This function calls _get_avl_node_key with unique_id=MAX_KEY_DISAMBIGUATOR, so that the generated key is larger than any other key
+    # This function calls _get_avl_node_key with internal_id=MAX_KEY_DISAMBIGUATOR, so that the generated key is larger than any other key
     # with the same timestamp.
     def _get_avl_node_key_with_max_disambiguator(self, timestamp: datetime) -> str:
         return self._get_avl_node_key(timestamp, self.MAX_KEY_DISAMBIGUATOR)

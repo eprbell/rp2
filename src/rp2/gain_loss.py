@@ -83,20 +83,20 @@ class GainLoss(AbstractEntry):
             return False
         if not isinstance(other, GainLoss):
             raise RP2TypeError(f"Operand has non-GainLoss value {repr(other)}")
-        self_acquired_lot_unique_id: Optional[str] = self.acquired_lot.unique_id if self.acquired_lot else None
-        other_acquired_lot_unique_id: Optional[str] = other.acquired_lot.unique_id if other.acquired_lot else None
-        # By definition, unique_id can uniquely identify a transaction: this works even if it's the ODS line from the spreadsheet,
+        self_acquired_lot_internal_id: Optional[str] = self.acquired_lot.internal_id if self.acquired_lot else None
+        other_acquired_lot_internal_id: Optional[str] = other.acquired_lot.internal_id if other.acquired_lot else None
+        # By definition, internal_id can uniquely identify a transaction: this works even if it's the ODS line from the spreadsheet,
         # since there are no cross-asset transactions (so a spreadsheet line points to a unique transaction for that asset).
-        result: bool = self.taxable_event.unique_id == other.taxable_event.unique_id and self_acquired_lot_unique_id == other_acquired_lot_unique_id
+        result: bool = self.taxable_event.internal_id == other.taxable_event.internal_id and self_acquired_lot_internal_id == other_acquired_lot_internal_id
         return result
 
     def __ne__(self, other: object) -> bool:
         return not self.__eq__(other)
 
     def __hash__(self) -> int:
-        # By definition, unique_id can uniquely identify a transaction: this works even if it's the ODS line from the spreadsheet,
+        # By definition, internal_id can uniquely identify a transaction: this works even if it's the ODS line from the spreadsheet,
         # since there are no cross-asset transactions (so a spreadsheet line points to a unique transaction for that asset).
-        return hash((self.taxable_event.unique_id, self.acquired_lot.unique_id if self.acquired_lot else None))
+        return hash((self.taxable_event.internal_id, self.acquired_lot.internal_id if self.acquired_lot else None))
 
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
         self.configuration.type_check_positive_int("indent", indent)
@@ -126,11 +126,11 @@ class GainLoss(AbstractEntry):
         return super().to_string(indent=indent, repr_format=repr_format, extra_data=class_specific_data)
 
     @property
-    def unique_id(self) -> str:
+    def internal_id(self) -> str:
         if not self.acquired_lot:
             # earn-typed taxable event doesn't have acquired lot
-            return f"{self.taxable_event.unique_id}->None"
-        return f"{self.taxable_event.unique_id}->{self.acquired_lot.unique_id}"
+            return f"{self.taxable_event.internal_id}->None"
+        return f"{self.taxable_event.internal_id}->{self.acquired_lot.internal_id}"
 
     @property
     def timestamp(self) -> datetime:

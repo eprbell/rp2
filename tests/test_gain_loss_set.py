@@ -95,7 +95,7 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("11000"),
             RP2Decimal("1"),
             RP2Decimal("100.00"),
-            unique_id=4,
+            internal_id=4,
         )
         cls._in2[asset] = InTransaction(
             cls._configuration,
@@ -107,7 +107,7 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("12000.0"),
             RP2Decimal("2.0"),
             RP2Decimal("0"),
-            unique_id=3,
+            internal_id=3,
         )
         cls._in6[asset] = InTransaction(
             cls._configuration,
@@ -119,7 +119,7 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("13000.0"),
             RP2Decimal("3"),
             RP2Decimal("0"),
-            unique_id=7,
+            internal_id=7,
         )
         cls._in5[asset] = InTransaction(
             cls._configuration,
@@ -131,7 +131,7 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("14000.0"),
             RP2Decimal("4.0"),
             RP2Decimal("400"),
-            unique_id=6,
+            internal_id=6,
         )
         cls._in4[asset] = InTransaction(
             cls._configuration,
@@ -143,7 +143,7 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("15000.0"),
             RP2Decimal("5.0"),
             RP2Decimal("500"),
-            unique_id=5,
+            internal_id=5,
         )
         cls._out15[asset] = OutTransaction(
             cls._configuration,
@@ -155,7 +155,7 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("11200.0"),
             RP2Decimal("0.2"),
             RP2Decimal("0"),
-            unique_id=16,
+            internal_id=16,
         )
         cls._out14[asset] = OutTransaction(
             cls._configuration,
@@ -167,7 +167,7 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("12200.0"),
             RP2Decimal("1.0"),
             RP2Decimal("0"),
-            unique_id=15,
+            internal_id=15,
         )
         cls._out16[asset] = OutTransaction(
             cls._configuration,
@@ -179,7 +179,7 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("14200.00"),
             RP2Decimal("5.0"),
             RP2Decimal("0"),
-            unique_id=17,
+            internal_id=17,
         )
         cls._out12[asset] = OutTransaction(
             cls._configuration,
@@ -191,7 +191,7 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("14300"),
             RP2Decimal("3.79"),
             RP2Decimal("0"),
-            unique_id=13,
+            internal_id=13,
         )
         cls._out13[asset] = OutTransaction(
             cls._configuration,
@@ -203,7 +203,7 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("20200.00"),
             RP2Decimal("2"),
             RP2Decimal("0.01"),
-            unique_id=14,
+            internal_id=14,
         )
         cls._intra25[asset] = IntraTransaction(
             cls._configuration,
@@ -216,7 +216,7 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("11400.0"),
             RP2Decimal("0.1"),
             RP2Decimal("0.09"),
-            unique_id=26,
+            internal_id=26,
         )
         cls._intra24[asset] = IntraTransaction(
             cls._configuration,
@@ -229,7 +229,7 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("14400.0"),
             RP2Decimal("0.2"),
             RP2Decimal("0.18"),
-            unique_id=25,
+            internal_id=25,
         )
         cls._intra22[asset] = IntraTransaction(
             cls._configuration,
@@ -242,7 +242,7 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("21400.0"),
             RP2Decimal("0.5"),
             RP2Decimal("0.46"),
-            unique_id=23,
+            internal_id=23,
         )
         cls._gain_loss_set[asset] = GainLossSet(cls._configuration, cls._accounting_method, asset)
         if asset == "B1":
@@ -391,7 +391,7 @@ class TestGainLossSet(unittest.TestCase):
                 RP2Decimal("12000.0"),
                 RP2Decimal("2.0"),
                 RP2Decimal("0"),
-                unique_id=3,
+                internal_id=3,
             )
             gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("0.2"), out15, in_transaction_test))
             gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("0.01"), out14, in3))

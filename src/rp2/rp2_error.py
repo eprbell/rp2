@@ -16,9 +16,9 @@ from typing import Optional
 
 
 class RP2Error(Exception):
-    def __init__(self, message: str, unique_id: Optional[int] = None) -> None:
-        self.__message = message if unique_id is None else f"{unique_id}: {message}"
-        self.__unique_id = unique_id
+    def __init__(self, message: str, internal_id: Optional[int] = None) -> None:
+        self.__message = message if internal_id is None else f"{internal_id}: {message}"
+        self.__internal_id = internal_id
         super().__init__(self.__message)
 
     def __repr__(self) -> str:
@@ -29,8 +29,8 @@ class RP2Error(Exception):
         return self.__message
 
     @property
-    def unique_id(self) -> Optional[int]:
-        return self.__unique_id
+    def internal_id(self) -> Optional[int]:
+        return self.__internal_id
 
 
 class RP2TypeError(RP2Error):

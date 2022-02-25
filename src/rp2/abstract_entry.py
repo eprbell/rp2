@@ -39,10 +39,10 @@ class AbstractEntry:
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
         class_specific_data: List[str] = []
         if repr_format:
-            class_specific_data.append(f"{type(self).__name__}(id={repr(self.unique_id)}")
+            class_specific_data.append(f"{type(self).__name__}(id={repr(self.internal_id)}")
         else:
             class_specific_data.append(f"{type(self).__name__}:")
-            class_specific_data.append(f"id={str(self.unique_id)}")
+            class_specific_data.append(f"id={str(self.internal_id)}")
 
         if extra_data:
             class_specific_data.extend(extra_data)
@@ -76,7 +76,7 @@ class AbstractEntry:
         return self.__asset
 
     @property
-    def unique_id(self) -> str:
+    def internal_id(self) -> str:
         raise NotImplementedError("Abstract property")
 
     @property
