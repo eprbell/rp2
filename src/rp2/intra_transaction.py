@@ -16,6 +16,7 @@ from typing import Callable, List, Optional
 
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.configuration import Configuration
+from rp2.logger import LOGGER
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
@@ -52,9 +53,7 @@ class IntraTransaction(AbstractTransaction):
         self.__fiat_fee: RP2Decimal
 
         if self.__from_exchange == self.__to_exchange and self.__from_holder == self.__to_holder:
-            raise RP2ValueError(
-                f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.unique_id}): from/to exchanges/holders are the same: sending to self"
-            )
+            LOGGER.warning("%s %s (%s, id %s): from/to exchanges/holders are the same: sending to self", self.asset, type(self).__name__, str(self.timestamp), self.unique_id)
         if self.__crypto_sent < self.__crypto_received:
             raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.unique_id}): crypto sent < crypto received")
 
