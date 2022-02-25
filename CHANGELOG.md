@@ -14,6 +14,9 @@
 
 # RP2 Change Log
 
+## v0.9.15
+* added Income sheet to plugin ODS template (needed by tax_report_us generator to support the new Income InTransaction type)
+
 ## v0.9.14
 * added support for Income-type InTransaction (to capture misc income like Coinbase Earn)
 * renamed old unique_id field to internal_id and added a new unique_id field to all transactions, which captures hash for IntraTransactions and exchange-specific unique ids for In/OutTransactions
