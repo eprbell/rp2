@@ -36,6 +36,7 @@ class SheetNames(Enum):
     DONATIONS: str = "Donations"
     GIFTS: str = "Gifts"
     HARDFORKS: str = "Hard Forks"
+    INCOME: str = "Income"
     INTEREST: str = "Interest"
     INVESTMENT_EXPENSES: str = "Investment Expenses"
     MINING: str = "Mining"
@@ -51,6 +52,7 @@ _SHEET_TO_TYPE: Dict[str, TransactionType] = {
     SheetNames.DONATIONS.value: TransactionType.DONATE,
     SheetNames.GIFTS.value: TransactionType.GIFT,
     SheetNames.HARDFORKS.value: TransactionType.HARDFORK,
+    SheetNames.INCOME.value: TransactionType.INCOME,
     SheetNames.INTEREST.value: TransactionType.INTEREST,
     SheetNames.INVESTMENT_EXPENSES.value: TransactionType.MOVE,
     SheetNames.MINING.value: TransactionType.MINING,

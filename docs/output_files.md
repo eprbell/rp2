@@ -47,6 +47,7 @@ The tax_report_us.ods output file contains a legend sheet and a sheet per taxabl
 * Donations (cryptocurrency given to a qualified charity);
 * Gifts (cryptocurrency gifted to a friends or family);
 * Hard Forks;
+* Income;
 * Interest;
 * Investment Expenses (cryptocurrency fee paid when moving funds between two accounts owned by the same person);
 * Mining;

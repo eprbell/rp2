@@ -31,6 +31,7 @@ class AbstractTransaction(AbstractEntry):
         transaction_type: str,
         spot_price: RP2Decimal,
         internal_id: Optional[int] = None,
+        unique_id: Optional[str] = None,
         notes: Optional[str] = None,
     ) -> None:
         super().__init__(configuration, asset)
@@ -39,6 +40,7 @@ class AbstractTransaction(AbstractEntry):
         self.__transaction_type: TransactionType = TransactionType.type_check_from_string("transaction_type", transaction_type)
         self.__spot_price: RP2Decimal = configuration.type_check_positive_decimal("spot_price", spot_price)
         self.__internal_id: int = configuration.type_check_internal_id("internal_id", internal_id) if internal_id is not None else id(self)
+        self.__unique_id: str = configuration.type_check_string("unique_id", unique_id) if unique_id is not None else ""
         self.__notes = configuration.type_check_string("notes", notes) if notes else ""
 
     @classmethod
@@ -95,6 +97,10 @@ class AbstractTransaction(AbstractEntry):
     @property
     def spot_price(self) -> RP2Decimal:
         return self.__spot_price
+
+    @property
+    def unique_id(self) -> str:
+        return str(self.__unique_id)
 
     @property
     def notes(self) -> str:

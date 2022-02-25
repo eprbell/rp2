@@ -93,6 +93,7 @@ class TestIntraTransaction(unittest.TestCase):
   crypto_received=1.99980000
   crypto_fee=0.00040000
   fiat_fee=0.4000
+  unique_id=
   is_taxable=True
   fiat_taxable_amount=0.4000""",
         )
@@ -112,6 +113,7 @@ class TestIntraTransaction(unittest.TestCase):
       crypto_received=1.99980000
       crypto_fee=0.00040000
       fiat_fee=0.4000
+      unique_id=
       is_taxable=True
       fiat_taxable_amount=0.4000
       foobar
@@ -134,6 +136,7 @@ class TestIntraTransaction(unittest.TestCase):
                 "crypto_received=1.99980000, "
                 "crypto_fee=0.00040000, "
                 "fiat_fee=0.4000, "
+                "unique_id=, "
                 "is_taxable=True, "
                 "fiat_taxable_amount=0.4000, "
                 "foobar, "
@@ -180,6 +183,7 @@ class TestIntraTransaction(unittest.TestCase):
   crypto_received=30.00000000
   crypto_fee=0.00000000
   fiat_fee=0.0000
+  unique_id=
   is_taxable=False
   fiat_taxable_amount=0.0000""",
         )

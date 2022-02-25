@@ -58,6 +58,10 @@ CONFIGURATION_SCHEMA = {
                     "type": "integer",
                     "minimum": 0,
                 },
+                "unique_id": {
+                    "type": "integer",
+                    "minimum": 0,
+                },
                 "notes": {
                     "type": "integer",
                     "minimum": 0,
@@ -122,6 +126,10 @@ CONFIGURATION_SCHEMA = {
                     "type": "integer",
                     "minimum": 0,
                 },
+                "unique_id": {
+                    "type": "integer",
+                    "minimum": 0,
+                },
                 "notes": {
                     "type": "integer",
                     "minimum": 0,
@@ -175,6 +183,10 @@ CONFIGURATION_SCHEMA = {
                     "minimum": 0,
                 },
                 "crypto_received": {
+                    "type": "integer",
+                    "minimum": 0,
+                },
+                "unique_id": {
                     "type": "integer",
                     "minimum": 0,
                 },

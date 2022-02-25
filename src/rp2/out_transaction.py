@@ -38,9 +38,10 @@ class OutTransaction(AbstractTransaction):
         fiat_out_no_fee: Optional[RP2Decimal] = None,
         fiat_fee: Optional[RP2Decimal] = None,
         internal_id: Optional[int] = None,
+        unique_id: Optional[str] = None,
         notes: Optional[str] = None,
     ) -> None:
-        super().__init__(configuration, timestamp, asset, transaction_type, spot_price, internal_id, notes)
+        super().__init__(configuration, timestamp, asset, transaction_type, spot_price, internal_id, unique_id, notes)
 
         self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
         self.__holder: str = configuration.type_check_holder("holder", holder)
@@ -126,6 +127,7 @@ class OutTransaction(AbstractTransaction):
             f"spot_price={self.spot_price:.4f}",
             f"crypto_out_no_fee={self.crypto_out_no_fee:.8f}",
             f"crypto_fee={self.crypto_fee:.8f}",
+            f"unique_id={self.unique_id}",
             f"is_taxable={stringify(self.is_taxable())}",
             f"fiat_taxable_amount={self.fiat_taxable_amount:.4f}",
         ]

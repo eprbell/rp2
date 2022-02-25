@@ -45,9 +45,10 @@ class InTransaction(AbstractTransaction):
         fiat_in_no_fee: Optional[RP2Decimal] = None,
         fiat_in_with_fee: Optional[RP2Decimal] = None,
         internal_id: Optional[int] = None,
+        unique_id: Optional[str] = None,
         notes: Optional[str] = None,
     ) -> None:
-        super().__init__(configuration, timestamp, asset, transaction_type, spot_price, internal_id, notes)
+        super().__init__(configuration, timestamp, asset, transaction_type, spot_price, internal_id, unique_id, notes)
 
         self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
         self.__holder: str = configuration.type_check_holder("holder", holder)
@@ -120,6 +121,7 @@ class InTransaction(AbstractTransaction):
             f"fiat_fee={self.fiat_fee:.4f}",
             f"fiat_in_no_fee={self.fiat_in_no_fee:.4f}",
             f"fiat_in_with_fee={self.fiat_in_with_fee:.4f}",
+            f"unique_id={self.unique_id}",
             f"is_taxable={stringify(self.is_taxable())}",
             f"fiat_taxable_amount={self.fiat_taxable_amount:.4f}",
         ]

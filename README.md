@@ -71,6 +71,7 @@ RP2 groups lot fractions into the following taxable event categories, each of wh
 * DONATE: donations to charitable organizations;
 * GIFT: gifts to parties who are not charitable organizations (not tax-deductible).
 * [HARDFORK](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-hard-forks): gains from hard forks;
+* INCOME: gains from miscellaneous income (e.g. Coinbase Earn);
 * INTEREST: gains from interest;
 * [MINING](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-mining): gains from mining;
 * MOVE: the fee for moving currency between two accounts controlled by the same owner;

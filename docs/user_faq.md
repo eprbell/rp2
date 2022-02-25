@@ -44,6 +44,7 @@
   * [How to Handle Donations?](#how-to-handle-donations)
   * [How to Handle Gifts?](#how-to-handle-gifts)
   * [How to Handle Hard Forks?](#how-to-handle-hard-forks)
+  * [How to Handle Miscellaneous Crypto Income?](#how-to-handle-miscellaneous-crypto-income)
   * [How to Handle Crypto Interest?](#how-to-handle-crypto-interest)
   * [How to Handle Income from Mining?](#how-to-handle-income-from-mining)
   * [How to Handle Income from Staking?](#how-to-handle-income-from-staking)
@@ -174,6 +175,9 @@ Use an IN transaction (if receiving crypto) or OUT transaction (if giving crypto
 
 ### How to Handle Hard Forks?
 Use an IN transaction and mark the transaction type as HARDFORK. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
+
+### How to Handle Miscellaneous Crypto Income?
+Miscellaneous income covers gains from reward programs like Coinbase Earn, etc. Use an IN transaction and mark the transaction type as INCOME. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle Crypto Interest?
 Use an IN transaction and mark the transaction type as INTEREST. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.

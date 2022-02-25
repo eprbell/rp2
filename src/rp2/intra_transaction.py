@@ -35,13 +35,14 @@ class IntraTransaction(AbstractTransaction):
         crypto_sent: RP2Decimal,
         crypto_received: RP2Decimal,
         internal_id: Optional[int] = None,
+        unique_id: Optional[str] = None,
         notes: Optional[str] = None,
     ) -> None:
         if spot_price is None:
             # Sometimes, when fee is 0 in IntraTransactions, exchanges don't provide the spot_price: this is OK because
             # if the fee is 0, spot price isn't needed. In this case spot price is assigned 0.
             spot_price = ZERO
-        super().__init__(configuration, timestamp, asset, "MOVE", spot_price, internal_id, notes)
+        super().__init__(configuration, timestamp, asset, "MOVE", spot_price, internal_id, unique_id, notes)
 
         self.__from_exchange: str = configuration.type_check_exchange("from_exchange", from_exchange)
         self.__from_holder: str = configuration.type_check_holder("from_holder", from_holder)
@@ -87,6 +88,7 @@ class IntraTransaction(AbstractTransaction):
             f"crypto_received={self.crypto_received:.8f}",
             f"crypto_fee={self.crypto_fee:.8f}",
             f"fiat_fee={self.fiat_fee:.4f}",
+            f"unique_id={self.unique_id}",
             f"is_taxable={stringify(self.is_taxable())}",
             f"fiat_taxable_amount={self.fiat_taxable_amount:.4f}",
         ]

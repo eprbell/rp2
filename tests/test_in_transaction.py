@@ -112,6 +112,7 @@ class TestInTransaction(unittest.TestCase):
   fiat_fee=0.0000
   fiat_in_no_fee=2000.2000
   fiat_in_with_fee=2000.2000
+  unique_id=
   is_taxable=True
   fiat_taxable_amount=2000.2000""",
         )
@@ -129,6 +130,7 @@ class TestInTransaction(unittest.TestCase):
       fiat_fee=0.0000
       fiat_in_no_fee=2000.2000
       fiat_in_with_fee=2000.2000
+      unique_id=
       is_taxable=True
       fiat_taxable_amount=2000.2000
       foobar
@@ -149,6 +151,7 @@ class TestInTransaction(unittest.TestCase):
                 "fiat_fee=0.0000, "
                 "fiat_in_no_fee=2000.2000, "
                 "fiat_in_with_fee=2000.2000, "
+                "unique_id=, "
                 "is_taxable=True, "
                 "fiat_taxable_amount=2000.2000, "
                 "foobar, "
@@ -190,6 +193,7 @@ class TestInTransaction(unittest.TestCase):
   fiat_fee=20.0000
   fiat_in_no_fee=2000.2000
   fiat_in_with_fee=2020.2000
+  unique_id=
   is_taxable=False
   fiat_taxable_amount=0.0000""",
         )

@@ -83,6 +83,7 @@ class TestOutTransaction(unittest.TestCase):
   spot_price=900.9000
   crypto_out_no_fee=2.20000000
   crypto_fee=0.01000000
+  unique_id=
   is_taxable=True
   fiat_taxable_amount=1981.9800""",
         )
@@ -98,6 +99,7 @@ class TestOutTransaction(unittest.TestCase):
       spot_price=900.9000
       crypto_out_no_fee=2.20000000
       crypto_fee=0.01000000
+      unique_id=
       is_taxable=True
       fiat_taxable_amount=1981.9800
       foobar
@@ -116,6 +118,7 @@ class TestOutTransaction(unittest.TestCase):
                 "spot_price=900.9000, "
                 "crypto_out_no_fee=2.20000000, "
                 "crypto_fee=0.01000000, "
+                "unique_id=, "
                 "is_taxable=True, "
                 "fiat_taxable_amount=1981.9800, "
                 "foobar, "

@@ -25,6 +25,7 @@ class TransactionType(Enum):
     DONATE: str = "donate"
     GIFT: str = "gift"
     HARDFORK: str = "hardfork"
+    INCOME: str = "income"
     INTEREST: str = "interest"
     MINING: str = "mining"
     MOVE: str = "move"
@@ -58,6 +59,7 @@ _transaction_type_values: Set[str] = {item.value for item in TransactionType}
 _transaction_type_earn_values: Set[TransactionType] = {
     TransactionType.AIRDROP,
     TransactionType.HARDFORK,
+    TransactionType.INCOME,
     TransactionType.INTEREST,
     TransactionType.MINING,
     TransactionType.STAKING,
