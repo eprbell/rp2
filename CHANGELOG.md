@@ -14,7 +14,7 @@
 
 # RP2 Change Log
 
-## In Progress
+## v0.9.16
 * in the tax_report_us output the following tabs had the description field mistakenly hidden: Airdrops, Income, Interest, Mining, Staking, Wages. All other tabs didn't have the problem. The hidden field is now visible
 * the unique_id field (containing hash or exchange-specific id) is now generated in the output files (both tax_report_us and rp2_full_report)
 
