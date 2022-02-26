@@ -14,6 +14,10 @@
 
 # RP2 Change Log
 
+## In Progress
+* in the tax_report_us output the following tabs had the description field mistakenly hidden: Airdrops, Income, Interest, Mining, Staking, Wages. All other tabs didn't have the problem. The hidden field is now visible
+* the unique_id field (containing hash or exchange-specific id) is now generated in the output files (both tax_report_us and rp2_full_report)
+
 ## v0.9.15
 * added Income sheet to plugin ODS template (needed by tax_report_us generator to support the new Income InTransaction type)
 
