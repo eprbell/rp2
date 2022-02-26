@@ -38,19 +38,24 @@ class IntraTransaction(AbstractTransaction):
         unique_id: Optional[str] = None,
         notes: Optional[str] = None,
     ) -> None:
-        if spot_price is None:
-            # Sometimes, when fee is 0 in IntraTransactions, exchanges don't provide the spot_price: this is OK because
-            # if the fee is 0, spot price isn't needed. In this case spot price is assigned 0.
-            spot_price = ZERO
+        Configuration.type_check("configuration", configuration)
+        self.__crypto_sent: RP2Decimal = configuration.type_check_positive_decimal("crypto_sent", crypto_sent, non_zero=True)
+        self.__crypto_received: RP2Decimal = configuration.type_check_positive_decimal("crypto_received", crypto_received)
+        self.__crypto_fee: RP2Decimal = self.__crypto_sent - self.__crypto_received
+        if spot_price is None or (isinstance(spot_price, RP2Decimal) and spot_price == ZERO):
+            # Sometimes, when fee is 0 in IntraTransactions, exchanges don't provide the spot_price:
+            # - if the fee is 0, this is OK because spot price isn't needed (in this case spot price is assigned 0).
+            # - if the fee is 0, raise an exception
+            if self.__crypto_fee == ZERO:
+                spot_price = ZERO
+            else:
+                raise RP2ValueError(f"crypto_fee is non-zero ({self.__crypto_fee}) but spot_price is empty or zero")
         super().__init__(configuration, timestamp, asset, "MOVE", spot_price, internal_id, unique_id, notes)
 
         self.__from_exchange: str = configuration.type_check_exchange("from_exchange", from_exchange)
         self.__from_holder: str = configuration.type_check_holder("from_holder", from_holder)
         self.__to_exchange: str = configuration.type_check_exchange("to_exchange", to_exchange)
         self.__to_holder: str = configuration.type_check_holder("to_holder", to_holder)
-        self.__crypto_sent: RP2Decimal = configuration.type_check_positive_decimal("crypto_sent", crypto_sent, non_zero=True)
-        self.__crypto_received: RP2Decimal = configuration.type_check_positive_decimal("crypto_received", crypto_received)
-        self.__crypto_fee: RP2Decimal
         self.__fiat_fee: RP2Decimal
 
         if self.__from_exchange == self.__to_exchange and self.__from_holder == self.__to_holder:
@@ -64,7 +69,6 @@ class IntraTransaction(AbstractTransaction):
         if self.__crypto_sent < self.__crypto_received:
             raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.internal_id}): crypto sent < crypto received")
 
-        self.__crypto_fee = self.__crypto_sent - self.__crypto_received
         self.__fiat_fee = self.__crypto_fee * self.spot_price
 
     def to_string(self, indent: int = 0, repr_format: bool = True, extra_data: Optional[List[str]] = None) -> str:
