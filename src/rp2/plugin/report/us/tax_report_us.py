@@ -162,9 +162,10 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 7, "", visual_style=transparent_vs)
             self._fill_cell(sheet, row_index, 8, gain_loss.fiat_gain, visual_style=transparent_vs, data_style="fiat")
             self._fill_cell(sheet, row_index, 9, transaction_type, visual_style=taxable_event_note_vs)
-            self._fill_cell(sheet, row_index, 11, taxable_event_note, visual_style=taxable_event_note_vs)
-            self._fill_cell(sheet, row_index, 12, "LONG" if gain_loss.is_long_term_capital_gains() else "SHORT", visual_style=taxable_event_note_vs)
-            self._fill_cell(sheet, row_index, 13, gain_loss.taxable_event.timestamp, visual_style=taxable_event_note_vs)
+            self._fill_cell(sheet, row_index, 12, taxable_event_note, visual_style=taxable_event_note_vs)
+            self._fill_cell(sheet, row_index, 13, gain_loss.taxable_event.unique_id, visual_style=taxable_event_note_vs)
+            self._fill_cell(sheet, row_index, 14, "LONG" if gain_loss.is_long_term_capital_gains() else "SHORT", visual_style=taxable_event_note_vs)
+            self._fill_cell(sheet, row_index, 15, gain_loss.taxable_event.timestamp, visual_style=taxable_event_note_vs)
 
             if gain_loss.acquired_lot:
                 current_acquired_lot_fraction: int = gain_loss_set.get_acquired_lot_fraction(gain_loss) + 1
@@ -179,10 +180,12 @@ class Generator(AbstractODSGenerator):
                 self._fill_cell(sheet, row_index, 2, gain_loss.acquired_lot.timestamp.strftime("%m/%d/%Y"), visual_style=acquired_lot_note_vs)
                 self._fill_cell(sheet, row_index, 5, gain_loss.fiat_cost_basis, visual_style=acquired_lot_note_vs, data_style="fiat")
                 self._fill_cell(sheet, row_index, 10, acquired_lot_note, visual_style=acquired_lot_note_vs)
+                self._fill_cell(sheet, row_index, 11, gain_loss.acquired_lot.unique_id, visual_style=acquired_lot_note_vs)
             else:
                 self._fill_cell(sheet, row_index, 2, "", visual_style=transparent_vs)
                 self._fill_cell(sheet, row_index, 5, "", visual_style=transparent_vs)
                 self._fill_cell(sheet, row_index, 10, "", visual_style=transparent_vs)
+                self._fill_cell(sheet, row_index, 11, "", visual_style=transparent_vs)
 
             border_suffix = ""
             row_indexes[sheet.name] = row_index + 1

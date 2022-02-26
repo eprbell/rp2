@@ -101,6 +101,7 @@ class Generator(AbstractODSGenerator):
             "Taxable",
             "",
             "",
+            "",
         ]
 
         self.__in_header_names_row_2: List[str] = [
@@ -118,6 +119,7 @@ class Generator(AbstractODSGenerator):
             "With Fee",
             "Event",
             "N/A",
+            "Unique Id",
             "Notes",
         ]
 
@@ -136,6 +138,7 @@ class Generator(AbstractODSGenerator):
             "",
             "Taxable",
             "",
+            "",
         ]
 
         self.__out_header_names_row_2: List[str] = [
@@ -152,6 +155,7 @@ class Generator(AbstractODSGenerator):
             f"{currency_code} Out",
             f"{currency_code} Fee",
             "Event",
+            "Unique Id",
             "Notes",
         ]
 
@@ -170,6 +174,7 @@ class Generator(AbstractODSGenerator):
             "",
             "Taxable",
             "",
+            "",
         ]
 
         self.__intra_header_names_row_2: List[str] = [
@@ -186,6 +191,7 @@ class Generator(AbstractODSGenerator):
             "Running Sum",
             f"{currency_code} Fee",
             "Event",
+            "Unique Id",
             "Notes",
         ]
 
@@ -242,6 +248,7 @@ class Generator(AbstractODSGenerator):
             "Taxable Event",
             f"Taxable Event {currency_code}",
             "Taxable Event",
+            "",
             "Taxable Event",
             "Acquired Lot",
             "Acquired Lot",
@@ -249,6 +256,7 @@ class Generator(AbstractODSGenerator):
             f"Acquired Lot {currency_code}",
             f"Acquired Lot {currency_code}",
             "Acquired Lot",
+            "",
             "Acquired Lot Fraction",
         ]
 
@@ -263,6 +271,7 @@ class Generator(AbstractODSGenerator):
             "Fraction %",
             "Amount Fraction",
             "Spot Price",
+            "Unique Id",
             "Fraction Description",
             "Timestamp",
             "Fraction %",
@@ -270,6 +279,7 @@ class Generator(AbstractODSGenerator):
             "Fee Fraction",
             "Cost Basis",
             "Spot Price",
+            "Unique Id",
             "Description",
         ]
 
@@ -430,7 +440,8 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 11, transaction.fiat_in_with_fee, data_style="fiat", visual_style=highlighted_style)
             self._fill_cell(sheet, row_index, 12, "YES" if transaction.is_taxable() else "NO", data_style="fiat", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 13, "", visual_style=visual_style)
-            self._fill_cell(sheet, row_index, 14, transaction.notes, visual_style="transparent")
+            self._fill_cell(sheet, row_index, 14, transaction.unique_id, visual_style="transparent")
+            self._fill_cell(sheet, row_index, 15, transaction.notes, visual_style="transparent")
 
             self.__in_out_sheet_transaction_2_row[transaction] = row_index + 1
 
@@ -468,7 +479,8 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 11, transaction.crypto_out_no_fee * transaction.spot_price, visual_style=highlighted_style, data_style="fiat")
             self._fill_cell(sheet, row_index, 12, transaction.crypto_fee * transaction.spot_price, visual_style=visual_style, data_style="fiat")
             self._fill_cell(sheet, row_index, 13, "YES" if transaction.is_taxable() else "NO", data_style="fiat", visual_style=visual_style)
-            self._fill_cell(sheet, row_index, 14, transaction.notes, visual_style="transparent")
+            self._fill_cell(sheet, row_index, 14, transaction.unique_id, visual_style="transparent")
+            self._fill_cell(sheet, row_index, 15, transaction.notes, visual_style="transparent")
 
             self.__in_out_sheet_transaction_2_row[transaction] = row_index + 1
 
@@ -505,7 +517,8 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 11, computed_data.get_crypto_intra_fee_running_sum(transaction), data_style="crypto", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 12, transaction.fiat_fee, visual_style=highlighted_style, data_style="fiat")
             self._fill_cell(sheet, row_index, 13, "YES" if transaction.is_taxable() else "NO", data_style="fiat", visual_style=visual_style)
-            self._fill_cell(sheet, row_index, 14, transaction.notes, visual_style="transparent")
+            self._fill_cell(sheet, row_index, 14, transaction.unique_id, visual_style=visual_style)
+            self._fill_cell(sheet, row_index, 15, transaction.notes, visual_style="transparent")
 
             self.__in_out_sheet_transaction_2_row[transaction] = row_index + 1
 
@@ -683,6 +696,14 @@ class Generator(AbstractODSGenerator):
                 sheet,
                 row_index,
                 10,
+                self.__get_hyperlinked_transaction_value(gain_loss.taxable_event, gain_loss.taxable_event.unique_id),
+                visual_style=taxable_event_style,
+                data_style="fiat",
+            )
+            self._fill_cell(
+                sheet,
+                row_index,
+                11,
                 self.__get_hyperlinked_transaction_value(gain_loss.taxable_event, taxable_event_note),
                 visual_style=f"taxable_event_note{border_suffix}",
             )
@@ -707,14 +728,14 @@ class Generator(AbstractODSGenerator):
                 self._fill_cell(
                     sheet,
                     row_index,
-                    11,
+                    12,
                     self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot.timestamp),
                     visual_style=acquired_lot_style,
                 )
                 self._fill_cell(
                     sheet,
                     row_index,
-                    12,
+                    13,
                     self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot_fraction_percentage),
                     visual_style=acquired_lot_style,
                     data_style="percent",
@@ -722,7 +743,7 @@ class Generator(AbstractODSGenerator):
                 self._fill_cell(
                     sheet,
                     row_index,
-                    13,
+                    14,
                     self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot_fiat_amount_with_fee_fraction),
                     visual_style=acquired_lot_style,
                     data_style="fiat",
@@ -731,7 +752,7 @@ class Generator(AbstractODSGenerator):
                 self._fill_cell(
                     sheet,
                     row_index,
-                    14,
+                    15,
                     self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, fiat_fee_fraction),
                     visual_style=acquired_lot_style,
                     data_style="fiat",
@@ -739,7 +760,7 @@ class Generator(AbstractODSGenerator):
                 self._fill_cell(
                     sheet,
                     row_index,
-                    15,
+                    16,
                     self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.fiat_cost_basis),
                     visual_style=highlighted_style,
                     data_style="fiat",
@@ -747,7 +768,7 @@ class Generator(AbstractODSGenerator):
                 self._fill_cell(
                     sheet,
                     row_index,
-                    16,
+                    17,
                     self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot.spot_price),
                     visual_style=acquired_lot_style,
                     data_style="fiat",
@@ -755,7 +776,15 @@ class Generator(AbstractODSGenerator):
                 self._fill_cell(
                     sheet,
                     row_index,
-                    17,
+                    18,
+                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot.unique_id),
+                    visual_style=acquired_lot_style,
+                    data_style="fiat",
+                )
+                self._fill_cell(
+                    sheet,
+                    row_index,
+                    19,
                     self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, acquired_lot_note),
                     visual_style=f"acquired_lot_note{border_suffix}",
                 )
@@ -763,7 +792,7 @@ class Generator(AbstractODSGenerator):
                 previous_acquired_lot = gain_loss.acquired_lot
             else:
                 acquired_lot_style = f"acquired_lot{acquired_lot_style_modifier}{border_suffix}"
-                for i in range(11, 17):
+                for i in range(12, 19):
                     self._fill_cell(sheet, row_index, i, "", visual_style=f"{acquired_lot_style}")
 
             row_index += 1
