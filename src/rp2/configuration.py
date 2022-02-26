@@ -153,7 +153,7 @@ class Configuration:  # pylint: disable=too-many-public-methods
         if len(data) <= max_column:
             raise RP2ValueError(
                 f"Parameter 'data' has length {len(data)}, but required minimum from {table_type}-table headers in "
-                f"{self.__configuration_path} is {max_column + 1}"
+                f"{self.__configuration_path} is {max_column + 1}: {data}"
             )
         pack: Dict[str, Any] = {argument: data[position] for argument, position in header.items()}
 
