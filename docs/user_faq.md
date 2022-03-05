@@ -25,7 +25,7 @@
   * [What if I Don't Have the Spot Price for Some Transactions?](#what-if-i-dont-have-the-spot-price-for-some-transactions)
   * [Is My Tax Report Browsable?](#is-my-tax-report-browsable)
   * [How to Report a RP2 Bug Without Sharing Personal Information?](#how-to-report-a-rp2-bug-without-sharing-personal-information)
-  * [What if I Don't Trust RP2 With my Crypto Data?](#what-if-i-dont-trust-rp2-with-my-crypto-data)
+  * [What if I Don't Trust RP2 With My Crypto Data?](#what-if-i-dont-trust-rp2-with-my-crypto-data)
   * [Who is the Author of RP2?](#who-is-the-author-of-rp2)
   * [What Does RP2 Mean?](#what-does-rp2-mean)
 
@@ -107,7 +107,7 @@ The rp2_full_report output contains full tax computation details. Part of its co
 ### How to Report a RP2 Bug Without Sharing Personal Information?
 See the Reporting Bugs section in the [CONTRIBUTING](../CONTRIBUTING.md#reporting-bugs) document.
 
-### What if I Don't Trust RP2 With my Crypto Data?
+### What if I Don't Trust RP2 With My Crypto Data?
 In other words, how to be sure RP2 is not malware/spyware? After all, Bitcoin's motto is *"don't trust, verify"*. RP2 is open-source and written in Python, so anybody with Python skills can inspect the code anytime: if RP2 were to try anything untoward (e.g. connecting to a server), someone would likely notice. However if you don't have the time, patience or skill to verify the code and you don't trust others to do so for you, you can still use RP2 in an isolated environment:
 - start a fresh virtual machine with your OS of choice;
 - install RP2 in the virtual machine;
