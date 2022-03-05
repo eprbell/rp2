@@ -116,7 +116,7 @@ In other words, how to be sure RP2 is not malware/spyware? After all, Bitcoin's 
 - run RP2 in the virtual machine.
 
 ### Who is the Author of RP2?
-The author of RP2 is a Silicon Valley veteran, a software engineer who left the corporate world to become an independent developer and investor. More on eprbell's story [here](https://eprbell.github.io/eprbell//eprbell/status/2021/07/29/the-beginning-of-the-journey.html).
+The author of RP2 is a Silicon Valley veteran, a software engineer and bitcoiner who also dabbles in Quantum Computing.
 
 ### What Does RP2 Mean?
 It's a humorous reference to Warren Buffett’s claim that Bitcoin is [“rat poison squared”](https://www.cnbc.com/2018/05/05/warren-buffett-says-bitcoin-is-probably-rat-poison-squared.html). Other smart people occasionally made [famously](https://www.snopes.com/fact-check/paul-krugman-internets-effect-economy/) [wrong](https://libquotes.com/thomas-edison/quote/lbx5e7q) [remarks](https://en.wikipedia.org/wiki/Robert_Metcalfe#Incorrect_predictions) about technology: I have a feeling Buffett’s quote might end up among those.
