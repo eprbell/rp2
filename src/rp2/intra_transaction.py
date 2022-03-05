@@ -49,7 +49,9 @@ class IntraTransaction(AbstractTransaction):
             if self.__crypto_fee == ZERO:
                 spot_price = ZERO
             else:
-                raise RP2ValueError(f"crypto_fee is non-zero ({self.__crypto_fee}) but spot_price is empty or zero: {timestamp} {asset} {crypto_sent} {unique_id} ")
+                raise RP2ValueError(
+                    f"crypto_fee is non-zero ({self.__crypto_fee}) but spot_price is empty or zero: {timestamp} {asset} {crypto_sent} {unique_id} "
+                )
         super().__init__(configuration, timestamp, asset, "MOVE", spot_price, internal_id, unique_id, notes)
 
         self.__from_exchange: str = configuration.type_check_exchange("from_exchange", from_exchange)
