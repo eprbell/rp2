@@ -36,7 +36,6 @@
 * **[Contributing](https://github.com/eprbell/rp2/tree/main/README.md#contributing)**
 * **[Developer Documentation](https://github.com/eprbell/rp2/tree/main/README.md#developer-documentation)**
 * **[Frequently Asked Questions](https://github.com/eprbell/rp2/tree/main/README.md#frequently-asked-questions)**
-* **[Donations](https://github.com/eprbell/rp2/tree/main/README.md#donations)**
 * **[Change Log](https://github.com/eprbell/rp2/tree/main/README.md#change-log)**
 
 ## Introduction
@@ -182,9 +181,6 @@ Read the [developer documentation](https://github.com/eprbell/rp2/tree/main/READ
 
 ## Frequently Asked Questions
 Read the [user FAQ list](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md) and the [developer FAQ list](https://github.com/eprbell/rp2/tree/main/docs/developer_faq.md).
-
-## Donations
-If RP2 is useful to you, consider [making a donation](https://eprbell.github.io/eprbell/donations.html) and / or leaving a star on the [project Github page](https://github.com/eprbell/rp2). Thank you for supporting independent, open-source developers!
 
 ## Change Log
 Read the [Change Log](https://github.com/eprbell/rp2/tree/main/CHANGELOG.md) document.
