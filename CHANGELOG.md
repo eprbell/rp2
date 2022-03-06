@@ -14,6 +14,10 @@
 
 # RP2 Change Log
 
+## v0.9.17
+* added an extra check in IntraTransaction constructor: if spot_price == 0 and fee > 0 then raise an error (because the fiat value of the fee cannot be computed)
+* minor edits to documentation
+
 ## v0.9.16
 * in the tax_report_us output the following tabs had the description field mistakenly hidden: Airdrops, Income, Interest, Mining, Staking, Wages. All other tabs didn't have the problem. The hidden field is now visible
 * the unique_id field (containing hash or exchange-specific id) is now generated in the output files (both tax_report_us and rp2_full_report)
