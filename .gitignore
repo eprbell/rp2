@@ -21,6 +21,6 @@ log/*.log
 output/
 *.pyc
 __pycache__/
-src/rp2.egg-info/
+src/*.egg-info/
 .venv/
 .vscode/
