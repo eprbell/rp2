@@ -127,9 +127,13 @@ pip install rp2
 * `pip install rp2`
 
 ## Running
-Before running RP2, the user must prepare two files:
+RP2 requires two files as input:
 * an ODS-format spreadsheet, containing crypto transactions (ODS-format files can be opened and edited with [LibreOffice](https://www.libreoffice.org/) and many other spreadsheet applications);
 * a JSON config file, describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies and exchanges to expect.
+
+The two input files can either:
+* be generated automatically using [DaLI](https://pypi.org/project/dali-rp2/), the data loader and input generator for RP2, or
+* be prepared manually by the user.
 
 The formats of these files are described in detail in the [Input Files](https://github.com/eprbell/rp2/tree/main/docs/input_files.md) section of the documentation.
 
@@ -169,6 +173,10 @@ RP2 is the first component of what could be a powerful, community-driven suite o
 * more...
 
 If you'd like to start an ecosystem project, please open an [issue](https://github.com/eprbell/rp2/issues) to let the RP2 community know.
+
+### Ecosystem Projects
+Here's a list of projects in the RP2 ecosystem:
+* [DaLI](https://pypi.org/project/dali-rp2/): data loader and input generator for RP2 (https://pypi.org/project/rp2/).
 
 ## Reporting Bugs
 Read the [Contributing](https://github.com/eprbell/rp2/tree/main/CONTRIBUTING.md#reporting-bugs) document.
