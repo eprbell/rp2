@@ -32,6 +32,7 @@
 * **[Running](https://github.com/eprbell/rp2/tree/main/README.md#running)**
 * **[Input and Output Files](https://github.com/eprbell/rp2/tree/main/README.md#input-and-output-files)**
 * **[RP2 Ecosystem](https://github.com/eprbell/rp2/tree/main/README.md#rp2-ecosystem)**
+  * [List of Ecosystem Projects](https://github.com/eprbell/rp2/tree/main/README.md#list-of-ecosystem-projects)
 * **[Reporting Bugs](https://github.com/eprbell/rp2/tree/main/README.md#reporting-bugs)**
 * **[Contributing](https://github.com/eprbell/rp2/tree/main/README.md#contributing)**
 * **[Developer Documentation](https://github.com/eprbell/rp2/tree/main/README.md#developer-documentation)**
@@ -166,16 +167,16 @@ Read the [input files](https://github.com/eprbell/rp2/tree/main/docs/input_files
 This is a call for projects: come and help us expand RP2's functionality!
 
 RP2 is the first component of what could be a powerful, community-driven suite of open-source, crypto tax software. It is intended as the core of a larger project ecosystem, maintained by the community. These projects can extend RP2's capability, usefulness and ease of use in new ways, for example:
-* RP2 data loader: retrieve crypto data from exchanges (via both REST API and CSV files) and generate an input ODS file and a config file that can be fed directly to RP2;
+* RP2 [data loader plugins](https://github.com/eprbell/dali-rp2/blob/main/README.dev.md#dali-internals): add support for more exchanges and wallets (via REST API and/or CSV files). [Dali](https://github.com/eprbell/dali-rp2), the RP2 data loader uses them to generate an input ODS file and a config file that can be fed directly to RP2;
 * RP2 GUI: make RP2 more user-friendly and accessible to people who are not familiar with the CLI;
 * RP2 high-level interface: RP2 captures complex tax events using a few powerful, low-level primitives, aggregated in patterns. A higher level tool, might abstract out these patterns and present them to the user in a friendlier way (for example it may capture a complex concept like DeFi bridging as a primitive, rather than a pattern);
-* RP2 [plugins](https://github.com/eprbell/rp2/tree/main/README.dev.md#plugin-development): RP2 can be expanded via its programmable plugin architecture, which enables support for new output generators, countries and accounting methods;
+* [RP2 plugins](https://github.com/eprbell/rp2/tree/main/README.dev.md#plugin-development): RP2 can be expanded via its programmable plugin architecture, which enables support for new output generators, countries and accounting methods;
 * more...
 
 If you'd like to start an ecosystem project, please open an [issue](https://github.com/eprbell/rp2/issues) to let the RP2 community know.
 
-### Ecosystem Projects
-Here's a list of projects in the RP2 ecosystem:
+### List of Ecosystem Projects
+Here's the current list of projects in the RP2 ecosystem:
 * [DaLI](https://pypi.org/project/dali-rp2/): data loader and input generator for RP2 (https://pypi.org/project/rp2/).
 
 ## Reporting Bugs
