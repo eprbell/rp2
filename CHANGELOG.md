@@ -14,6 +14,10 @@
 
 # RP2 Change Log
 
+## v0.9.19
+* added new FAQs
+* added pointers in documentation to DaLI, the data loader and input generator for RP2: https://pypi.org/project/dali-rp2
+
 ## v0.9.18
 * improved error message when ods_parser._process_constructor_argument_pack tries to parse a numeric argument and fails because the value is not numeric
 
