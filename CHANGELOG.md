@@ -14,6 +14,9 @@
 
 # RP2 Change Log
 
+## v0.9.18
+* improved error message when ods_parser._process_constructor_argument_pack tries to parse a numeric argument and fails because the value is not numeric
+
 ## v0.9.17
 * added an extra check in IntraTransaction constructor: if spot_price == 0 and fee > 0 then raise an error (because the fiat value of the fee cannot be computed)
 * minor edits to documentation
