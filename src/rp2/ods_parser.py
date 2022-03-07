@@ -28,7 +28,7 @@ from rp2.intra_transaction import IntraTransaction
 from rp2.logger import LOGGER
 from rp2.out_transaction import OutTransaction
 from rp2.rp2_decimal import RP2Decimal
-from rp2.rp2_error import RP2ValueError
+from rp2.rp2_error import RP2Error, RP2ValueError
 from rp2.transaction_set import TransactionSet
 
 _TABLE_END: str = "TABLE END"
@@ -167,12 +167,15 @@ def _process_constructor_argument_pack(
     numeric_parameters: List[str] = _get_decimal_constructor_argument_names(class_name)
     for numeric_parameter in numeric_parameters:
         if numeric_parameter in argument_pack:
-            value: Optional[float] = argument_pack[numeric_parameter]
-            # It would be ideal to pass a string directly to the RP2Decimal constructor for maximum precision, but due to ezodf limitations we
-            # cannot get the string representation directly from the spreadsheet (see the comment on cell format inside parse_ods() for more
-            # detail), so at parse time we have to get the float value from the cell. Here we convert the float to string, which allows us to
-            # initialize a maximum-precision RP2Decimal (11 decimal digits is enough precision for millisats).
-            argument_pack[numeric_parameter] = RP2Decimal(f"{value:.11f}") if value is not None else None
+            try:
+                value: Optional[float] = argument_pack[numeric_parameter]
+                # It would be ideal to pass a string directly to the RP2Decimal constructor for maximum precision, but due to ezodf limitations we
+                # cannot get the string representation directly from the spreadsheet (see the comment on cell format inside parse_ods() for more
+                # detail), so at parse time we have to get the float value from the cell. Here we convert the float to string, which allows us to
+                # initialize a maximum-precision RP2Decimal (11 decimal digits is enough precision for millisats).
+                argument_pack[numeric_parameter] = RP2Decimal(f"{value:.11f}") if value is not None else None
+            except (ValueError, RP2Error) as exc:
+                raise RP2ValueError(f"Argument '{numeric_parameter}' has non-numeric value: {value}") from exc
 
     return argument_pack
 
