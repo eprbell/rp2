@@ -55,6 +55,8 @@ It has a programmable plugin architecture for [output generators](https://github
 
 RP2 has extensive [unit test](https://github.com/eprbell/rp2/tree/main/tests/) coverage to reduce the risk of regression.
 
+Finally RP2 has a data loader and input generator, called [DaLI](https://pypi.org/project/dali-rp2): which is also [open-source](https://github.com/eprbell/dali-rp2) and privacy-focused and removes the need to prepare input files manually.
+
 **IMPORTANT DISCLAIMERS**:
 * RP2 offers no guarantee of correctness (read the [license](https://github.com/eprbell/rp2/tree/main/LICENSE)): always verify results with the help of a tax professional.
 * The author of RP2 is not a tax professional, but has used RP2 personally for a few years.
