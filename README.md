@@ -45,7 +45,7 @@
 * it prioritizes user privacy by storing crypto transactions and tax results on the user's computer and not sending them anywhere else;
 * it's free and open-source.
 
-Additionally, RP2 supports the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) and [LIFO](https://www.investopedia.com/terms/l/lifo.asp) accounting methods, to help minimize the amount due.
+RP2 supports the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) and [LIFO](https://www.investopedia.com/terms/l/lifo.asp) accounting methods, to help minimize the amount due. It also generates full computation details for every lot fraction, so that it's possible to verify step-by-step how RP2 reaches the final result (more on this in the [RP2 full report documentation](docs/output_files.md#rp2-full-report-output)).
 
 RP2 reads in a user-prepared spreadsheet containing crypto transactions. It then uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates output spreadsheets.
 

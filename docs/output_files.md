@@ -28,12 +28,12 @@ RP2 generates output files by running the report plugins. It comes with two buil
 After running RP2, the output files can be found in the `output` directory or in the directory specified with the -o command line option.
 
 ## RP2 Full Report Output
-The rp2_full_report.ods output file is a comprehensive, ODS-format report containing full details about the computed taxes. It contains:
+The rp2_full_report.ods output file is a comprehensive, ODS-format report containing full details about the computed taxes: it can be used to follow step-by-step the process RP2 uses to produce results and verify them. It contains:
 * a Legend sheet containing the accounting method and the meaning of each column and keyword
 * a Summary sheet containing total short/long term capital gains per year, per cryptocurrency. Here follows an example of this sheet: ![RP2 full report summary example](images/rp2_full_report_output_summary.png)
 * two sheets per cryptocurrency:
   * *cryptocurrency* In-Out: full transaction history for the given *cryptocurrency*, organized by direction (In, Out, Intra). Taxable events are shown in blue, with taxable amount in yellow. The *In* table has a *Sent/Sold* column showing which lots have been fully or partially sold (in purple). Timestamps are homogenized (in the user input spreadsheet they may have different formats), transactions are sorted by time and some running sums are computed. Here follows an example of this sheet: ![RP2 full report in-out example](images/rp2_full_report_output_in_out.png)
-  * *cryptocurrency* Tax: long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions for the given *cryptocurrency*. In this sheet, blue refers to taxable events and outgoing (sold, donated, etc.) transactions, purple refers to cost basis and incoming (purchased, received) transactions and yellow refers to taxable amount. The Intra-Flow Detail table shows the mapping between taxable event fractions and in-transaction fractions. Here follows an example of this sheet: ![RP2 full report tax example](images/rp2_full_report_output_tax.png)
+  * *cryptocurrency* Tax: full tax computation details for the given *cryptocurrency*: long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. In this sheet, blue refers to taxable events and outgoing (sold, donated, etc.) transactions, purple refers to cost basis and incoming (purchased, received) transactions and yellow refers to taxable amount. The Intra-Flow Detail table shows the mapping between taxable event fractions and in-transaction fractions. Here follows an example of this sheet: ![RP2 full report tax example](images/rp2_full_report_output_tax.png)
 
 ### Hyperlinks
 The RP2 Full Report contains hyperlinks to facilitate navigation: in LibreOffice, CTRL-click (on Mac, Command-click) on a cell to jump to the target. The following content is hyperlinked:
