@@ -224,8 +224,6 @@ class Generator(AbstractReportGenerator):
 ### Adding a New Accounting Method
 Accounting method plugins modify the behavior of the tax engine. They pair in/out lots according to the given accounting algorithm: [FIFO](src/rp2/plugin/accounting_method/fifo.py) and [LIFO](src/rp2/plugin/accounting_method/lifo.py) are examples of accounting method plugins (FIFO is simpler, LIFO more elaborate).
 
-**IMPORTANT NOTE**: Accounting method plugins are an advanced topic and affect tax computation and results: proceed at your own risk!
-
 Accounting method plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * add a new Python file to the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
 * import the following (plus any other RP2 file you might need):
@@ -250,7 +248,7 @@ from logger import LOGGER
 ```
     def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], acquired_lot_iterator: Iterator[InTransaction]) -> None:
 ```
-* write the body of `initialize()`. This method is passed iterators on taxable events and aquired lots and performs accounting-method-specific initialization (e.g. it might iterate over the iterators and add the elements to custom data structures). The parameters are:
+* write the body of `initialize()`. This method is passed iterators on taxable events and aquired lots and performs accounting-method-specific initialization (e.g. it might iterate over the iterators and add the elements to custom data structures, like AVL trees, etc.). The parameters are:
   * `taxable_event_iterator`: iterator over TaxableEvent instances (disposed-of lots), in chronological order;
   * `acquired_lot_iterator`: iterator over InTransaction instances (acquired lots), in chronological order;
 * Add `get_next_taxable_event_and_amount()` and `get_acquired_lot_for_taxable_event()` methods with the following signatures:
