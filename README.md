@@ -47,15 +47,13 @@
 
 RP2 supports the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) and [LIFO](https://www.investopedia.com/terms/l/lifo.asp) accounting methods, to help minimize the amount due. It also generates full computation details for every lot fraction, so that it's possible to verify step-by-step how RP2 reaches the final result (more on this in the [RP2 full report documentation](docs/output_files.md#rp2-full-report-output)).
 
-RP2 reads in a user-prepared spreadsheet containing crypto transactions. It then uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates output spreadsheets.
+RP2 reads in a spreadsheet containing crypto transactions. The spreadsheet can be generated either manually or automatically using [DaLI](https://pypi.org/project/dali-rp2), a RP2 data loader and input generator (which is also privacy-focused, free and [open-source](https://github.com/eprbell/dali-rp2)). After parsing the input RP2 uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates output spreadsheets.
 
 It has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-report-generator), [accounting methods](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-accounting-method) and [countries](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-support-for-a-new-country). The output generator builtin plugins are US-specific, but RP2's architecture makes it possible to contribute additional generators for different countries or for different US-based cases. The builtin generator plugins are:
 * tax_report_us: generates a tax report meant to be read by tax preparers (in the format of form 8949);
 * rp2_full_report: generates a comprehensive report, with complete transaction history, lot relationships/fractions and computation details.
 
 RP2 has extensive [unit test](https://github.com/eprbell/rp2/tree/main/tests/) coverage to reduce the risk of regression.
-
-Finally RP2 has a data loader and input generator, called [DaLI](https://pypi.org/project/dali-rp2): which is also [open-source](https://github.com/eprbell/dali-rp2) and privacy-focused and removes the need to prepare input files manually.
 
 **IMPORTANT DISCLAIMERS**:
 * RP2 offers no guarantee of correctness (read the [license](https://github.com/eprbell/rp2/tree/main/LICENSE)): always verify results with the help of a tax professional.
