@@ -54,7 +54,7 @@
   * [How to Handle Cost-only DeFi Transactions?](#how-to-handle-cost-only-defi-transactions)
   * [How to Handle DeFi Bridging?](#how-to-handle-defi-bridging)
   * [How to Handle DeFi Reflexive Tokens?](#how-to-handle-defi-reflexive-tokens)
-  * [How to Handle DeFi Yield from Locked-up Crypto?](#how-to-handle-defi-yield-from-locked-up-crypto)
+  * [How to Handle DeFi Yield from Liquidity Pools](#how-to-handle-defi-yield-from-liquidity-pools)
   * [How to Handle NFTs?](#how-to-handle-nfts)
   * [How to Handle Futures and Options?](#how-to-handle-futures-and-options)
 
@@ -212,17 +212,17 @@ In RP2 such native crypto costs can be captured via an [OUT/SELL transaction](in
 Remember to use the Notes field to provide context about the nature of the transaction. See the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle DeFi Bridging?
-There is an ongoing debate on how to manage DeFi bridging from a tax perspective. I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Check this [RP2 issue](https://github.com/eprbell/rp2/issues/4) for a brainstorming on the subject and consult your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
+There is an ongoing debate on how to manage DeFi bridging from a tax perspective. I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Check the [RP2 Defi Brainstorming](https://github.com/eprbell/rp2/issues/4), the [RP2 Defi Wiki](https://github.com/eprbell/rp2/wiki/DEFI-Brainstorming) and always double-check with your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
 
 ### How to Handle DeFi Reflexive Tokens?
-There is an ongoing debate on how to manage DeFi reflexive tokens from a tax perspective. I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Check this [RP2 issue](https://github.com/eprbell/rp2/issues/4) for a brainstorming on DeFi and consult your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
+There is an ongoing debate on how to manage DeFi reflexive tokens from a tax perspective. I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Check the [RP2 Defi Brainstorming](https://github.com/eprbell/rp2/issues/4), the [RP2 Defi Wiki](https://github.com/eprbell/rp2/wiki/DEFI-Brainstorming) and always double-check with your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
 
-### How to Handle DeFi Yield from Locked-up Crypto?
-DeFi opens up new scenarios that have their own tax implications. For example:
+### How to Handle DeFi Yield from Liquidity Pools?
+DeFi opens up new scenarios, like liquidity pools, that have their own tax implications. For example:
 * lock 100 DRIP forever and then get 1 DRIP per day back for a max of 365 days;
 * buy a "node" that consumes 10 STRONG, but after that the node produces 0.1 STRONG per day, forever.
 
-There is an ongoing debate on how to capture this scenario from a tax perspective: how is the locked-forever crypto handled? Are the first yields considered "recovered" capital and the following ones staking? I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Check this [RP2 issue](https://github.com/eprbell/rp2/issues/4) for a brainstorming on the subject and consult your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
+There is an ongoing debate on how to capture this scenario from a tax perspective: how is the locked-forever crypto handled? Are the first yields considered "recovered" capital and the following ones staking? I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Check the [RP2 Defi Brainstorming](https://github.com/eprbell/rp2/issues/4), the [RP2 Defi Wiki](https://github.com/eprbell/rp2/wiki/DEFI-Brainstorming) and always double-check with your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
 
 ### How to Handle NFTs?
 RP2 treats NFTs like cryptocurrencies, that is as property. Use a unique asset type for each NFT, both in the config file and in the input spreadsheet (see the [input files](input_files.md) section of the documentation for format details): e.g. ETH_BORED_APE_4363. There is debate on whether NFTs should be treated as collectibles instead, but this has not been clarified officially by the IRS yet, to the best of my knowledge. Ask a tax professional for the correct answer in any given year.
