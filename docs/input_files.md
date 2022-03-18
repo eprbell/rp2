@@ -77,7 +77,7 @@ Here follows an example of an input spreadsheet with 2 sheets (one for BTC and o
   * **spot_price**: value of 1 unit of the given cryptocurrency at the time the transaction occurred.
   * **crypto_out_no_fee**: how much of the given cryptocurrency was sold or sent with the transaction (excluding fees).
   * **crypto_fee**: crypto value of the transaction fees.
-  * **crypto_out_with_fee** (optional): how much of the given cryptocurrency was sold or sent with the transaction (excluding fees). If not provided, RP2 will compute this value automatically.
+  * **crypto_out_with_fee** (optional): how much of the given cryptocurrency was sold or sent with the transaction (including fees). If not provided, RP2 will compute this value automatically.
   * **fiat_out_no_fee** (optional): fiat value of the transaction without fees. If not provided, RP2 will compute this value automatically.
   * **fiat_fee** (optional): fiat value of the transaction fees. If not provided, RP2 will compute this value automatically.
   * **unique_id** (optional): hash or exchange-specific unique identifier for the transaction.
