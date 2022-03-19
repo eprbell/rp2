@@ -59,7 +59,7 @@ def _parse_cell_value(cell: Any) -> Any:
         if value == -0.0:
             value = 0
     except ValueError:
-        value = cell.value
+        pass
 
     if value is None:
         value = ""
