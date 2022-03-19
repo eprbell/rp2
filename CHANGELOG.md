@@ -15,7 +15,7 @@
 # RP2 Change Log
 
 ## In Progress
-* added one new FAQ on how to verify RP2 tax computation results
+* added documentation of transparent computation (including one new FAQ on how to verify RP2 tax computation results)
 * minor edits to documentation
 
 ## v0.9.19

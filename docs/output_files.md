@@ -16,9 +16,9 @@
 
 ## Table of Contents
 * **[Introduction](#introduction)**
-* **[RP2 Full Output Report](#rp2-full-report-output)**
+* **[Transparent Computation (RP2 Full Output Report)](#transparent-computation-rp2-full-report-output)**
   * [Hyperlinks](#hyperlinks)
-* **[Tax Report US Output](#tax-report-us-output)**
+* **[Advisor-Friendly Report (Tax Report US Output)](#advisor-friendly-report-tax-report-us-output)**
 
 ## Introduction
 RP2 generates output files by running the report plugins. It comes with two builtin plugins for US taxes:
@@ -27,7 +27,7 @@ RP2 generates output files by running the report plugins. It comes with two buil
 
 After running RP2, the output files can be found in the `output` directory or in the directory specified with the -o command line option.
 
-## RP2 Full Report Output
+## Transparent Computation (RP2 Full Report Output)
 The rp2_full_report.ods output file is a comprehensive, ODS-format report containing full details about the computed taxes: it can be used to follow step-by-step the process RP2 uses to produce results and verify them. It contains:
 * a Legend sheet containing the accounting method and the meaning of each column and keyword
 * a Summary sheet containing total short/long term capital gains per year, per cryptocurrency. Here follows an example of this sheet: ![RP2 full report summary example](images/rp2_full_report_output_summary.png)
@@ -40,7 +40,7 @@ The RP2 Full Report contains hyperlinks to facilitate navigation: in LibreOffice
   * taxable events and acquired lots in *cryptocurrency* Tax sheet are hyperlinked to their definition line in the cryptocurrency* In-Out sheet;
   * summary lines in the Summary sheet are now hyperlinked to the first line of the given year in the *cryptocurrency* Tax sheet.
 
-## Tax Report US Output
+## Advisor-Friendly Report (Tax Report US Output)
 The tax_report_us.ods output file contains a legend sheet and a sheet per taxable event type (if there are no taxable events for a given event type, its respective sheet is not generated):
 * Airdrops;
 * Capital Gains (triggered by cryptocurrency sales);
@@ -54,7 +54,7 @@ The tax_report_us.ods output file contains a legend sheet and a sheet per taxabl
 * Staking;
 * Wages.
 
-These sheets are in the format of form 8949 and are meant for tax preparers, who can use it fill the appropriate forms. Every line corresponds to a taxable event and describes it. The left part (with white header) mimics form 8949: cost basis, capital gains, proceeds, etc. The right part (with gray header) contains additional information that can be used to identify the transactions in the user's records or in the [rp2_full_report output](#rp2-full-report-output): full timestamp of date sold, capital gains type (long or short), lot fraction information, transaction type, etc. In this sheet blue refers to taxable events and purple to in-transactions (purchased, earned, etc.).
+These sheets are in the format of form 8949 and are meant for tax preparers, who can use it to fill the appropriate forms. Every line corresponds to a taxable event and describes it. The left part (with white header) mimics form 8949: cost basis, capital gains, proceeds, etc. The right part (with gray header) contains additional information that can be used to identify the transactions in the user's records or in the [rp2_full_report output](#transparent-computation-rp2-full-report-output): full timestamp of date sold, capital gains type (long or short), lot fraction information, transaction type, unique_id, etc. In this sheet blue refers to taxable events and purple to in-transactions (purchased, earned, etc.).
 
 Each sheet has a [specific tax treatment](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#which-crypto-tax-forms-to-file).
 
