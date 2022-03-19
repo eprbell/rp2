@@ -62,7 +62,7 @@ RP2 has extensive [unit test](https://github.com/eprbell/rp2/tree/main/tests/) c
 * The author of RP2 is not a tax professional, but has used RP2 personally for a few years.
 
 ### How RP2 Operates
-RP2's has been designed to provide expressive primitives that can be used as building blocks for most tax scenarios. As such, complex tax events can be described with patterns, built on top of these primitives (see the [FAQ list](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#tax-scenarios) for examples).
+RP2's has been designed with expressive primitives that can be used as building blocks for most tax scenarios: complex tax events can be described with patterns, built using these primitives (see the [FAQ list](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#tax-scenarios) for examples).
 
 RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Currency Guidance](https://www.irs.gov/newsroom/irs-reminds-taxpayers-to-report-virtual-currency-transactions).
 
