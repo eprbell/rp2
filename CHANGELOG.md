@@ -14,7 +14,8 @@
 
 # RP2 Change Log
 
-## In Progress
+## v0.9.23
+* added fee-only transactions: this type of transactions occur in certain DeFi scenarios (see [relevant FAQ](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#hhow-to-handle-fee-only-defi-transactions) for more)
 * added documentation of transparent computation (including one new FAQ on how to verify RP2 tax computation results)
 * minor edits to documentation
 
