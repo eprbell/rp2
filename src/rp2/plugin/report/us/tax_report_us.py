@@ -61,6 +61,7 @@ _SHEET_TO_TYPE: Dict[str, TransactionType] = {
 }
 
 _TYPE_TO_SHEET: Dict[TransactionType, str] = {transaction_type: sheet_name for sheet_name, transaction_type in _SHEET_TO_TYPE.items()}
+_TYPE_TO_SHEET[TransactionType.FEE] = SheetNames.INVESTMENT_EXPENSES.value
 
 
 class Generator(AbstractODSGenerator):

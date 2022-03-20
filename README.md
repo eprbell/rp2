@@ -71,6 +71,7 @@ RP2 supports the FIFO and LIFO accounting methods: however, in and out lots typi
 RP2 groups lot fractions into the following taxable event categories, each of which has a [specific tax treatment](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#which-crypto-tax-forms-to-file):
 * [AIRDROP](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-airdrops): gains from airdrops;
 * DONATE: donations to charitable organizations;
+* [FEE](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#hhow-to-handle-fee-only-defi-transactions): fee-only transaction, used in some DeFi scenarios (e.g. gas fee for running certain smart contracts);
 * GIFT: gifts to parties who are not charitable organizations (not tax-deductible).
 * [HARDFORK](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-hard-forks): gains from hard forks;
 * INCOME: gains from miscellaneous income (e.g. Coinbase Earn);

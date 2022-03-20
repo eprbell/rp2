@@ -51,7 +51,7 @@
   * [How to Handle Income from Mining?](#how-to-handle-income-from-mining)
   * [How to Handle Income from Staking?](#how-to-handle-income-from-staking)
   * [How to Handle Income from Crypto Wages?](#how-to-handle-income-from-crypto-wages)
-  * [How to Handle Cost-only DeFi Transactions?](#how-to-handle-cost-only-defi-transactions)
+  * [How to Handle Fee-only DeFi Transactions?](#how-to-handle-fee-only-defi-transactions)
   * [How to Handle DeFi Bridging?](#how-to-handle-defi-bridging)
   * [How to Handle DeFi Reflexive Tokens?](#how-to-handle-defi-reflexive-tokens)
   * [How to Handle DeFi Yield from Liquidity Pools](#how-to-handle-defi-yield-from-liquidity-pools)
@@ -199,15 +199,13 @@ Use an IN transaction and mark the transaction type as STAKING. RP2 will collect
 ### How to Handle Income from Crypto Wages?
 Use an IN transaction and mark the transaction type as WAGES. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
 
-### How to Handle Cost-only DeFi Transactions?
+### How to Handle Fee-only DeFi Transactions?
 DeFi opens up new scenarios that have their own tax implications. For example:
 * a transaction calls a smart contract function that executes and costs some ETH or BNB;
 * investment in a DEFI project where a percentage of invested tokens are "burned";
 * send 100 CAKE from one BSC wallet to another then the fees are paid in BNB not CAKE.
 
-In RP2 such native crypto costs can be captured via an [OUT/SELL transaction](input_files.md#out-transaction-table-format) with either:
-* `crypto_out`=*100%_of_cost*, `crypto_fee`=*0%_of_cost* or
-* `crypto_out`=*0%_of_cost*, `crypto_fee`=*100%_of_cost*.
+In RP2 such native crypto costs can be captured via an [OUT/FEE transaction](input_files.md#out-transaction-table-format).
 
 Remember to use the Notes field to provide context about the nature of the transaction. See the [input files](input_files.md) section of the documentation for format details.
 

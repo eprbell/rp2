@@ -23,6 +23,7 @@ class TransactionType(Enum):
     AIRDROP: str = "airdrop"
     BUY: str = "buy"
     DONATE: str = "donate"
+    FEE: str = "fee"
     GIFT: str = "gift"
     HARDFORK: str = "hardfork"
     INCOME: str = "income"

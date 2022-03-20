@@ -21,7 +21,7 @@ from rp2.logger import LOGGER
 from rp2.rp2_decimal import FIAT_DECIMAL_MASK, ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
-
+# pylint: disable=too-many-branches
 class OutTransaction(AbstractTransaction):
     def __init__(
         self,
@@ -45,10 +45,21 @@ class OutTransaction(AbstractTransaction):
 
         self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
         self.__holder: str = configuration.type_check_holder("holder", holder)
-        self.__crypto_out_no_fee: RP2Decimal = configuration.type_check_positive_decimal("crypto_out_no_fee", crypto_out_no_fee, non_zero=True)
-        self.__crypto_fee: RP2Decimal = configuration.type_check_positive_decimal("crypto_fee", crypto_fee)
+        self.__crypto_out_no_fee: RP2Decimal
+        self.__crypto_fee: RP2Decimal
         self.__fiat_out_with_fee: RP2Decimal
         self.__fiat_out_no_fee: RP2Decimal
+
+        if self.transaction_type == TransactionType.FEE:
+            self.__crypto_out_no_fee = configuration.type_check_positive_decimal("crypto_out_no_fee", crypto_out_no_fee)
+            if self.__crypto_out_no_fee != ZERO:
+                raise RP2ValueError("Fee-typed transaction has non-zero 'crypto_out_no_fee'")
+            self.__crypto_fee = configuration.type_check_positive_decimal("crypto_fee", crypto_fee, non_zero=True)
+        else:
+            if spot_price == ZERO:
+                raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.internal_id}): parameter 'spot_price' cannot be 0")
+            self.__crypto_out_no_fee = configuration.type_check_positive_decimal("crypto_out_no_fee", crypto_out_no_fee, non_zero=True)
+            self.__crypto_fee = configuration.type_check_positive_decimal("crypto_fee", crypto_fee)
 
         # Crypto out with fee is optional. It can be derived from crypto out (no fee) and crypto fee, however some exchanges
         # provide it anyway. If it is provided use it as given by the exchange, if not compute it.
@@ -69,9 +80,7 @@ class OutTransaction(AbstractTransaction):
             self.__fiat_fee = configuration.type_check_positive_decimal("fiat_fee", fiat_fee)
         self.__fiat_out_with_fee = self.__fiat_out_no_fee + self.__fiat_fee
 
-        if spot_price == ZERO:
-            raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.internal_id}): parameter 'spot_price' cannot be 0")
-        if self.transaction_type not in (TransactionType.DONATE, TransactionType.GIFT, TransactionType.SELL):
+        if self.transaction_type not in (TransactionType.DONATE, TransactionType.FEE, TransactionType.GIFT, TransactionType.SELL):
             raise RP2ValueError(
                 f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.internal_id}): invalid transaction type {self.transaction_type}"
             )
@@ -173,10 +182,14 @@ class OutTransaction(AbstractTransaction):
     # https://taxbit.com/cryptocurrency-tax-guide. Therefore the fee is considered a deduction and the outgoing amount is not.
     @property
     def crypto_taxable_amount(self) -> RP2Decimal:
+        if self.transaction_type == TransactionType.FEE:
+            return self.crypto_fee
         return self.crypto_out_no_fee
 
     @property
     def fiat_taxable_amount(self) -> RP2Decimal:
+        if self.transaction_type == TransactionType.FEE:
+            return self.fiat_fee
         return self.fiat_out_no_fee
 
     @property
