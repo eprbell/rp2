@@ -188,7 +188,7 @@ class Configuration:  # pylint: disable=too-many-public-methods
 
     @classmethod
     def type_check_internal_id(cls, name: str, value: int) -> int:
-        return cls.type_check_positive_int(name, value)
+        return cls.type_check_int(name, value)
 
     @classmethod
     def type_check_timestamp_from_string(cls, name: str, value: str) -> datetime:
