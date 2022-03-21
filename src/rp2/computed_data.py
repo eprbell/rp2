@@ -224,6 +224,7 @@ class ComputedData:
 
         # Compute crypto running sums
         self.__crypto_in_running_sum: Dict[InTransaction, RP2Decimal] = {}
+        self.__crypto_in_fee_running_sum: Dict[InTransaction, RP2Decimal] = {}
         self.__crypto_out_running_sum: Dict[OutTransaction, RP2Decimal] = {}
         self.__crypto_out_fee_running_sum: Dict[OutTransaction, RP2Decimal] = {}
         self.__crypto_intra_fee_running_sum: Dict[IntraTransaction, RP2Decimal] = {}
@@ -233,10 +234,13 @@ class ComputedData:
         crypto_fee_running_sum: RP2Decimal
 
         crypto_running_sum = ZERO
+        crypto_fee_running_sum = ZERO
         for entry in input_data.unfiltered_in_transaction_set:
             in_transaction: InTransaction = cast(InTransaction, entry)
             crypto_running_sum += in_transaction.crypto_in
+            crypto_fee_running_sum += in_transaction.crypto_fee
             self.__crypto_in_running_sum[in_transaction] = crypto_running_sum
+            self.__crypto_in_fee_running_sum[in_transaction] = crypto_fee_running_sum
 
         crypto_running_sum = ZERO
         crypto_fee_running_sum = ZERO
@@ -329,6 +333,11 @@ class ComputedData:
         """Crypto in running sum for a given InTransaction instance."""
         InTransaction.type_check("in_transaction", in_transaction)
         return self.__crypto_in_running_sum[in_transaction]
+
+    def get_crypto_in_fee_running_sum(self, in_transaction: InTransaction) -> RP2Decimal:
+        """Crypto fee running sum for a given InTransaction instance."""
+        InTransaction.type_check("in_transaction", in_transaction)
+        return self.__crypto_in_fee_running_sum[in_transaction]
 
     def get_crypto_out_running_sum(self, out_transaction: OutTransaction) -> RP2Decimal:
         """Crypto running sum for a given OutTransaction instance."""

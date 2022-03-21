@@ -61,9 +61,10 @@ Here follows an example of an input spreadsheet with 2 sheets (one for BTC and o
   * **transaction_type**: AIRDROP, BUY, DONATE, GIFT, HARDFORK, INCOME, INTEREST, MINING, STAKING or WAGES.
   * **spot_price**: value of 1 unit of the given cryptocurrency at the time the transaction occurred.
   * **crypto_in**: how much of the given cryptocurrency was acquired with the transaction.
-  * **fiat_fee**: fiat value of the transaction fees.
+  * **crypto_fee**: (optional) crypto value of the transaction fees. This field is mutually exclusive with fiat_fee. If fiat_fee is assigned, crypto_fee is set to 0. If crypto_fee is assigned, fiat_fee is set to crypto_fee * spot_price. The reason for this behavior is that if the fee is paid in fiat, then no crypto is used for the fee, but if the fee is paid in crypto, then its converted fiat value is needed to compute taxes. Note that RP2 models a non-zero crypto_fee with a separate fee-typed out-transaction.
   * **fiat_in_no_fee** (optional): fiat value of the transaction without fees. If not provided, RP2 will compute this value automatically.
   * **fiat_in_with_fee** (optional): fiat value of the transaction with fees. If not provided, RP2 will compute this value automatically.
+  * **fiat_fee**: (optional) fiat value of the transaction fees. This field is mutually exclusive with crypto_fee. If fiat_fee is assigned, crypto_fee is set to 0. If crypto_fee is assigned, fiat_fee is set to crypto_fee * spot_price. The reason for this behavior is that if the fee is paid in fiat, then no crypto is used for the fee, but if the fee is paid in crypto, then its converted fiat value is needed to compute taxes.
   * **unique_id** (optional): hash or exchange-specific unique identifier for the transaction.
   * **notes** (optional): user-provided description of the transaction.
 
@@ -117,9 +118,10 @@ The config file is in JSON format and is structured as described below. Note tha
         "transaction_type": <em>&lt;column_number&gt;</em>,
         "spot_price": <em>&lt;column_number&gt;</em>,
         "crypto_in": <em>&lt;column_number&gt;</em>,
-        "fiat_fee": <em>&lt;column_number&gt;</em>,
+        "crypto_fee": <em>&lt;column_number&gt;</em>,
         "fiat_in_no_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
         "fiat_in_with_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
+        "fiat_fee": <em>&lt;column_number&gt;</em>,
         "notes": <em>&lt;column_number&gt;</em>&#x1F537;
     },
 
