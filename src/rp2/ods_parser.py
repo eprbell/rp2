@@ -21,13 +21,13 @@ import ezodf
 
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
-from rp2.entry_types import EntrySetType
+from rp2.entry_types import EntrySetType, TransactionType
 from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData
 from rp2.intra_transaction import IntraTransaction
 from rp2.logger import LOGGER
 from rp2.out_transaction import OutTransaction
-from rp2.rp2_decimal import RP2Decimal
+from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2Error, RP2ValueError
 from rp2.transaction_set import TransactionSet
 
@@ -59,11 +59,17 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
     unfiltered_transaction_sets[EntrySetType.OUT] = TransactionSet(configuration, "OUT", asset, MIN_DATE, MAX_DATE)
     unfiltered_transaction_sets[EntrySetType.INTRA] = TransactionSet(configuration, "INTRA", asset, MIN_DATE, MAX_DATE)
 
+    artificial_transaction_list: List[AbstractTransaction] = []
+
     current_table_type: Optional[EntrySetType] = None
     current_table_row_count: int = 0
     i: int = 0
     row: Any = None
+    # Used for artificial transactions only: e.g. the fee-only transaction that is created artificially to model crypto fee of in-transactions.
+    # Artificial internal ids are negative.
+    artificial_internal_id = 0
     for i, row in enumerate(input_sheet.rows()):
+        artificial_internal_id -= 1
         cell0_value: str = row[0].value
         # The numeric elements of the row_values list are used to initialize RP2Decimal instances. In theory we could collect string representations
         # from numeric strings using the plaintext() method of Cell, but this doesn't work well because of an ezodf limitation: such strings are
@@ -76,7 +82,6 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
         row_values: List[Any] = [cell.value for cell in row]
         LOGGER.debug("parsing row: %s", row_values)
 
-        transaction: AbstractTransaction
         if current_table_type is not None:
             # Inside a table
             if _is_table_begin(cell0_value):
@@ -108,26 +113,37 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
         elif current_table_type is not None and current_table_row_count == 1:
             # Header line: make sure it's not transaction data
             try:
-                transaction = _create_transaction(configuration, current_table_type, i + 1, row_values)
+                _create_transaction(configuration, current_table_type, i + 1, row_values)
             except Exception:  # pylint: disable=broad-except  # nosec
                 # Couldn't create transaction as expected: this is a table header
                 # TODO: this could still be a transaction but with some bad fields that would  # pylint: disable=fixme
                 # cause an exception. In this case this logic would incorrectly assume it's a
                 # header. Can we do better in this case? Some heuristics testing field by
-                # field would help.
+                # field might help.
                 pass
             else:
                 raise RP2ValueError(f"{asset}({i + 1}): Found data with no header")
         elif current_table_type is not None and current_table_row_count > 1:
             # Transaction line
-            transaction = _create_transaction(configuration, current_table_type, i + 1, row_values)
-            unfiltered_transaction_sets[current_table_type].add_entry(transaction)
+            _create_and_process_transaction(
+                configuration, row_values, current_table_type, i + 1, artificial_internal_id, unfiltered_transaction_sets, artificial_transaction_list
+            )
         current_table_row_count += 1
 
     if current_table_type is not None:
         raise RP2ValueError(f"TABLE END not found for {current_table_type} table")
     if unfiltered_transaction_sets[EntrySetType.IN].is_empty():
         raise RP2ValueError(f"{asset}: IN table not found or empty")
+
+    for transaction in artificial_transaction_list:
+        if isinstance(transaction, InTransaction):
+            unfiltered_transaction_sets[EntrySetType.IN].add_entry(transaction)
+        elif isinstance(transaction, OutTransaction):
+            unfiltered_transaction_sets[EntrySetType.OUT].add_entry(transaction)
+        elif isinstance(transaction, IntraTransaction):
+            unfiltered_transaction_sets[EntrySetType.INTRA].add_entry(transaction)
+        else:
+            raise RP2ValueError(f"Internal error: invalid transaction class: {transaction}")
 
     return InputData(
         asset,
@@ -137,6 +153,72 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
         configuration.from_date,
         configuration.to_date,
     )
+
+
+def _create_and_process_transaction(
+    configuration: Configuration,
+    row_values: List[Any],
+    current_table_type: EntrySetType,
+    internal_id: int,
+    artificial_internal_id: int,
+    unfiltered_transaction_sets: Dict[EntrySetType, TransactionSet],
+    artificial_transaction_list: List[AbstractTransaction],
+) -> None:
+
+    transaction: AbstractTransaction = _create_transaction(configuration, current_table_type, internal_id, row_values)
+
+    if isinstance(transaction, InTransaction) and transaction.is_crypto_fee_defined:
+        # If an InTransaction has crypto fee defined it is split into two transactions:
+        # - InTransaction with crypto_fee set to 0, but fiat_fee left as-is (the fiat-converted value of crypto_fee),
+        # - fee-typed OutTransaction, modeling the crypto_fee.
+        # These two transactions correctly model the coin flow of a InTransaction with crypto fee > 0: their notes
+        # fields are updated with a description of the above.
+        notes: str = f"{transaction.notes}; " if transaction.notes else ""
+        notes = (
+            f"{notes}This transaction has a crypto fee of {transaction.crypto_fee} {transaction.asset}, "
+            "which is modeled with an artificial, fee-only out-transaction (look for it among out-transactions)"
+        )
+
+        unfiltered_transaction_sets[EntrySetType.IN].add_entry(
+            InTransaction(
+                configuration=configuration,
+                timestamp=f"{transaction.timestamp}",
+                asset=transaction.asset,
+                exchange=transaction.exchange,
+                holder=transaction.holder,
+                transaction_type=transaction.transaction_type.value,
+                spot_price=transaction.spot_price,
+                crypto_in=transaction.crypto_in,
+                crypto_fee=None,
+                fiat_in_no_fee=transaction.fiat_in_no_fee,
+                fiat_in_with_fee=transaction.fiat_in_with_fee,
+                fiat_fee=transaction.fiat_fee,
+                internal_id=internal_id,
+                unique_id=transaction.unique_id,
+                notes=notes,
+            )
+        )
+        artificial_transaction_list.append(
+            OutTransaction(
+                configuration=configuration,
+                timestamp=f"{transaction.timestamp}",
+                asset=transaction.asset,
+                exchange=transaction.exchange,
+                holder=transaction.holder,
+                transaction_type=TransactionType.FEE.value,
+                spot_price=transaction.spot_price,
+                crypto_out_no_fee=ZERO,
+                crypto_fee=transaction.crypto_fee,
+                internal_id=artificial_internal_id,
+                unique_id=transaction.unique_id,
+                notes=(
+                    f"Artificial transaction modeling the crypto fee of {transaction.crypto_fee} {transaction.asset} "
+                    f"of the in-transaction that occurred on {transaction.timestamp} (look for it among in-transactions)"
+                ),
+            )
+        )
+    else:
+        unfiltered_transaction_sets[current_table_type].add_entry(transaction)
 
 
 # Returns all numeric parameters of the constructor: used in construction of __init__ argument pack to parse such parameters as decimals

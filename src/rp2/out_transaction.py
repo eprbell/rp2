@@ -53,7 +53,9 @@ class OutTransaction(AbstractTransaction):
         if self.transaction_type == TransactionType.FEE:
             self.__crypto_out_no_fee = configuration.type_check_positive_decimal("crypto_out_no_fee", crypto_out_no_fee)
             if self.__crypto_out_no_fee != ZERO:
-                raise RP2ValueError("Fee-typed transaction has non-zero 'crypto_out_no_fee'")
+                raise RP2ValueError(
+                    f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.internal_id}): fee-typed transaction has non-zero 'crypto_out_no_fee'"
+                )
             self.__crypto_fee = configuration.type_check_positive_decimal("crypto_fee", crypto_fee, non_zero=True)
         else:
             if spot_price == ZERO:
