@@ -51,6 +51,7 @@
   * [How to Handle Income from Mining?](#how-to-handle-income-from-mining)
   * [How to Handle Income from Staking?](#how-to-handle-income-from-staking)
   * [How to Handle Income from Crypto Wages?](#how-to-handle-income-from-crypto-wages)
+  * [How to Handle Crypto Rewards?](#how-to-handle-crypto-rewards)
   * [How to Handle Fee-only DeFi Transactions?](#how-to-handle-fee-only-defi-transactions)
   * [How to Handle DeFi Bridging?](#how-to-handle-defi-bridging)
   * [How to Handle DeFi Reflexive Tokens?](#how-to-handle-defi-reflexive-tokens)
@@ -64,7 +65,7 @@
 In rp2_full_report.ods check the Account Balances table in the tax sheets, and make sure they match the actual balances of your accounts. If not, you probably have an error in the input file or missed some transactions.
 
 ### How to Verify that Tax Computation is Correct?
-RP2 supports transparent computation and generates full computation details for every lot fraction, so that it's possible to verify step-by-step how RP2 reaches the final result (more on this in the [transparent computation documentation](output_files.md#transparent-computation-rp2-full-report-output)).
+RP2 supports [transparent computation](output_files.md#transparent-computation-rp2-full-report-output) and generates full computation details for every lot fraction, so that it's possible to verify step-by-step how RP2 reaches the final result.
 
 ### What Is the Timestamp Format?
 Timestamp format is [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) (see [examples](https://en.wikipedia.org/wiki/ISO_8601#Combined_date_and_time_representations) of timestamps in this format). Note that RP2 requires full timestamps, including date, time and timezone.
@@ -199,6 +200,9 @@ Use an IN transaction and mark the transaction type as STAKING. RP2 will collect
 ### How to Handle Income from Crypto Wages?
 Use an IN transaction and mark the transaction type as WAGES. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
 
+### How to Handle Crypto Rewards?
+This applies to governance and incentive tokens (e.g. COMP) as well as other crypto rewards (e.g. credit card rewards or Coinbase rewards). Use an IN transaction and mark the transaction type as INCOME. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
+
 ### How to Handle Fee-only DeFi Transactions?
 DeFi opens up new scenarios that have their own tax implications. For example:
 * a transaction calls a smart contract function that executes and costs some ETH or BNB;
@@ -210,17 +214,17 @@ In RP2 such native crypto costs can be captured via an [OUT/FEE transaction](inp
 Remember to use the Notes field to provide context about the nature of the transaction. See the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle DeFi Bridging?
-There is an ongoing debate on how to manage DeFi bridging from a tax perspective. I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Check the [RP2 Defi Brainstorming](https://github.com/eprbell/rp2/issues/4), the [RP2 Defi Wiki](https://github.com/eprbell/rp2/wiki/DEFI-Brainstorming) and always double-check with your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
+There is an ongoing debate on how to manage DeFi bridging from a tax perspective. I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Read the the [RP2 Defi Wiki](https://github.com/eprbell/rp2/wiki/DEFI-Brainstorming), the [RP2 Defi Brainstorming](https://github.com/eprbell/rp2/issues/4), and always double-check with your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
 
 ### How to Handle DeFi Reflexive Tokens?
-There is an ongoing debate on how to manage DeFi reflexive tokens from a tax perspective. I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Check the [RP2 Defi Brainstorming](https://github.com/eprbell/rp2/issues/4), the [RP2 Defi Wiki](https://github.com/eprbell/rp2/wiki/DEFI-Brainstorming) and always double-check with your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
+There is an ongoing debate on how to manage DeFi reflexive tokens from a tax perspective. I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Read the the [RP2 Defi Wiki](https://github.com/eprbell/rp2/wiki/DEFI-Brainstorming), the [RP2 Defi Brainstorming](https://github.com/eprbell/rp2/issues/4), and always double-check with your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
 
 ### How to Handle DeFi Yield from Liquidity Pools?
 DeFi opens up new scenarios, like liquidity pools, that have their own tax implications. For example:
 * lock 100 DRIP forever and then get 1 DRIP per day back for a max of 365 days;
 * buy a "node" that consumes 10 STRONG, but after that the node produces 0.1 STRONG per day, forever.
 
-There is an ongoing debate on how to capture this scenario from a tax perspective: how is the locked-forever crypto handled? Are the first yields considered "recovered" capital and the following ones staking? I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Check the [RP2 Defi Brainstorming](https://github.com/eprbell/rp2/issues/4), the [RP2 Defi Wiki](https://github.com/eprbell/rp2/wiki/DEFI-Brainstorming) and always double-check with your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
+There is an ongoing debate on how to capture this scenario from a tax perspective: how is the locked-forever crypto handled? Are the first yields considered "recovered" capital and the following ones staking? I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Read the the [RP2 Defi Wiki](https://github.com/eprbell/rp2/wiki/DEFI-Brainstorming), the [RP2 Defi Brainstorming](https://github.com/eprbell/rp2/issues/4), and always double-check with your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
 
 ### How to Handle NFTs?
 RP2 treats NFTs like cryptocurrencies, that is as property. Use a unique asset type for each NFT, both in the config file and in the input spreadsheet (see the [input files](input_files.md) section of the documentation for format details): e.g. ETH_BORED_APE_4363. There is debate on whether NFTs should be treated as collectibles instead, but this has not been clarified officially by the IRS yet, to the best of my knowledge. Ask a tax professional for the correct answer in any given year.
