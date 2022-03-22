@@ -61,9 +61,9 @@ class TestTransactionSet(unittest.TestCase):
             "bUy",
             RP2Decimal("1000"),
             RP2Decimal("3.0002"),
-            RP2Decimal("20"),
-            RP2Decimal("3000.2"),
-            RP2Decimal("3020.2"),
+            fiat_fee=RP2Decimal("20"),
+            fiat_in_no_fee=RP2Decimal("3000.2"),
+            fiat_in_with_fee=RP2Decimal("3020.2"),
             internal_id=30,
         )
         transaction_set.add_entry(transaction3)
@@ -77,9 +77,9 @@ class TestTransactionSet(unittest.TestCase):
             "InTeREST",
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
-            RP2Decimal("0"),
-            RP2Decimal("2000.2"),
-            RP2Decimal("2000.2"),
+            fiat_fee=RP2Decimal("0"),
+            fiat_in_no_fee=RP2Decimal("2000.2"),
+            fiat_in_with_fee=RP2Decimal("2000.2"),
             internal_id=20,
         )
         transaction_set.add_entry(transaction2)
@@ -223,9 +223,9 @@ class TestTransactionSet(unittest.TestCase):
             "INTERest",
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
-            RP2Decimal("0"),
-            RP2Decimal("2000.2"),
-            RP2Decimal("2000.2"),
+            fiat_fee=RP2Decimal("0"),
+            fiat_in_with_fee=RP2Decimal("2000.2"),
+            fiat_in_no_fee=RP2Decimal("2000.2"),
             internal_id=20,
         )
         # Different instance with same contents as in_transaction
@@ -238,9 +238,9 @@ class TestTransactionSet(unittest.TestCase):
             "interEST",
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
-            RP2Decimal("0"),
-            RP2Decimal("2000.2"),
-            RP2Decimal("2000.2"),
+            fiat_fee=RP2Decimal("0"),
+            fiat_in_with_fee=RP2Decimal("2000.2"),
+            fiat_in_no_fee=RP2Decimal("2000.2"),
             internal_id=20,
         )
         out_transaction = OutTransaction(

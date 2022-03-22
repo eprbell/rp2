@@ -276,7 +276,7 @@ class TestIntraTransaction(unittest.TestCase):
                     "BUY",
                     RP2Decimal("10000"),
                     RP2Decimal("1"),
-                    RP2Decimal("0"),
+                    fiat_fee=RP2Decimal("0"),
                     internal_id=45,
                 ),
             )
@@ -310,21 +310,6 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
                 internal_id=19,
-            )
-        with self.assertRaisesRegex(RP2ValueError, "Parameter 'internal_id' has non-positive value .*"):
-            # Bad internal_id
-            IntraTransaction(
-                self._configuration,
-                "2021-01-02T08:42:43.882Z",
-                "B1",
-                "Coinbase Pro",
-                "Bob",
-                "BlockFi",
-                "Alice",
-                RP2Decimal("1000.0"),
-                RP2Decimal("2.0002"),
-                RP2Decimal("1.9998"),
-                internal_id=-19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'internal_id' has non-integer value .*"):
             # Bad internal_id
