@@ -14,9 +14,15 @@
 
 # RP2 Change Log
 
+## v0.9.24
+* added crypto_fee to InTransactions (by popular demand): previously in-transaction fee would only accept fees in fiat, but in certain situations fee is paid in crypto (e.g. crypto conversion, etc.). With this fix, either crypto_fee or fiat fee can be assigned (not both). If fiat_fee is assigned, crypto_fee is set to 0. If crypto_fee is assigned, fiat_fee is set to crypto_fee * spot_price. The reason for this behavior is that if the fee is paid in fiat, then no crypto is used for the fee, but if the fee is paid in crypto, then its converted fiat value is needed to compute taxes. Note that RP2 models a non-zero crypto_fee with a separate fee-typed out-transaction.
+* added new unit test for the new InTransaction crypto_fee (input/test_data4.ods)
+* updated documentation to reflect new features from this release
+* added a new FAQ on crypto rewards and reworded various answers.
+
 ## v0.9.23
 * added fee-only transactions: this type of transactions occur in certain DeFi scenarios (see [relevant FAQ](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#hhow-to-handle-fee-only-defi-transactions) for more)
-* added documentation of transparent computation (including one new FAQ on how to verify RP2 tax computation results)
+* added documentation of transparent computation, including one new FAQ on how to verify RP2 tax computation results: https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-verify-that-tax-computation-is-correct
 * minor edits to documentation
 
 ## v0.9.19
