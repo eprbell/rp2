@@ -27,11 +27,13 @@ from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.abstract_country import AbstractCountry
 from rp2.abstract_report_generator import AbstractReportGenerator
 from rp2.computed_data import ComputedData
-from rp2.configuration import MAX_DATE, MIN_DATE, VERSION, Configuration
+from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.input_data import InputData
 from rp2.logger import LOG_FILE, LOGGER
 from rp2.ods_parser import open_ods, parse_ods
 from rp2.tax_engine import compute_tax
+
+_VERSION: str = "0.9.24"
 
 _ACCOUNTING_METHOD_PACKAGE = "rp2.plugin.accounting_method"
 _REPORT_GENERATOR_PACKAGE = "rp2.plugin.report"
@@ -264,7 +266,7 @@ def _setup_argument_parser(accounting_methods: List[str]) -> ArgumentParser:
         "-v",
         "--version",
         action="version",
-        version=f"RP2 {VERSION} (https://pypi.org/project/rp2/)",
+        version=f"RP2 {_VERSION} (https://pypi.org/project/rp2/)",
         help="Print RP2 version",
     )
     parser.add_argument(
