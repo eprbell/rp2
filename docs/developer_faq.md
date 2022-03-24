@@ -15,4 +15,35 @@
 # RP2 Frequently Asked Questions (Developer)
 
 ## Table of Contents
-TBD
+* **[General Questions](#general-questions)**
+  * [What are the Contribution Guidelines?](#what-are-the-contribution-guidelines)
+  * [What are the Design Guidelines?](#what-are-the-design-guidelines)
+  * [What is the Best Way to Get Started on DaLI Development?](#what-is-the-best-way-to-get-started-on-dali-development)
+  * [How to Develop a RP2 Report Generator Plugin?](#how-to-develop-a-rp2-report-generator-plugin)
+  * [How to Develop a RP2 Accounting Method Plugin?](#how-to-develop-a-rp2-accounting-method-plugin)
+  * [How to Develop a RP2 Country Plugin?](#how-to-develop-a-rp2-country-plugin)
+  * [Why the Strange Directory Structure with Src?](#why-the-strange-directory-structure-with-src)
+
+## General Questions
+
+## What are the Contribution Guidelines?
+Read the [contribution guidelines](../CONTRIBUTING.md#contributing-to-the-repository) section of the documentation.
+
+## What are the Design Guidelines?
+Read the [design guidelines](../README.dev.md#design-guidelines) section of the documentation.
+
+## What is the Best Way to Get Started on DaLI Development?
+Read the [contribution guidelines](../CONTRIBUTING.md#contributing-to-the-repository) and the [developer documentation](../README.dev.md) (especially the Plugin Development section). Then look for an unassigned [issue](https://github.com/eprbell/rp2/issues) that is marked as `good first issue`, or ask the project maintainers.
+
+## How to Develop a RP2 Report Generator Plugin?
+Read the [Adding a New Report Generator](../README.dev.md#adding-a-new-report-generator) section of the Developer Documentation.
+
+## How to Develop a RP2 Accounting Method Plugin?
+Read the [Adding a New Accounting Method](../README.dev.md#adding-a-new-accounting-method) section of the Developer Documentation.
+
+## How to Develop a RP2 Country Plugin?
+Read the [Adding a New Country](../README.dev.md#adding-support-for-a-new-country) section of the Developer Documentation.
+
+### Why the Strange Directory Structure with Src?
+Because RP2 is a [src](https://bskinn.github.io/My-How-Why-Pyproject-Src/)-[based](https://hynek.me/articles/testing-packaging/) [project](https://blog.ionelmc.ro/2014/05/25/python-packaging/).
+
