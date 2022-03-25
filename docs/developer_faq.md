@@ -18,7 +18,7 @@
 * **[General Questions](#general-questions)**
   * [What are the Contribution Guidelines?](#what-are-the-contribution-guidelines)
   * [What are the Design Guidelines?](#what-are-the-design-guidelines)
-  * [What is the Best Way to Get Started on DaLI Development?](#what-is-the-best-way-to-get-started-on-dali-development)
+  * [What is the Best Way to Get Started on RP2 Development?](#what-is-the-best-way-to-get-started-on-rpd-development)
   * [How to Develop a RP2 Report Generator Plugin?](#how-to-develop-a-rp2-report-generator-plugin)
   * [How to Develop a RP2 Accounting Method Plugin?](#how-to-develop-a-rp2-accounting-method-plugin)
   * [How to Develop a RP2 Country Plugin?](#how-to-develop-a-rp2-country-plugin)
@@ -32,7 +32,7 @@ Read the [contribution guidelines](../CONTRIBUTING.md#contributing-to-the-reposi
 ## What are the Design Guidelines?
 Read the [design guidelines](../README.dev.md#design-guidelines) section of the documentation.
 
-## What is the Best Way to Get Started on DaLI Development?
+## What is the Best Way to Get Started on RP2 Development?
 Read the [contribution guidelines](../CONTRIBUTING.md#contributing-to-the-repository) and the [developer documentation](../README.dev.md) (especially the Plugin Development section). Then look for an unassigned [issue](https://github.com/eprbell/rp2/issues) that is marked as `good first issue`, or ask the project maintainers.
 
 ## How to Develop a RP2 Report Generator Plugin?
