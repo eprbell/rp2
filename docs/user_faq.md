@@ -28,6 +28,7 @@
   * [Is My Tax Report Browsable?](#is-my-tax-report-browsable)
   * [How to Report a RP2 Bug Without Sharing Personal Information?](#how-to-report-a-rp2-bug-without-sharing-personal-information)
   * [What if I Don't Trust RP2 With My Crypto Data?](#what-if-i-dont-trust-rp2-with-my-crypto-data)
+  * [Why Can't I Open the RP2 Output Report with Excel](#why-cant-i-open-the-rp2-output-report-with-excel)
   * [Who is the Author of RP2?](#who-is-the-author-of-rp2)
   * [What Does RP2 Mean?](#what-does-rp2-mean)
 
@@ -123,6 +124,9 @@ In other words, how to be sure RP2 is not malware/spyware? After all, Bitcoin's 
 - isolate the virtual machine: kill networking, shared directories and other mechanisms of outside communication;
 - copy your crypto input data to the virtual machine via USB key or other physical medium (because the machine is now isolated);
 - run RP2 in the virtual machine.
+
+### Why Can't I Open the RP2 Output Report with Excel
+Some people have reported a problem when opening the rp2_full_report.ods file in Excel. RP2 generates ODS output using the pyexcel-ezodf library, which works well with [Libre Office](https://www.libreoffice.org/) and Open Office (both of which are free). If Excel is unable to open a RP2 file, try again with one of its free alternatives.
 
 ### Who is the Author of RP2?
 The author of RP2 is a Silicon Valley veteran, a software engineer and bitcoiner who also dabbles in Quantum Computing.
