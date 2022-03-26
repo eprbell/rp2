@@ -37,6 +37,7 @@ class IntraTransaction(AbstractTransaction):
         internal_id: Optional[int] = None,
         unique_id: Optional[str] = None,
         notes: Optional[str] = None,
+        to_address: Optional[str] = None,
     ) -> None:
         Configuration.type_check("configuration", configuration)
         self.__crypto_sent: RP2Decimal = configuration.type_check_positive_decimal("crypto_sent", crypto_sent, non_zero=True)

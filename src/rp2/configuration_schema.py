@@ -177,6 +177,10 @@ CONFIGURATION_SCHEMA = {
                     "type": "integer",
                     "minimum": 0,
                 },
+                "to_address": {
+                    "type": "integer",
+                    "minimum": 0,
+                },
                 "spot_price": {
                     "type": "integer",
                     "minimum": 0,
