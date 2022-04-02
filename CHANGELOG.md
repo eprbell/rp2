@@ -14,6 +14,10 @@
 
 # RP2 Change Log
 
+## 0.9.26
+* removed requirements.txt: now using dev section in setup.cfg, which avoids duplication of information
+* added FAQ on Excel being unable to open some RP2-generated ODS files
+
 ## v0.9.25
 * added initial version of developer FAQ document: https://github.com/eprbell/rp2/blob/main/docs/developer_faq.md
 * minor refactoring edits
