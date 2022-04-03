@@ -14,6 +14,10 @@
 
 # RP2 Change Log
 
+## 0.9.27
+* added RP2 logo to readme.md
+* improved an error message when disposed-of crypto is greater than acquired crypto
+
 ## 0.9.26
 * removed requirements.txt: now using dev section in setup.cfg, which avoids duplication of information
 * added FAQ on Excel being unable to open some RP2-generated ODS files
