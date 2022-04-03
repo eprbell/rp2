@@ -152,7 +152,7 @@ def _create_unfiltered_gain_and_loss_set(
                 )
 
     except AcquiredLotsExhaustedException:
-        raise RP2ValueError("Total in-transaction value < total taxable entries") from None
+        raise RP2ValueError("Total in-transaction crypto value < total taxable crypto value") from None
     except TaxableEventsExhaustedException:
         pass
 
