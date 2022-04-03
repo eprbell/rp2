@@ -14,6 +14,9 @@
 
 # RP2 Change Log
 
+## 0.9.28
+* RP2 logo worked on Github, but not on Pypi: fixed
+
 ## 0.9.27
 * added RP2 logo to readme.md
 * improved an error message when disposed-of crypto is greater than acquired crypto
