@@ -12,6 +12,8 @@
 <!--- See the License for the specific language governing permissions and --->
 <!--- limitations under the License. --->
 
+![RP2 Logo](https://github.com/eprbell/rp2/tree/main/docs/docs/rp2_logo.png)
+
 # RP2 v0.9.26
 [![Static Analysis / Main Branch](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml)
 [![Documentation Check / Main Branch](https://github.com/eprbell/rp2/actions/workflows/documentation_check.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/documentation_check.yml)
