@@ -119,7 +119,7 @@ class TestTaxEngine(unittest.TestCase):
             )
         )
 
-        with self.assertRaisesRegex(RP2ValueError, "Total in-transaction value < total taxable entries"):
+        with self.assertRaisesRegex(RP2ValueError, "Total in-transaction crypto value < total taxable crypto value"):
             compute_tax(
                 self._good_input_configuration,
                 self._accounting_method,
