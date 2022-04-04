@@ -42,7 +42,7 @@
 * **[Change Log](https://github.com/eprbell/rp2/tree/main/README.md#change-log)**
 
 ## Introduction
-[RP2](https://pypi.org/project/rp2/) is a privacy-focused, free, [open-source](https://github.com/eprbell/rp2) US cryptocurrency tax calculator that is up to date for Fiscal Year 2021. Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This task could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
+[RP2](https://github.com/eprbell/rp2) is a privacy-focused, free, open-source US cryptocurrency tax calculator that is up to date for Fiscal Year 2021. Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This task could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
 * it manages the complexity related to coin flows and tax calculation and it generates [data that accountants can understand](https://github.com/eprbell/rp2/tree/main/docs/output_files.md#advisor-friendly-report-tax-report-us-output) (in the format of form 8949), even if they are not cryptocurrency experts;
 * it prioritizes user privacy by storing crypto transactions and tax results on the user's computer and not sending them anywhere else;
 * it's free and open-source.
@@ -51,7 +51,7 @@ Another unique advantage of RP2 is [transparent computation](https://github.com/
 
 RP2 supports the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) and [LIFO](https://www.investopedia.com/terms/l/lifo.asp) accounting methods, to help minimize the amount due.
 
-It reads in a spreadsheet containing crypto transactions. The spreadsheet can be generated either manually or automatically using [DaLI](https://pypi.org/project/dali-rp2), a RP2 data loader and input generator (which is also privacy-focused, free and [open-source](https://github.com/eprbell/dali-rp2)). After parsing the input RP2 uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates output spreadsheets.
+It reads in a spreadsheet containing crypto transactions. The spreadsheet can be generated either manually or automatically using [DaLI](https://github.com/eprbell/dali-rp2), a RP2 data loader and input generator (which is also privacy-focused, free and open-source. After parsing the input RP2 uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates output spreadsheets.
 
 RP2 has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-report-generator), [accounting methods](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-accounting-method) and [countries](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-support-for-a-new-country). The output generator builtin plugins are US-specific, but RP2's architecture makes it possible to contribute additional generators for different countries or for different US-based cases. The builtin generator plugins are:
 * tax_report_us: generates a tax report meant to be read by tax preparers (in the format of form 8949);
@@ -138,7 +138,7 @@ RP2 requires two files as input:
 * a JSON config file, describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies and exchanges to expect.
 
 The two input files can either:
-* be generated automatically using [DaLI](https://pypi.org/project/dali-rp2/), the data loader and input generator for RP2, or
+* be generated automatically using [DaLI](https://github.com/eprbell/dali-rp2), the data loader and input generator for RP2, or
 * be prepared manually by the user.
 
 The formats of these files are described in detail in the [Input Files](https://github.com/eprbell/rp2/tree/main/docs/input_files.md) section of the documentation.
@@ -182,7 +182,7 @@ If you'd like to start an ecosystem project, please open an [issue](https://gith
 
 ### List of Ecosystem Projects
 Here's the current list of projects in the RP2 ecosystem:
-* [DaLI](https://pypi.org/project/dali-rp2/): data loader and input generator for RP2 (https://pypi.org/project/rp2/).
+* [DaLI](https://github.com/eprbell/dali-rp2): data loader and input generator for RP2 (https://github.com/eprbell/rp2).
 
 ## Reporting Bugs
 Read the [Contributing](https://github.com/eprbell/rp2/tree/main/CONTRIBUTING.md#reporting-bugs) document.

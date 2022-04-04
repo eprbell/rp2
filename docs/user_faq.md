@@ -98,10 +98,10 @@ This is because lot a), part of lot b) and lot c) are already accounted for in t
 Of course the user still needs to keep all the documentation for previous years as well as for the current year. Also they will need to keep the same accounting method they were using previously: to switch accounting method (e.g. from FIFO to LIFO) it's necessary to speak to a tax professional first.
 
 ### Can I Avoid Writing the Input Spreadsheet Manually?
-You can generate it automatically using [DaLI](https://pypi.org/project/dali-rp2/), the data loader and input generator for RP2.
+You can generate it automatically using [DaLI](https://github.com/eprbell/dali-rp2), the data loader and input generator for RP2.
 
 ### Can I Avoid Writing a Config File from Scratch?
-You can generate it automatically using [DaLI](https://pypi.org/project/dali-rp2/), the data loader and input generator for RP2. Alternatively you can use [crypto_example.config](../config/crypto_example.config) as boilerplate and the [Input Files](input_files.md) document as reference.
+You can generate it automatically using [DaLI](https://github.com/eprbell/dali-rp2), the data loader and input generator for RP2. Alternatively you can use [crypto_example.config](../config/crypto_example.config) as boilerplate and the [Input Files](input_files.md) document as reference.
 
 ### What Tokens Does RP2 Support?
 The user adds the tokens to the `assets` field of the [config file](input_files.md#the-config-file): RP2 accepts as valid all the tokens present in this field. See also the question on [writing a config file from scratch](#can-i-avoid-writing-a-config-file-from-scratch).

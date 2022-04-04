@@ -28,7 +28,7 @@ RP2 requires two files as input:
 * a [JSON config file](#the-config-file), describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies, exchanges and account owners to expect. If desired, the [crypto_example.config](../config/crypto_example.config) file  can be used as an config example or boilerplate.
 
 The two input files can either:
-* be generated automatically using [DaLI](https://pypi.org/project/dali-rp2/), the data loader and input generator for RP2, or
+* be generated automatically using [DaLI](https://github.com/eprbell/dali-rp2), the data loader and input generator for RP2, or
 * be prepared manually by the user.
 
 ## The Input Spreadsheet
