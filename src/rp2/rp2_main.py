@@ -266,7 +266,7 @@ def _setup_argument_parser(accounting_methods: List[str]) -> ArgumentParser:
         "-v",
         "--version",
         action="version",
-        version=f"RP2 {_VERSION} (https://pypi.org/project/rp2/)",
+        version=f"RP2 {_VERSION} (https://github.com/eprbell/rp2)",
         help="Print RP2 version",
     )
     parser.add_argument(
