@@ -175,7 +175,13 @@ If the both the source and destination accounts belong to the same owner (or to 
 Such fees affect the in/out lot relationships, so RP2 keeps track of them (in the "Investment Expenses" tab of the tax_report_us output). Ask your tax professional about how to handle this tab in any given year.
 
 ### How to Handle Conversion of a Cryptocurrency to Another?
-Converting from one cryptocurrency to another can be captured in RP2 by splitting the original transaction into two: the first is a SELL-type transaction that describes selling the initial cryptocurrency into fiat. The second one is a BUY-type transaction that describes buying the final cryptocurrency using fiat. See the [input files](input_files.md) section of the documentation for format details.
+Converting from one cryptocurrency to another can be captured in RP2 by splitting the original transaction into two: the first is a SELL-type transaction that describes selling the initial cryptocurrency into fiat. The second one is a BUY-type transaction that describes buying the final cryptocurrency using fiat.
+
+If a crypto fee was paid for the conversion:
+* if it was paid in the out currency, assign it to the `crypto_fee` field of the Out Transaction;
+* if it was paid in the in currency, assign it to the `crypto_fee` field of the InTransaction.
+
+See the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle Airdrops?
 Use an IN transaction and mark the transaction type as AIRDROP. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
