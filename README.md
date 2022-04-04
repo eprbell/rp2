@@ -21,9 +21,6 @@
 [![Windows Unit Tests / Main Branch](https://github.com/eprbell/rp2/actions/workflows/windows_unit_tests.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/windows_unit_tests.yml)
 [![CodeQL/Main Branch](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml)
 
-[![Stargazers repo roster for RP2](https://reporoster.com/stars/dark/rp2)](https://github.com/eprbell/rp2/stargazers)
-[![Forkers repo roster for RP2](https://reporoster.com/forks/dark/rp2)](https://github.com/eprbell/rp2/network/members)
-
 ## Table of Contents
 * **[Introduction](https://github.com/eprbell/rp2/tree/main/README.md#introduction)**
   * [How RP2 Operates](https://github.com/eprbell/rp2/tree/main/README.md#how-rp2-operates)
