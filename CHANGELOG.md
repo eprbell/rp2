@@ -14,6 +14,9 @@
 
 # RP2 Change Log
 
+## 0.9.29
+* various improvements to documentation
+
 ## 0.9.28
 * RP2 logo worked on Github, but not on Pypi: fixed
 
