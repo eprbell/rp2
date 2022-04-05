@@ -179,12 +179,12 @@ Converting from one cryptocurrency to another can be captured in RP2 by splittin
 * a SELL-type out-transaction that describes selling the initial cryptocurrency into fiat, and
 * a BUY-type in-transaction that describes buying the final cryptocurrency using fiat.
 
-If there was a conversion fee and it was paid in crypto, choose one applicable option among the following:
-* if the crypto fee was paid in the out-currency, assign it to the `crypto_fee` field of the out-transaction, or
-* if the crypto fee was paid in the in-currency, assign it to the `crypto_fee` field of the in-transaction, or
-* if the crypto fee was paid in a third crypto currency (not the in-currency or the out-currency), create a new [fee-only transaction](#how-to-handle-fee-only-defi-transactions) denominated in the third currency.
+If there was a conversion fee and it was paid in crypto, choose one (and only one) applicable option among the following:
+* if the crypto fee was paid with the out-currency, assign it to the `crypto_fee` field of the out-transaction, or
+* if the crypto fee was paid with the in-currency, assign it to the `crypto_fee` field of the in-transaction, or
+* if the crypto fee was paid with a third crypto currency (neither the in-currency nor the out-currency), create a new [fee-only transaction](#how-to-handle-fee-only-defi-transactions) denominated in the third currency.
 
-If there was a conversion fee and it was paid in fiat choose one of these two options:
+If there was a conversion fee and it was paid in fiat, choose one (and only one) of these options:
 * assign it to the `fiat_fee` of the in-transaction, or
 * assign it to the `fiat_fee` of the out-transaction.
 
