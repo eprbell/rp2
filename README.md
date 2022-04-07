@@ -21,7 +21,7 @@
 [![Windows Unit Tests / Main Branch](https://github.com/eprbell/rp2/actions/workflows/windows_unit_tests.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/windows_unit_tests.yml)
 [![CodeQL/Main Branch](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml)
 
-[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20RP2,%20the%20privacy-focused,%20free,%20open%20source%20US%20crypto%20tax%20calculator%20https://github.com/eprbell/rp2/?anything&hashtags=RP2)
+[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20RP2,%20the%20privacy-focused,%20free,%20open%20source%20US%20crypto%20tax%20calculator&url=https://github.com/eprbell/rp2/?anything)
 
 ## Table of Contents
 * **[Introduction](https://github.com/eprbell/rp2/tree/main/README.md#introduction)**
