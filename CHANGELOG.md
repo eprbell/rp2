@@ -14,6 +14,9 @@
 
 # RP2 Change Log
 
+## 0.9.30
+* minor improvements to documentation
+
 ## 0.9.29
 * various improvements to documentation
 
