@@ -30,6 +30,7 @@
   * [What if I Don't Trust RP2 With My Crypto Data?](#what-if-i-dont-trust-rp2-with-my-crypto-data)
   * [Why Can't I Open the RP2 Output Report with Excel](#why-cant-i-open-the-rp2-output-report-with-excel)
   * [Who is the Author of RP2?](#who-is-the-author-of-rp2)
+  * [How to Pronounce RP2?](#how-to-pronounce-rp2)
   * [What Does RP2 Mean?](#what-does-rp2-mean)
 
 * **[Tax Questions](#tax-questions)**
@@ -130,6 +131,9 @@ Some people have reported a problem when opening the rp2_full_report.ods file in
 
 ### Who is the Author of RP2?
 The author of RP2 is a Silicon Valley veteran, a software engineer and bitcoiner who also dabbles in Quantum Computing.
+
+### How to Pronounce RP2?
+It's RP Square (see [What Does RP2 Mean](#what-does-rp2-mean)).
 
 ### What Does RP2 Mean?
 It's a humorous reference to Warren Buffett’s claim that Bitcoin is [“rat poison squared”](https://www.cnbc.com/2018/05/05/warren-buffett-says-bitcoin-is-probably-rat-poison-squared.html). Other smart people occasionally made [famously](https://www.snopes.com/fact-check/paul-krugman-internets-effect-economy/) [wrong](https://libquotes.com/thomas-edison/quote/lbx5e7q) [remarks](https://en.wikipedia.org/wiki/Robert_Metcalfe#Incorrect_predictions) about technology: I have a feeling Buffett’s quote might end up among those.
