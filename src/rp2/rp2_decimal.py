@@ -58,10 +58,10 @@ class RP2Decimal(Decimal):
     def __lt__(self, other: object) -> bool:
         return not self.__ge__(other)
 
-    def __add__(self, other: object) -> "RP2Decimal":
+    def __add__(self, other: object, context=None) -> "RP2Decimal":
         if not isinstance(other, Decimal):
             raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
-        return RP2Decimal(Decimal.__add__(self, other))
+        return RP2Decimal(Decimal.__add__(self, other, context))
 
     def __sub__(self, other: object) -> "RP2Decimal":
         if not isinstance(other, Decimal):
