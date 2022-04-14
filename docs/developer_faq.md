@@ -46,4 +46,3 @@ Read the [Adding a New Country](../README.dev.md#adding-support-for-a-new-countr
 
 ### Why the Strange Directory Structure with Src?
 Because RP2 is a [src](https://bskinn.github.io/My-How-Why-Pyproject-Src/)-[based](https://hynek.me/articles/testing-packaging/) [project](https://blog.ionelmc.ro/2014/05/25/python-packaging/).
-

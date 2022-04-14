@@ -21,6 +21,7 @@ from rp2.logger import LOGGER
 from rp2.rp2_decimal import FIAT_DECIMAL_MASK, ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
+
 # pylint: disable=too-many-branches
 class OutTransaction(AbstractTransaction):
     def __init__(
