@@ -14,6 +14,10 @@
 
 # RP2 Change Log
 
+## 0.9.31
+* fixed a bug in rp2_full_report generator reported in #31: in out-transactions if crypto_fee == 0 and fiat_fee > 0, the fiat fee was reported as zero (but this affected only the output, not the tax calculation which was correct)
+* added some user FAQs
+
 ## 0.9.30
 * minor improvements to documentation
 
