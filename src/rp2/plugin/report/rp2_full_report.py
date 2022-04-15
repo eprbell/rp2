@@ -488,8 +488,8 @@ class Generator(AbstractODSGenerator):
                 sheet,
                 row_index,
                 12,
-                transaction.crypto_fee * transaction.spot_price,
-                visual_style=highlighted_style if transaction.crypto_fee * transaction.spot_price > ZERO else visual_style,
+                transaction.fiat_fee,
+                visual_style=highlighted_style if transaction.fiat_fee > ZERO else visual_style,
                 data_style="fiat",
             )
             self._fill_cell(sheet, row_index, 13, "YES" if transaction.is_taxable() else "NO", data_style="fiat", visual_style=visual_style)
