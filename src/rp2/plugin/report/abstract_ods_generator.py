@@ -42,7 +42,7 @@ class AbstractODSGenerator(AbstractReportGenerator):
         template_sheets_to_keep: Set[str],
         from_date: date,
         to_date: date,
-        template_file_prefix: str = None,
+        template_file_prefix: str = "",
     ) -> Any:
 
         Configuration.type_check_string("output_dir_path", output_dir_path)
@@ -55,11 +55,11 @@ class AbstractODSGenerator(AbstractReportGenerator):
         if Path(output_file_path).exists():
             output_file_path.unlink()
 
-        if template_file_prefix is None:
-            template_file_prefix = ""
         if len(template_file_prefix) > 0 and template_file_prefix.startswith("_") is False:
-            template_file_prefix = '_' + template_file_prefix
-        template_path: str = str(Path(os.path.dirname(__file__)).absolute() / Path("".join(["data/template", template_file_prefix, "_", country.country_iso_code, ".ods"])))
+            template_file_prefix = "_" + template_file_prefix
+        template_path: str = str(
+            Path(os.path.dirname(__file__)).absolute() / Path("".join(["data/template", template_file_prefix, "_", country.country_iso_code, ".ods"]))
+        )
         if Path(template_path).exists() is False:
             raise Exception(f"Error: template file '{template_path}' not found.")
 

@@ -14,26 +14,21 @@
 
 import logging
 from datetime import date
-from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Set, cast
-
-from pprint import pprint
+from typing import Any, Dict, Set
 
 from rp2.abstract_country import AbstractCountry
-from rp2.balance import BalanceSet
 from rp2.computed_data import ComputedData
-from rp2.entry_types import TransactionType
-from rp2.gain_loss import GainLoss
-from rp2.gain_loss_set import GainLossSet
+from rp2.in_transaction import InTransaction
 from rp2.logger import create_logger
 from rp2.plugin.report.abstract_ods_generator import AbstractODSGenerator
-from rp2.rp2_decimal import ZERO, RP2Decimal
+from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError
 
 LOGGER: logging.Logger = create_logger("open_positions")
 
-_TEMPLATE_SHEETS_TO_KEEP: Set[str] = {f"__Asset", f"__Asset_and_Exchange", f"__AssetPrice"}
+_TEMPLATE_SHEETS_TO_KEEP: Set[str] = {"__Asset", "__Asset_and_Exchange", "__AssetPrice"}
+
 
 class Generator(AbstractODSGenerator):
 
@@ -51,8 +46,8 @@ class Generator(AbstractODSGenerator):
         to_date: date,
     ) -> None:
 
-        SheetNames: List[str] = {f"Asset", f"Asset_and_Exchange", f"AssetPrice"}
-        row_indexes: Dict[str, int] = {sheet_name: self.HEADER_ROWS for sheet_name in SheetNames}
+        sheet_names: Set[str] = {"Asset", "Asset_and_Exchange", "AssetPrice"}
+        row_indexes: Dict[str, int] = {sheet_name: self.HEADER_ROWS for sheet_name in sheet_names}
 
         if not isinstance(asset_to_computed_data, Dict):
             raise RP2TypeError(f"Parameter 'asset_to_computed_data' has non-Dict value {asset_to_computed_data}")
@@ -67,16 +62,17 @@ class Generator(AbstractODSGenerator):
             template_sheets_to_keep=_TEMPLATE_SHEETS_TO_KEEP,
             from_date=from_date,
             to_date=to_date,
-            template_file_prefix="open_positions"
+            template_file_prefix="open_positions",
         )
 
         asset: str
         computed_data: ComputedData
+        in_xact: InTransaction
 
-        ap_sheet = output_file.sheets['AssetPrice']
-        ae_sheet = output_file.sheets['Asset_and_Exchange']
-        a_sheet  = output_file.sheets['Asset']
-        
+        ap_sheet = output_file.sheets["AssetPrice"]
+        ae_sheet = output_file.sheets["Asset_and_Exchange"]
+        a_sheet = output_file.sheets["Asset"]
+
         # First loop through, I want to know the total cost basis for all assets and exchanges after filtering out net cost under $0.01.
         total_cost: RP2Decimal = RP2Decimal("0")
         for asset, computed_data in asset_to_computed_data.items():
@@ -85,10 +81,12 @@ class Generator(AbstractODSGenerator):
             ComputedData.type_check("computed_data", computed_data)
 
             net_cost = RP2Decimal("0")
-            for x in computed_data.in_transaction_set:
-                net_cost += (x.fiat_in_with_fee * (RP2Decimal("1") - computed_data.get_in_lot_sold_percentage(x)))
+            for in_xact in computed_data.in_transaction_set:
+                net_cost += in_xact.fiat_in_with_fee * (RP2Decimal("1") - computed_data.get_in_lot_sold_percentage(in_xact))
 
-            if float(net_cost) < 0.01: continue    
+            if float(net_cost) < 0.01:
+                continue
+
             total_cost += net_cost
 
         # Loop thru every asset again, but this time we can do reporting.
@@ -99,35 +97,43 @@ class Generator(AbstractODSGenerator):
 
             # Net cost basis will be the sum of all usd_in_w_fee for an asset after multiplying off the sold percentage.
             net_cost = RP2Decimal("0")
-            for x in computed_data.in_transaction_set:
-                sold_pct: RP2Decimal = computed_data.get_in_lot_sold_percentage(x)
-                net_cost += (x.fiat_in_with_fee * (RP2Decimal("1") - sold_pct))
+            for in_xact in computed_data.in_transaction_set:
+                sold_pct: RP2Decimal = computed_data.get_in_lot_sold_percentage(in_xact)
+                net_cost += in_xact.fiat_in_with_fee * (RP2Decimal("1") - sold_pct)
 
             # Sum the total amount of crypto asset remaining.
             tot_crypto_bal = RP2Decimal("0")
             for balset in computed_data.balance_set:
-                tot_crypto_bal = tot_crypto_bal + balset.final_balance
+                tot_crypto_bal += balset.final_balance
 
-            if float(net_cost) < 0.01: continue
-            #print("asset ",asset,tot_crypto_bal,net_cost,float(net_cost))
+            if float(net_cost) < 0.01:
+                continue
+            # print("asset ",asset,tot_crypto_bal,net_cost,float(net_cost))
+
+            unit_cost_basis = RP2Decimal(net_cost / tot_crypto_bal)
+            if unit_cost_basis > RP2Decimal("1"):
+                unit_cost_basis = round(unit_cost_basis, 2)
 
             # Only 1 record in the AP sheet per asset.
             ap_sheet.append_rows(1)
-            ap_row_index: int = row_indexes['AssetPrice']
+            ap_row_index: int = row_indexes["AssetPrice"]
             self._fill_cell(ap_sheet, ap_row_index, 0, asset)
             self._fill_cell(ap_sheet, ap_row_index, 1, 0)
-            row_indexes['AssetPrice'] = ap_row_index + 1
+            row_indexes["AssetPrice"] = ap_row_index + 1
 
             # Next do the multi-row Asset/Exchange table which will calc vals that will feed the asset table.
             for balset in computed_data.balance_set:
-                if float(balset.final_balance) < 0.000001: continue
+
+                if float(balset.final_balance) < 0.000001:
+                    continue
+
                 ae_sheet.append_rows(1)
-                ae_row_index: int = row_indexes['Asset_and_Exchange']
+                ae_row_index: int = row_indexes["Asset_and_Exchange"]
                 self._fill_cell(ae_sheet, ae_row_index, 0, asset)
-                self._fill_cell(ae_sheet, ae_row_index, 1, balset.exchange)    
+                self._fill_cell(ae_sheet, ae_row_index, 1, balset.exchange)
                 self._fill_cell(ae_sheet, ae_row_index, 2, balset.final_balance, data_style="crypto")
-                self._fill_cell(ae_sheet, ae_row_index, 3, (net_cost / tot_crypto_bal), data_style="fiat_unit")
-                self._fill_cell(ae_sheet, ae_row_index, 4, balset.final_balance*(net_cost / tot_crypto_bal), data_style="fiat")
+                self._fill_cell(ae_sheet, ae_row_index, 3, float(unit_cost_basis), data_style="fiat_unit")
+                self._fill_cell(ae_sheet, ae_row_index, 4, balset.final_balance * (net_cost / tot_crypto_bal), data_style="fiat")
                 self._fill_cell(ae_sheet, ae_row_index, 5, (net_cost / total_cost), data_style="percent")
                 self._fill_cell(ae_sheet, ae_row_index, 6, f"=VLOOKUP(A{ae_row_index+1};$assetprice.A:B;2;0)", data_style="fiat_unit")
                 self._fill_cell(ae_sheet, ae_row_index, 7, f"=C{ae_row_index+1}*G{ae_row_index+1}", data_style="fiat")
@@ -135,70 +141,72 @@ class Generator(AbstractODSGenerator):
                 self._fill_cell(ae_sheet, ae_row_index, 9, f"=(H{ae_row_index+1}-E{ae_row_index+1})/E{ae_row_index+1}", data_style="percent")
                 self._fill_cell(ae_sheet, ae_row_index, 10, f"=I{ae_row_index+1}/SUM(E:E)", data_style="percent")
                 self._fill_cell(ae_sheet, ae_row_index, 11, f"=H{ae_row_index+1}/SUM(H:H)", data_style="percent")
-                row_indexes['Asset_and_Exchange'] = ae_row_index + 1
+                row_indexes["Asset_and_Exchange"] = ae_row_index + 1
 
             # Single record per asset.
             a_sheet.append_rows(1)
-            a_row_index: int = row_indexes['Asset']
+            a_row_index: int = row_indexes["Asset"]
             self._fill_cell(a_sheet, a_row_index, 0, asset)
             self._fill_cell(a_sheet, a_row_index, 1, tot_crypto_bal, data_style="crypto")
-            self._fill_cell(a_sheet, a_row_index, 2, (net_cost / tot_crypto_bal), data_style="fiat_unit")
+            self._fill_cell(a_sheet, a_row_index, 2, float(unit_cost_basis), data_style="fiat_unit")
             self._fill_cell(a_sheet, a_row_index, 3, net_cost, data_style="fiat")
             self._fill_cell(a_sheet, a_row_index, 4, (net_cost / total_cost), data_style="percent")
             self._fill_cell(a_sheet, a_row_index, 5, f"=VLOOKUP(A{a_row_index+1};$assetprice.A:B;2;0)", data_style="fiat_unit")
             self._fill_cell(a_sheet, a_row_index, 6, f"=B{a_row_index+1}*F{a_row_index+1}", data_style="fiat")
             self._fill_cell(a_sheet, a_row_index, 7, f"=G{a_row_index+1}-D{a_row_index+1}", data_style="fiat")
             self._fill_cell(a_sheet, a_row_index, 8, f"=(G{a_row_index+1}-D{a_row_index+1})/D{a_row_index+1}", data_style="percent")
-            self._fill_cell(a_sheet, a_row_index, 9,  f"=H{a_row_index+1}/SUM(D:D)", data_style="percent")
+            self._fill_cell(a_sheet, a_row_index, 9, f"=H{a_row_index+1}/SUM(D:D)", data_style="percent")
             self._fill_cell(a_sheet, a_row_index, 10, f"=G{a_row_index+1}/SUM(G:G)", data_style="percent")
-            row_indexes['Asset'] = a_row_index + 1
+            row_indexes["Asset"] = a_row_index + 1
 
         # There are several portfolio-wide fields in the output that are dependent on values the user enters into the AssetPrice tab for
         # live calculation that cannot be accounted for in this report. Since I want to include a totals row in the output, I cannot do
-        # full-column sums, e.g. =G4/SUM(G:G), so instead I am using the row index and the header rows info to scope the SUM to the 
+        # full-column sums, e.g. =G4/SUM(G:G), so instead I am using the row index and the header rows info to scope the SUM to the
         # actual rows I know I have placed data into.
 
-        a_row_index = row_indexes['Asset']
-        for x in range(self.HEADER_ROWS,row_indexes['Asset']):
-            self._fill_cell(a_sheet, x, 9,  f"=H{x+1}/SUM(D{self.HEADER_ROWS+1}:D{a_row_index})", data_style="percent")
-            self._fill_cell(a_sheet, x, 10, f"=G{x+1}/SUM(G{self.HEADER_ROWS+1}:G{a_row_index})", data_style="percent")
+        a_row_index = row_indexes["Asset"]
+        for row_idx in range(self.HEADER_ROWS, row_indexes["Asset"]):
+            self._fill_cell(a_sheet, row_idx, 9, f"=H{row_idx+1}/SUM(D{self.HEADER_ROWS+1}:D{a_row_index})", data_style="percent")
+            self._fill_cell(a_sheet, row_idx, 10, f"=G{row_idx+1}/SUM(G{self.HEADER_ROWS+1}:G{a_row_index})", data_style="percent")
 
-        ae_row_index = row_indexes['Asset_and_Exchange']
-        for x in range(self.HEADER_ROWS,row_indexes['Asset_and_Exchange']):
-            self._fill_cell(ae_sheet, x, 10, f"=I{x+1}/SUM(E{self.HEADER_ROWS+1}:E{ae_row_index})", data_style="percent")
-            self._fill_cell(ae_sheet, x, 11, f"=H{x+1}/SUM(H{self.HEADER_ROWS+1}:H{ae_row_index})", data_style="percent")
-        
+        ae_row_index = row_indexes["Asset_and_Exchange"]
+        for row_idx in range(self.HEADER_ROWS, row_indexes["Asset_and_Exchange"]):
+            self._fill_cell(ae_sheet, row_idx, 10, f"=I{row_idx+1}/SUM(E{self.HEADER_ROWS+1}:E{ae_row_index})", data_style="percent")
+            self._fill_cell(ae_sheet, row_idx, 11, f"=H{row_idx+1}/SUM(H{self.HEADER_ROWS+1}:H{ae_row_index})", data_style="percent")
+
         # Add some total rows.
         a_sheet.append_rows(1)
-        a_row_index = row_indexes['Asset']
-        self._fill_cell(a_sheet, a_row_index, 0, f"", visual_style="bold_border")
-        self._fill_cell(a_sheet, a_row_index, 1, f"", visual_style="bold_border")
-        self._fill_cell(a_sheet, a_row_index, 2, f"", visual_style="bold_border")
+        a_row_index = row_indexes["Asset"]
+        self._fill_cell(a_sheet, a_row_index, 0, "", visual_style="bold_border")
+        self._fill_cell(a_sheet, a_row_index, 1, "", visual_style="bold_border")
+        self._fill_cell(a_sheet, a_row_index, 2, "", visual_style="bold_border")
         self._fill_cell(a_sheet, a_row_index, 3, f"=SUM(D{self.HEADER_ROWS+1}:D{a_row_index})", visual_style="bold_border", data_style="fiat")
-        self._fill_cell(a_sheet, a_row_index, 4, f"", visual_style="bold_border")
-        self._fill_cell(a_sheet, a_row_index, 5, f"", visual_style="bold_border")
+        self._fill_cell(a_sheet, a_row_index, 4, "", visual_style="bold_border")
+        self._fill_cell(a_sheet, a_row_index, 5, "", visual_style="bold_border")
         self._fill_cell(a_sheet, a_row_index, 6, f"=SUM(G{self.HEADER_ROWS+1}:G{a_row_index})", visual_style="bold_border", data_style="fiat")
         self._fill_cell(a_sheet, a_row_index, 7, f"=SUM(H{self.HEADER_ROWS+1}:H{a_row_index})", visual_style="bold_border", data_style="fiat")
         self._fill_cell(a_sheet, a_row_index, 8, f"=(G{a_row_index+1}-D{a_row_index+1})/D{a_row_index+1}", visual_style="bold_border", data_style="percent")
-        self._fill_cell(a_sheet, a_row_index, 9, f"", visual_style="bold_border")
-        self._fill_cell(a_sheet, a_row_index, 10, f"", visual_style="bold_border")
-        row_indexes['Asset'] = a_row_index + 1
+        self._fill_cell(a_sheet, a_row_index, 9, "", visual_style="bold_border")
+        self._fill_cell(a_sheet, a_row_index, 10, "", visual_style="bold_border")
+        row_indexes["Asset"] = a_row_index + 1
 
         ae_sheet.append_rows(1)
-        ae_row_index = row_indexes['Asset_and_Exchange']
-        self._fill_cell(ae_sheet, ae_row_index, 0, f"", visual_style="bold_border")
-        self._fill_cell(ae_sheet, ae_row_index, 1, f"", visual_style="bold_border")
-        self._fill_cell(ae_sheet, ae_row_index, 2, f"", visual_style="bold_border")
-        self._fill_cell(ae_sheet, ae_row_index, 3, f"", visual_style="bold_border")
+        ae_row_index = row_indexes["Asset_and_Exchange"]
+        self._fill_cell(ae_sheet, ae_row_index, 0, "", visual_style="bold_border")
+        self._fill_cell(ae_sheet, ae_row_index, 1, "", visual_style="bold_border")
+        self._fill_cell(ae_sheet, ae_row_index, 2, "", visual_style="bold_border")
+        self._fill_cell(ae_sheet, ae_row_index, 3, "", visual_style="bold_border")
         self._fill_cell(ae_sheet, ae_row_index, 4, f"=SUM(E{self.HEADER_ROWS+1}:E{ae_row_index})", visual_style="bold_border", data_style="fiat")
-        self._fill_cell(ae_sheet, ae_row_index, 5, f"", visual_style="bold_border")
-        self._fill_cell(ae_sheet, ae_row_index, 6, f"", visual_style="bold_border")
+        self._fill_cell(ae_sheet, ae_row_index, 5, "", visual_style="bold_border")
+        self._fill_cell(ae_sheet, ae_row_index, 6, "", visual_style="bold_border")
         self._fill_cell(ae_sheet, ae_row_index, 7, f"=SUM(H{self.HEADER_ROWS+1}:H{ae_row_index})", visual_style="bold_border", data_style="fiat")
         self._fill_cell(ae_sheet, ae_row_index, 8, f"=SUM(I{self.HEADER_ROWS+1}:I{ae_row_index})", visual_style="bold_border", data_style="fiat")
-        self._fill_cell(ae_sheet, ae_row_index, 9, f"=(H{ae_row_index+1}-E{ae_row_index+1})/E{ae_row_index+1}", visual_style="bold_border", data_style="percent")
-        self._fill_cell(ae_sheet, ae_row_index, 10, f"", visual_style="bold_border")
-        self._fill_cell(ae_sheet, ae_row_index, 11, f"", visual_style="bold_border")
-        row_indexes['Asset_and_Exchange'] = ae_row_index + 1
+        self._fill_cell(
+            ae_sheet, ae_row_index, 9, f"=(H{ae_row_index+1}-E{ae_row_index+1})/E{ae_row_index+1}", visual_style="bold_border", data_style="percent"
+        )
+        self._fill_cell(ae_sheet, ae_row_index, 10, "", visual_style="bold_border")
+        self._fill_cell(ae_sheet, ae_row_index, 11, "", visual_style="bold_border")
+        row_indexes["Asset_and_Exchange"] = ae_row_index + 1
 
         output_file.save()
         LOGGER.info("Plugin '%s' output: %s", __name__, Path(output_file.docname).resolve())
