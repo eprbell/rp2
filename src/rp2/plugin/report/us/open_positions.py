@@ -110,10 +110,13 @@ class Generator(AbstractODSGenerator):
                 continue
             # print("asset ",asset,tot_crypto_bal,net_cost,float(net_cost))
 
-            # For report clarity, this rounds cryptos with a unit cost over $1 to full cents.
+            # For report clarity, this rounds crypto unit cost based on $1 / $0.20 windowing.
+            # The template itself is set up to allow up to 7 decimals but will always show at least 2.
             unit_cost_basis = RP2Decimal(net_cost / tot_crypto_bal)
             if unit_cost_basis > RP2Decimal("1"):
                 unit_cost_basis = RP2Decimal(round(unit_cost_basis, 2))
+            elif unit_cost_basis > RP2Decimal("0.2"):
+                unit_cost_basis = RP2Decimal(round(unit_cost_basis, 4))
 
             # Only 1 record in the AP sheet per asset.
             ap_sheet.append_rows(1)
