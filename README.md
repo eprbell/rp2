@@ -180,6 +180,8 @@ RP2 is the first component of what could be a powerful, community-driven suite o
 * RP2 high-level interface: RP2 captures complex tax events using a few powerful, low-level primitives, aggregated in patterns. A higher level tool, might abstract out these patterns and present them to the user in a friendlier way (for example it may capture a complex concept like DeFi bridging as a primitive, rather than a pattern);
 * more...
 
+Important note: any RP2 ecosystem project must make user privacy its first priority.
+
 If you'd like to start an ecosystem project, please open an [issue](https://github.com/eprbell/rp2/issues) to let the RP2 community know.
 
 ### List of Ecosystem Projects
