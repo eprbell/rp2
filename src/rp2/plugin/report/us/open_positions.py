@@ -14,8 +14,9 @@
 
 import logging
 from datetime import date
+from decimal import Decimal
 from pathlib import Path
-from typing import Any, Dict, Set
+from typing import Any, Dict, Set, cast
 
 from rp2.abstract_country import AbstractCountry
 from rp2.computed_data import ComputedData
@@ -73,7 +74,6 @@ class Generator(AbstractODSGenerator):
 
         asset: str
         computed_data: ComputedData
-        in_xact: InTransaction
 
         ap_sheet = output_file.sheets["AssetPrice"]
         ae_sheet = output_file.sheets["Asset_and_Exchange"]
@@ -87,7 +87,8 @@ class Generator(AbstractODSGenerator):
             ComputedData.type_check("computed_data", computed_data)
 
             net_cost = RP2Decimal("0")
-            for in_xact in computed_data.in_transaction_set:
+            for current_transaction in computed_data.in_transaction_set:
+                in_xact = cast(InTransaction, current_transaction)
                 net_cost += in_xact.fiat_in_with_fee * (RP2Decimal("1") - computed_data.get_in_lot_sold_percentage(in_xact))
 
             if net_cost < _FIAT_EMPTY_BAL_CUTOFF:
@@ -103,7 +104,8 @@ class Generator(AbstractODSGenerator):
 
             # Net cost basis will be the sum of all usd_in_w_fee for an asset after multiplying off the sold percentage.
             net_cost = RP2Decimal("0")
-            for in_xact in computed_data.in_transaction_set:
+            for current_transaction in computed_data.in_transaction_set:
+                in_xact = cast(InTransaction, current_transaction)
                 sold_pct: RP2Decimal = computed_data.get_in_lot_sold_percentage(in_xact)
                 net_cost += in_xact.fiat_in_with_fee * (RP2Decimal("1") - sold_pct)
 
@@ -119,12 +121,11 @@ class Generator(AbstractODSGenerator):
             # For report clarity, this cuts down the decimals in the unit price based on the value of the unt, e.g. $1+
             # shows price to the nearest cent while $0.20-$1.00 shows to 4 decimal places, and anything smaller is
             # left un-rounded (the template formatting currently would show up to 7 decimal places.)
-            unit_cost_basis: RP2Decimal
-            unit_cost_basis = net_cost / tot_crypto_bal
+            unit_cost_basis: RP2Decimal = net_cost / tot_crypto_bal
             if unit_cost_basis >= _FIAT_UNIT_WINDOW_2_DECIMAL:
-                unit_cost_basis = RP2Decimal(unit_cost_basis).quantize(RP2Decimal("1.00"))
+                unit_cost_basis = RP2Decimal(unit_cost_basis.quantize(Decimal("1.00")))
             elif unit_cost_basis >= _FIAT_UNIT_WINDOW_4_DECIMAL:
-                unit_cost_basis = RP2Decimal(unit_cost_basis).quantize(RP2Decimal("1.0000"))
+                unit_cost_basis = RP2Decimal(unit_cost_basis.quantize(Decimal("1.0000")))
 
             # Only 1 record in the AP sheet per asset.
             ap_sheet.append_rows(1)
