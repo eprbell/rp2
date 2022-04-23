@@ -28,6 +28,10 @@ from rp2.rp2_error import RP2TypeError
 LOGGER: logging.Logger = create_logger("open_positions")
 
 _TEMPLATE_SHEETS_TO_KEEP: Set[str] = {"__Asset", "__Asset_and_Exchange", "__AssetPrice"}
+_FIAT_EMPTY_BAL_CUTOFF = RP2Decimal("0.01")
+_CRYPTO_EMPTY_BAL_CUTOFF = RP2Decimal(".000001")
+_FIAT_UNIT_WINDOW_2_DECIMAL = RP2Decimal("1")
+_FIAT_UNIT_WINDOW_4_DECIMAL = RP2Decimal("0.02")
 
 
 class Generator(AbstractODSGenerator):
@@ -84,7 +88,7 @@ class Generator(AbstractODSGenerator):
             for in_xact in computed_data.in_transaction_set:
                 net_cost += in_xact.fiat_in_with_fee * (RP2Decimal("1") - computed_data.get_in_lot_sold_percentage(in_xact))
 
-            if float(net_cost) < 0.01:
+            if net_cost < _FIAT_EMPTY_BAL_CUTOFF:
                 continue
 
             total_cost += net_cost
@@ -106,16 +110,18 @@ class Generator(AbstractODSGenerator):
             for balset in computed_data.balance_set:
                 tot_crypto_bal += balset.final_balance
 
-            if float(net_cost) < 0.01:
+            if net_cost < _FIAT_EMPTY_BAL_CUTOFF:
                 continue
             # print("asset ",asset,tot_crypto_bal,net_cost,float(net_cost))
 
-            # For report clarity, this rounds crypto unit cost based on $1 / $0.20 windowing.
-            # The template itself is set up to allow up to 7 decimals but will always show at least 2.
-            unit_cost_basis = RP2Decimal(net_cost / tot_crypto_bal)
-            if unit_cost_basis > RP2Decimal("1"):
+            # For report clarity, this cuts down the decimals in the unit price based on the value of the unt, e.g. $1+
+            # shows price to the nearest cent while $0.20-$1.00 shows to 4 decimal places, and anything smaller is
+            # left un-rounded (the template formatting currently would show up to 7 decimal places.)
+            unit_cost_basis: RP2Decimal
+            unit_cost_basis = net_cost / tot_crypto_bal
+            if unit_cost_basis >= _FIAT_UNIT_WINDOW_2_DECIMAL:
                 unit_cost_basis = RP2Decimal(round(unit_cost_basis, 2))
-            elif unit_cost_basis > RP2Decimal("0.2"):
+            elif unit_cost_basis >= _FIAT_UNIT_WINDOW_4_DECIMAL:
                 unit_cost_basis = RP2Decimal(round(unit_cost_basis, 4))
 
             # Only 1 record in the AP sheet per asset.
@@ -128,7 +134,7 @@ class Generator(AbstractODSGenerator):
             # Next do the multi-row Asset/Exchange table which will calc vals that will feed the asset table.
             for balset in computed_data.balance_set:
 
-                if float(balset.final_balance) < 0.000001:
+                if balset.final_balance < _CRYPTO_EMPTY_BAL_CUTOFF:
                     continue
 
                 ae_sheet.append_rows(1)
