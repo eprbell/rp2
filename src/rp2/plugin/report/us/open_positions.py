@@ -50,6 +50,8 @@ class Generator(AbstractODSGenerator):
         to_date: date,
     ) -> None:
 
+        # pylint: disable=too-many-branches
+
         sheet_names: Set[str] = {"Asset", "Asset_and_Exchange", "AssetPrice"}
         row_indexes: Dict[str, int] = {sheet_name: self.HEADER_ROWS for sheet_name in sheet_names}
 
@@ -120,9 +122,9 @@ class Generator(AbstractODSGenerator):
             unit_cost_basis: RP2Decimal
             unit_cost_basis = net_cost / tot_crypto_bal
             if unit_cost_basis >= _FIAT_UNIT_WINDOW_2_DECIMAL:
-                unit_cost_basis = RP2Decimal(round(unit_cost_basis, 2))
+                unit_cost_basis = RP2Decimal(unit_cost_basis).quantize(RP2Decimal("1.00"))
             elif unit_cost_basis >= _FIAT_UNIT_WINDOW_4_DECIMAL:
-                unit_cost_basis = RP2Decimal(round(unit_cost_basis, 4))
+                unit_cost_basis = RP2Decimal(unit_cost_basis).quantize(RP2Decimal("1.0000"))
 
             # Only 1 record in the AP sheet per asset.
             ap_sheet.append_rows(1)
