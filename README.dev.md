@@ -138,11 +138,12 @@ Read the [Contributing](CONTRIBUTING.md) document on pull requests guidelines.
 
 ### Design Guidelines
 RP2 code adheres to these principles:
+* all identifiers have [descriptive names](https://realpython.com/python-pep8/#how-to-choose-names);
 * immutability:
   * global variables have upper case names, are initialized where declared and are never modified afterwards;
   * generally data structures are read-only (the only exceptions are for data structures that would incur a major complexity increase without write permission: e.g. AVL tree node):
     * class fields are private (prepended with double-underscore). Fields that need public access have a read-only property. Write-properties are not used;
-    * @dataclass classes have `frozen=True`
+    * @dataclass classes have `frozen=True`;
 * runtime checks: parameters of public functions are type-checked at runtime:
   * `Configuration.type_check_*()` for primitive types;
   * `<class>.type_check()` for classes;
