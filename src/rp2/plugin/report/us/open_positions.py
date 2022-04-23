@@ -152,8 +152,6 @@ class Generator(AbstractODSGenerator):
                 self._fill_cell(ae_sheet, ae_row_index, 7, f"=C{ae_row_index+1}*G{ae_row_index+1}", data_style="fiat")
                 self._fill_cell(ae_sheet, ae_row_index, 8, f"=H{ae_row_index+1}-E{ae_row_index+1}", data_style="fiat")
                 self._fill_cell(ae_sheet, ae_row_index, 9, f"=(H{ae_row_index+1}-E{ae_row_index+1})/E{ae_row_index+1}", data_style="percent")
-                self._fill_cell(ae_sheet, ae_row_index, 10, f"=I{ae_row_index+1}/SUM(E:E)", data_style="percent")
-                self._fill_cell(ae_sheet, ae_row_index, 11, f"=H{ae_row_index+1}/SUM(H:H)", data_style="percent")
                 row_indexes["Asset_and_Exchange"] = ae_row_index + 1
 
             # Single record per asset.
@@ -168,8 +166,6 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(a_sheet, a_row_index, 6, f"=B{a_row_index+1}*F{a_row_index+1}", data_style="fiat")
             self._fill_cell(a_sheet, a_row_index, 7, f"=G{a_row_index+1}-D{a_row_index+1}", data_style="fiat")
             self._fill_cell(a_sheet, a_row_index, 8, f"=(G{a_row_index+1}-D{a_row_index+1})/D{a_row_index+1}", data_style="percent")
-            self._fill_cell(a_sheet, a_row_index, 9, f"=H{a_row_index+1}/SUM(D:D)", data_style="percent")
-            self._fill_cell(a_sheet, a_row_index, 10, f"=G{a_row_index+1}/SUM(G:G)", data_style="percent")
             row_indexes["Asset"] = a_row_index + 1
 
         # There are several portfolio-wide fields in the output that are dependent on values the user enters into the AssetPrice tab for
@@ -179,13 +175,13 @@ class Generator(AbstractODSGenerator):
 
         a_row_index = row_indexes["Asset"]
         for row_idx in range(self.HEADER_ROWS, row_indexes["Asset"]):
-            self._fill_cell(a_sheet, row_idx, 9, f"=H{row_idx+1}/SUM(D{self.HEADER_ROWS+1}:D{a_row_index})", data_style="percent")
-            self._fill_cell(a_sheet, row_idx, 10, f"=G{row_idx+1}/SUM(G{self.HEADER_ROWS+1}:G{a_row_index})", data_style="percent")
+            self._fill_cell(a_sheet, row_idx, 9, f"=H{row_idx+1}/SUM(D${self.HEADER_ROWS+1}:D${a_row_index})", data_style="percent")
+            self._fill_cell(a_sheet, row_idx, 10, f"=G{row_idx+1}/SUM(G${self.HEADER_ROWS+1}:G${a_row_index})", data_style="percent")
 
         ae_row_index = row_indexes["Asset_and_Exchange"]
         for row_idx in range(self.HEADER_ROWS, row_indexes["Asset_and_Exchange"]):
-            self._fill_cell(ae_sheet, row_idx, 10, f"=I{row_idx+1}/SUM(E{self.HEADER_ROWS+1}:E{ae_row_index})", data_style="percent")
-            self._fill_cell(ae_sheet, row_idx, 11, f"=H{row_idx+1}/SUM(H{self.HEADER_ROWS+1}:H{ae_row_index})", data_style="percent")
+            self._fill_cell(ae_sheet, row_idx, 10, f"=I{row_idx+1}/SUM(E${self.HEADER_ROWS+1}:E${ae_row_index})", data_style="percent")
+            self._fill_cell(ae_sheet, row_idx, 11, f"=H{row_idx+1}/SUM(H${self.HEADER_ROWS+1}:H${ae_row_index})", data_style="percent")
 
         # Add some total rows.
         a_sheet.append_rows(1)
@@ -193,11 +189,11 @@ class Generator(AbstractODSGenerator):
         self._fill_cell(a_sheet, a_row_index, 0, "", visual_style="bold_border")
         self._fill_cell(a_sheet, a_row_index, 1, "", visual_style="bold_border")
         self._fill_cell(a_sheet, a_row_index, 2, "", visual_style="bold_border")
-        self._fill_cell(a_sheet, a_row_index, 3, f"=SUM(D{self.HEADER_ROWS+1}:D{a_row_index})", visual_style="bold_border", data_style="fiat")
+        self._fill_cell(a_sheet, a_row_index, 3, f"=SUM(D${self.HEADER_ROWS+1}:D${a_row_index})", visual_style="bold_border", data_style="fiat")
         self._fill_cell(a_sheet, a_row_index, 4, "", visual_style="bold_border")
         self._fill_cell(a_sheet, a_row_index, 5, "", visual_style="bold_border")
-        self._fill_cell(a_sheet, a_row_index, 6, f"=SUM(G{self.HEADER_ROWS+1}:G{a_row_index})", visual_style="bold_border", data_style="fiat")
-        self._fill_cell(a_sheet, a_row_index, 7, f"=SUM(H{self.HEADER_ROWS+1}:H{a_row_index})", visual_style="bold_border", data_style="fiat")
+        self._fill_cell(a_sheet, a_row_index, 6, f"=SUM(G${self.HEADER_ROWS+1}:G${a_row_index})", visual_style="bold_border", data_style="fiat")
+        self._fill_cell(a_sheet, a_row_index, 7, f"=SUM(H${self.HEADER_ROWS+1}:H${a_row_index})", visual_style="bold_border", data_style="fiat")
         self._fill_cell(a_sheet, a_row_index, 8, f"=(G{a_row_index+1}-D{a_row_index+1})/D{a_row_index+1}", visual_style="bold_border", data_style="percent")
         self._fill_cell(a_sheet, a_row_index, 9, "", visual_style="bold_border")
         self._fill_cell(a_sheet, a_row_index, 10, "", visual_style="bold_border")
@@ -209,11 +205,11 @@ class Generator(AbstractODSGenerator):
         self._fill_cell(ae_sheet, ae_row_index, 1, "", visual_style="bold_border")
         self._fill_cell(ae_sheet, ae_row_index, 2, "", visual_style="bold_border")
         self._fill_cell(ae_sheet, ae_row_index, 3, "", visual_style="bold_border")
-        self._fill_cell(ae_sheet, ae_row_index, 4, f"=SUM(E{self.HEADER_ROWS+1}:E{ae_row_index})", visual_style="bold_border", data_style="fiat")
+        self._fill_cell(ae_sheet, ae_row_index, 4, f"=SUM(E${self.HEADER_ROWS+1}:E${ae_row_index})", visual_style="bold_border", data_style="fiat")
         self._fill_cell(ae_sheet, ae_row_index, 5, "", visual_style="bold_border")
         self._fill_cell(ae_sheet, ae_row_index, 6, "", visual_style="bold_border")
-        self._fill_cell(ae_sheet, ae_row_index, 7, f"=SUM(H{self.HEADER_ROWS+1}:H{ae_row_index})", visual_style="bold_border", data_style="fiat")
-        self._fill_cell(ae_sheet, ae_row_index, 8, f"=SUM(I{self.HEADER_ROWS+1}:I{ae_row_index})", visual_style="bold_border", data_style="fiat")
+        self._fill_cell(ae_sheet, ae_row_index, 7, f"=SUM(H${self.HEADER_ROWS+1}:H${ae_row_index})", visual_style="bold_border", data_style="fiat")
+        self._fill_cell(ae_sheet, ae_row_index, 8, f"=SUM(I${self.HEADER_ROWS+1}:I${ae_row_index})", visual_style="bold_border", data_style="fiat")
         self._fill_cell(
             ae_sheet, ae_row_index, 9, f"=(H{ae_row_index+1}-E{ae_row_index+1})/E{ae_row_index+1}", visual_style="bold_border", data_style="percent"
         )
