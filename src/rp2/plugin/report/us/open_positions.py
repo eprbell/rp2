@@ -13,8 +13,8 @@
 # limitations under the License.
 
 import logging
-from datetime import date
 import os
+from datetime import date
 from pathlib import Path
 from typing import Any, Dict, Set, cast
 
@@ -57,7 +57,9 @@ class Generator(AbstractODSGenerator):
         if not isinstance(asset_to_computed_data, Dict):
             raise RP2TypeError(f"Parameter 'asset_to_computed_data' has non-Dict value {asset_to_computed_data}")
 
-        template_path: str = str(Path(os.path.dirname(__file__)).parent.absolute() / Path("".join(["data/template_open_positions_", country.country_iso_code, ".ods"])))
+        template_path: str = str(
+            Path(os.path.dirname(__file__)).parent.absolute() / Path("".join(["data/template_open_positions_", country.country_iso_code, ".ods"]))
+        )
 
         output_file: Any
         output_file = self._initialize_output_file(
