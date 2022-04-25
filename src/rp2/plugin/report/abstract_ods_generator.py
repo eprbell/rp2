@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, Set
@@ -34,15 +33,15 @@ class AbstractODSGenerator(AbstractReportGenerator):
     @classmethod
     def _initialize_output_file(
         cls,
-        country: AbstractCountry,
+        country: AbstractCountry,  # pylint: disable=unused-argument
         accounting_method: str,
         output_dir_path: str,
         output_file_prefix: str,
         output_file_name: str,
+        template_path: str,
         template_sheets_to_keep: Set[str],
         from_date: date,
         to_date: date,
-        template_file_prefix: str = "",
     ) -> Any:
 
         Configuration.type_check_string("output_dir_path", output_dir_path)
@@ -54,14 +53,6 @@ class AbstractODSGenerator(AbstractReportGenerator):
         output_file_path: Path = Path(output_dir_path) / Path(f"{output_file_prefix}{accounting_method}_{output_file_name}")
         if Path(output_file_path).exists():
             output_file_path.unlink()
-
-        if len(template_file_prefix) > 0 and template_file_prefix.startswith("_") is False:
-            template_file_prefix = "_" + template_file_prefix
-        template_path: str = str(
-            Path(os.path.dirname(__file__)).absolute() / Path("".join(["data/template", template_file_prefix, "_", country.country_iso_code, ".ods"]))
-        )
-        if Path(template_path).exists() is False:
-            raise Exception(f"Error: template file '{template_path}' not found.")
 
         output_file: Any = ezodf.newdoc("ods", str(output_file_path), template=template_path)
         legend_sheet_name: str = f"__Legend_{cls.get_name()}"

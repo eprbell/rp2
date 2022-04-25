@@ -14,6 +14,7 @@
 
 import logging
 from datetime import date
+import os
 from pathlib import Path
 from typing import Any, Dict, List, NamedTuple, Optional, Set, cast
 
@@ -299,6 +300,8 @@ class Generator(AbstractODSGenerator):
 
         self._setup_header_rows(country)
 
+        template_path: str = str(Path(os.path.dirname(__file__)).absolute() / Path("".join(["data/template_", country.country_iso_code, ".ods"])))
+
         output_file: Any
         output_file = self._initialize_output_file(
             country=country,
@@ -306,6 +309,7 @@ class Generator(AbstractODSGenerator):
             output_dir_path=output_dir_path,
             output_file_prefix=output_file_prefix,
             output_file_name=self.OUTPUT_FILE,
+            template_path=template_path,
             template_sheets_to_keep=self.TEMPLATE_SHEETS_TO_KEEP,
             from_date=from_date,
             to_date=to_date,
@@ -839,11 +843,3 @@ class Generator(AbstractODSGenerator):
             row_index += 1
 
         return row_index
-
-
-def main() -> None:
-    pass
-
-
-if __name__ == "__main__":
-    main()
