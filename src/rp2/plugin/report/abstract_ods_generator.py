@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, Set
@@ -34,11 +33,12 @@ class AbstractODSGenerator(AbstractReportGenerator):
     @classmethod
     def _initialize_output_file(
         cls,
-        country: AbstractCountry,
+        country: AbstractCountry,  # pylint: disable=unused-argument
         accounting_method: str,
         output_dir_path: str,
         output_file_prefix: str,
         output_file_name: str,
+        template_path: str,
         template_sheets_to_keep: Set[str],
         from_date: date,
         to_date: date,
@@ -54,7 +54,6 @@ class AbstractODSGenerator(AbstractReportGenerator):
         if Path(output_file_path).exists():
             output_file_path.unlink()
 
-        template_path: str = str(Path(os.path.dirname(__file__)).absolute() / Path("".join(["data/template_", country.country_iso_code, ".ods"])))
         output_file: Any = ezodf.newdoc("ods", str(output_file_path), template=template_path)
         legend_sheet_name: str = f"__Legend_{cls.get_name()}"
         template_sheets_to_keep_with_legend: Set[str] = template_sheets_to_keep.copy()

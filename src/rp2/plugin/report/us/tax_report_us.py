@@ -15,6 +15,7 @@
 import logging
 from datetime import date
 from enum import Enum
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Set, cast
 
@@ -88,6 +89,8 @@ class Generator(AbstractODSGenerator):
         if not isinstance(asset_to_computed_data, Dict):
             raise RP2TypeError(f"Parameter 'asset_to_computed_data' has non-Dict value {asset_to_computed_data}")
 
+        template_path: str = str(Path(os.path.dirname(__file__)).parent.absolute() / Path("".join(["data/template_", country.country_iso_code, ".ods"])))
+
         output_file: Any
         output_file = self._initialize_output_file(
             country=country,
@@ -95,6 +98,7 @@ class Generator(AbstractODSGenerator):
             output_dir_path=output_dir_path,
             output_file_prefix=output_file_prefix,
             output_file_name=self.OUTPUT_FILE,
+            template_path=template_path,
             template_sheets_to_keep=_TEMPLATE_SHEETS_TO_KEEP,
             from_date=from_date,
             to_date=to_date,
@@ -190,11 +194,3 @@ class Generator(AbstractODSGenerator):
 
             border_suffix = ""
             row_indexes[sheet.name] = row_index + 1
-
-
-def main() -> None:
-    pass
-
-
-if __name__ == "__main__":
-    main()
