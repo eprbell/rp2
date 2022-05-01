@@ -280,7 +280,7 @@ class Generator(AbstractODSGenerator):
                     asset_sheet,
                     asset_row_index,
                     9,
-                    f"=(H{asset_row_index+1}-E{asset_row_index+1})/E{last_data_index+1}",
+                    f"=(H{asset_row_index+1}-E{asset_row_index+1})/E{asset_row_index+1}",
                     visual_style="bold_border",
                     data_style="percent",
                 )
