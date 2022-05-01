@@ -19,6 +19,7 @@
 * **[Transparent Computation (RP2 Full Output Report)](#transparent-computation-rp2-full-report-output)**
   * [Hyperlinks](#hyperlinks)
 * **[Advisor-Friendly Report (Tax Report US Output)](#advisor-friendly-report-tax-report-us-output)**
+* **[Unrealized Gains (Open Positions Report Output)](#unrealized-gains-open-positions-report-output)**
 
 ## Introduction
 RP2 generates output files by running the report plugins. It comes with two builtin plugins for US taxes:
@@ -65,3 +66,13 @@ Here follows an example of the Capital Gains sheet:
 And an example of the Interest sheet:
 
 ![tax report us output interest](images/tax_report_us_output_interest.png)
+
+## Unrealized Gains (Open Positions Report Output)
+The open_positions_us.ods output file is an ODS-format spreadsheet designed to provide information on assets with non-zero crypto balances including gains and losses.
+
+The report contains:
+* a Legend sheet containing the accounting method and the meaning of each column and keyword
+* the Input sheet for entering current asset values (or asset values on a given date to be used for the calculations per user requirements). ![Open Positions input tab example](images/open_positions_input.png)
+* the Asset sheet which among other things shows the crypto balance, cost basis information (by unit and in whole) and portfolio weighting of each asset as well as the unrealized / market value and the gains / loss data in fiat and percentage terms in addition to further breakdowns. This tab summarizes the information by asset and holder. ![Open Positions asset tab example](images/open_positions_asset.png)
+* The Asset - Exchange sheet provides the same information as the asset tab, but further breaks the information down by exchange. ![Open Positions asset exchange tab example](images/open_positions_asset_exchange.png)
+
