@@ -14,8 +14,12 @@
 
 # RP2 Change Log
 
+## 1.0.1
+* new open positions plugin, showing a variety of information on unrealized gains and losses (https://github.com/eprbell/rp2/pull/35)
+* minor improvements to documentation
+
 ## 1.0.0
-- Tax season is over: time for RP2 to hit v1.0.0! RP2 (and DaLI) gained a lot of users and traction in less than one year of existence (https://star-history.com/#eprbell/rp2&Date). During this time lots of bugs were fixed and features added. Thanks to everybody who engaged with PRs, issues, discussions and DMs.
+* Tax season is over: time for RP2 to hit v1.0.0! RP2 (and DaLI) gained a lot of users and traction in less than one year of existence (https://star-history.com/#eprbell/rp2&Date). During this time lots of bugs were fixed and features added. Thanks to everybody who engaged with PRs, issues, discussions and DMs.
 
 ## 0.9.31
 * fixed a bug in rp2_full_report generator reported in #31: in out-transactions if crypto_fee == 0 and fiat_fee > 0, the fiat fee was reported as zero (but this affected only the output, not the tax calculation which was correct)
