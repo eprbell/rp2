@@ -19,14 +19,13 @@ from pathlib import Path
 from typing import Any, Dict, List, Set, cast
 
 from rp2.abstract_country import AbstractCountry
-from rp2.abstract_transaction import AbstractTransaction
 from rp2.computed_data import ComputedData
 from rp2.in_transaction import InTransaction
 from rp2.out_transaction import OutTransaction
 from rp2.intra_transaction import IntraTransaction
 from rp2.logger import create_logger
 from rp2.plugin.report.abstract_ods_generator import AbstractODSGenerator
-from rp2.rp2_decimal import ZERO, RP2Decimal
+from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError
 
 LOGGER: logging.Logger = create_logger("tlog")
@@ -87,13 +86,11 @@ class Generator(AbstractODSGenerator):
             to_date=to_date,
         )
 
-        asset: str
-        computed_data: ComputedData
-
         sheet = output_file.sheets[_TRANSACTIONS]
 
-        # all_transactions: List[AbstractTransaction] = []
-        all_transactions = []
+        asset: str
+        computed_data: ComputedData
+        all_transactions: List[Any] = []
 
         for asset, computed_data in asset_to_computed_data.items():
             if not isinstance(asset, str):
@@ -120,30 +117,30 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 1, transaction.asset)
             self._fill_cell(sheet, row_index, 4, transaction.transaction_type.value.upper())
             self._fill_cell(sheet, row_index, 6, transaction.spot_price, data_style=_get_data_style(transaction.spot_price))
-            
-            if(type(transaction) == InTransaction):
+
+            if isinstance(transaction, InTransaction):
                 self._fill_cell(sheet, row_index, 2, transaction.exchange)
                 self._fill_cell(sheet, row_index, 3, transaction.holder)
                 self._fill_cell(sheet, row_index, 5, transaction.crypto_in, data_style="crypto")
-                self._fill_cell(sheet, row_index, 7, transaction.fiat_in_with_fee, data_style="fiat") 
+                self._fill_cell(sheet, row_index, 7, transaction.fiat_in_with_fee, data_style="fiat")
                 self._fill_cell(sheet, row_index, 8, transaction.fiat_in_no_fee, data_style="fiat")
                 self._fill_cell(sheet, row_index, 9, transaction.fiat_fee, data_style="fiat")
                 self._fill_cell(sheet, row_index, 10, "", data_style="crypto")
                 self._fill_cell(sheet, row_index, 11, "", data_style="crypto")
-            elif(type(transaction) == OutTransaction):
+            elif isinstance(transaction, OutTransaction):
                 self._fill_cell(sheet, row_index, 2, transaction.exchange)
                 self._fill_cell(sheet, row_index, 3, transaction.holder)
                 self._fill_cell(sheet, row_index, 5, transaction.crypto_balance_change, data_style="crypto")
-                self._fill_cell(sheet, row_index, 7, transaction.fiat_out_with_fee, data_style="fiat") 
+                self._fill_cell(sheet, row_index, 7, transaction.fiat_out_with_fee, data_style="fiat")
                 self._fill_cell(sheet, row_index, 8, transaction.fiat_out_no_fee, data_style="fiat")
                 self._fill_cell(sheet, row_index, 9, transaction.fiat_fee, data_style="fiat")
                 self._fill_cell(sheet, row_index, 10, "", data_style="crypto")
                 self._fill_cell(sheet, row_index, 11, "", data_style="crypto")
-            elif(type(transaction) == IntraTransaction):
-                self._fill_cell(sheet, row_index, 2, transaction.from_exchange+" to "+transaction.to_exchange)
-                self._fill_cell(sheet, row_index, 3, transaction.from_holder+" to "+transaction.to_holder)
+            elif isinstance(transaction, IntraTransaction):
+                self._fill_cell(sheet, row_index, 2, transaction.from_exchange + " to " + transaction.to_exchange)
+                self._fill_cell(sheet, row_index, 3, transaction.from_holder + " to " + transaction.to_holder)
                 self._fill_cell(sheet, row_index, 5, transaction.crypto_balance_change, data_style="crypto")
-                self._fill_cell(sheet, row_index, 7, "", data_style="fiat") 
+                self._fill_cell(sheet, row_index, 7, "", data_style="fiat")
                 self._fill_cell(sheet, row_index, 8, "", data_style="fiat")
                 self._fill_cell(sheet, row_index, 9, "", data_style="fiat")
                 self._fill_cell(sheet, row_index, 10, transaction.crypto_sent, data_style="crypto")
