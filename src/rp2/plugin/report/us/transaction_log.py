@@ -127,24 +127,27 @@ class Generator(AbstractODSGenerator):
                 self._fill_cell(sheet, row_index, 9, transaction.fiat_fee, data_style="fiat")
                 self._fill_cell(sheet, row_index, 10, "", data_style="crypto")
                 self._fill_cell(sheet, row_index, 11, "", data_style="crypto")
+                self._fill_cell(sheet, row_index, 12, "", data_style="crypto")
             elif isinstance(transaction, OutTransaction):
                 self._fill_cell(sheet, row_index, 2, transaction.exchange)
                 self._fill_cell(sheet, row_index, 3, transaction.holder)
-                self._fill_cell(sheet, row_index, 5, transaction.crypto_balance_change, data_style="crypto")
+                self._fill_cell(sheet, row_index, 5, RP2Decimal("-1") * transaction.crypto_balance_change, data_style="crypto")
                 self._fill_cell(sheet, row_index, 7, transaction.fiat_out_with_fee, data_style="fiat")
                 self._fill_cell(sheet, row_index, 8, transaction.fiat_out_no_fee, data_style="fiat")
                 self._fill_cell(sheet, row_index, 9, transaction.fiat_fee, data_style="fiat")
                 self._fill_cell(sheet, row_index, 10, "", data_style="crypto")
                 self._fill_cell(sheet, row_index, 11, "", data_style="crypto")
+                self._fill_cell(sheet, row_index, 12, "", data_style="crypto")
             elif isinstance(transaction, IntraTransaction):
                 self._fill_cell(sheet, row_index, 2, transaction.from_exchange + " to " + transaction.to_exchange)
                 self._fill_cell(sheet, row_index, 3, transaction.from_holder + " to " + transaction.to_holder)
-                self._fill_cell(sheet, row_index, 5, transaction.crypto_balance_change, data_style="crypto")
+                self._fill_cell(sheet, row_index, 5, "", data_style="crypto")
                 self._fill_cell(sheet, row_index, 7, "", data_style="fiat")
                 self._fill_cell(sheet, row_index, 8, "", data_style="fiat")
                 self._fill_cell(sheet, row_index, 9, "", data_style="fiat")
                 self._fill_cell(sheet, row_index, 10, transaction.crypto_sent, data_style="crypto")
                 self._fill_cell(sheet, row_index, 11, transaction.crypto_received, data_style="crypto")
+                self._fill_cell(sheet, row_index, 12, transaction.crypto_fee, data_style="crypto")
 
             row_indexes[_TRANSACTIONS] = row_index + 1
 
