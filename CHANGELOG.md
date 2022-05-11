@@ -14,6 +14,9 @@
 
 # RP2 Change Log
 
+## 1.0.3
+* minor improvements
+
 ## 1.0.2
 * new open positions plugin, showing a variety of information on unrealized gains and losses (https://github.com/eprbell/rp2/pull/35)
 * minor improvements to documentation

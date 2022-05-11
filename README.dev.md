@@ -12,7 +12,7 @@
 <!--- See the License for the specific language governing permissions and --->
 <!--- limitations under the License. --->
 
-# RP2 v1.0.2 Developer Guide
+# RP2 v1.0.3 Developer Guide
 [![Static Analysis / Main Branch](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml)
 [![Documentation Check / Main Branch](https://github.com/eprbell/rp2/actions/workflows/documentation_check.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/documentation_check.yml)
 [![Unix Unit Tests / Main Branch](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml)
@@ -147,10 +147,11 @@ RP2 code adheres to these principles:
 * runtime checks: parameters of public functions are type-checked at runtime:
   * `Configuration.type_check_*()` for primitive types;
   * `<class>.type_check()` for classes;
-* type hints: all variables and functions have Python type hints;
+* type hints: all variables and functions have Python type hints (with the exception of local variables, for which type hints are optional);
 * no id-based hashing: classes that are added to dictionaries and sets redefine `__eq__()`, `__neq__()` and `__hash__()`;
 * encapsulated math: all high-precision math is done via `RP2Decimal` (a subclass of Decimal), to ensure the correct precision is used throughout the code. `RP2Decimal` instances are never mixed with other types in expressions;
 * f-strings only: every time string interpolation is needed, f-strings are used;
+* no raw strings (unless they occur only once): use global constants instead;
 * logging: logging is done via the `logger` module;
 * no unnamed tuples: dataclasses or named tuples are used instead;
 * one class per file (with exceptions for trivial classes);
