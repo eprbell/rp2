@@ -14,6 +14,10 @@
 
 # RP2 Change Log
 
+## In Progress
+* added support for generators section in configuration: this allows users to select which generator plugins to run. Also deprecated -l/--plugin CLI options
+* updated documentation with new generators section description
+
 ## 1.0.3
 * minor improvements
 
