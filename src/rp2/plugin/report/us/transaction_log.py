@@ -39,6 +39,18 @@ _FIAT_UNIT_DATA_STYLE_2_DECIMAL_MINIMUM = RP2Decimal("1")
 _FIAT_UNIT_DATA_STYLE_4_DECIMAL_MINIMUM = RP2Decimal("0.20")
 
 
+def _get_transaction_type(transaction: Any) -> str:
+    prefix: str
+    if isinstance(transaction, InTransaction):
+        prefix = "In"
+    elif isinstance(transaction, OutTransaction):
+        prefix = "Out"
+    elif isinstance(transaction, IntraTransaction):
+        prefix = "Intra"
+
+    return prefix + " / " + transaction.transaction_type.value.title()
+
+
 def _get_data_style(price: RP2Decimal) -> str:
     unit_data_style: str = "fiat"
     if _FIAT_UNIT_DATA_STYLE_4_DECIMAL_MINIMUM <= price < _FIAT_UNIT_DATA_STYLE_2_DECIMAL_MINIMUM:
@@ -126,39 +138,43 @@ class Generator(AbstractODSGenerator):
 
             self._fill_cell(sheet, row_index, 0, transaction.timestamp)
             self._fill_cell(sheet, row_index, 1, transaction.asset)
-            self._fill_cell(sheet, row_index, 4, transaction.transaction_type.value.upper())
-            self._fill_cell(sheet, row_index, 6, transaction.spot_price, data_style=_get_data_style(transaction.spot_price))
+            self._fill_cell(sheet, row_index, 3, _get_transaction_type(transaction))
+            self._fill_cell(sheet, row_index, 5, transaction.spot_price, data_style=_get_data_style(transaction.spot_price))
+            self._fill_cell(sheet, row_index, 12, transaction.unique_id)
+            self._fill_cell(sheet, row_index, 13, transaction.notes)
 
             if isinstance(transaction, InTransaction):
-                self._fill_cell(sheet, row_index, 2, transaction.exchange)
-                self._fill_cell(sheet, row_index, 3, transaction.holder)
-                self._fill_cell(sheet, row_index, 5, transaction.crypto_in, data_style="crypto")
-                self._fill_cell(sheet, row_index, 7, transaction.fiat_in_with_fee, data_style="fiat")
-                self._fill_cell(sheet, row_index, 8, transaction.fiat_in_no_fee, data_style="fiat")
-                self._fill_cell(sheet, row_index, 9, transaction.fiat_fee, data_style="fiat")
+                self._fill_cell(sheet, row_index, 2, transaction.exchange + " / " + transaction.holder)
+                self._fill_cell(sheet, row_index, 4, transaction.crypto_in, data_style="crypto")
+                self._fill_cell(sheet, row_index, 6, transaction.fiat_in_with_fee, data_style="fiat")
+                self._fill_cell(sheet, row_index, 7, transaction.fiat_in_no_fee, data_style="fiat")
+                self._fill_cell(sheet, row_index, 8, _empty_fee_if_zero(transaction.fiat_fee), data_style="fiat")
+                self._fill_cell(sheet, row_index, 9, "", data_style="crypto")
                 self._fill_cell(sheet, row_index, 10, "", data_style="crypto")
-                self._fill_cell(sheet, row_index, 11, "", data_style="crypto")
-                self._fill_cell(sheet, row_index, 12, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
+                self._fill_cell(sheet, row_index, 11, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
             elif isinstance(transaction, OutTransaction):
-                self._fill_cell(sheet, row_index, 2, transaction.exchange)
-                self._fill_cell(sheet, row_index, 3, transaction.holder)
-                self._fill_cell(sheet, row_index, 5, RP2Decimal("-1") * transaction.crypto_balance_change, data_style="crypto")
-                self._fill_cell(sheet, row_index, 7, transaction.fiat_out_with_fee, data_style="fiat")
-                self._fill_cell(sheet, row_index, 8, transaction.fiat_out_no_fee, data_style="fiat")
-                self._fill_cell(sheet, row_index, 9, transaction.fiat_fee, data_style="fiat")
+                self._fill_cell(sheet, row_index, 2, transaction.exchange + " / " + transaction.holder)
+                self._fill_cell(sheet, row_index, 4, RP2Decimal("-1") * transaction.crypto_balance_change, data_style="crypto")
+                self._fill_cell(sheet, row_index, 6, transaction.fiat_out_with_fee, data_style="fiat")
+                self._fill_cell(sheet, row_index, 7, transaction.fiat_out_no_fee, data_style="fiat")
+                self._fill_cell(sheet, row_index, 8, _empty_fee_if_zero(transaction.fiat_fee), data_style="fiat")
+                self._fill_cell(sheet, row_index, 9, "", data_style="crypto")
                 self._fill_cell(sheet, row_index, 10, "", data_style="crypto")
-                self._fill_cell(sheet, row_index, 11, "", data_style="crypto")
-                self._fill_cell(sheet, row_index, 12, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
+                self._fill_cell(sheet, row_index, 11, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
             elif isinstance(transaction, IntraTransaction):
-                self._fill_cell(sheet, row_index, 2, transaction.from_exchange + " to " + transaction.to_exchange)
-                self._fill_cell(sheet, row_index, 3, transaction.from_holder + " to " + transaction.to_holder)
-                self._fill_cell(sheet, row_index, 5, "", data_style="crypto")
+                self._fill_cell(
+                    sheet,
+                    row_index,
+                    2,
+                    transaction.from_exchange + " / " + transaction.from_holder + " to " + transaction.to_exchange + " / " + transaction.to_holder,
+                )
+                self._fill_cell(sheet, row_index, 4, "", data_style="crypto")
+                self._fill_cell(sheet, row_index, 6, "", data_style="fiat")
                 self._fill_cell(sheet, row_index, 7, "", data_style="fiat")
                 self._fill_cell(sheet, row_index, 8, "", data_style="fiat")
-                self._fill_cell(sheet, row_index, 9, "", data_style="fiat")
-                self._fill_cell(sheet, row_index, 10, transaction.crypto_sent, data_style="crypto")
-                self._fill_cell(sheet, row_index, 11, transaction.crypto_received, data_style="crypto")
-                self._fill_cell(sheet, row_index, 12, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
+                self._fill_cell(sheet, row_index, 9, transaction.crypto_sent, data_style="crypto")
+                self._fill_cell(sheet, row_index, 10, transaction.crypto_received, data_style="crypto")
+                self._fill_cell(sheet, row_index, 11, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
 
             row_indexes[_TRANSACTIONS_STYLE_1] = row_index + 1
 
@@ -171,41 +187,44 @@ class Generator(AbstractODSGenerator):
             if isinstance(transaction, InTransaction):
                 self._fill_cell(sheet, row_index, 0, transaction.timestamp)
                 self._fill_cell(sheet, row_index, 1, transaction.asset)
-                self._fill_cell(sheet, row_index, 2, transaction.exchange)
-                self._fill_cell(sheet, row_index, 3, transaction.holder)
-                self._fill_cell(sheet, row_index, 4, transaction.transaction_type.value.upper())
-                self._fill_cell(sheet, row_index, 5, transaction.crypto_in, data_style="crypto")
-                self._fill_cell(sheet, row_index, 6, transaction.spot_price, data_style=_get_data_style(transaction.spot_price))
-                self._fill_cell(sheet, row_index, 7, transaction.fiat_in_with_fee, data_style="fiat")
-                self._fill_cell(sheet, row_index, 8, transaction.fiat_in_no_fee, data_style="fiat")
-                self._fill_cell(sheet, row_index, 9, transaction.fiat_fee, data_style="fiat")
-                self._fill_cell(sheet, row_index, 10, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
+                self._fill_cell(sheet, row_index, 2, transaction.exchange + " / " + transaction.holder)
+                self._fill_cell(sheet, row_index, 3, _get_transaction_type(transaction))
+                self._fill_cell(sheet, row_index, 4, transaction.crypto_in, data_style="crypto")
+                self._fill_cell(sheet, row_index, 5, transaction.spot_price, data_style=_get_data_style(transaction.spot_price))
+                self._fill_cell(sheet, row_index, 6, transaction.fiat_in_with_fee, data_style="fiat")
+                self._fill_cell(sheet, row_index, 7, transaction.fiat_in_no_fee, data_style="fiat")
+                self._fill_cell(sheet, row_index, 8, _empty_fee_if_zero(transaction.fiat_fee), data_style="fiat")
+                self._fill_cell(sheet, row_index, 9, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
+                self._fill_cell(sheet, row_index, 10, transaction.unique_id)
+                self._fill_cell(sheet, row_index, 11, transaction.notes)
             elif isinstance(transaction, OutTransaction):
                 self._fill_cell(sheet, row_index, 0, transaction.timestamp)
                 self._fill_cell(sheet, row_index, 1, transaction.asset)
-                self._fill_cell(sheet, row_index, 2, transaction.exchange)
-                self._fill_cell(sheet, row_index, 3, transaction.holder)
-                self._fill_cell(sheet, row_index, 4, transaction.transaction_type.value.upper())
-                self._fill_cell(sheet, row_index, 5, RP2Decimal("-1") * transaction.crypto_balance_change, data_style="crypto")
-                self._fill_cell(sheet, row_index, 6, transaction.spot_price, data_style=_get_data_style(transaction.spot_price))
-                self._fill_cell(sheet, row_index, 7, transaction.fiat_out_with_fee, data_style="fiat")
-                self._fill_cell(sheet, row_index, 8, transaction.fiat_out_no_fee, data_style="fiat")
-                self._fill_cell(sheet, row_index, 9, transaction.fiat_fee, data_style="fiat")
-                self._fill_cell(sheet, row_index, 10, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
+                self._fill_cell(sheet, row_index, 2, transaction.exchange + " / " + transaction.holder)
+                self._fill_cell(sheet, row_index, 3, _get_transaction_type(transaction))
+                self._fill_cell(sheet, row_index, 4, RP2Decimal("-1") * transaction.crypto_balance_change, data_style="crypto")
+                self._fill_cell(sheet, row_index, 5, transaction.spot_price, data_style=_get_data_style(transaction.spot_price))
+                self._fill_cell(sheet, row_index, 6, transaction.fiat_out_with_fee, data_style="fiat")
+                self._fill_cell(sheet, row_index, 7, transaction.fiat_out_no_fee, data_style="fiat")
+                self._fill_cell(sheet, row_index, 8, _empty_fee_if_zero(transaction.fiat_fee), data_style="fiat")
+                self._fill_cell(sheet, row_index, 9, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
+                self._fill_cell(sheet, row_index, 10, transaction.unique_id)
+                self._fill_cell(sheet, row_index, 11, transaction.notes)
             elif isinstance(transaction, IntraTransaction):
 
                 # Two rows instead of one.  First row.
                 self._fill_cell(sheet, row_index, 0, transaction.timestamp)
                 self._fill_cell(sheet, row_index, 1, transaction.asset)
-                self._fill_cell(sheet, row_index, 2, "From " + transaction.from_exchange)
-                self._fill_cell(sheet, row_index, 3, "From " + transaction.from_holder)
-                self._fill_cell(sheet, row_index, 4, transaction.transaction_type.value.upper())
-                self._fill_cell(sheet, row_index, 5, RP2Decimal("-1") * transaction.crypto_sent, data_style="crypto")
-                self._fill_cell(sheet, row_index, 6, transaction.spot_price, data_style=_get_data_style(transaction.spot_price))
+                self._fill_cell(sheet, row_index, 2, transaction.from_exchange + " / " + transaction.from_holder + " (Out)")
+                self._fill_cell(sheet, row_index, 3, _get_transaction_type(transaction))
+                self._fill_cell(sheet, row_index, 4, RP2Decimal("-1") * transaction.crypto_sent, data_style="crypto")
+                self._fill_cell(sheet, row_index, 5, transaction.spot_price, data_style=_get_data_style(transaction.spot_price))
+                self._fill_cell(sheet, row_index, 6, "", data_style="fiat")
                 self._fill_cell(sheet, row_index, 7, "", data_style="fiat")
                 self._fill_cell(sheet, row_index, 8, "", data_style="fiat")
-                self._fill_cell(sheet, row_index, 9, "", data_style="fiat")
-                self._fill_cell(sheet, row_index, 10, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
+                self._fill_cell(sheet, row_index, 9, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
+                self._fill_cell(sheet, row_index, 10, transaction.unique_id)
+                self._fill_cell(sheet, row_index, 11, transaction.notes)
                 row_indexes[_TRANSACTIONS_STYLE_2] = row_index + 1
 
                 # Second row.
@@ -213,15 +232,16 @@ class Generator(AbstractODSGenerator):
                 row_index += 1
                 self._fill_cell(sheet, row_index, 0, transaction.timestamp)
                 self._fill_cell(sheet, row_index, 1, transaction.asset)
-                self._fill_cell(sheet, row_index, 2, "To " + transaction.to_exchange)
-                self._fill_cell(sheet, row_index, 3, "To " + transaction.to_holder)
-                self._fill_cell(sheet, row_index, 4, transaction.transaction_type.value.upper())
-                self._fill_cell(sheet, row_index, 5, transaction.crypto_received, data_style="crypto")
-                self._fill_cell(sheet, row_index, 6, transaction.spot_price, data_style=_get_data_style(transaction.spot_price))
+                self._fill_cell(sheet, row_index, 2, transaction.to_exchange + " / " + transaction.to_holder + " (In)")
+                self._fill_cell(sheet, row_index, 3, _get_transaction_type(transaction))
+                self._fill_cell(sheet, row_index, 4, transaction.crypto_received, data_style="crypto")
+                self._fill_cell(sheet, row_index, 5, transaction.spot_price, data_style=_get_data_style(transaction.spot_price))
+                self._fill_cell(sheet, row_index, 6, "", data_style="fiat")
                 self._fill_cell(sheet, row_index, 7, "", data_style="fiat")
                 self._fill_cell(sheet, row_index, 8, "", data_style="fiat")
-                self._fill_cell(sheet, row_index, 9, "", data_style="fiat")
-                self._fill_cell(sheet, row_index, 10, "", data_style="crypto")
+                self._fill_cell(sheet, row_index, 9, "", data_style="crypto")
+                self._fill_cell(sheet, row_index, 10, transaction.unique_id)
+                self._fill_cell(sheet, row_index, 11, transaction.notes)
 
             row_indexes[_TRANSACTIONS_STYLE_2] = row_index + 1
 
@@ -233,36 +253,40 @@ class Generator(AbstractODSGenerator):
 
             self._fill_cell(sheet, row_index, 0, transaction.timestamp)
             self._fill_cell(sheet, row_index, 1, transaction.asset)
-            self._fill_cell(sheet, row_index, 4, transaction.transaction_type.value.upper())
-            self._fill_cell(sheet, row_index, 5, transaction.spot_price, data_style=_get_data_style(transaction.spot_price))
+            self._fill_cell(sheet, row_index, 3, _get_transaction_type(transaction))
+            self._fill_cell(sheet, row_index, 4, transaction.spot_price, data_style=_get_data_style(transaction.spot_price))
+            self._fill_cell(sheet, row_index, 11, transaction.unique_id)
+            self._fill_cell(sheet, row_index, 12, transaction.notes)
 
             if isinstance(transaction, InTransaction):
-                self._fill_cell(sheet, row_index, 2, transaction.exchange)
-                self._fill_cell(sheet, row_index, 3, transaction.holder)
-                self._fill_cell(sheet, row_index, 6, transaction.crypto_in, data_style="crypto")
-                self._fill_cell(sheet, row_index, 7, "", data_style="crypto")
-                self._fill_cell(sheet, row_index, 8, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
-                self._fill_cell(sheet, row_index, 9, transaction.fiat_in_with_fee, data_style="fiat")
-                self._fill_cell(sheet, row_index, 10, "", data_style="fiat")
-                self._fill_cell(sheet, row_index, 11, transaction.fiat_fee, data_style="fiat")
-            elif isinstance(transaction, OutTransaction):
-                self._fill_cell(sheet, row_index, 2, transaction.exchange)
-                self._fill_cell(sheet, row_index, 3, transaction.holder)
+                self._fill_cell(sheet, row_index, 2, transaction.exchange + " / " + transaction.holder)
+                self._fill_cell(sheet, row_index, 5, transaction.crypto_in, data_style="crypto")
                 self._fill_cell(sheet, row_index, 6, "", data_style="crypto")
-                self._fill_cell(sheet, row_index, 7, transaction.crypto_balance_change, data_style="crypto")
-                self._fill_cell(sheet, row_index, 8, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
+                self._fill_cell(sheet, row_index, 7, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
+                self._fill_cell(sheet, row_index, 8, transaction.fiat_in_with_fee, data_style="fiat")
                 self._fill_cell(sheet, row_index, 9, "", data_style="fiat")
-                self._fill_cell(sheet, row_index, 10, transaction.fiat_out_with_fee, data_style="fiat")
-                self._fill_cell(sheet, row_index, 11, transaction.fiat_fee, data_style="fiat")
+                self._fill_cell(sheet, row_index, 10, _empty_fee_if_zero(transaction.fiat_fee), data_style="fiat")
+            elif isinstance(transaction, OutTransaction):
+                self._fill_cell(sheet, row_index, 2, transaction.exchange + " / " + transaction.holder)
+                self._fill_cell(sheet, row_index, 5, "", data_style="crypto")
+                self._fill_cell(sheet, row_index, 6, transaction.crypto_balance_change, data_style="crypto")
+                self._fill_cell(sheet, row_index, 7, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
+                self._fill_cell(sheet, row_index, 8, "", data_style="fiat")
+                self._fill_cell(sheet, row_index, 9, transaction.fiat_out_with_fee, data_style="fiat")
+                self._fill_cell(sheet, row_index, 10, _empty_fee_if_zero(transaction.fiat_fee), data_style="fiat")
             elif isinstance(transaction, IntraTransaction):
-                self._fill_cell(sheet, row_index, 2, transaction.from_exchange + " to " + transaction.to_exchange)
-                self._fill_cell(sheet, row_index, 3, transaction.from_holder + " to " + transaction.to_holder)
-                self._fill_cell(sheet, row_index, 6, transaction.crypto_received, data_style="crypto")
-                self._fill_cell(sheet, row_index, 7, transaction.crypto_sent, data_style="crypto")
-                self._fill_cell(sheet, row_index, 8, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
+                self._fill_cell(
+                    sheet,
+                    row_index,
+                    2,
+                    transaction.from_exchange + " / " + transaction.from_holder + " to " + transaction.to_exchange + " / " + transaction.to_holder,
+                )
+                self._fill_cell(sheet, row_index, 5, transaction.crypto_received, data_style="crypto")
+                self._fill_cell(sheet, row_index, 6, transaction.crypto_sent, data_style="crypto")
+                self._fill_cell(sheet, row_index, 7, _empty_fee_if_zero(transaction.crypto_fee), data_style="crypto")
+                self._fill_cell(sheet, row_index, 8, "", data_style="fiat")
                 self._fill_cell(sheet, row_index, 9, "", data_style="fiat")
-                self._fill_cell(sheet, row_index, 10, "", data_style="fiat")
-                self._fill_cell(sheet, row_index, 11, "", data_style="fiat")
+                self._fill_cell(sheet, row_index, 10, _empty_fee_if_zero(transaction.fiat_fee), data_style="fiat")
 
             row_indexes[_TRANSACTIONS_STYLE_3] = row_index + 1
 
