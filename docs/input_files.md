@@ -108,6 +108,7 @@ The config file is in JSON format and is structured as described below. Note tha
 * the `assets` section contains all cryptocurrencies the user transacted with;
 * the `exchanges` section can contain both exchange and wallet identifiers;
 * the `holders` section typically contains only one name, unless multiple people are filing taxes jointly;
+* the `generators` section is optional and can contain the names of the output generator plugins to use at generation time. If the section is not specified the following plugins are ran by default: `rp2.plugin.report.rp2_full_report`, `rp2.plugin.report.us.tax_report_us`, `rp2.plugin.report.us.open_positions`.
 <pre>
 {
     "in_header": {
@@ -156,17 +157,22 @@ The config file is in JSON format and is structured as described below. Note tha
     "assets": [
         <em>&lt;"asset_1_in_quotes"&gt;</em>,
         ...&#x1F537;
-        <em>&lt;"asset_n_in_quotes"&gt;</em>&#x1F537;,
+        <em>&lt;"asset_n_in_quotes"&gt;</em>&#x1F537;
     ],
     "exchanges": [
         <em>&lt;"exchange_or_wallet_1_in_quotes"&gt;</em>,
         ...&#x1F537;
-        <em>&lt;"exchange_or_wallet_n_in_quotes"&gt;</em>&#x1F537;,
+        <em>&lt;"exchange_or_wallet_n_in_quotes"&gt;</em>&#x1F537;
     ],
     "holders": [
         <em>&lt;"holder_1_in_quotes"&gt;</em>,
         ...&#x1F537;
-        <em>&lt;"holder_n_in_quotes"&gt;</em>&#x1F537;,
+        <em>&lt;"holder_n_in_quotes"&gt;</em>&#x1F537;
+    ]
+    "generators": [&#x1F537;
+        <em>&lt;"generator_1_in_quotes"&gt;</em>,
+        ...&#x1F537;
+        <em>&lt;"generator_n_in_quotes"&gt;</em>&#x1F537;
     ]
 }
 </pre>

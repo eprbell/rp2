@@ -238,5 +238,14 @@ CONFIGURATION_SCHEMA = {
             "minItems": 1,
             "uniqueItems": True,
         },
+        "generators": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "minLength": 1,
+            },
+            "minItems": 0,
+            "uniqueItems": True,
+        },
     },
 }
