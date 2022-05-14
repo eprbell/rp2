@@ -48,7 +48,7 @@ def _get_data_style(price: RP2Decimal) -> str:
     return unit_data_style
 
 
-def _empty_fee_if_zero(fee: RP2Decimal) -> str | RP2Decimal:
+def _empty_fee_if_zero(fee: RP2Decimal) -> Any:
     if fee > ZERO:
         return fee
 
