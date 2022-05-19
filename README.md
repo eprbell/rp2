@@ -57,7 +57,8 @@ It reads in a spreadsheet containing crypto transactions. The spreadsheet can be
 
 RP2 has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-report-generator), [accounting methods](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-accounting-method) and [countries](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-support-for-a-new-country). The output generator builtin plugins are US-specific, but RP2's architecture makes it possible to contribute additional generators for different countries or for different US-based cases. The builtin generator plugins are:
 * tax_report_us: generates a tax report meant to be read by tax preparers (in the format of form 8949);
-* rp2_full_report: generates a comprehensive report, with complete transaction history, lot relationships/fractions and computation details.
+* rp2_full_report: generates a comprehensive report, with complete transaction history, lot relationships/fractions and computation details;
+* open_positions: geterates a report on assets with non-zero crypto balance: unrealized gains / losses, portfolio weighting, and more.
 
 RP2 has extensive [unit test](https://github.com/eprbell/rp2/tree/main/tests/) coverage to reduce the risk of regression.
 
