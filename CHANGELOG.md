@@ -14,9 +14,11 @@
 
 # RP2 Change Log
 
-## In Progress
+## 1.0.4
+* fixed issue #39: if ODS file had numeric unique_id it tripped the type checking system
 * added support for generators section in configuration: this allows users to select which generator plugins to run. Also deprecated -l/--plugin CLI options
 * updated documentation with new generators section description
+* added FAQ
 
 ## 1.0.3
 * minor improvements
