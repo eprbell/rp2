@@ -40,7 +40,7 @@ class AbstractTransaction(AbstractEntry):
         self.__transaction_type: TransactionType = TransactionType.type_check_from_string("transaction_type", transaction_type)
         self.__spot_price: RP2Decimal = configuration.type_check_positive_decimal("spot_price", spot_price)
         self.__internal_id: int = configuration.type_check_internal_id("internal_id", internal_id) if internal_id is not None else id(self)
-        self.__unique_id: str = configuration.type_check_string("unique_id", unique_id) if unique_id is not None else ""
+        self.__unique_id: str = configuration.type_check_string_or_integer("unique_id", unique_id) if unique_id is not None else ""
         self.__notes = configuration.type_check_string("notes", notes) if notes else ""
 
     @classmethod

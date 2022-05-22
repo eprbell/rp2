@@ -238,6 +238,13 @@ class Configuration:  # pylint: disable=too-many-public-methods
         return name
 
     @classmethod
+    def type_check_string_or_integer(cls, name: str, value: str) -> str:
+        cls.type_check_parameter_name(name)
+        if not isinstance(value, (str, int, float)):
+            raise RP2TypeError(f"Parameter '{name}' has non-string value {repr(value)}")
+        return str(value)
+
+    @classmethod
     def type_check_string(cls, name: str, value: str) -> str:
         cls.type_check_parameter_name(name)
         if not isinstance(value, str):
