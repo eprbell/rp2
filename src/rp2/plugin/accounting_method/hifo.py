@@ -44,9 +44,8 @@ class AccountingMethod(AbstractSpecificId):
     __taxable_event_iterator: Iterator[AbstractTransaction]
     __acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal]
     __acquired_lot_avl: AVLTree[str, AcquiredLotAndIndex]
-    __spot_price_list : List[RP2Decimal]
+    __spot_price_list: List[RP2Decimal]
     __acquired_lot_list: List[InTransaction]
-
 
     # Disambiguation is needed for transactions that have the same spot_price, because the avl tree class expects unique keys: 12 decimal digits express
     # 1 quadrillion, which should be enough to capture the maximum number of same-spot_price transactions in all reasonable cases.
@@ -66,9 +65,9 @@ class AccountingMethod(AbstractSpecificId):
         index: int = 0
         try:
             while True:
-                acquired_lot : InTransaction = next(acquired_lot_iterator)
+                acquired_lot: InTransaction = next(acquired_lot_iterator)
                 self.__acquired_lot_avl.insert_node(
-                    f"{self._get_avl_node_key((acquired_lot.spot_price),acquired_lot.internal_id)}",AcquiredLotAndIndex(acquired_lot,index)
+                    f"{self._get_avl_node_key((acquired_lot.spot_price),acquired_lot.internal_id)}", AcquiredLotAndIndex(acquired_lot, index)
                 )
                 self.__spot_price_list.append(acquired_lot.spot_price)
                 self.__acquired_lot_list.append(acquired_lot)
@@ -78,7 +77,7 @@ class AccountingMethod(AbstractSpecificId):
             # End of acquired_lots
             pass
         self.__spot_price_list.sort()
- 
+
     # AVL tree node keys have this format: <spot_price>_<internal_id>. The internal_id part is needed to disambiguate transactions
     # that have the same spot_price. Internal_id is padded right in a string of fixed length (KEY_DISAMBIGUATOR_LENGTH).
     def _get_avl_node_key(self, spot_price: RP2Decimal, internal_id: str) -> str:
@@ -127,7 +126,7 @@ class AccountingMethod(AbstractSpecificId):
         # This while loop makes the algorithm's complexity O(n^2), where n is the number of acquired lots. Non-trivial
         # optimizations are possible using different data structures (and likely with some space/time tradeoff)
         new_taxable_event_amount: RP2Decimal = taxable_event_amount - acquired_lot_amount
-        index = len(self.__spot_price_list)-1
+        index = len(self.__spot_price_list) - 1
         while index >= 0:
 
             acquired_lot_list: List[InTransaction] = self.__acquired_lot_list
@@ -150,7 +149,7 @@ class AccountingMethod(AbstractSpecificId):
             index -= 1
         raise AcquiredLotsExhaustedException()
 
-    def seek_acquired_lot(self,acquired_lot_iterator: Iterator[InTransaction]) -> Optional[AcquiredLotAndAmount]:
+    def seek_acquired_lot(self, acquired_lot_iterator: Iterator[InTransaction]) -> Optional[AcquiredLotAndAmount]:
         # This while loop make the algorithm's complexity O(nm), where n is the number of taxable events and m is
         # the number of acquired lots): for every taxable event, loop over the acquired lot list. There are non-trivial ways
         # of making this faster (by changing the data structures).
