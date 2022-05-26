@@ -41,9 +41,10 @@ class InTransaction(AbstractTransaction):
         transaction_type: str,
         spot_price: RP2Decimal,
         crypto_in: RP2Decimal,
-        fiat_fee: RP2Decimal,
+        crypto_fee: Optional[RP2Decimal] = None,
         fiat_in_no_fee: Optional[RP2Decimal] = None,
         fiat_in_with_fee: Optional[RP2Decimal] = None,
+        fiat_fee: Optional[RP2Decimal] = None,
         internal_id: Optional[int] = None,
         unique_id: Optional[str] = None,
         notes: Optional[str] = None,
@@ -53,7 +54,20 @@ class InTransaction(AbstractTransaction):
         self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
         self.__holder: str = configuration.type_check_holder("holder", holder)
         self.__crypto_in: RP2Decimal = configuration.type_check_positive_decimal("crypto_in", crypto_in, non_zero=True)
-        self.__fiat_fee: RP2Decimal = configuration.type_check_positive_decimal("fiat_fee", fiat_fee)
+        self.__crypto_fee: RP2Decimal = configuration.type_check_positive_decimal("crypto_fee", crypto_fee) if crypto_fee else ZERO
+        self.__fiat_fee: RP2Decimal = configuration.type_check_positive_decimal("fiat_fee", fiat_fee) if fiat_fee else ZERO
+
+        if spot_price == ZERO:
+            raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.internal_id}): parameter 'spot_price' cannot be 0")
+
+        # If fee is paid in crypto then convert it to fiat (it's needed for tax computation), if fee is paid in fiat, then crypto_fee = 0
+        # (because no crypto is involved)
+        if crypto_fee is not None and fiat_fee is None:
+            self.__fiat_fee = self.__crypto_fee * self.spot_price
+        elif crypto_fee is not None and fiat_fee is not None:
+            raise RP2ValueError(
+                f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.internal_id}): both 'crypto_fee' and 'fiat_fee' are defined: only one allowed"
+            )
 
         # Fiat in with/without fee are optional. They can be derived from crypto in, spot price and fiat fee, however some exchanges
         # provide them anyway. If they are provided use them as given by the exchange, if not compute them.
@@ -68,8 +82,6 @@ class InTransaction(AbstractTransaction):
         else:
             self.__fiat_in_with_fee = configuration.type_check_positive_decimal("fiat_in_with_fee", fiat_in_with_fee, non_zero=True)
 
-        if spot_price == ZERO:
-            raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.internal_id}): parameter 'spot_price' cannot be 0")
         if (
             self.transaction_type != TransactionType.BUY
             and self.transaction_type != TransactionType.GIFT
@@ -143,6 +155,10 @@ class InTransaction(AbstractTransaction):
         return self.__crypto_in
 
     @property
+    def crypto_fee(self) -> RP2Decimal:
+        return self.__crypto_fee
+
+    @property
     def fiat_in_no_fee(self) -> RP2Decimal:
         return self.__fiat_in_no_fee
 
@@ -182,6 +198,11 @@ class InTransaction(AbstractTransaction):
     @property
     def fiat_balance_change(self) -> RP2Decimal:
         return self.fiat_in_with_fee
+
+    # Returns True if crypto fee was passed in to the constructor, False if fiat_fee was passed
+    @property
+    def is_crypto_fee_defined(self) -> bool:
+        return self.crypto_fee > ZERO
 
     def is_taxable(self) -> bool:
         return self.transaction_type.is_earn_type()

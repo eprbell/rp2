@@ -14,13 +14,61 @@
 
 # RP2 Change Log
 
-## In Progress
-* added documentation of transparent computation (including one new FAQ on how to verify RP2 tax computation results)
+## 1.0.4
+* fixed issue #39: if ODS file had numeric unique_id it tripped the type checking system
+* added support for generators section in configuration: this allows users to select which generator plugins to run. Also deprecated -l/--plugin CLI options
+* updated documentation with new generators section description
+* added FAQ
+
+## 1.0.3
+* minor improvements
+
+## 1.0.2
+* new open positions plugin, showing a variety of information on unrealized gains and losses (https://github.com/eprbell/rp2/pull/35)
+* minor improvements to documentation
+
+## 1.0.0
+* Tax season is over: time for RP2 to hit v1.0.0! RP2 (and DaLI) gained a lot of users and traction in less than one year of existence (https://star-history.com/#eprbell/rp2&Date). During this time lots of bugs were fixed and features added. Thanks to everybody who engaged with PRs, issues, discussions and DMs.
+
+## 0.9.31
+* fixed a bug in rp2_full_report generator reported in #31: in out-transactions if crypto_fee == 0 and fiat_fee > 0, the fiat fee was reported as zero (but this affected only the output, not the tax calculation which was correct)
+* added some user FAQs
+
+## 0.9.30
+* minor improvements to documentation
+
+## 0.9.29
+* various improvements to documentation
+
+## 0.9.28
+* RP2 logo worked on Github, but not on Pypi: fixed
+
+## 0.9.27
+* added RP2 logo to readme.md
+* improved an error message when disposed-of crypto is greater than acquired crypto
+
+## 0.9.26
+* removed requirements.txt: now using dev section in setup.cfg, which avoids duplication of information
+* added FAQ on Excel being unable to open some RP2-generated ODS files
+
+## v0.9.25
+* added initial version of developer FAQ document: https://github.com/eprbell/rp2/blob/main/docs/developer_faq.md
+* minor refactoring edits
+
+## v0.9.24
+* added crypto_fee to InTransactions (by popular demand): previously in-transaction fee would only accept fees in fiat, but in certain situations fee is paid in crypto (e.g. crypto conversion, etc.). With this fix, either crypto_fee or fiat fee can be assigned (not both). If fiat_fee is assigned, crypto_fee is set to 0. If crypto_fee is assigned, fiat_fee is set to crypto_fee * spot_price. The reason for this behavior is that if the fee is paid in fiat, then no crypto is used for the fee, but if the fee is paid in crypto, then its converted fiat value is needed to compute taxes. Note that RP2 models a non-zero crypto_fee with a separate fee-typed out-transaction.
+* added new unit test for the new InTransaction crypto_fee (input/test_data4.ods)
+* updated documentation to reflect new features from this release
+* added a new FAQ on crypto rewards and reworded various answers.
+
+## v0.9.23
+* added fee-only transactions: this type of transactions occur in certain DeFi scenarios (see [relevant FAQ](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#hhow-to-handle-fee-only-defi-transactions) for more)
+* added documentation of transparent computation, including one new FAQ on how to verify RP2 tax computation results: https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-verify-that-tax-computation-is-correct
 * minor edits to documentation
 
 ## v0.9.19
 * added new FAQs
-* added pointers in documentation to DaLI, the data loader and input generator for RP2: https://pypi.org/project/dali-rp2
+* added pointers in documentation to DaLI, the data loader and input generator for RP2: https://github.com/eprbell/dali-rp2
 
 ## v0.9.18
 * improved error message when ods_parser._process_constructor_argument_pack tries to parse a numeric argument and fails because the value is not numeric

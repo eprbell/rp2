@@ -14,6 +14,7 @@
 
 import logging
 from datetime import date
+import os
 from pathlib import Path
 from typing import Any, Dict, List, NamedTuple, Optional, Set, cast
 
@@ -31,7 +32,7 @@ from rp2.intra_transaction import IntraTransaction
 from rp2.logger import create_logger
 from rp2.out_transaction import OutTransaction
 from rp2.plugin.report.abstract_ods_generator import AbstractODSGenerator
-from rp2.rp2_decimal import RP2Decimal
+from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError
 from rp2.transaction_set import TransactionSet
 
@@ -299,6 +300,8 @@ class Generator(AbstractODSGenerator):
 
         self._setup_header_rows(country)
 
+        template_path: str = str(Path(os.path.dirname(__file__)).absolute() / Path("".join(["data/template_", country.country_iso_code, ".ods"])))
+
         output_file: Any
         output_file = self._initialize_output_file(
             country=country,
@@ -306,6 +309,7 @@ class Generator(AbstractODSGenerator):
             output_dir_path=output_dir_path,
             output_file_prefix=output_file_prefix,
             output_file_name=self.OUTPUT_FILE,
+            template_path=template_path,
             template_sheets_to_keep=self.TEMPLATE_SHEETS_TO_KEEP,
             from_date=from_date,
             to_date=to_date,
@@ -476,8 +480,22 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 8, transaction.crypto_fee, visual_style=visual_style, data_style="crypto")
             self._fill_cell(sheet, row_index, 9, computed_data.get_crypto_out_running_sum(transaction), data_style="crypto", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 10, computed_data.get_crypto_out_fee_running_sum(transaction), data_style="crypto", visual_style=visual_style)
-            self._fill_cell(sheet, row_index, 11, transaction.crypto_out_no_fee * transaction.spot_price, visual_style=highlighted_style, data_style="fiat")
-            self._fill_cell(sheet, row_index, 12, transaction.crypto_fee * transaction.spot_price, visual_style=visual_style, data_style="fiat")
+            self._fill_cell(
+                sheet,
+                row_index,
+                11,
+                transaction.crypto_out_no_fee * transaction.spot_price,
+                visual_style=highlighted_style if transaction.crypto_out_no_fee * transaction.spot_price > ZERO else visual_style,
+                data_style="fiat",
+            )
+            self._fill_cell(
+                sheet,
+                row_index,
+                12,
+                transaction.fiat_fee,
+                visual_style=highlighted_style if transaction.fiat_fee > ZERO else visual_style,
+                data_style="fiat",
+            )
             self._fill_cell(sheet, row_index, 13, "YES" if transaction.is_taxable() else "NO", data_style="fiat", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 14, transaction.unique_id, visual_style="transparent")
             self._fill_cell(sheet, row_index, 15, transaction.notes, visual_style="transparent")
@@ -825,11 +843,3 @@ class Generator(AbstractODSGenerator):
             row_index += 1
 
         return row_index
-
-
-def main() -> None:
-    pass
-
-
-if __name__ == "__main__":
-    main()

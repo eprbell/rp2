@@ -15,7 +15,7 @@
 import cProfile
 import os
 import sys
-from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
+from argparse import SUPPRESS, ArgumentParser, Namespace, RawTextHelpFormatter
 from datetime import date
 from importlib import import_module
 from pathlib import Path
@@ -27,11 +27,13 @@ from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.abstract_country import AbstractCountry
 from rp2.abstract_report_generator import AbstractReportGenerator
 from rp2.computed_data import ComputedData
-from rp2.configuration import MAX_DATE, MIN_DATE, VERSION, Configuration
+from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.input_data import InputData
 from rp2.logger import LOG_FILE, LOGGER
 from rp2.ods_parser import open_ods, parse_ods
 from rp2.tax_engine import compute_tax
+
+_VERSION: str = "1.0.4"
 
 _ACCOUNTING_METHOD_PACKAGE = "rp2.plugin.accounting_method"
 _REPORT_GENERATOR_PACKAGE = "rp2.plugin.report"
@@ -63,7 +65,7 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
 
         accounting_method_module: ModuleType = import_module(f"{_ACCOUNTING_METHOD_PACKAGE}.{args.method}", package=_ACCOUNTING_METHOD_PACKAGE)
         if not hasattr(accounting_method_module, "AccountingMethod"):
-            LOGGER.error("Accounting method plugin %s doesn't have an AccountingMethod class")
+            LOGGER.error("Accounting method plugin %s doesn't have an AccountingMethod class", args.method)
             sys.exit(1)
         accounting_method: AbstractAccountingMethod = accounting_method_module.AccountingMethod()
         LOGGER.info("Accounting Method: %s", args.method)
@@ -73,6 +75,10 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
         )
         LOGGER.info("Configuration file: %s", args.configuration_file)
         LOGGER.debug("Configuration object: %s", configuration)
+
+        if args.plugin:
+            LOGGER.error("Command line option '-l' or '--plugin' has been deprecated: use the 'generators' section in the configuration file instead.")
+            sys.exit(1)
 
         if args.asset:
             assets = [args.asset]
@@ -96,19 +102,10 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
 
             asset_to_computed_data[asset] = computed_data
 
-        # Run non-country-specific report generators
+        # Run report generators (both country-specific and non-country-specific)
         _find_and_run_report_generators(
-            package_path=_REPORT_GENERATOR_PACKAGE,
-            args=args,
-            country=country,
-            accounting_method=accounting_method,
-            asset_to_computed_data=asset_to_computed_data,
-            from_date=configuration.from_date,
-            to_date=configuration.to_date,
-        )
-        # Run country-specific report generators
-        _find_and_run_report_generators(
-            package_path=f"{_REPORT_GENERATOR_PACKAGE}.{country.country_iso_code}",
+            configuration=configuration,
+            package_paths=[_REPORT_GENERATOR_PACKAGE, f"{_REPORT_GENERATOR_PACKAGE}.{country.country_iso_code}"],
             args=args,
             country=country,
             accounting_method=accounting_method,
@@ -125,7 +122,8 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
 
 
 def _find_and_run_report_generators(
-    package_path: str,
+    configuration: Configuration,
+    package_paths: List[str],
     args: Namespace,
     country: AbstractCountry,
     accounting_method: AbstractAccountingMethod,
@@ -133,40 +131,38 @@ def _find_and_run_report_generators(
     from_date: date,
     to_date: date,
 ) -> None:
-    # Load report generator plugins and call their generate() method
-    package: ModuleType = import_module(package_path)
-    plugin_name: str
-    is_package: bool
-    package_found: bool = False
-    for *_, plugin_name, is_package in iter_modules(package.__path__, package.__name__ + "."):
-        if is_package:
-            continue
-        if args.plugin and plugin_name != f"{_REPORT_GENERATOR_PACKAGE}.{args.plugin}":
-            continue
-        output_module: ModuleType = import_module(plugin_name, package=_REPORT_GENERATOR_PACKAGE)
-        if hasattr(output_module, "Generator"):
-            generator: AbstractReportGenerator = output_module.Generator()
-            LOGGER.debug("Generator object: '%s'", generator)
-            LOGGER.info("Generating output for plugin '%s'", plugin_name)
-            if not hasattr(generator, "generate"):
-                LOGGER.error("Plugin '%s' has no 'generate' method. Exiting...", plugin_name)
-                sys.exit(1)
-            generator.generate(
-                country=country,
-                accounting_method=repr(accounting_method),
-                asset_to_computed_data=asset_to_computed_data,
-                output_dir_path=args.output_dir,
-                output_file_prefix=args.prefix,
-                from_date=from_date,
-                to_date=to_date,
-            )
-        package_found = True
+    generators = configuration.generators.copy()
+    for package_path in package_paths:
+        # Load report generator plugins and call their generate() method
+        package: ModuleType = import_module(package_path)
+        plugin_name: str
+        is_package: bool
+        for *_, plugin_name, is_package in iter_modules(package.__path__, package.__name__ + "."):
+            if is_package:
+                continue
+            if plugin_name not in generators:
+                continue
+            generators.remove(plugin_name)
+            output_module: ModuleType = import_module(plugin_name, package=_REPORT_GENERATOR_PACKAGE)
+            if hasattr(output_module, "Generator"):
+                generator: AbstractReportGenerator = output_module.Generator()
+                LOGGER.debug("Generator object: '%s'", generator)
+                LOGGER.info("Generating output for plugin '%s'", plugin_name)
+                if not hasattr(generator, "generate"):
+                    LOGGER.error("Plugin '%s' has no 'generate' method. Exiting...", plugin_name)
+                    sys.exit(1)
+                generator.generate(
+                    country=country,
+                    accounting_method=repr(accounting_method),
+                    asset_to_computed_data=asset_to_computed_data,
+                    output_dir_path=args.output_dir,
+                    output_file_prefix=args.prefix,
+                    from_date=from_date,
+                    to_date=to_date,
+                )
 
-    if not package_found:
-        if args.plugin:
-            LOGGER.error("Report Generator plugin '%s' not found. Exiting...", args.plugin)
-        else:
-            LOGGER.error("No report generator plugin found. Exiting...")
+    if generators:
+        LOGGER.error("Report generator plugins %s not found. Exiting...", ", ".join(generators))
         sys.exit(1)
 
 
@@ -220,7 +216,7 @@ def _setup_argument_parser(accounting_methods: List[str]) -> ArgumentParser:
         "-l",
         "--plugin",
         action="store",
-        help="Generate report only using the given PLUGIN",
+        help=SUPPRESS,
         metavar="PLUGIN",
         type=str,
     )
@@ -264,7 +260,7 @@ def _setup_argument_parser(accounting_methods: List[str]) -> ArgumentParser:
         "-v",
         "--version",
         action="version",
-        version=f"RP2 {VERSION} (https://pypi.org/project/rp2/)",
+        version=f"RP2 {_VERSION} (https://github.com/eprbell/rp2)",
         help="Print RP2 version",
     )
     parser.add_argument(

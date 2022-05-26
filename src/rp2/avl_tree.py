@@ -17,8 +17,8 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Generic, Optional, TypeVar
 
-KeyType = TypeVar("KeyType", int, datetime, Decimal, float, str)
-ValueType = TypeVar("ValueType")
+KeyType = TypeVar("KeyType", int, datetime, Decimal, float, str)  # pylint: disable=invalid-name
+ValueType = TypeVar("ValueType")  # pylint: disable=invalid-name
 
 
 class AVLNode(Generic[KeyType, ValueType]):

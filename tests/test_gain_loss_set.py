@@ -94,7 +94,7 @@ class TestGainLossSet(unittest.TestCase):
             "BUY",
             RP2Decimal("11000"),
             RP2Decimal("1"),
-            RP2Decimal("100.00"),
+            fiat_fee=RP2Decimal("100.00"),
             internal_id=4,
         )
         cls._in2[asset] = InTransaction(
@@ -106,7 +106,7 @@ class TestGainLossSet(unittest.TestCase):
             "INTEREST",
             RP2Decimal("12000.0"),
             RP2Decimal("2.0"),
-            RP2Decimal("0"),
+            fiat_fee=RP2Decimal("0"),
             internal_id=3,
         )
         cls._in6[asset] = InTransaction(
@@ -118,7 +118,7 @@ class TestGainLossSet(unittest.TestCase):
             "INTEREST",
             RP2Decimal("13000.0"),
             RP2Decimal("3"),
-            RP2Decimal("0"),
+            fiat_fee=RP2Decimal("0"),
             internal_id=7,
         )
         cls._in5[asset] = InTransaction(
@@ -130,7 +130,7 @@ class TestGainLossSet(unittest.TestCase):
             "BUY",
             RP2Decimal("14000.0"),
             RP2Decimal("4.0"),
-            RP2Decimal("400"),
+            fiat_fee=RP2Decimal("400"),
             internal_id=6,
         )
         cls._in4[asset] = InTransaction(
@@ -142,7 +142,7 @@ class TestGainLossSet(unittest.TestCase):
             "BUY",
             RP2Decimal("15000.0"),
             RP2Decimal("5.0"),
-            RP2Decimal("500"),
+            fiat_fee=RP2Decimal("500"),
             internal_id=5,
         )
         cls._out15[asset] = OutTransaction(
@@ -390,7 +390,7 @@ class TestGainLossSet(unittest.TestCase):
                 "INTEREST",
                 RP2Decimal("12000.0"),
                 RP2Decimal("2.0"),
-                RP2Decimal("0"),
+                fiat_fee=RP2Decimal("0"),
                 internal_id=3,
             )
             gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("0.2"), out15, in_transaction_test))

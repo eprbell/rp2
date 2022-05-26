@@ -46,7 +46,7 @@ CONFIGURATION_SCHEMA = {
                     "type": "integer",
                     "minimum": 0,
                 },
-                "fiat_fee": {
+                "crypto_fee": {
                     "type": "integer",
                     "minimum": 0,
                 },
@@ -55,6 +55,10 @@ CONFIGURATION_SCHEMA = {
                     "minimum": 0,
                 },
                 "fiat_in_with_fee": {
+                    "type": "integer",
+                    "minimum": 0,
+                },
+                "fiat_fee": {
                     "type": "integer",
                     "minimum": 0,
                 },
@@ -75,7 +79,6 @@ CONFIGURATION_SCHEMA = {
                 "transaction_type",
                 "spot_price",
                 "crypto_in",
-                "fiat_fee",
             ],
             "additionalProperties": False,
         },
@@ -233,6 +236,15 @@ CONFIGURATION_SCHEMA = {
                 "minLength": 1,
             },
             "minItems": 1,
+            "uniqueItems": True,
+        },
+        "generators": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "minLength": 1,
+            },
+            "minItems": 0,
             "uniqueItems": True,
         },
     },

@@ -12,7 +12,7 @@
 <!--- See the License for the specific language governing permissions and --->
 <!--- limitations under the License. --->
 
-# RP2 v0.9.22 Developer Guide
+# RP2 v1.0.4 Developer Guide
 [![Static Analysis / Main Branch](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml)
 [![Documentation Check / Main Branch](https://github.com/eprbell/rp2/actions/workflows/documentation_check.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/documentation_check.yml)
 [![Unix Unit Tests / Main Branch](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml)
@@ -49,7 +49,7 @@ RP2 is released under the terms of Apache License Version 2.0. For more informat
 The latest RP2 source can be downloaded at: <https://github.com/eprbell/rp2>
 
 ## Setup
-RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.7.0 or greater. Virtualenv is recommended for RP2 development. Note that requirements.txt contains `-e .`, which installs the RP2 package in editable mode.
+RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.7.0 or greater. Virtualenv is recommended for RP2 development.
 
 ### Setup on Ubuntu Linux
 First make sure Python, pip and virtualenv are installed. If not, open a terminal window and enter the following commands:
@@ -63,7 +63,7 @@ Then install RP2 Python package requirements:
 cd <rp2_directory>
 virtualenv -p python3 .venv
 . .venv/bin/activate
-.venv/bin/pip3 install -r requirements.txt
+.venv/bin/pip3 install -e '.[dev]'
 ```
 ### Setup on macOS
 First make sure [Homebrew](https://brew.sh) is installed, then open a terminal window and enter the following commands:
@@ -77,7 +77,7 @@ Then install RP2 Python package requirements:
 cd <rp2_directory>
 virtualenv -p python3 .venv
 . .venv/bin/activate
-.venv/bin/pip3 install -r requirements.txt
+.venv/bin/pip3 install -e '.[dev]'
 ```
 ### Setup on Windows 10
 First make sure [Python](https://python.org) 3.7 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following commands:
@@ -90,7 +90,7 @@ Then install RP2 Python package requirements:
 cd <rp2_directory>
 virtualenv -p python .venv
 .venv\Scripts\activate.ps1
-python -m pip install -r requirements.txt
+python -m pip install -e ".[dev]"
 ```
 ### Setup on Other Unix-like Systems
 * install python 3.7 or greater
@@ -98,7 +98,7 @@ python -m pip install -r requirements.txt
 * install virtualenv
 * cd _<rp2_directory>_
 * `virtualenv -p python3 .venv`
-* `.venv/bin/pip3 install -r requirements.txt`
+* `.venv/bin/pip3 install -e '.[dev]'`
 
 ## Source Code
 The RP2 source tree is organized as follows:
@@ -122,7 +122,6 @@ The RP2 source tree is organized as follows:
 * `pyproject.toml`: packaging configuration;
 * `README.dev.md`: developer documentation;
 * `README.md`: user documentation;
-* `requirements.txt`: Python dependency file for development;
 * `setup.cfg`: static packaging configuration file;
 * `setup.py`: dynamic packaging configuration file;
 * `src/rp2`: RP2 code, including classes for transactions, gains, tax engine, balances, logger, ODS parser, etc.;
@@ -131,7 +130,7 @@ The RP2 source tree is organized as follows:
 * `src/rp2/plugin/report/`: report generator plugins;
 * `src/rp2/plugin/report/data/`: spreadsheet templates that are used by the builtin report plugins;
 * `src/rp2/plugin/report/<country>`: country-specific report generator plugins;
-* `src/stubs/`: RP2 relies on the pyexcel-ezodf library, which doesn't have typing information, so it is added here;
+* `src/stubs/`: RP2 relies on third-party libraries, some of which don't have typing information, so it is added here;
 * `tests/`: unit tests.
 
 ## Development
@@ -139,16 +138,20 @@ Read the [Contributing](CONTRIBUTING.md) document on pull requests guidelines.
 
 ### Design Guidelines
 RP2 code adheres to these principles:
-* immutability: generally data structures are read-only (the only exceptions are for data structures that would incur a major complexity increase without write permission: e.g. AVL tree node).
-  * class fields are private (prepended with double-underscore). Fields that need public access have a read-only property. Write-properties are not used;
-  * @dataclass classes have `frozen=True`
+* all identifiers have [descriptive names](https://realpython.com/python-pep8/#how-to-choose-names);
+* immutability:
+  * global variables have upper case names, are initialized where declared and are never modified afterwards;
+  * generally data structures are read-only (the only exceptions are for data structures that would incur a major complexity increase without write permission: e.g. AVL tree node):
+    * class fields are private (prepended with double-underscore). Fields that need public access have a read-only property. Write-properties are not used;
+    * @dataclass classes have `frozen=True`;
 * runtime checks: parameters of public functions are type-checked at runtime:
   * `Configuration.type_check_*()` for primitive types;
   * `<class>.type_check()` for classes;
-* type hints: all variables and functions have Python type hints;
+* type hints: all variables and functions have Python type hints (with the exception of local variables, for which type hints are optional);
 * no id-based hashing: classes that are added to dictionaries and sets redefine `__eq__()`, `__neq__()` and `__hash__()`;
 * encapsulated math: all high-precision math is done via `RP2Decimal` (a subclass of Decimal), to ensure the correct precision is used throughout the code. `RP2Decimal` instances are never mixed with other types in expressions;
 * f-strings only: every time string interpolation is needed, f-strings are used;
+* no raw strings (unless they occur only once): use global constants instead;
 * logging: logging is done via the `logger` module;
 * no unnamed tuples: dataclasses or named tuples are used instead;
 * one class per file (with exceptions for trivial classes);

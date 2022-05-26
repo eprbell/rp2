@@ -36,7 +36,7 @@ repos:
     -   id: isort
         args: [--line-length 160]
 -   repo: https://github.com/psf/black
-    rev: 21.8b0
+    rev: 22.3.0
     hooks:
     -   id: black
 -   repo: https://github.com/asottile/pyupgrade

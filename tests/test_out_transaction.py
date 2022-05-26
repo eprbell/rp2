@@ -243,20 +243,6 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("0"),
                 internal_id=38,
             )
-        with self.assertRaisesRegex(RP2ValueError, "Parameter 'internal_id' has non-positive value .*"):
-            # Bad internal_id
-            OutTransaction(
-                self._configuration,
-                "6/1/2020 3:59:59 -04:00",
-                "B1",
-                "Coinbase Pro",
-                "Bob",
-                "GIFT",
-                RP2Decimal("900.9"),
-                RP2Decimal("2.2"),
-                RP2Decimal("0"),
-                internal_id=-38,
-            )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'internal_id' has non-integer value .*"):
             # Bad internal_id
             OutTransaction(
@@ -534,6 +520,20 @@ class TestOutTransaction(unittest.TestCase):
                 "SELL",
                 RP2Decimal("900.9"),
                 None,  # type: ignore
+                RP2Decimal("0"),
+                internal_id=38,
+            )
+        with self.assertRaisesRegex(RP2ValueError, "fee-typed transaction has non-zero 'crypto_out_no_fee'"):
+            # Bad crypto out no fee
+            OutTransaction(
+                self._configuration,
+                "6/1/2020 3:59:59 -04:00",
+                "B1",
+                "Coinbase Pro",
+                "Bob",
+                "FEE",
+                RP2Decimal("900.9"),
+                RP2Decimal("10"),
                 RP2Decimal("0"),
                 internal_id=38,
             )

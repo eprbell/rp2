@@ -25,10 +25,14 @@ from rp2.configuration_schema import CONFIGURATION_SCHEMA
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
-VERSION: str = "0.9.22"
-
 MIN_DATE: date = date(1970, 1, 1)
 MAX_DATE: date = date(9999, 12, 31)
+
+DEFAULT_GENERATORS: Set[str] = set([
+    "rp2.plugin.report.rp2_full_report",
+    "rp2.plugin.report.us.tax_report_us",
+    "rp2.plugin.report.us.open_positions",
+])
 
 # Parametrized and extensible method to generate string representation
 def to_string(indent: int = 0, repr_format: bool = True, data: Optional[List[str]] = None) -> str:
@@ -90,6 +94,7 @@ class Configuration:  # pylint: disable=too-many-public-methods
         self.__assets: Set[str]
         self.__exchanges: Set[str]
         self.__holders: Set[str]
+        self.__generators: Set[str]
 
         if not Path(configuration_path).exists():
             raise RP2ValueError(f"Error: {configuration_path} does not exist")
@@ -106,6 +111,9 @@ class Configuration:  # pylint: disable=too-many-public-methods
             self.__assets = set(json_configuration["assets"])
             self.__exchanges = set(json_configuration["exchanges"])
             self.__holders = set(json_configuration["holders"])
+            self.__generators = DEFAULT_GENERATORS
+            if "generators" in json_configuration:
+                self.__generators = set(json_configuration["generators"])
 
         # Used by __repr__()
         self.__sorted_assets: List[str] = sorted(self.__assets)
@@ -145,6 +153,10 @@ class Configuration:  # pylint: disable=too-many-public-methods
     @property
     def assets(self) -> Set[str]:
         return self.__assets
+
+    @property
+    def generators(self) -> Set[str]:
+        return self.__generators
 
     def __get_table_constructor_argument_pack(self, data: List[Any], table_type: str, header: Dict[str, int]) -> Dict[str, Any]:
         if not isinstance(data, List):
@@ -188,7 +200,7 @@ class Configuration:  # pylint: disable=too-many-public-methods
 
     @classmethod
     def type_check_internal_id(cls, name: str, value: int) -> int:
-        return cls.type_check_positive_int(name, value)
+        return cls.type_check_int(name, value)
 
     @classmethod
     def type_check_timestamp_from_string(cls, name: str, value: str) -> datetime:
@@ -224,6 +236,13 @@ class Configuration:  # pylint: disable=too-many-public-methods
         if not isinstance(name, str):
             raise RP2TypeError(f"Parameter name is not a string: {name}")
         return name
+
+    @classmethod
+    def type_check_string_or_integer(cls, name: str, value: str) -> str:
+        cls.type_check_parameter_name(name)
+        if not isinstance(value, (str, int, float)):
+            raise RP2TypeError(f"Parameter '{name}' has non-string value {repr(value)}")
+        return str(value)
 
     @classmethod
     def type_check_string(cls, name: str, value: str) -> str:

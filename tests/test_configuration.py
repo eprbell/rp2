@@ -311,8 +311,6 @@ class TestConfiguration(unittest.TestCase):
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter name is not a string: .*"):
             self._configuration.type_check_internal_id(None, 10)  # type: ignore
-        with self.assertRaisesRegex(RP2ValueError, "Parameter 'internal_id' has non-positive value .*"):
-            self._configuration.type_check_internal_id("internal_id", -23)
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'internal_id' has non-integer value .*"):
             self._configuration.type_check_internal_id("internal_id", 7.7)  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'internal_id' has non-integer value .*"):
