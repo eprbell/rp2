@@ -1,4 +1,4 @@
-# Copyright 2021 eprbell
+# Copyright 2022 ninideol
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,13 +43,13 @@ class AccountingMethod(AbstractSpecificId):
 
     __taxable_event_iterator: Iterator[AbstractTransaction]
     __acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal]
-    __amount_acquired_lot_avl: AVLTree[str, AcquiredLotAndIndex]
-    __amount_list : List[RP2Decimal]
-    __amount_acquired_lot_list: List[InTransaction]
+    __acquired_lot_avl: AVLTree[str, AcquiredLotAndIndex]
+    __spot_price_list : List[RP2Decimal]
+    __acquired_lot_list: List[InTransaction]
 
 
-    # Disambiguation is needed for transactions that have the same price, because the avl tree class expects unique keys: 12 decimal digits express
-    # 1 quadrillion, which should be enough to capture the maximum number of same-price transactions in all reasonable cases.
+    # Disambiguation is needed for transactions that have the same spot_price, because the avl tree class expects unique keys: 12 decimal digits express
+    # 1 quadrillion, which should be enough to capture the maximum number of same-spot_price transactions in all reasonable cases.
     KEY_DISAMBIGUATOR_LENGTH: int = 12
     MAX_KEY_DISAMBIGUATOR = "9" * KEY_DISAMBIGUATOR_LENGTH
 
@@ -58,26 +58,26 @@ class AccountingMethod(AbstractSpecificId):
         self.__taxable_event_iterator = taxable_event_iterator
         self.__acquired_lot_2_partial_amount = {}
 
-        self.__amount_acquired_lot_avl = AVLTree()
-        self.__amount_list = []
-        self.__amount_acquired_lot_list = []
+        self.__acquired_lot_avl = AVLTree()
+        self.__spot_price_list = []
+        self.__acquired_lot_list = []
 
-        # Initialize data structures to hold acquired_lots in order by highest price (dictionary of acquired_lot lists, indexed by price)
+        # Initialize data structures to hold acquired_lots in order by highest spot_price (dictionary of acquired_lot lists, indexed by spot_price)
         index: int = 0
         try:
             while True:
                 acquired_lot : InTransaction = next(acquired_lot_iterator)
-                self.__amount_acquired_lot_avl.insert_node(
+                self.__acquired_lot_avl.insert_node(
                     f"{self._get_avl_node_key((acquired_lot.spot_price),acquired_lot.internal_id)}",AcquiredLotAndIndex(acquired_lot,index)
                 )
-                self.__amount_list.append(acquired_lot.spot_price)
-                self.__amount_acquired_lot_list.append(acquired_lot)
+                self.__spot_price_list.append(acquired_lot.spot_price)
+                self.__acquired_lot_list.append(acquired_lot)
                 index += 1
 
         except StopIteration:
             # End of acquired_lots
             pass
-        self.__amount_list.sort()
+        self.__spot_price_list.sort()
 
         
     # AVL tree node keys have this format: <spot_price>_<internal_id>. The internal_id part is needed to disambiguate transactions
@@ -125,15 +125,16 @@ class AccountingMethod(AbstractSpecificId):
     def get_acquired_lot_for_taxable_event(
         self, taxable_event: AbstractTransaction, acquired_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, acquired_lot_amount: RP2Decimal
     ) -> TaxableEventAndAcquiredLot:
+        # This while loop makes the algorithm's complexity O(n^2), where n is the number of acquired lots. Non-trivial
+        # optimizations are possible using different data structures (and likely with some space/time tradeoff) 
         new_taxable_event_amount: RP2Decimal = taxable_event_amount - acquired_lot_amount
-        index_list = len(self.__amount_list)-1
-        while index_list >= 0:
+        index = len(self.__spot_price_list)-1
+        while index >= 0:
 
-            acquired_lot_list: List[InTransaction] = self.__amount_acquired_lot_list
-            first_lot: Optional[AcquiredLotAndIndex] = self.__amount_acquired_lot_avl.find_max_value_less_than(
-                f"{self._get_avl_node_key_with_max_disambiguator(self.__amount_list[index_list])}"
+            acquired_lot_list: List[InTransaction] = self.__acquired_lot_list
+            first_lot: Optional[AcquiredLotAndIndex] = self.__acquired_lot_avl.find_max_value_less_than(
+                f"{self._get_avl_node_key_with_max_disambiguator(self.__spot_price_list[index])}"
             )
-
 
             if first_lot is not None and first_lot.acquired_lot.timestamp < taxable_event.timestamp:
                 acquired_lot_index: int = first_lot.index
@@ -147,7 +148,7 @@ class AccountingMethod(AbstractSpecificId):
                         taxable_event_amount=new_taxable_event_amount,
                         acquired_lot_amount=acquired_lot_and_amount.amount,
                     )
-            index_list -= 1
+            index -= 1
         raise AcquiredLotsExhaustedException()
 
     def seek_acquired_lot(self,acquired_lot_iterator: Iterator[InTransaction]) -> Optional[AcquiredLotAndAmount]:
