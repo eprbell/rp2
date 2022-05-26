@@ -65,6 +65,9 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
         AbstractTestODSOutputDiff._generate(
             cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", from_date=date(2019, 1, 1), to_date=date(2019, 12, 31)
         )
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir, test_name="test_hifo", config="test_data", method="hifo"
+        )
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -108,6 +111,12 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
     def test_test_data4_tax_report_us(self) -> None:
         for method in self.METHODS:
             self._compare(output_dir=self.output_dir, test_name="test_data4", method=method, output_plugin=OutputPlugins.TAX_REPORT_US)
+
+    def test_test_hifo_rp2_full_report(self) -> None:
+        self._compare(output_dir=self.output_dir, test_name="test_hifo", method="hifo", output_plugin=OutputPlugins.RP2_FULL_REPORT)
+
+    def test_test_hifo_tax_report_us(self) -> None:
+        self._compare(output_dir=self.output_dir, test_name="test_hifo", method="hifo", output_plugin=OutputPlugins.TAX_REPORT_US)
 
     def test_test_many_year_data_rp2_full_report(self) -> None:
         for method in self.METHODS:

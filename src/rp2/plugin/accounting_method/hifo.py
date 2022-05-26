@@ -78,8 +78,7 @@ class AccountingMethod(AbstractSpecificId):
             # End of acquired_lots
             pass
         self.__spot_price_list.sort()
-
-        
+ 
     # AVL tree node keys have this format: <spot_price>_<internal_id>. The internal_id part is needed to disambiguate transactions
     # that have the same spot_price. Internal_id is padded right in a string of fixed length (KEY_DISAMBIGUATOR_LENGTH).
     def _get_avl_node_key(self, spot_price: RP2Decimal, internal_id: str) -> str:
@@ -126,7 +125,7 @@ class AccountingMethod(AbstractSpecificId):
         self, taxable_event: AbstractTransaction, acquired_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, acquired_lot_amount: RP2Decimal
     ) -> TaxableEventAndAcquiredLot:
         # This while loop makes the algorithm's complexity O(n^2), where n is the number of acquired lots. Non-trivial
-        # optimizations are possible using different data structures (and likely with some space/time tradeoff) 
+        # optimizations are possible using different data structures (and likely with some space/time tradeoff)
         new_taxable_event_amount: RP2Decimal = taxable_event_amount - acquired_lot_amount
         index = len(self.__spot_price_list)-1
         while index >= 0:
