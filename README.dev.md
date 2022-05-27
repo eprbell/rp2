@@ -33,6 +33,7 @@
   * [Design Guidelines](#design-guidelines)
   * [Development Workflow](#development-workflow)
   * [Unit Tests](#unit-tests)
+* **[Creating a Release](#creating-a-release)**
 * **[Plugin Development](#plugin-development)**
   * [Adding a New Report Generator](#adding-a-new-report-generator)
   * [Adding a New Accounting Method](#adding-a-new-accounting-method)
@@ -178,6 +179,23 @@ LOG_LEVEL=DEBUG bin/rp2_us -o output -p crypto_example_ config/crypto_example.co
 
 ### Unit Tests
 RP2 has considerable unit test coverage to reduce the risk of regression. Unit tests are in the [tests](tests) directory. Please add unit tests for any new code.
+
+## Creating a Release
+This section is for project maintainers.
+
+To create a new release:
+* `bumpversion patch` (or `bumpversion minor` or `bumpversion major`)
+* add a section named as the new version in CHANGELOG.md
+* use the output of `git log` to collect significant changes since last version and add them to CHANGELOG.md as a list of brief bullet points
+* `git add CHANGELOG.md`
+* `git commit -m "Updated with latest changes" CHANGELOG.md`
+* `git push`
+* wait for all tests to pass successfully on Github
+* add a tag in Github (named the same as the version but with a `v` in front, e.g. `v1.0.4`):  click on "Releases" and then "Draft a new release"
+
+To create a Pypi distribution:
+* `make distribution`
+* `make upload_distribution`
 
 ## Plugin Development
 RP2 has a plugin architecture for countries, report generators and accounting methods, which makes it extensible for new use cases.
