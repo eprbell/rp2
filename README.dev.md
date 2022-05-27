@@ -184,11 +184,11 @@ RP2 has considerable unit test coverage to reduce the risk of regression. Unit t
 This section is for project maintainers.
 
 To create a new release:
-* `bumpversion patch` (or `bumpversion minor` or `bumpversion major`)
 * add a section named as the new version in CHANGELOG.md
 * use the output of `git log` to collect significant changes since last version and add them to CHANGELOG.md as a list of brief bullet points
 * `git add CHANGELOG.md`
 * `git commit -m "Updated with latest changes" CHANGELOG.md`
+* `bumpversion patch` (or `bumpversion minor` or `bumpversion major`)
 * `git push`
 * wait for all tests to pass successfully on Github
 * add a tag in Github (named the same as the version but with a `v` in front, e.g. `v1.0.4`):  click on "Releases" and then "Draft a new release"
