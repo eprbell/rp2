@@ -84,7 +84,7 @@ class AccountingMethod(AbstractSpecificId):
         return f"{spot_price}_{internal_id:0>{self.KEY_DISAMBIGUATOR_LENGTH}}"
 
     # This function calls _get_avl_node_key with internal_id=MAX_KEY_DISAMBIGUATOR, so that the generated key is larger than any other key
-    # with the same timestamp.
+    # with the same spot_price.
     def _get_avl_node_key_with_max_disambiguator(self, spot_price: RP2Decimal) -> str:
         return self._get_avl_node_key(spot_price, self.MAX_KEY_DISAMBIGUATOR)
 
@@ -104,10 +104,8 @@ class AccountingMethod(AbstractSpecificId):
             raise TaxableEventsExhaustedException() from None
         new_taxable_event_amount: RP2Decimal = new_taxable_event.crypto_balance_change
 
-        # If the new taxable event has different year than the acquired lot (and it's not earn-typed), also get a new acquired lot from the new year
         if taxable_event and taxable_event.timestamp < new_taxable_event.timestamp:
             if acquired_lot:
-                # Cache old-year acquired_lot amount
                 self.__acquired_lot_2_partial_amount[acquired_lot] = new_acquired_lot_amount
             (_, new_acquired_lot, _, new_acquired_lot_amount) = self.get_acquired_lot_for_taxable_event(
                 new_taxable_event, acquired_lot, new_taxable_event_amount, new_acquired_lot_amount
@@ -133,8 +131,7 @@ class AccountingMethod(AbstractSpecificId):
             first_lot: Optional[AcquiredLotAndIndex] = self.__acquired_lot_avl.find_max_value_less_than(
                 f"{self._get_avl_node_key_with_max_disambiguator(self.__spot_price_list[index])}"
             )
-
-            if first_lot is not None and first_lot.acquired_lot.timestamp < taxable_event.timestamp:
+            if first_lot is not None and first_lot.acquired_lot.timestamp <= taxable_event.timestamp:
                 acquired_lot_index: int = first_lot.index
                 if first_lot.acquired_lot != acquired_lot_list[acquired_lot_index]:
                     raise Exception("Internal error: acquired_lot incongruence in HIFO accounting logic")
@@ -184,5 +181,5 @@ class AccountingMethod(AbstractSpecificId):
         self.__acquired_lot_2_partial_amount[acquired_lot] = ZERO
 
     def validate_acquired_lot_ancestor_timestamp(self, acquired_lot: InTransaction, acquired_lot_parent: InTransaction) -> bool:
-        # In HIFO, acquired_lot doesn't depend on the timestamp.
+        # In HIFO the acquired_lot chain can have non-monotonic timestamps, so no validation is possible. Returning True means the validation never fails.
         return True
