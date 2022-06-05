@@ -1,4 +1,4 @@
-# Copyright 2021 eprbell
+# Copyright 2022 ninideol
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Dict, Iterator, List, NamedTuple, Optional
 
 from rp2.abstract_accounting_method import (
@@ -39,83 +38,57 @@ class AcquiredLotAndAmount(NamedTuple):
     amount: RP2Decimal
 
 
-# LIFO plugin. See https://www.investopedia.com/terms/l/lifo.asp. Note that under LIFO the date acquired must still be before or on the date sold:
-# see this discussion for details,
-# https://ttlc.intuit.com/community/investments-and-rental-properties/discussion/using-lifo-method-for-cryptocurrency-or-even-stock-cost-basis/00/1433542
+# HIFO accounting method. See https://www.investopedia.com/terms/h/hifo.asp
 class AccountingMethod(AbstractSpecificId):
 
     __taxable_event_iterator: Iterator[AbstractTransaction]
-    __year_2_acquired_lot_list: Dict[int, List[InTransaction]]
-    __year_2_acquired_lot_avl: Dict[int, AVLTree[str, AcquiredLotAndIndex]]
     __acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal]
-    __min_acquired_lot_year: int
+    __acquired_lot_avl: AVLTree[str, AcquiredLotAndIndex]
+    __spot_price_list: List[RP2Decimal]
+    __acquired_lot_list: List[InTransaction]
 
-    # Disambiguation is needed for transactions that have the same timestamp, because the avl tree class expects unique keys: 12 decimal digits express
-    # 1 quadrillion, which should be enough to capture the maximum number of same-timestamp transactions in all reasonable cases.
+    # Disambiguation is needed for transactions that have the same spot_price, because the avl tree class expects unique keys: 12 decimal digits express
+    # 1 quadrillion, which should be enough to capture the maximum number of same-spot_price transactions in all reasonable cases.
     KEY_DISAMBIGUATOR_LENGTH: int = 12
     MAX_KEY_DISAMBIGUATOR = "9" * KEY_DISAMBIGUATOR_LENGTH
+    MIN_KEY_DISAMBIGUATOR = "0" * KEY_DISAMBIGUATOR_LENGTH
 
     # Iterators yield transactions in ascending chronological order
     def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], acquired_lot_iterator: Iterator[InTransaction]) -> None:
         self.__taxable_event_iterator = taxable_event_iterator
-        self.__year_2_acquired_lot_list = {}
-        self.__year_2_acquired_lot_avl = {}
         self.__acquired_lot_2_partial_amount = {}
 
-        # Initialize data structure to hold acquired_lots in chronological order by year (dictionary of acquired_lot lists, indexed by year)
-        year: int = 0
-        acquired_lot_list: List[InTransaction] = []
-        acquired_lot_avl: AVLTree[str, AcquiredLotAndIndex] = AVLTree()
+        self.__acquired_lot_avl = AVLTree()
+        self.__spot_price_list = []
+        self.__acquired_lot_list = []
+
+        # Initialize data structures to hold acquired_lots in order by highest spot_price (dictionary of acquired_lot lists, indexed by spot_price)
         index: int = 0
         try:
             while True:
                 acquired_lot: InTransaction = next(acquired_lot_iterator)
-                if year != acquired_lot.timestamp.year:
-                    if year == 0:
-                        self.__min_acquired_lot_year = acquired_lot.timestamp.year
-                    else:
-                        self._store_acquired_lots_for_year(year, acquired_lot_list, acquired_lot_avl)
-                    year = acquired_lot.timestamp.year
-                    acquired_lot_list = []
-                    acquired_lot_avl = AVLTree()
-                    index = 0
-                acquired_lot_list.append(acquired_lot)
-                # Key is <timestamp>_<internal_id>
-                acquired_lot_avl.insert_node(
-                    f"{self._get_avl_node_key(acquired_lot.timestamp, acquired_lot.internal_id)}", AcquiredLotAndIndex(acquired_lot, index)
+                self.__acquired_lot_avl.insert_node(
+                    f"{self._get_avl_node_key((acquired_lot.spot_price),str(index))}", AcquiredLotAndIndex(acquired_lot, index)
                 )
+                self.__spot_price_list.append(acquired_lot.spot_price)
+                self.__acquired_lot_list.append(acquired_lot)
                 index += 1
+
         except StopIteration:
             # End of acquired_lots
             pass
-        self._store_acquired_lots_for_year(year, acquired_lot_list, acquired_lot_avl)
+        self.__spot_price_list.sort()
 
-    # AVL tree node keys have this format: <timestamp>_<internal_id>. The internal_id part is needed to disambiguate transactions
-    # that have the same timestamp. Timestamp is in format "YYYYmmddHHMMSS.ffffff" and internal_id is padded right in a string of fixed
-    # length (KEY_DISAMBIGUATOR_LENGTH).
-    def _get_avl_node_key(self, timestamp: datetime, internal_id: str) -> str:
-        return f"{timestamp.strftime('%Y%m%d%H%M%S.%f')}_{internal_id:0>{self.KEY_DISAMBIGUATOR_LENGTH}}"
+    # AVL tree node keys have this format: <spot_price>_<internal_id>. The internal_id part is needed to disambiguate transactions
+    # that have the same spot_price. Internal_id is padded right in a string of fixed length (KEY_DISAMBIGUATOR_LENGTH).
+    # The highest internal_id is for the earliest acquired lot
+    def _get_avl_node_key(self, spot_price: RP2Decimal, internal_id: str) -> str:
+        return f"{spot_price}_{(int(self.MAX_KEY_DISAMBIGUATOR)-int(internal_id)):0>{self.KEY_DISAMBIGUATOR_LENGTH}}"
 
-    # This function calls _get_avl_node_key with internal_id=MAX_KEY_DISAMBIGUATOR, so that the generated key is larger than any other key
-    # with the same timestamp.
-    def _get_avl_node_key_with_max_disambiguator(self, timestamp: datetime) -> str:
-        return self._get_avl_node_key(timestamp, self.MAX_KEY_DISAMBIGUATOR)
-
-    def _store_acquired_lots_for_year(self, year: int, acquired_lot_list: List[InTransaction], acquired_lot_avl: AVLTree[str, AcquiredLotAndIndex]) -> None:
-        self.__year_2_acquired_lot_list[year] = acquired_lot_list
-        self.__year_2_acquired_lot_avl[year] = acquired_lot_avl
-
-        # Acquired lots that have the same timestamp should all have the same acquired_lots list index (corresponding to the last element
-        # with the same timestamp)
-        previous_synchronous_acquired_lots: List[AcquiredLotAndIndex] = []
-        for index, acquired_lot in enumerate(acquired_lot_list):
-            if not previous_synchronous_acquired_lots or previous_synchronous_acquired_lots[0].acquired_lot.timestamp == acquired_lot.timestamp:
-                previous_synchronous_acquired_lots.append(AcquiredLotAndIndex(acquired_lot, index))
-            else:
-                synchronous_index: int = previous_synchronous_acquired_lots[-1].index
-                for previous_acquired_lot in previous_synchronous_acquired_lots:
-                    previous_acquired_lot.index = synchronous_index
-                previous_synchronous_acquired_lots = []
+    # This function calls _get_avl_node_key with internal_id=MIN_KEY_DISAMBIGUATOR, so that the generated key is smaller than any other key
+    # with the same spot_price.
+    def _get_avl_node_key_with_min_disambiguator(self, spot_price: RP2Decimal) -> str:
+        return self._get_avl_node_key(spot_price, self.MIN_KEY_DISAMBIGUATOR)
 
     def get_next_taxable_event_and_amount(
         self,
@@ -147,26 +120,23 @@ class AccountingMethod(AbstractSpecificId):
             acquired_lot_amount=new_acquired_lot_amount,
         )
 
-    # After selecting the taxable event, RP2 calls this function to find the acquired_lot to pair with it. This means that the taxable
-    # event can be passed to this function (which is useful for certain accounting methods)
     def get_acquired_lot_for_taxable_event(
         self, taxable_event: AbstractTransaction, acquired_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, acquired_lot_amount: RP2Decimal
     ) -> TaxableEventAndAcquiredLot:
+        # This while loop makes the algorithm's complexity O(n^2), where n is the number of acquired lots. Non-trivial
+        # optimizations are possible using different data structures (and likely with some space/time tradeoff)
         new_taxable_event_amount: RP2Decimal = taxable_event_amount - acquired_lot_amount
-        year: int = taxable_event.timestamp.year
-        while year >= self.__min_acquired_lot_year:
-            if year not in self.__year_2_acquired_lot_list:
-                year -= 1
-                continue
-            acquired_lot_list: List[InTransaction] = self.__year_2_acquired_lot_list[year]
-            acquired_lot_avl: AVLTree[str, AcquiredLotAndIndex] = self.__year_2_acquired_lot_avl[year]
-            first_lot: Optional[AcquiredLotAndIndex] = acquired_lot_avl.find_max_value_less_than(
-                f"{self._get_avl_node_key_with_max_disambiguator(taxable_event.timestamp)}"
+        spot_price_index = len(self.__spot_price_list) - 1
+        while spot_price_index >= 0:
+
+            acquired_lot_list: List[InTransaction] = self.__acquired_lot_list
+            first_lot: Optional[AcquiredLotAndIndex] = self.__acquired_lot_avl.find_max_value_less_than(
+                f"{self._get_avl_node_key_with_min_disambiguator(self.__spot_price_list[spot_price_index])}"
             )
-            if first_lot is not None:
+            if first_lot is not None and first_lot.acquired_lot.timestamp <= taxable_event.timestamp:
                 acquired_lot_index: int = first_lot.index
                 if first_lot.acquired_lot != acquired_lot_list[acquired_lot_index]:
-                    raise Exception("Internal error: acquired_lot incongruence in LIFO accounting logic")
+                    raise Exception("Internal error: acquired_lot incongruence in HIFO accounting logic")
                 acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = self.seek_acquired_lot(reversed(acquired_lot_list[: acquired_lot_index + 1]))
                 if acquired_lot_and_amount:
                     return TaxableEventAndAcquiredLot(
@@ -175,8 +145,7 @@ class AccountingMethod(AbstractSpecificId):
                         taxable_event_amount=new_taxable_event_amount,
                         acquired_lot_amount=acquired_lot_and_amount.amount,
                     )
-            year -= 1
-
+            spot_price_index -= 1
         raise AcquiredLotsExhaustedException()
 
     def seek_acquired_lot(self, acquired_lot_iterator: Iterator[InTransaction]) -> Optional[AcquiredLotAndAmount]:
@@ -191,17 +160,11 @@ class AccountingMethod(AbstractSpecificId):
                     if self._get_partial_amount(acquired_lot) > ZERO:
                         acquired_lot_amount = self._get_partial_amount(acquired_lot)
                         self._clear_partial_amount(acquired_lot)
-                        return AcquiredLotAndAmount(
-                            acquired_lot=acquired_lot,
-                            amount=acquired_lot_amount,
-                        )
+                        return AcquiredLotAndAmount(acquired_lot=acquired_lot, amount=acquired_lot_amount,)
                 else:
                     acquired_lot_amount = acquired_lot.crypto_in
                     self._clear_partial_amount(acquired_lot)
-                    return AcquiredLotAndAmount(
-                        acquired_lot=acquired_lot,
-                        amount=acquired_lot_amount,
-                    )
+                    return AcquiredLotAndAmount(acquired_lot=acquired_lot, amount=acquired_lot_amount,)
         except StopIteration:
             # End of acquired_lots
             pass
@@ -220,5 +183,5 @@ class AccountingMethod(AbstractSpecificId):
         self.__acquired_lot_2_partial_amount[acquired_lot] = ZERO
 
     def validate_acquired_lot_ancestor_timestamp(self, acquired_lot: InTransaction, acquired_lot_parent: InTransaction) -> bool:
-        # In LIFO the acquired_lot chain can have non-monotonic timestamps, so no validation is possible. Returning True means the validation never fails.
+        # In HIFO the acquired_lot chain can have non-monotonic timestamps, so no validation is possible. Returning True means the validation never fails.
         return True
