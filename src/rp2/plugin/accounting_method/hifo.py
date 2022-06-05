@@ -68,7 +68,7 @@ class AccountingMethod(AbstractSpecificId):
             while True:
                 acquired_lot: InTransaction = next(acquired_lot_iterator)
                 self.__acquired_lot_avl.insert_node(
-                    f"{self._get_avl_node_key((acquired_lot.spot_price),acquired_lot.internal_id)}", AcquiredLotAndIndex(acquired_lot, index)
+                    f"{self._get_avl_node_key((acquired_lot.spot_price),str(index))}", AcquiredLotAndIndex(acquired_lot, index)
                 )
                 self.__spot_price_list.append(acquired_lot.spot_price)
                 self.__acquired_lot_list.append(acquired_lot)
@@ -85,9 +85,9 @@ class AccountingMethod(AbstractSpecificId):
     def _get_avl_node_key(self, spot_price: RP2Decimal, internal_id: str) -> str:
         return f"{spot_price}_{(int(self.MAX_KEY_DISAMBIGUATOR)-int(internal_id)):0>{self.KEY_DISAMBIGUATOR_LENGTH}}"
 
-    # This function calls _get_avl_node_key with internal_id=MIN_KEY_DISAMBIGUATOR, so that the generated key is larger than any other key
+    # This function calls _get_avl_node_key with internal_id=MIN_KEY_DISAMBIGUATOR, so that the generated key is smaller than any other key
     # with the same spot_price.
-    def _get_avl_node_key_with_max_disambiguator(self, spot_price: RP2Decimal) -> str:
+    def _get_avl_node_key_with_min_disambiguator(self, spot_price: RP2Decimal) -> str:
         return self._get_avl_node_key(spot_price, self.MIN_KEY_DISAMBIGUATOR)
 
     def get_next_taxable_event_and_amount(
@@ -126,12 +126,12 @@ class AccountingMethod(AbstractSpecificId):
         # This while loop makes the algorithm's complexity O(n^2), where n is the number of acquired lots. Non-trivial
         # optimizations are possible using different data structures (and likely with some space/time tradeoff)
         new_taxable_event_amount: RP2Decimal = taxable_event_amount - acquired_lot_amount
-        index = len(self.__spot_price_list) - 1
-        while index >= 0:
+        spot_price_index = len(self.__spot_price_list) - 1
+        while spot_price_index >= 0:
 
             acquired_lot_list: List[InTransaction] = self.__acquired_lot_list
             first_lot: Optional[AcquiredLotAndIndex] = self.__acquired_lot_avl.find_max_value_less_than(
-                f"{self._get_avl_node_key_with_max_disambiguator(self.__spot_price_list[index])}"
+                f"{self._get_avl_node_key_with_min_disambiguator(self.__spot_price_list[spot_price_index])}"
             )
             if first_lot is not None and first_lot.acquired_lot.timestamp <= taxable_event.timestamp:
                 acquired_lot_index: int = first_lot.index
@@ -145,7 +145,7 @@ class AccountingMethod(AbstractSpecificId):
                         taxable_event_amount=new_taxable_event_amount,
                         acquired_lot_amount=acquired_lot_and_amount.amount,
                     )
-            index -= 1
+            spot_price_index -= 1
         raise AcquiredLotsExhaustedException()
 
     def seek_acquired_lot(self, acquired_lot_iterator: Iterator[InTransaction]) -> Optional[AcquiredLotAndAmount]:
