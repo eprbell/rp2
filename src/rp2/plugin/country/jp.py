@@ -13,6 +13,8 @@
 # limitations under the License.
 
 
+import sys
+
 from rp2.abstract_country import AbstractCountry
 from rp2.rp2_main import rp2_main
 
@@ -24,6 +26,7 @@ class JP(AbstractCountry):
 
     # Measured in days
     def long_term_capital_gain_period(self) -> int:
+        # No long-term capital gains in Japan for crypto assets (as of 7/2022)
         return sys.maxsize
 
 
