@@ -229,7 +229,7 @@ class TestGainLoss(unittest.TestCase):
         self.assertNotEqual(gain_loss, gain_loss6)
         self.assertEqual(hash(gain_loss), hash(gain_loss))
         self.assertEqual(hash(gain_loss), hash(gain_loss2))
-        # These hashes would only be equal in case of hash collision (possible but very unlikey).
+        # These hashes would only be equal in case of hash collision (possible but very unlikely).
         self.assertNotEqual(hash(gain_loss), hash(gain_loss3))
         self.assertNotEqual(hash(gain_loss), hash(gain_loss4))
         self.assertNotEqual(hash(gain_loss), hash(gain_loss5))

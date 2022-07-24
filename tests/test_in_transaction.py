@@ -246,7 +246,7 @@ class TestInTransaction(unittest.TestCase):
         self.assertNotEqual(in_transaction, in_transaction3)
         self.assertEqual(hash(in_transaction), hash(in_transaction))
         self.assertEqual(hash(in_transaction), hash(in_transaction2))
-        # These hashes would only be equal in case of hash collision (possible but very unlikey)
+        # These hashes would only be equal in case of hash collision (possible but very unlikely)
         self.assertNotEqual(hash(in_transaction), hash(in_transaction3))
 
     def test_bad_to_string(self) -> None:
