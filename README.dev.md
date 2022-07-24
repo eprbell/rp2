@@ -269,7 +269,7 @@ from logger import LOGGER
 ```
     def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], acquired_lot_iterator: Iterator[InTransaction]) -> None:
 ```
-* write the body of `initialize()`. This method is passed iterators on taxable events and aquired lots and performs accounting-method-specific initialization (e.g. it might iterate over the iterators and add the elements to custom data structures, like AVL trees, etc.). The parameters are:
+* write the body of `initialize()`. This method is passed iterators on taxable events and acquired lots and performs accounting-method-specific initialization (e.g. it might iterate over the iterators and add the elements to custom data structures, like AVL trees, etc.). The parameters are:
   * `taxable_event_iterator`: iterator over TaxableEvent instances (disposed-of lots), in chronological order;
   * `acquired_lot_iterator`: iterator over InTransaction instances (acquired lots), in chronological order;
 * Add `get_next_taxable_event_and_amount()` and `get_acquired_lot_for_taxable_event()` methods with the following signatures:
@@ -294,7 +294,7 @@ from logger import LOGGER
   * `acquired_lot`: the acquired lot;
   * `taxable_event_amount`: the amount that is leftover of the current taxable event;
   * `acquired_lot_amount`: the amount that is leftover of the current acquired lot.
-  * it returns TaxableEventAndAcquiredLot, which captures a new taxable event/acquired lot pair. Notice that in most cases only one of the two is new and the other stays the same and only gets its amount adjusted. However in some special cases that depend on the semantics of the plugin, one of these methods may need to update both taxable event and aquired lot (e.g. in the LIFO version of `get_next_taxable_event_and_amount()`, if the new taxable event has a timestamp with a new year, then the method also has to look for a new acquired lot in the same new year).
+  * it returns TaxableEventAndAcquiredLot, which captures a new taxable event/acquired lot pair. Notice that in most cases only one of the two is new and the other stays the same and only gets its amount adjusted. However in some special cases that depend on the semantics of the plugin, one of these methods may need to update both taxable event and acquired lot (e.g. in the LIFO version of `get_next_taxable_event_and_amount()`, if the new taxable event has a timestamp with a new year, then the method also has to look for a new acquired lot in the same new year).
 * Add a `validate_acquired_lot_ancestor_timestamp()` method with the following signature:
 ```
     def validate_acquired_lot_ancestor_timestamp(self, acquired_lot: InTransaction, acquired_lot_parent: InTransaction) -> bool:

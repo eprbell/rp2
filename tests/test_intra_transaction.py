@@ -233,7 +233,7 @@ class TestIntraTransaction(unittest.TestCase):
         self.assertNotEqual(intra_transaction, intra_transaction3)
         self.assertEqual(hash(intra_transaction), hash(intra_transaction))
         self.assertEqual(hash(intra_transaction), hash(intra_transaction2))
-        # These hashes would only be equal in case of hash collision (possible but very unlikey)
+        # These hashes would only be equal in case of hash collision (possible but very unlikely)
         self.assertNotEqual(hash(intra_transaction), hash(intra_transaction3))
 
     def test_bad_to_string(self) -> None:
