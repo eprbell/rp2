@@ -62,7 +62,6 @@ class AccountingMethod(AbstractSpecificId):
         self.__acquired_lot_list = []
         self.__acquired_lot_avl: AVLTree[str, AcquiredLotAndIndex] = AVLTree()
 
-        # Initialize data structures to hold acquired_lots in order by highest spot_price (dictionary of acquired_lot lists, indexed by spot_price)
         index: int = 0
         try:
             while True:
