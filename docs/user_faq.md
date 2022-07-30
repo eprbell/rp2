@@ -132,7 +132,7 @@ In other words, how to be sure RP2 is not malware/spyware? After all, Bitcoin's 
 Some people have reported a problem when opening the rp2_full_report.ods file in Excel. RP2 generates ODS output using the pyexcel-ezodf library, which works well with [Libre Office](https://www.libreoffice.org/) and Open Office (both of which are free). If Excel is unable to open a RP2 file, try again with one of its free alternatives.
 
 ### What's the Difference Between Rotki and RP2?
-One difference is that RP2 is 100% free and non-commercial, whereas Rotki is a commercial product: their free offering has transaction limits and other constraints that can be lifted by purchasing the premium product.
+One difference is that RP2 is 100% free and non-commercial, whereas Rotki is a commercial product: their free offering has transaction limits and other constraints that can be lifted by purchasing the premium product. Another difference relates to privacy protection: to access premium features in Rotki the user needs to open an account on the Rotki web site and pay them (thus disclosing some personal information to them), whereas on RP2 no personal information ever leaves the user's computer.
 
 ### Who is the Author of RP2?
 The author of RP2 is a Silicon Valley veteran, a software engineer and bitcoiner who also dabbles in Quantum Computing.
@@ -186,7 +186,7 @@ Such fees affect the in/out lot relationships, so RP2 keeps track of them (in th
 ### How to Represent Fiat Vs Crypto Transaction Fees?
 Here are the possible scenarios for in and out-transaction fees (intra-transactions fees are implicitly defined as `crypto_sent` - `crypto_received`):
 * if the fee was paid in fiat: use `crypto_fee` == 0 (or empty) and `fiat_fee` >= 0: RP2 uses `fiat_fee` as passed in;
-* if the fee was paid in the same crypto as the transaction: use `crypto_fee` > 0 and `fiat_fee` empty: RP2 populates `fiat_fee` internally as `spot_price` * `crypto_fee`;
+* if the fee was paid in the same crypto as the transaction: use `crypto_fee` > 0 and `fiat_fee` empty: RP2 populates `fiat_fee` internally as `spot_price` * `crypto_fee`. Note that for in-transactions, the crypto fee comes out of the crypto amount of the in-transaction: RP2 models this by creating an additional, artificial, [fee-only out-transaction](#how-to-handle-fee-only-defi-transactions) in the amount of the crypto fee;
 * if the fee was paid in the same crypto as the transaction, but the exchange reports a `fiat_fee` value that doesn't match `crypto_fee` (sometimes this occurs on some exchanges, like Coinbase): use `crypto_fee` >= 0 and `fiat_fee` >= 0 (this should generate a warning, but RP2 will use the fiat_fee in the calculation of taxes);
 * if the fee was paid in a different crypto than the one the transaction is denominated in: use an additional [fee-only transaction](#how-to-handle-fee-only-defi-transactions) (`transaction_type` set to FEE), denominated in the new crypto.
 
