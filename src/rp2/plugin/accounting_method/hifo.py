@@ -28,7 +28,7 @@ from rp2.rp2_decimal import ZERO, RP2Decimal
 
 class AcquiredLotAndIndex(NamedTuple):
     acquired_lot: InTransaction
-    index: int
+    idx: int  # Using idx instead of index to workaround a mypy bug: https://github.com/python/mypy/issues/4507
 
 
 class AcquiredLotAndAmount(NamedTuple):
@@ -139,7 +139,7 @@ class AccountingMethod(AbstractSpecificId):
             acquired_lot_index: Optional[int] = None
             first_lot: Optional[AcquiredLotAndIndex] = node.value if node else None
             if first_lot is not None and first_lot.acquired_lot.timestamp <= taxable_event.timestamp:
-                acquired_lot_index = first_lot.index
+                acquired_lot_index = first_lot.idx
                 if first_lot.acquired_lot != acquired_lot_list[acquired_lot_index]:
                     raise Exception("Internal error: acquired_lot incongruence in HIFO accounting logic")
                 acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = self.seek_acquired_lot(acquired_lot_list, acquired_lot_index)
