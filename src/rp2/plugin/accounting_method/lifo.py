@@ -133,6 +133,8 @@ class AccountingMethod(AbstractSpecificId):
             raise TaxableEventsExhaustedException() from None
         new_taxable_event_amount: RP2Decimal = new_taxable_event.crypto_balance_change
 
+        # If the new taxable event is newer than the old one (and it's not earn-typed) check if there
+        # is a newer acquired lot (but still older than the new taxable event)
         if taxable_event and taxable_event.timestamp < new_taxable_event.timestamp:
             if acquired_lot:
                 self.__acquired_lot_2_partial_amount[acquired_lot] = new_acquired_lot_amount
@@ -167,7 +169,7 @@ class AccountingMethod(AbstractSpecificId):
                 acquired_lot_index: int = first_lot.index
                 if first_lot.acquired_lot != acquired_lot_list[acquired_lot_index]:
                     raise Exception("Internal error: acquired_lot incongruence in LIFO accounting logic")
-                acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = self.seek_acquired_lot(reversed(acquired_lot_list[: acquired_lot_index + 1]))
+                acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = self.seek_acquired_lot(acquired_lot_list, acquired_lot_index)
                 if acquired_lot_and_amount:
                     return TaxableEventAndAcquiredLot(
                         taxable_event=taxable_event,
@@ -179,32 +181,22 @@ class AccountingMethod(AbstractSpecificId):
 
         raise AcquiredLotsExhaustedException()
 
-    def seek_acquired_lot(self, acquired_lot_iterator: Iterator[InTransaction]) -> Optional[AcquiredLotAndAmount]:
+    def seek_acquired_lot(self, acquired_lot_list: List[InTransaction], start: int) -> Optional[AcquiredLotAndAmount]:
         # This while loop make the algorithm's complexity O(nm), where n is the number of taxable events and m is
         # the number of acquired lots): for every taxable event, loop over the acquired lot list. There are non-trivial ways
         # of making this faster (by changing the data structures).
-        try:
-            while True:
-                acquired_lot: InTransaction = next(acquired_lot_iterator)
-                acquired_lot_amount: RP2Decimal
-                if self._has_partial_amount(acquired_lot):
-                    if self._get_partial_amount(acquired_lot) > ZERO:
-                        acquired_lot_amount = self._get_partial_amount(acquired_lot)
-                        self._clear_partial_amount(acquired_lot)
-                        return AcquiredLotAndAmount(
-                            acquired_lot=acquired_lot,
-                            amount=acquired_lot_amount,
-                        )
-                else:
-                    acquired_lot_amount = acquired_lot.crypto_in
+        for index in range(start, -1, -1):
+            acquired_lot: InTransaction = acquired_lot_list[index]
+            acquired_lot_amount: RP2Decimal
+            if self._has_partial_amount(acquired_lot):
+                if self._get_partial_amount(acquired_lot) > ZERO:
+                    acquired_lot_amount = self._get_partial_amount(acquired_lot)
                     self._clear_partial_amount(acquired_lot)
-                    return AcquiredLotAndAmount(
-                        acquired_lot=acquired_lot,
-                        amount=acquired_lot_amount,
-                    )
-        except StopIteration:
-            # End of acquired_lots
-            pass
+                    return AcquiredLotAndAmount(acquired_lot=acquired_lot, amount=acquired_lot_amount)
+            else:
+                acquired_lot_amount = acquired_lot.crypto_in
+                self._clear_partial_amount(acquired_lot)
+                return AcquiredLotAndAmount(acquired_lot=acquired_lot, amount=acquired_lot_amount)
 
         return None
 

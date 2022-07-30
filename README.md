@@ -14,7 +14,7 @@
 
 ![RP2 Logo](https://raw.githubusercontent.com/eprbell/rp2/main/docs/images/rp2_header.png)
 
-# RP2 v1.0.4
+# RP2 v1.0.5
 [![Static Analysis / Main Branch](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml)
 [![Documentation Check / Main Branch](https://github.com/eprbell/rp2/actions/workflows/documentation_check.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/documentation_check.yml)
 [![Unix Unit Tests / Main Branch](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml)
@@ -53,7 +53,7 @@ Another unique advantage of RP2 is [transparent computation](https://github.com/
 
 RP2 supports the [FIFO](https://www.investopedia.com/terms/f/fifo.asp), [LIFO](https://www.investopedia.com/terms/l/lifo.asp) and [HIFO](https://www.investopedia.com/terms/h/hifo.asp) accounting methods, to help minimize the amount due.
 
-It reads in a spreadsheet containing crypto transactions. The spreadsheet can be generated either manually or automatically using [DaLI](https://github.com/eprbell/dali-rp2), a RP2 data loader and input generator (which is also privacy-focused, free and open-source. After parsing the input RP2 uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates output spreadsheets.
+It reads in a spreadsheet containing crypto transactions. The spreadsheet can be generated either manually or automatically using [DaLI](https://github.com/eprbell/dali-rp2), a RP2 data loader and input generator (which is also privacy-focused, free and open-source). After parsing the input RP2 uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates output spreadsheets.
 
 RP2 has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-report-generator), [accounting methods](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-accounting-method) and [countries](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-support-for-a-new-country). The output generator builtin plugins are US-specific, but RP2's architecture makes it possible to contribute additional generators for different countries or for different US-based cases. The builtin generator plugins are:
 * tax_report_us: generates a tax report meant to be read by tax preparers (in the format of form 8949);

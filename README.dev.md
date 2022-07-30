@@ -12,7 +12,7 @@
 <!--- See the License for the specific language governing permissions and --->
 <!--- limitations under the License. --->
 
-# RP2 v1.0.4 Developer Guide
+# RP2 v1.0.5 Developer Guide
 [![Static Analysis / Main Branch](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml)
 [![Documentation Check / Main Branch](https://github.com/eprbell/rp2/actions/workflows/documentation_check.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/documentation_check.yml)
 [![Unix Unit Tests / Main Branch](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml)
@@ -33,6 +33,7 @@
   * [Design Guidelines](#design-guidelines)
   * [Development Workflow](#development-workflow)
   * [Unit Tests](#unit-tests)
+* **[Creating a Release](#creating-a-release)**
 * **[Plugin Development](#plugin-development)**
   * [Adding a New Report Generator](#adding-a-new-report-generator)
   * [Adding a New Accounting Method](#adding-a-new-accounting-method)
@@ -179,6 +180,23 @@ LOG_LEVEL=DEBUG bin/rp2_us -o output -p crypto_example_ config/crypto_example.co
 ### Unit Tests
 RP2 has considerable unit test coverage to reduce the risk of regression. Unit tests are in the [tests](tests) directory. Please add unit tests for any new code.
 
+## Creating a Release
+This section is for project maintainers.
+
+To create a new release:
+* add a section named as the new version in CHANGELOG.md
+* use the output of `git log` to collect significant changes since last version and add them to CHANGELOG.md as a list of brief bullet points
+* `git add CHANGELOG.md`
+* `git commit -m "Updated with latest changes" CHANGELOG.md`
+* `bumpversion patch` (or `bumpversion minor` or `bumpversion major`)
+* `git push`
+* wait for all tests to pass successfully on Github
+* add a tag in Github (named the same as the version but with a `v` in front, e.g. `v1.0.4`):  click on "Releases" and then "Draft a new release"
+
+To create a Pypi distribution:
+* `make distribution`
+* `make upload_distribution`
+
 ## Plugin Development
 RP2 has a plugin architecture for countries, report generators and accounting methods, which makes it extensible for new use cases.
 
@@ -251,7 +269,7 @@ from logger import LOGGER
 ```
     def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], acquired_lot_iterator: Iterator[InTransaction]) -> None:
 ```
-* write the body of `initialize()`. This method is passed iterators on taxable events and aquired lots and performs accounting-method-specific initialization (e.g. it might iterate over the iterators and add the elements to custom data structures, like AVL trees, etc.). The parameters are:
+* write the body of `initialize()`. This method is passed iterators on taxable events and acquired lots and performs accounting-method-specific initialization (e.g. it might iterate over the iterators and add the elements to custom data structures, like AVL trees, etc.). The parameters are:
   * `taxable_event_iterator`: iterator over TaxableEvent instances (disposed-of lots), in chronological order;
   * `acquired_lot_iterator`: iterator over InTransaction instances (acquired lots), in chronological order;
 * Add `get_next_taxable_event_and_amount()` and `get_acquired_lot_for_taxable_event()` methods with the following signatures:
@@ -276,7 +294,7 @@ from logger import LOGGER
   * `acquired_lot`: the acquired lot;
   * `taxable_event_amount`: the amount that is leftover of the current taxable event;
   * `acquired_lot_amount`: the amount that is leftover of the current acquired lot.
-  * it returns TaxableEventAndAcquiredLot, which captures a new taxable event/acquired lot pair. Notice that in most cases only one of the two is new and the other stays the same and only gets its amount adjusted. However in some special cases that depend on the semantics of the plugin, one of these methods may need to update both taxable event and aquired lot (e.g. in the LIFO version of `get_next_taxable_event_and_amount()`, if the new taxable event has a timestamp with a new year, then the method also has to look for a new acquired lot in the same new year).
+  * it returns TaxableEventAndAcquiredLot, which captures a new taxable event/acquired lot pair. Notice that in most cases only one of the two is new and the other stays the same and only gets its amount adjusted. However in some special cases that depend on the semantics of the plugin, one of these methods may need to update both taxable event and acquired lot (e.g. in the LIFO version of `get_next_taxable_event_and_amount()`, if the new taxable event has a timestamp with a new year, then the method also has to look for a new acquired lot in the same new year).
 * Add a `validate_acquired_lot_ancestor_timestamp()` method with the following signature:
 ```
     def validate_acquired_lot_ancestor_timestamp(self, acquired_lot: InTransaction, acquired_lot_parent: InTransaction) -> bool:
