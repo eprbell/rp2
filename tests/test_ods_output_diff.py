@@ -67,12 +67,6 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
         AbstractTestODSOutputDiff._generate(
             cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", from_date=date(2019, 1, 1), to_date=date(2019, 12, 31)
         )
-        AbstractTestODSOutputDiff._generate(
-            cls.output_dir, test_name="test_hifo", config="test_data", method="hifo"
-        )
-        AbstractTestODSOutputDiff._generate(
-            cls.output_dir, test_name="test_hifo2", config="test_data", method="hifo"
-        )
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
