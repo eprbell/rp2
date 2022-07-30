@@ -38,7 +38,7 @@ class OutputPlugins(Enum):
 
 class AbstractTestODSOutputDiff(unittest.TestCase):
 
-    METHODS: List[str] = ["fifo", "lifo"]
+    METHODS: List[str] = ["fifo", "lifo", "hifo"]
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name

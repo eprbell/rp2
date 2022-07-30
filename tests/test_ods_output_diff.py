@@ -39,6 +39,8 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data2", config="test_data", method=method)
             AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data3", config="test_data", method=method)
             AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data4", config="test_data4", method=method)
+            AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_hifo", config="test_data", method=method)
+            AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_hifo2", config="test_data", method=method)
             AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_many_year_data", config="test_data", method=method)
             AbstractTestODSOutputDiff._generate(
                 cls.output_dir, test_name="test_data3", config="test_data", method=method, from_date=date(2019, 12, 1), to_date=date(2020, 4, 1)
