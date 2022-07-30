@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from dataclasses import dataclass
 from typing import Dict, Iterator, List, NamedTuple, Optional
 
 from rp2.abstract_accounting_method import (
@@ -27,8 +26,7 @@ from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 
 
-@dataclass
-class AcquiredLotAndIndex:
+class AcquiredLotAndIndex(NamedTuple):
     acquired_lot: InTransaction
     index: int
 
@@ -133,7 +131,7 @@ class AccountingMethod(AbstractSpecificId):
         while spot_price_index >= 0:
             acquired_lot_list: List[InTransaction] = self.__acquired_lot_list
             if not self.__acquired_lot_avl.root:
-                raise Exception("AVL tree has no root node")
+                raise Exception("Internal error: AVL tree has no root node")
             node: Optional[AVLNode[str, AcquiredLotAndIndex]] = self.__acquired_lot_avl.find_max_node_less_than_at_node(
                 self.__acquired_lot_avl.root,
                 current_key,
