@@ -62,7 +62,7 @@ class AccountingMethod(AbstractSpecificId):
         self.__year_2_acquired_lot_avl = {}
         self.__acquired_lot_2_partial_amount = {}
 
-        # Initialize data structure to hold acquired_lots in chronological order by year (dictionary of acquired_lot lists, indexed by year)
+        # Initialize data structures to hold acquired_lots in chronological order by year (dictionary of acquired_lot lists, indexed by year)
         year: int = 0
         acquired_lot_list: List[InTransaction] = []
         acquired_lot_avl: AVLTree[str, AcquiredLotAndIndex] = AVLTree()
@@ -137,7 +137,6 @@ class AccountingMethod(AbstractSpecificId):
         # is a newer acquired lot (but still older than the new taxable event)
         if taxable_event and taxable_event.timestamp < new_taxable_event.timestamp:
             if acquired_lot:
-                # Cache old-year acquired_lot amount
                 self.__acquired_lot_2_partial_amount[acquired_lot] = new_acquired_lot_amount
             (_, new_acquired_lot, _, new_acquired_lot_amount) = self.get_acquired_lot_for_taxable_event(
                 new_taxable_event, acquired_lot, new_taxable_event_amount, new_acquired_lot_amount
