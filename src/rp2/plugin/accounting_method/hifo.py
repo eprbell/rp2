@@ -78,13 +78,13 @@ class AccountingMethod(AbstractSpecificId):
             pass
         self.__spot_price_list.sort()
 
-    # AVL tree node keys have this format: <spot_price>_<internal_id>. The internal_id part is needed to disambiguate transactions
-    # that have the same spot_price. Internal_id is padded right in a string of fixed length (KEY_DISAMBIGUATOR_LENGTH).
-    # The highest internal_id is for the earliest acquired lot
-    def _get_avl_node_key(self, spot_price: RP2Decimal, internal_id: str) -> str:
-        return f"{spot_price}_{(int(self.MAX_KEY_DISAMBIGUATOR) - int(internal_id)):0>{self.KEY_DISAMBIGUATOR_LENGTH}}"
+    # AVL tree node keys have this format: <spot_price>_<node_id>. The node_id part is needed to disambiguate transactions
+    # that have the same spot_price. node_id is padded right in a string of fixed length (KEY_DISAMBIGUATOR_LENGTH).
+    # The highest node_id is for the earliest acquired lot
+    def _get_avl_node_key(self, spot_price: RP2Decimal, node_id: str) -> str:
+        return f"{spot_price}_{(int(self.MAX_KEY_DISAMBIGUATOR) - int(node_id)):0>{self.KEY_DISAMBIGUATOR_LENGTH}}"
 
-    # This function calls _get_avl_node_key with internal_id=MIN_KEY_DISAMBIGUATOR, so that the generated key is larger than any other key
+    # This function calls _get_avl_node_key with node_id=MIN_KEY_DISAMBIGUATOR, so that the generated key is larger than any other key
     # with the same spot_price.
     def _get_avl_node_key_with_max_disambiguator(self, spot_price: RP2Decimal) -> str:
         return self._get_avl_node_key(spot_price, self.MIN_KEY_DISAMBIGUATOR)
@@ -133,6 +133,8 @@ class AccountingMethod(AbstractSpecificId):
         current_key: str = f"{self._get_avl_node_key_with_max_disambiguator(self.__spot_price_list[spot_price_index])}"
         while spot_price_index >= 0:
             acquired_lot_list: List[InTransaction] = self.__acquired_lot_list
+            if not self.__acquired_lot_avl.root:
+                raise Exception("AVL tree has no root node")
             node: Optional[AVLNode[str, AcquiredLotAndIndex]] = self.__acquired_lot_avl.find_max_node_less_than_at_node(
                 self.__acquired_lot_avl.root,
                 current_key,
