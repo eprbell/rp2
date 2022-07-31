@@ -49,7 +49,7 @@ class AccountingMethod(AbstractSpecificId):
     # 1 quadrillion, which should be enough to capture the maximum number of same-spot_price transactions in all reasonable cases.
     KEY_DISAMBIGUATOR_LENGTH: int = 12
     MAX_KEY_DISAMBIGUATOR = "9" * KEY_DISAMBIGUATOR_LENGTH
-    MIN_KEY_DISAMBIGUATOR = "0" * KEY_DISAMBIGUATOR_LENGTH
+    MIN_NODE_ID: int = 0
 
     # Iterators yield transactions in ascending chronological order
     def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], acquired_lot_iterator: Iterator[InTransaction]) -> None:
@@ -60,12 +60,12 @@ class AccountingMethod(AbstractSpecificId):
         self.__acquired_lot_list = []
         self.__acquired_lot_avl: AVLTree[str, AcquiredLotAndIndex] = AVLTree()
 
-        index: int = 0
+        index: int = self.MIN_NODE_ID
         try:
             while True:
                 acquired_lot: InTransaction = next(acquired_lot_iterator)
                 self.__acquired_lot_avl.insert_node(
-                    f"{self._get_avl_node_key((acquired_lot.spot_price), str(index))}", AcquiredLotAndIndex(acquired_lot, index)
+                    f"{self._get_avl_node_key((acquired_lot.spot_price), index)}", AcquiredLotAndIndex(acquired_lot, index)
                 )
                 self.__spot_price_list.append(acquired_lot.spot_price)
                 self.__acquired_lot_list.append(acquired_lot)
@@ -78,13 +78,13 @@ class AccountingMethod(AbstractSpecificId):
     # AVL tree node keys have this format: <spot_price>_<node_id>. The node_id part is needed to disambiguate transactions
     # that have the same spot_price. node_id is padded right in a string of fixed length (KEY_DISAMBIGUATOR_LENGTH).
     # The highest node_id is for the earliest acquired lot
-    def _get_avl_node_key(self, spot_price: RP2Decimal, node_id: str) -> str:
-        return f"{spot_price}_{(int(self.MAX_KEY_DISAMBIGUATOR) - int(node_id)):0>{self.KEY_DISAMBIGUATOR_LENGTH}}"
+    def _get_avl_node_key(self, spot_price: RP2Decimal, node_id: int) -> str:
+        return f"{spot_price}_{(int(self.MAX_KEY_DISAMBIGUATOR) - node_id):0>{self.KEY_DISAMBIGUATOR_LENGTH}}"
 
-    # This function calls _get_avl_node_key with node_id=MIN_KEY_DISAMBIGUATOR, so that the generated key is larger than any other key
+    # This function calls _get_avl_node_key with node_id=MIN_NODE_ID, so that the generated key is larger than any other key
     # with the same spot_price.
     def _get_avl_node_key_with_max_disambiguator(self, spot_price: RP2Decimal) -> str:
-        return self._get_avl_node_key(spot_price, self.MIN_KEY_DISAMBIGUATOR)
+        return self._get_avl_node_key(spot_price, self.MIN_NODE_ID)
 
     def get_next_taxable_event_and_amount(
         self,
@@ -135,9 +135,10 @@ class AccountingMethod(AbstractSpecificId):
         # * 2020-11-10, 1 BTC, $5000
         # If the initial timestamp is 2020-08-10, the list is: 2020-08-10, 2020-10-10, 2020-09-10, 2020-11-10.
         # If the initial timestamp is 2020-10-10, the list is: 2020-10-10, 2020-11-10.
-        # The second list is not a slice of the first, so we couldn't use a single list for all transactions: we would have to have
-        # separate list for each transaction. This would mean trading off O(n^2) time for O(n^2) space. Not sure if this is worth it:
-        # users with lots of transactions (e.g. high frequency traders) might running out of memory.
+        # The second list is not a slice of the first, so we couldn't use a single list to cover all transactions: we would have to
+        # have separate list for each transaction. This would mean trading off O(n^2) time for O(n^2) space. This may cause users with
+        # lots of transactions (e.g. high frequency traders) to run out of memory. There may be more complex solutions that are faster
+        # without needing quadratic memory, but they need to be researched.
 
         new_taxable_event_amount: RP2Decimal = taxable_event_amount - acquired_lot_amount
         spot_price_index = len(self.__spot_price_list) - 1
@@ -167,7 +168,7 @@ class AccountingMethod(AbstractSpecificId):
             spot_price_index -= 1
             current_key = f"{self._get_avl_node_key_with_max_disambiguator(self.__spot_price_list[spot_price_index])}"
             if acquired_lot_index is not None and self.__spot_price_list[spot_price_index] == self.__spot_price_list[spot_price_index + 1]:
-                current_key = f"{self._get_avl_node_key((self.__spot_price_list[spot_price_index]), str(acquired_lot_index + 1))}"
+                current_key = f"{self._get_avl_node_key((self.__spot_price_list[spot_price_index]), acquired_lot_index + 1)}"
         raise AcquiredLotsExhaustedException()
 
     def seek_acquired_lot(self, acquired_lot_list: List[InTransaction], start: int) -> Optional[AcquiredLotAndAmount]:
