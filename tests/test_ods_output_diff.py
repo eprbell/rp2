@@ -112,16 +112,20 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             self._compare(output_dir=self.output_dir, test_name="test_data4", method=method, output_plugin=OutputPlugins.TAX_REPORT_US)
 
     def test_test_hifo_rp2_full_report(self) -> None:
-        self._compare(output_dir=self.output_dir, test_name="test_hifo", method="hifo", output_plugin=OutputPlugins.RP2_FULL_REPORT)
+        for method in self.METHODS:
+            self._compare(output_dir=self.output_dir, test_name="test_hifo", method=method, output_plugin=OutputPlugins.RP2_FULL_REPORT)
 
     def test_test_hifo_tax_report_us(self) -> None:
-        self._compare(output_dir=self.output_dir, test_name="test_hifo", method="hifo", output_plugin=OutputPlugins.TAX_REPORT_US)
+        for method in self.METHODS:
+            self._compare(output_dir=self.output_dir, test_name="test_hifo", method=method, output_plugin=OutputPlugins.TAX_REPORT_US)
 
     def test_test_hifo2_rp2_full_report(self) -> None:
-        self._compare(output_dir=self.output_dir, test_name="test_hifo2", method="hifo", output_plugin=OutputPlugins.RP2_FULL_REPORT)
+        for method in self.METHODS:
+            self._compare(output_dir=self.output_dir, test_name="test_hifo2", method=method, output_plugin=OutputPlugins.RP2_FULL_REPORT)
 
     def test_test_hifo2_tax_report_us(self) -> None:
-        self._compare(output_dir=self.output_dir, test_name="test_hifo2", method="hifo", output_plugin=OutputPlugins.TAX_REPORT_US)
+        for method in self.METHODS:
+            self._compare(output_dir=self.output_dir, test_name="test_hifo2", method=method, output_plugin=OutputPlugins.TAX_REPORT_US)
 
     def test_test_many_year_data_rp2_full_report(self) -> None:
         for method in self.METHODS:
