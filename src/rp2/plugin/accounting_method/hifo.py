@@ -123,8 +123,22 @@ class AccountingMethod(AbstractSpecificId):
     def get_acquired_lot_for_taxable_event(
         self, taxable_event: AbstractTransaction, acquired_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, acquired_lot_amount: RP2Decimal
     ) -> TaxableEventAndAcquiredLot:
-        # This while loop makes the algorithm's complexity O(n^2), where n is the number of acquired lots. Non-trivial
-        # optimizations are possible using different data structures (and likely with some space/time tradeoff)
+        # This while loop causes O(n^2) complexity, where n is the number of acquired lots. Non-trivial optimizations are possible
+        # using different data structures (but they are likely to have expensive space/time tradeoff): e.g. a dict mapping timestamp
+        # to list of transactions before that timestamp, ordered by spot price. Note that such a dict would have to have a new copy
+        # of the list for each timestamp: i.e. we can't just use a single list tracking what's the next highest-priced transaction
+        # before a timestamp. This is because the "next highest-priced" transaction can vary, depending on what is the initial
+        # transaction: in other words the order is not global, it's relative to the initial transaction. For example:
+        # * 2020-08-10, 1 BTC, $20000
+        # * 2020-09-10, 1 BTC, $10000
+        # * 2020-10-10, 1 BTC, $15000
+        # * 2020-11-10, 1 BTC, $5000
+        # If the initial timestamp is 2020-08-10, the list is: 2020-08-10, 2020-10-10, 2020-09-10, 2020-11-10.
+        # If the initial timestamp is 2020-10-10, the list is: 2020-10-10, 2020-11-10.
+        # The second list is not a slice of the first, so we couldn't use a single list for all transactions: we would have to have
+        # separate list for each transaction. This would mean trading off O(n^2) time for O(n^2) space. Not sure if this is worth it:
+        # users with lots of transactions (e.g. high frequency traders) might running out of memory.
+
         new_taxable_event_amount: RP2Decimal = taxable_event_amount - acquired_lot_amount
         spot_price_index = len(self.__spot_price_list) - 1
         current_key: str = f"{self._get_avl_node_key_with_max_disambiguator(self.__spot_price_list[spot_price_index])}"
