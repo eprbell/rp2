@@ -157,7 +157,7 @@ class AccountingMethod(AbstractSpecificId):
                 acquired_lot_index = first_lot.idx
                 if first_lot.acquired_lot != acquired_lot_list[acquired_lot_index]:
                     raise Exception("Internal error: acquired_lot incongruence in HIFO accounting logic")
-                acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = self.seek_acquired_lot(acquired_lot_list, acquired_lot_index)
+                acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = self._seek_first_non_exhausted_acquired_lot(acquired_lot_list, acquired_lot_index)
                 if acquired_lot_and_amount:
                     return TaxableEventAndAcquiredLot(
                         taxable_event=taxable_event,
@@ -171,10 +171,10 @@ class AccountingMethod(AbstractSpecificId):
                 current_key = f"{self._get_avl_node_key((self.__spot_price_list[spot_price_index]), acquired_lot_index + 1)}"
         raise AcquiredLotsExhaustedException()
 
-    def seek_acquired_lot(self, acquired_lot_list: List[InTransaction], start: int) -> Optional[AcquiredLotAndAmount]:
-        # This while loop make the algorithm's complexity O(nm), where n is the number of taxable events and m is
-        # the number of acquired lots): for every taxable event, loop over the acquired lot list. There are non-trivial ways
-        # of making this faster (by changing the data structures).
+    def _seek_first_non_exhausted_acquired_lot(self, acquired_lot_list: List[InTransaction], start: int) -> Optional[AcquiredLotAndAmount]:
+        # This while loop causes O(nm) complexity, where n is the number of taxable events and m is the number of acquired lots):
+        # for every taxable event, loop over the acquired lot list. There are non-trivial ways of making this faster (by changing
+        # the data structures).
         for index in range(start, -1, -1):
             acquired_lot: InTransaction = acquired_lot_list[index]
             acquired_lot_amount: RP2Decimal
