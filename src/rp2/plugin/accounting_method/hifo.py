@@ -49,7 +49,7 @@ class AccountingMethod(AbstractSpecificId):
     # 1 quadrillion, which should be enough to capture the maximum number of same-spot_price transactions in all reasonable cases.
     KEY_DISAMBIGUATOR_LENGTH: int = 12
     MAX_KEY_DISAMBIGUATOR = "9" * KEY_DISAMBIGUATOR_LENGTH
-    MIN_NODE_ID: int = 0
+    MIN_ACQUIRED_LOT_INDEX: int = 0
 
     # Iterators yield transactions in ascending chronological order
     def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], acquired_lot_iterator: Iterator[InTransaction]) -> None:
@@ -60,7 +60,7 @@ class AccountingMethod(AbstractSpecificId):
         self.__acquired_lot_list = []
         self.__acquired_lot_avl: AVLTree[str, AcquiredLotAndIndex] = AVLTree()
 
-        index: int = self.MIN_NODE_ID
+        index: int = self.MIN_ACQUIRED_LOT_INDEX
         try:
             while True:
                 acquired_lot: InTransaction = next(acquired_lot_iterator)
@@ -75,16 +75,16 @@ class AccountingMethod(AbstractSpecificId):
             pass
         self.__spot_price_list.sort()
 
-    # AVL tree node keys have this format: <spot_price>_<node_id>. The node_id part is needed to disambiguate transactions
-    # that have the same spot_price. node_id is padded right in a string of fixed length (KEY_DISAMBIGUATOR_LENGTH).
-    # The highest node_id is for the earliest acquired lot
-    def _get_avl_node_key(self, spot_price: RP2Decimal, node_id: int) -> str:
-        return f"{spot_price}_{(int(self.MAX_KEY_DISAMBIGUATOR) - node_id):0>{self.KEY_DISAMBIGUATOR_LENGTH}}"
+    # AVL tree node keys have this format: <spot_price>_<acquired_lot_index>. The acquired_lot_index part is needed to disambiguate transactions
+    # that have the same spot_price. acquired_lot_index is padded right in a string of fixed length (KEY_DISAMBIGUATOR_LENGTH).
+    # The highest acquired_lot_index is for the earliest acquired lot
+    def _get_avl_node_key(self, spot_price: RP2Decimal, acquired_lot_index: int) -> str:
+        return f"{spot_price}_{(int(self.MAX_KEY_DISAMBIGUATOR) - acquired_lot_index):0>{self.KEY_DISAMBIGUATOR_LENGTH}}"
 
-    # This function calls _get_avl_node_key with node_id=MIN_NODE_ID, so that the generated key is larger than any other key
+    # This function calls _get_avl_node_key with acquired_lot_index=MIN_ACQUIRED_LOT_INDEX, so that the generated key is larger than any other key
     # with the same spot_price.
     def _get_avl_node_key_with_max_disambiguator(self, spot_price: RP2Decimal) -> str:
-        return self._get_avl_node_key(spot_price, self.MIN_NODE_ID)
+        return self._get_avl_node_key(spot_price, self.MIN_ACQUIRED_LOT_INDEX)
 
     def get_next_taxable_event_and_amount(
         self,
