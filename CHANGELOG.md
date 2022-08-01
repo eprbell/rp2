@@ -14,6 +14,10 @@
 
 # RP2 Change Log
 
+## 1.0.6
+* added HIFO accounting method plugin
+* updated documentation and FAQs
+
 ## 1.0.5
 * added country plugin for Japan
 * small improvements in documentation
