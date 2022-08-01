@@ -55,7 +55,6 @@ class AccountingMethod(AbstractSpecificId):
     def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], acquired_lot_iterator: Iterator[InTransaction]) -> None:
         self.__taxable_event_iterator = taxable_event_iterator
         self.__acquired_lot_2_partial_amount = {}
-
         self.__spot_price_list = []
         self.__acquired_lot_list = []
         self.__acquired_lot_avl: AVLTree[str, AcquiredLotAndIndex] = AVLTree()
