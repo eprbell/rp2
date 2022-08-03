@@ -61,6 +61,7 @@
   * [How to Handle DeFi Reflexive Tokens?](#how-to-handle-defi-reflexive-tokens)
   * [How to Handle DeFi Yield from Liquidity Pools](#how-to-handle-defi-yield-from-liquidity-pools)
   * [How to Handle NFTs?](#how-to-handle-nfts)
+  * [How to Handle Margin Trading?](#how-to-handle-margin-trading)
   * [How to Handle Futures and Options?](#how-to-handle-futures-and-options)
 
 ## General Questions
@@ -261,6 +262,9 @@ There is an ongoing debate on how to capture this scenario from a tax perspectiv
 
 ### How to Handle NFTs?
 RP2 treats NFTs like cryptocurrencies, that is as property. Use a unique asset type for each NFT, both in the config file and in the input spreadsheet (see the [input files](input_files.md) section of the documentation for format details): e.g. ETH_BORED_APE_4363. There is debate on whether NFTs should be treated as collectibles instead, but this has not been clarified officially by the IRS yet, to the best of my knowledge. Ask a tax professional for the correct answer in any given year.
+
+### How to Handle Margin Trading?
+Margin trading generates normal capital gains and losses, so it can be modeled using normal RP2 primitives. For more information on this topic: https://www.cointracker.io/blog/margin
 
 ### How to Handle Futures and Options?
 Calling for help on this question: if you have insight on this please open an issue or a PR.
