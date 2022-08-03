@@ -44,5 +44,5 @@ Read the [Adding a New Accounting Method](../README.dev.md#adding-a-new-accounti
 ## How to Develop a RP2 Country Plugin?
 Read the [Adding a New Country](../README.dev.md#adding-support-for-a-new-country) section of the Developer Documentation.
 
-### Why the Strange Directory Structure with Src?
+## Why the Strange Directory Structure with Src?
 Because RP2 is a [src](https://bskinn.github.io/My-How-Why-Pyproject-Src/)-[based](https://hynek.me/articles/testing-packaging/) [project](https://blog.ionelmc.ro/2014/05/25/python-packaging/).
