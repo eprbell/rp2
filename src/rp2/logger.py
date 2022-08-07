@@ -23,19 +23,20 @@ Path("./log").mkdir(parents=True, exist_ok=True)
 
 
 def create_logger(logger_name: str = "rp2") -> logging.Logger:
+    log_level: Optional[str] = os.environ.get("LOG_LEVEL")
+
     logger: logging.Logger = logging.getLogger(logger_name)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(log_level or logging.DEBUG)
 
     _console_handler: logging.StreamHandler = logging.StreamHandler()
     _console_format: logging.Formatter = logging.Formatter("%(levelname)s: %(message)s")
-    _console_handler.setLevel(logging.INFO)
+    _console_handler.setLevel(log_level or logging.INFO)
     _console_handler.setFormatter(_console_format)
 
     _file_handler: logging.FileHandler = logging.FileHandler(LOG_FILE)
     _file_format: logging.Formatter = logging.Formatter("%(asctime)s/%(name)s/%(levelname)s: %(message)s")
-    _log_level: Optional[str] = os.environ.get("LOG_LEVEL")
-    _log_level = "INFO" if not _log_level else _log_level
-    _file_handler.setLevel(_log_level)
+
+    _file_handler.setLevel(log_level or logging.INFO)
     _file_handler.setFormatter(_file_format)
 
     logger.addHandler(_console_handler)
