@@ -97,7 +97,7 @@ So if they want to start using RP2 for their 2021 taxes, they would just leave o
 * 2020-5-5: buy 1.5 BTC</li>
 * 2021: more transactions...</li>
 
-This is because lot a), part of lot b) and lot c) are already accounted for in the pre-RP2 system. The Notes column can be useful here: it can be used to describe why lot b) is partial.
+This is because a), part of b) and c) are already accounted for in the pre-RP2 system. The Notes column can be useful here: it can be used to describe why lot b) is partial.
 
 Of course the user still needs to keep all the documentation for previous years as well as for the current year. Also they will need to keep the same accounting method they were using previously: to switch accounting method (e.g. from FIFO to LIFO) it's necessary to speak to a tax professional first.
 
