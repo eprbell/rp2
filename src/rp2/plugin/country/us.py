@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+from typing import Set
 from rp2.abstract_country import AbstractCountry
 from rp2.rp2_main import rp2_main
 
@@ -23,8 +24,16 @@ class US(AbstractCountry):
         super().__init__("us", "usd")
 
     # Measured in days
-    def long_term_capital_gain_period(self) -> int:
+    def get_long_term_capital_gain_period(self) -> int:
         return 365
+
+    # Default accounting method to use if the user doesn't specify one on the command line
+    def get_default_accounting_method(self) -> str:
+        return "fifo"
+
+    # Set of accounting methods accepted in the country
+    def get_accounting_methods(self) -> Set[str]:
+        return {"fifo", "lifo", "hifo"}
 
 
 # US-specific entry point

@@ -204,4 +204,4 @@ class GainLoss(AbstractEntry):
             if not self.taxable_event.transaction_type.is_earn_type():
                 raise Exception("Internal error: acquired lot is None but taxable event is not earn-typed")
             return False
-        return (self.taxable_event.timestamp - self.acquired_lot.timestamp).days >= self.configuration.country.long_term_capital_gain_period()
+        return (self.taxable_event.timestamp - self.acquired_lot.timestamp).days >= self.configuration.country.get_long_term_capital_gain_period()

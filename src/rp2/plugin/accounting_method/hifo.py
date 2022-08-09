@@ -63,9 +63,7 @@ class AccountingMethod(AbstractSpecificId):
         try:
             while True:
                 acquired_lot: InTransaction = next(acquired_lot_iterator)
-                self.__acquired_lot_avl.insert_node(
-                    f"{self._get_avl_node_key((acquired_lot.spot_price), index)}", AcquiredLotAndIndex(acquired_lot, index)
-                )
+                self.__acquired_lot_avl.insert_node(f"{self._get_avl_node_key((acquired_lot.spot_price), index)}", AcquiredLotAndIndex(acquired_lot, index))
                 self.__spot_price_list.append(acquired_lot.spot_price)
                 self.__acquired_lot_list.append(acquired_lot)
                 index += 1

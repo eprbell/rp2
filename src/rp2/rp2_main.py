@@ -21,7 +21,7 @@ from importlib import import_module
 from pathlib import Path
 from pkgutil import iter_modules
 from types import ModuleType
-from typing import Dict, List
+from typing import Dict, List, Set
 
 from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.abstract_country import AbstractCountry
@@ -53,9 +53,7 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
 
     AbstractCountry.type_check("country", country)
 
-    accounting_methods: List[str] = _find_accounting_methods()
-
-    parser = _setup_argument_parser(accounting_methods)
+    parser = _setup_argument_parser(country)
     args = parser.parse_args()
 
     _setup_paths(parser=parser, configuration_file=args.configuration_file, input_file=args.input_file, output_dir=args.output_dir)
@@ -166,25 +164,40 @@ def _find_and_run_report_generators(
         sys.exit(1)
 
 
-def _find_accounting_methods() -> List[str]:
+def _validate_accounting_methods(country: AbstractCountry) -> List[str]:
     # Load accounting method plugins
     package: ModuleType = import_module(_ACCOUNTING_METHOD_PACKAGE)
     plugin_name: str
     is_package: bool
     result: List[str] = []
+    accounting_methods: Set[str] = country.get_accounting_methods()
+
+    if not country.get_default_accounting_method():
+        LOGGER.error("No default accounting method defined in the country plugin. Exiting...")
+        sys.exit(1)
+
+    if not country.get_accounting_methods():
+        LOGGER.error("No accounting methods defined in the country plugin. Exiting...")
+        sys.exit(1)
 
     for *_, plugin_name, is_package in iter_modules(package.__path__, package.__name__ + "."):
         if is_package:
             continue
-        result.append(plugin_name.rsplit(".", 1)[1])
+        normalized_plugin_name = plugin_name.rsplit(".", 1)[1]
+        if normalized_plugin_name in accounting_methods:
+            result.append(normalized_plugin_name)
 
     if not result:
         LOGGER.error("No accounting method plugins found. Exiting...")
+        sys.exit(1)
 
-    return result
+    return sorted(result)
 
 
-def _setup_argument_parser(accounting_methods: List[str]) -> ArgumentParser:
+def _setup_argument_parser(country: AbstractCountry) -> ArgumentParser:
+
+    accounting_methods = _validate_accounting_methods(country)
+
     parser: ArgumentParser = ArgumentParser(
         description=(
             "Generate capital gain/loss report and balances for crypto holdings. Links:\n"
@@ -223,7 +236,7 @@ def _setup_argument_parser(accounting_methods: List[str]) -> ArgumentParser:
     parser.add_argument(
         "-m",
         "--method",
-        default="fifo",
+        default=country.get_default_accounting_method(),
         choices=accounting_methods,
         help=f"accounting method (default: '%(default)s'). Supported values: {', '.join(accounting_methods)}",
         metavar="METHOD",

@@ -14,6 +14,7 @@
 
 
 import sys
+from typing import Set
 
 from rp2.abstract_country import AbstractCountry
 from rp2.rp2_main import rp2_main
@@ -25,9 +26,19 @@ class JP(AbstractCountry):
         super().__init__("jp", "jpy")
 
     # Measured in days
-    def long_term_capital_gain_period(self) -> int:
+    def get_long_term_capital_gain_period(self) -> int:
         # No long-term capital gains in Japan for crypto assets (as of 7/2022)
         return sys.maxsize
+
+    # Default accounting method to use if the user doesn't specify one on the command line
+    def get_default_accounting_method(self) -> str:
+        # This is incorrect and only a placeholder: we still need to implement Japan-specific accounting methods
+        return "fifo"
+
+    # Set of accounting methods accepted in the country
+    def get_accounting_methods(self) -> Set[str]:
+        # This is incorrect and only a placeholder: we still need to implement Japan-specific accounting methods
+        return {"fifo"}
 
 
 # JP-specific entry point

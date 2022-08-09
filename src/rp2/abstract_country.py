@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from typing import List
+from typing import List, Set
 
 from rp2.rp2_error import RP2TypeError
 
@@ -46,7 +46,7 @@ class AbstractCountry:
         output.append(f"{type(self).__name__}:")
         output.append(f"  country_iso_code={str(self.country_iso_code)}")
         output.append(f"  currency_iso_code={str(self.currency_iso_code)}")
-        output.append(f"  long_term_capital_gain_period={str(self.long_term_capital_gain_period())}")
+        output.append(f"  long_term_capital_gain_period={str(self.get_long_term_capital_gain_period())}")
         return "\n".join(output)
 
     def __repr__(self) -> str:
@@ -54,7 +54,7 @@ class AbstractCountry:
         output.append(f"{type(self).__name__}(")
         output.append(f"country_iso_code={str(self.country_iso_code)}")
         output.append(f", currency_iso_code={str(self.currency_iso_code)}")
-        output.append(f", long_term_capital_gain_period={str(self.long_term_capital_gain_period())}")
+        output.append(f", long_term_capital_gain_period={str(self.get_long_term_capital_gain_period())}")
         output.append(")")
         return "".join(output)
 
@@ -67,5 +67,13 @@ class AbstractCountry:
         return self.__currency_iso_code
 
     # Measured in days
-    def long_term_capital_gain_period(self) -> int:
+    def get_long_term_capital_gain_period(self) -> int:
+        raise NotImplementedError("Abstract function")
+
+    # Default accounting method to use if the user doesn't specify one on the command line
+    def get_default_accounting_method(self) -> str:
+        raise NotImplementedError("Abstract function")
+
+    # Set of accounting methods accepted in the country
+    def get_accounting_methods(self) -> Set[str]:
         raise NotImplementedError("Abstract function")
