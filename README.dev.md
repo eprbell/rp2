@@ -139,6 +139,7 @@ Read the [Contributing](CONTRIBUTING.md) document on pull requests guidelines.
 
 ### Design Guidelines
 RP2 code adheres to these principles:
+* user privacy is of paramount importance: user data never leaves the user's machine and no network calls are allowed.
 * all identifiers have [descriptive names](https://realpython.com/python-pep8/#how-to-choose-names);
 * immutability:
   * global variables have upper case names, are initialized where declared and are never modified afterwards;
