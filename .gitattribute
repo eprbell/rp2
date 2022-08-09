@@ -1,0 +1,27 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# Explicitly declare text files you want to always be normalized and converted
+# to native line endings on checkout.
+*.c text
+*.cfg text
+*.config text
+*.csv text
+*.editorconfig text
+*.gitattribute text
+*.gitignore text
+*.h text
+*.in text
+*.ini text
+*.md text
+*.py text
+*.pyi text
+*.pylintrc text
+*.toml text
+*.yaml text
+*.yml text
+
+# Denote all files that are truly binary and should not be modified.
+*.jpg binary
+*.ods binary
+*.png binary
