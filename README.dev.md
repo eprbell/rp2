@@ -308,9 +308,16 @@ from logger import LOGGER
 RP2 has experimental infrastructure to support countries other than the US. The abstract superclass is [AbstractCountry](src/rp2/abstract_country.py), which captures the following:
 * country code (2-letter string in [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format);
 * currency code (3-letter string in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format);
-* long term capital gain period in days (e.g. for the US it's 365).
+* long term capital gain period in days (e.g. for the US it's 365);
+* accepted accounting methods.
 
-To add support for a new country, add a new Python file to the `src/rp2/plugin/country` directory and name it after the ISO 3166-1 alpha-2 2-letter code for the country. Then define the `long_term_capital_gain_period()` method with the appropriate value and add a global function called `rp2_entry()` which simply calls `rp2_main()` and passes it an instance of the new country class: in fact subclasses of `AbstractCountry` are entry points, not plugins. As an example see the [us.py](src/rp2/plugin/country/us.py) file.
+To add support for a new country, add a new Python file to the `src/rp2/plugin/country` directory and name it after the ISO 3166-1 alpha-2 2-letter code for the country. Then define the following:
+* `get_long_term_capital_gain_period()` method with the appropriate value (if there is no long-term capital gains, return `sys.maxsize`);
+* `get_default_accounting_method()` method returning accounting method to use if the user doesn't specify one on the command line (e.g. for the US case it's `"fifo"`);
+* `get_accounting_methods()` method returning a set of accounting methods that are accepted in the country (e.g. `{"fifo", "lifo", "hifo"}`);
+* `rp2_entry()` global function calling `rp2_main()` and passing it an instance of the new country class (in fact technically subclasses of `AbstractCountry` are entry points, not plugins).
+
+As an example see the [us.py](src/rp2/plugin/country/us.py) file.
 
 Finally add a console script to [setup.cfg](setup.cfg) pointing the new country rp2_entry (see the US example in the console_scripts section of setup.cfg).
 
