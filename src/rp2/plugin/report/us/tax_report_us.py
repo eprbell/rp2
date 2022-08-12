@@ -15,7 +15,6 @@
 import logging
 from datetime import date
 from enum import Enum
-import os
 from pathlib import Path
 from typing import Any, Dict, List, Set, cast
 
@@ -82,6 +81,7 @@ class Generator(AbstractODSGenerator):
         output_file_prefix: str,
         from_date: date,
         to_date: date,
+        generation_language: str,
     ) -> None:
 
         row_indexes: Dict[str, int] = {sheet_name.value: self.HEADER_ROWS for sheet_name in SheetNames}
@@ -89,11 +89,12 @@ class Generator(AbstractODSGenerator):
         if not isinstance(asset_to_computed_data, Dict):
             raise RP2TypeError(f"Parameter 'asset_to_computed_data' has non-Dict value {asset_to_computed_data}")
 
-        template_path: str = str(Path(os.path.dirname(__file__)).parent.absolute() / Path("".join(["data/template_", country.country_iso_code, ".ods"])))
+        template_path: str = self._get_template_path("tax_report_us", country, generation_language)
 
         output_file: Any
         output_file = self._initialize_output_file(
             country=country,
+            legend_data=[],
             accounting_method=accounting_method,
             output_dir_path=output_dir_path,
             output_file_prefix=output_file_prefix,
