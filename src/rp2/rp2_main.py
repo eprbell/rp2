@@ -29,6 +29,7 @@ from rp2.abstract_report_generator import AbstractReportGenerator
 from rp2.computed_data import ComputedData
 from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.input_data import InputData
+from rp2.localization import set_generation_language
 from rp2.logger import LOG_FILE, LOGGER
 from rp2.ods_parser import open_ods, parse_ods
 from rp2.tax_engine import compute_tax
@@ -56,10 +57,13 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
     parser = _setup_argument_parser(country)
     args = parser.parse_args()
 
+    set_generation_language(args.generation_language)
+
     _setup_paths(parser=parser, configuration_file=args.configuration_file, input_file=args.input_file, output_dir=args.output_dir)
 
     try:
         LOGGER.info("Country: %s", country.country_iso_code)
+        LOGGER.info("Generation Language: %s", args.generation_language)
 
         accounting_method_module: ModuleType = import_module(f"{_ACCOUNTING_METHOD_PACKAGE}.{args.method}", package=_ACCOUNTING_METHOD_PACKAGE)
         if not hasattr(accounting_method_module, "AccountingMethod"):
@@ -69,7 +73,10 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
         LOGGER.info("Accounting Method: %s", args.method)
 
         configuration: Configuration = Configuration(
-            configuration_path=args.configuration_file, country=country, from_date=args.from_date, to_date=args.to_date
+            configuration_path=args.configuration_file,
+            country=country,
+            from_date=args.from_date,
+            to_date=args.to_date,
         )
         LOGGER.info("Configuration file: %s", args.configuration_file)
         LOGGER.debug("Configuration object: %s", configuration)
@@ -132,7 +139,11 @@ def _find_and_run_report_generators(
     generators = configuration.generators.copy()
     for package_path in package_paths:
         # Load report generator plugins and call their generate() method
-        package: ModuleType = import_module(package_path)
+        try:
+            package: ModuleType = import_module(package_path)
+        except ModuleNotFoundError:
+            # Path not found
+            continue
         plugin_name: str
         is_package: bool
         for *_, plugin_name, is_package in iter_modules(package.__path__, package.__name__ + "."):
@@ -157,6 +168,7 @@ def _find_and_run_report_generators(
                     output_file_prefix=args.prefix,
                     from_date=from_date,
                     to_date=to_date,
+                    generation_language=args.generation_language,
                 )
 
     if generators:
@@ -224,6 +236,15 @@ def _setup_argument_parser(country: AbstractCountry) -> ArgumentParser:
         help="Generate report from the given date (in ISO 8601 format: e.g. YYYY-MM-DD)",
         metavar="DATE",
         type=date.fromisoformat,
+    )
+    parser.add_argument(
+        "-g",
+        "--generation-language",
+        action="store",
+        default=country.get_default_generation_language(),
+        help="Language to use during generation (in ISO 639-1 format)",
+        metavar="GENERATION_LANGUAGE",
+        type=str,
     )
     parser.add_argument(
         "-l",
