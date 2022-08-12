@@ -30,6 +30,7 @@ class AbstractReportGenerator:
         output_file_prefix: str,
         from_date: date,
         to_date: date,
+        generation_language: str,
     ) -> None:
         raise NotImplementedError("Abstract method: it must be implemented in the plugin class")
 
