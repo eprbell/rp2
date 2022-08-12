@@ -35,6 +35,20 @@ class US(AbstractCountry):
     def get_accounting_methods(self) -> Set[str]:
         return {"fifo", "lifo", "hifo"}
 
+    # Default set of generators to use if the user doesn't specify them on the command line
+    def get_default_generators(self) -> Set[str]:
+        return set(
+            [
+                "rp2.plugin.report.open_positions",
+                "rp2.plugin.report.rp2_full_report",
+                "rp2.plugin.report.us.tax_report_us",
+            ]
+        )
+
+    # Default language to use at report generation if the user doesn't specify it on the command line (in ISO 639-1 format)
+    def get_default_generation_language(self) -> str:
+        return "en"
+
 
 # US-specific entry point
 def rp2_entry() -> None:
