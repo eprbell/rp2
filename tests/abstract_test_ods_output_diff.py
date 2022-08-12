@@ -32,6 +32,7 @@ GOLDEN_PATH: Path = INPUT_PATH / Path("golden")
 
 
 class OutputPlugins(Enum):
+    OPEN_POSITIONS = "open_positions"
     RP2_FULL_REPORT = "rp2_full_report"
     TAX_REPORT_US = "tax_report_us"
 
@@ -64,19 +65,23 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
         input_path: Path = INPUT_PATH,
         from_date: date = MIN_DATE,
         to_date: date = MAX_DATE,
+        generation_language: str = "en",
+        country: str = "us",
     ) -> None:
         config = test_name if config is None else config
         time_interval: str = cls.__get_time_interval(from_date, to_date)
 
         arguments: List[str] = [
-            "rp2_us",
+            f"rp2_{country}",
             "-m",
             method,
             "-o",
             str(output_dir),
             "-p",
-            f"{test_name}_{time_interval}",
+            f"{test_name}_{f'{generation_language}_' if generation_language != 'en' else ''}{time_interval}",
         ]
+        if generation_language != "en":
+            arguments.extend(["-g", generation_language])
         if from_date:
             arguments.extend(["-f", str(from_date)])
         if to_date:
@@ -91,11 +96,20 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
         run(arguments, check=True)
 
     def _compare(
-        self, output_dir: Path, test_name: str, method: str, output_plugin: OutputPlugins, from_date: date = MIN_DATE, to_date: date = MAX_DATE
+        self,
+        output_dir: Path,
+        test_name: str,
+        method: str,
+        output_plugin: OutputPlugins,
+        from_date: date = MIN_DATE,
+        to_date: date = MAX_DATE,
+        generation_language: str = "en",
     ) -> None:
         time_interval: str = self.__get_time_interval(from_date, to_date)
         diff: str
-        output_file_name: Path = Path(f"{test_name}_{time_interval}{method}_{output_plugin.value}.ods")
+        output_file_name: Path = Path(
+            f"{test_name}_{f'{generation_language}_' if generation_language != 'en' else ''}{time_interval}{method}_{output_plugin.value}.ods"
+        )
         full_output_file_name: Path = output_dir / output_file_name
         full_golden_file_name: Path = GOLDEN_PATH / output_file_name
         diff = ods_diff(full_golden_file_name, full_output_file_name, generate_ascii_representation=True)
