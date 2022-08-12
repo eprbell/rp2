@@ -77,3 +77,11 @@ class AbstractCountry:
     # Set of accounting methods accepted in the country
     def get_accounting_methods(self) -> Set[str]:
         raise NotImplementedError("Abstract function")
+
+    # Default set of generators to use if the user doesn't specify them on the command line
+    def get_default_generators(self) -> Set[str]:
+        raise NotImplementedError("Abstract function")
+
+    # Default language to use at report generation if the user doesn't specify it on the command line (in ISO 639-1 format)
+    def get_default_generation_language(self) -> str:
+        raise NotImplementedError("Abstract function")
