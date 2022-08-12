@@ -14,6 +14,15 @@
 
 # RP2 Change Log
 
+## 1.0.7
+* added generated report localization infrastructure: it's now possible to generate taxes for any country in any language (e.g. Japanese taxes in French). See README.dev.md for details
+* added -g command line option to select the language to use for generated reports
+* default generators are now specified in the country plugin (so that each country can select their allowed generators)
+* allowed accounting methods are now specified in the country plugin (so that each country can select their allowed accounting methods)
+* minor fixes in the Legend generation code
+* updated documentation with new Localization section and updated Country and Report plugin sections with latest API changes
+* added user FAQs
+
 ## 1.0.6
 * added HIFO accounting method plugin
 * updated documentation and FAQs
