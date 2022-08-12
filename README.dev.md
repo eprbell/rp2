@@ -38,6 +38,7 @@
   * [Adding a New Report Generator](#adding-a-new-report-generator)
   * [Adding a New Accounting Method](#adding-a-new-accounting-method)
   * [Adding Support for a New Country](#adding-support-for-a-new-country)
+* **[Localization](#localization)**
 * **[Frequently Asked Developer Questions](#frequently-asked-developer-questions)**
 
 ## Introduction
@@ -210,8 +211,8 @@ Report generator plugins are discovered by RP2 at runtime and they must adhere t
 * import the following (plus any other RP2 file you might need):
 ```
 from rp2.abstract_country import AbstractCountry
-from rp2.abstract_report_generator import AbstractReportGenerator
 from rp2.computed_data import ComputedData
+from rp2.entry_types import TransactionType
 from rp2.gain_loss import GainLoss
 from rp2.gain_loss_set import GainLossSet
 ```
@@ -232,6 +233,9 @@ class Generator(AbstractReportGenerator):
         asset_to_computed_data: Dict[str, ComputedData],
         output_dir_path: str,
         output_file_prefix: str,
+        from_date: date,
+        to_date: date,
+        generation_language: str,
     ) -> None:
 ```
 * write the body of the method. The parameters are:
@@ -239,7 +243,14 @@ class Generator(AbstractReportGenerator):
   * `accounting_method`: string name of the accounting method used to compute the taxes;
   * `asset_to_computed_data`: dictionary mapping user asset (i.e. cryptocurrency) to the computed tax data for that asset. For each user asset there is one instance of [ComputedData](src/rp2/computed_data.py);
   * `output_dir_path`: directory in which to write the output;
-  * `output_file_prefix`: prefix to be prepended to the output file name.
+  * `output_file_prefix`: prefix to be prepended to the output file name;
+  * `from_date`: filter out transactions before this date;
+  * `to_date`: filter out transactions after this date;
+  * `generation_language`: language to use for generation. This is a hint and, depending on the nature of the plugin it can be used or ignored: e.g.
+    * the tax_report_us plugin ignores `generation_language` because it generates a 8849-sytle report that has no use outside the US (so only English is used)
+    * the rp2_full_report plugin uses `generation_language` because it generates a generic report that can be useful in any country (so it has to be localization-friendly)
+
+Report plugin output can be localized in many languages (see the [Localization](#localization) section for more on this): for an example of a localization-aware plugin see [rp2_full_report](src/rp2/plugin/report/rp2_full_report.py).
 
 **NOTE**: If you're interested in adding support for a new report generator, open a [PR](CONTRIBUTING.md).
 
@@ -309,19 +320,48 @@ RP2 has experimental infrastructure to support countries other than the US. The 
 * country code (2-letter string in [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format);
 * currency code (3-letter string in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format);
 * long term capital gain period in days (e.g. for the US it's 365);
-* accepted accounting methods.
+* accepted accounting methods;
+* accepted report generators;
+* default language for the country.
 
 To add support for a new country, add a new Python file to the `src/rp2/plugin/country` directory and name it after the ISO 3166-1 alpha-2 2-letter code for the country. Then define the following:
+* in the constructor, invoke the superclass constructor passing in country code and currency code;
 * `get_long_term_capital_gain_period()` method with the appropriate value (if there is no long-term capital gains, return `sys.maxsize`);
 * `get_default_accounting_method()` method returning accounting method to use if the user doesn't specify one on the command line (e.g. for the US case it's `"fifo"`);
 * `get_accounting_methods()` method returning a set of accounting methods that are accepted in the country (e.g. `{"fifo", "lifo", "hifo"}`);
 * `rp2_entry()` global function calling `rp2_main()` and passing it an instance of the new country class (in fact technically subclasses of `AbstractCountry` are entry points, not plugins).
+* `get_default_generators()`: method returning a set of generators to use if the user doesn't specify them on the command line
+* `get_default_generation_language()`: method returning the default language to use at report generation if the user doesn't specify it on the command line (in ISO 639-1 format)
 
 As an example see the [us.py](src/rp2/plugin/country/us.py) file.
 
 Finally add a console script to [setup.cfg](setup.cfg) pointing the new country rp2_entry (see the US example in the console_scripts section of setup.cfg).
 
 **NOTE**: as mentioned, the country infrastructure is experimental. If you're interested in adding support for a new country and have feedback or notice missing functionality, open a [PR](CONTRIBUTING.md).
+
+## Localization
+RP2 supports generation of tax reports in any language via the Babel Python package. For example the JP country plugin supports the rp2_full_report and the open_positions report generators. The user can the `-g` command line option to generate Japanese taxes in English, Japanese, or any language for which there are translations (the argument to `-g` is a [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format, 2-letter string). Translatable strings are enclosed in the code with `_(...)` (see examples in the [rp2_full_report](src/rp2/plugin/report/rp2_full_report.py) plugin).
+
+Localizable strings and their translations are kept in the `src/rp2/locales` directory and here's how to manage them:
+* create or update the main message catalog (locales/messages.pot) anytime new localizable strings have been added to the code:
+
+  ```pybabel extract . -o src/rp2/locales/messages.pot --no-wrap --sort-output --copyright-holder=eprbell --project=rp2 --version=`cat .bumpversion.cfg | grep "current_version =" | cut -f3 -d " "` ```
+* manage language-specific catalogs (which are generated from src/rp2/locales/messages.pot): this step updates locales/&lt;language&gt;/LC_MESSAGES/messages.po:
+  * add support for a new language (if the .po file doesn't exist): create a new translation catalog:
+
+    ```pybabel init --no-wrap -l ja -i src/rp2/locales/messages.pot -d src/rp2/locales```
+  * or update catalog for a language (if the .po file already exists):
+
+     ```pybabel update -i src/rp2/locales/messages.pot -d src/rp2/locales --no-wrap```
+
+* translate any new strings: open src/rp2/locales/&lt;language&gt;/LC_MESSAGES/messages.po and add the missing translations in `msgstr` lines. If you don't know how to translate strings for a language leave them blank.
+
+* check for `fuzzy`-marked translations in src/rp2/locales/&lt;language&gt;/LC_MESSAGES/messages.po: sometimes Babel marks a translation as `fuzzy` in the .po file. Such entries must be reviewed manually for correctness and then the `fuzzy` comment must be removed (otherwise that translation doesn't get included at runtime).
+
+* compile the .po file in the final binary format (.mo): this step updates src/rp2/locales/&lt;language&gt;/LC_MESSAGES/messages.mo:
+
+  ```pybabel compile -d src/rp2/locales```
+
 
 ## Frequently Asked Developer Questions
 Read the [frequently asked developer questions](docs/developer_faq.md).
