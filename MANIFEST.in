@@ -8,5 +8,5 @@ include *.md
 recursive-include config *.config
 recursive-include docs *.md *.png
 recursive-include input *.ods
-recursive-include src *.ods
+recursive-include src *.ods *.txt *.mo *.po *.pot
 recursive-include tests *.py
