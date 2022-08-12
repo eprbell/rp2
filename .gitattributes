@@ -14,14 +14,18 @@
 *.in text
 *.ini text
 *.md text
+*.po text
+*.pot text
 *.py text
 *.pyi text
 *.pylintrc text
+*.txt text
 *.toml text
 *.yaml text
 *.yml text
 
 # Denote all files that are truly binary and should not be modified.
 *.jpg binary
+*.mo binary
 *.ods binary
 *.png binary
