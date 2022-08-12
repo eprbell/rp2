@@ -25,16 +25,9 @@ from rp2.configuration_schema import CONFIGURATION_SCHEMA
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
+
 MIN_DATE: date = date(1970, 1, 1)
 MAX_DATE: date = date(9999, 12, 31)
-
-DEFAULT_GENERATORS: Set[str] = set(
-    [
-        "rp2.plugin.report.rp2_full_report",
-        "rp2.plugin.report.us.tax_report_us",
-        "rp2.plugin.report.us.open_positions",
-    ]
-)
 
 # Parametrized and extensible method to generate string representation
 def to_string(indent: int = 0, repr_format: bool = True, data: Optional[List[str]] = None) -> str:
@@ -113,7 +106,7 @@ class Configuration:  # pylint: disable=too-many-public-methods
             self.__assets = set(json_configuration["assets"])
             self.__exchanges = set(json_configuration["exchanges"])
             self.__holders = set(json_configuration["holders"])
-            self.__generators = DEFAULT_GENERATORS
+            self.__generators = country.get_default_generators()
             if "generators" in json_configuration:
                 self.__generators = set(json_configuration["generators"])
 
