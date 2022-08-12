@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import logging
-import os
 from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, Set, cast
@@ -21,6 +20,7 @@ from typing import Any, Dict, List, Set, cast
 from rp2.abstract_country import AbstractCountry
 from rp2.computed_data import ComputedData
 from rp2.in_transaction import InTransaction
+from rp2.localization import _
 from rp2.logger import create_logger
 from rp2.plugin.report.abstract_ods_generator import AbstractODSGenerator
 from rp2.rp2_decimal import ZERO, RP2Decimal
@@ -45,6 +45,124 @@ class Generator(AbstractODSGenerator):
     OUTPUT_FILE: str = "open_positions.ods"
     HEADER_ROWS = 3
 
+    __legend: List[List[str]] = []
+    __asset_header_names_row_1: List[str] = []
+    __asset_header_names_row_2: List[str] = []
+    __asset_exchange_header_names_row_1: List[str] = []
+    __asset_exchange_header_names_row_2: List[str] = []
+    __input_header_names_row_1: List[str] = []
+    __input_header_names_row_2: List[str] = []
+
+    # pylint: disable=line-too-long
+    def _setup_text_data(self, country: AbstractCountry) -> None:
+
+        currency_code: str = country.currency_iso_code.upper()
+
+        self.__legend: List[List[str]] = [
+            # fmt: off
+            [_("Open Positions / Unrealized Gains")],
+            [_("Fill in Asset Prices in the Input Tab for calculations")],
+            [_("This report leverages the details of your transactions to give you a snapshot of the value of your unsold holdings")],
+            [_("This file contains two versions of the same report. One version is grouped by Asset, the other by Asset and Exchange (or wallet)")],
+            [""],
+            [_("General")],
+            [_("Accounting Method")],
+            [_("From Date Filter")],
+            [_("To Date Filter")],
+            [""],
+            [_("Report Fields")],
+            [_("Asset"), _("Crypto / asset symbol")],
+            [_("Holder"), _("Asset holder")],
+            [_("Exchange"), _("Exchange or wallet where balance is held (Asset - Exchange tab only)")],
+            [_("Crypto Balance"), _("Amount of given asset held")],
+            [_("{} Per Unit Cost Basis").format(currency_code), _("Sum of fiat cost to acquire the balance of crypto based on in-flow transactions divided by the crypto balance")],
+            [_("{} Unrealized Cost Basis").format(currency_code), _("Sum of fiat cost to acquire the balance of crypto based on in-flow transactions")],
+            [_("Cost Basis Weight %"), _("Size of investment relative to other assets for cost basis ({} Unrealized Cost Basis divided by the sum of all assets' {} Unrealized Cost Basis)").format(currency_code, currency_code)],
+            [_("{} Per Unit Input Price").format(currency_code), _("Looked up from the Input tab for the given asset")],
+            [_("{} Unrealized Value").format(currency_code), _("Crypto Balance * Input Price")],
+            [_("{} Unrealized Gain / Loss").format(currency_code), _("Unrealized Value - Unrealized Cost Basis")],
+            [_("{} Unrealized Gain / Loss %").format(currency_code), _("Percent change between Unrealized Value and Unrealized Cost Basis")],
+            [_("Unrealized G/L of Total Cost Basis %"), _("Indicates the percent of which this asset's unrealized gain/loss contributed to the whole portfolio's Unrealized Gain / Loss % (Gain/Loss relative to total cash investment)")],
+            [_("{} Unrealized Value Weight %").format(currency_code), _("Size of investment relative to the portfolio's unrealized value (Unrealized Value divided by sum of all assets' Unrealized Values)")],
+            [""],
+            [_("Color Code")],
+            [_("Gray"), _("Information from transactions")],
+            [_("Yellow"), _("Information calculated based on values entered in the Input tab")],
+            # fmt: on
+        ]
+
+        self.__asset_header_names_row_1: List[str] = [
+            "",
+            "",
+            _("Crypto"),
+            _("{} Per Unit").format(currency_code),
+            _("{} Unrealized").format(currency_code),
+            _("Cost Basis"),
+            _("{} Per Unit").format(currency_code),
+            _("{} Unrealized").format(currency_code),
+            _("{} Unrealized").format(currency_code),
+            _("{} Unrealized").format(currency_code),
+            _("Unrealized G/L of"),
+            _("{} Unrealized").format(currency_code),
+        ]
+
+        self.__asset_header_names_row_2: List[str] = [
+            _("Asset"),
+            _("Holder"),
+            _("Balance"),
+            _("Cost Basis"),
+            _("Cost Basis"),
+            _("Weight %"),
+            _("Input Price"),
+            _("Value"),
+            _("Gain / Loss"),
+            _("Gain / Loss %"),
+            _("Total Cost Basis %"),
+            _("Value Weight %"),
+        ]
+
+        self.__asset_exchange_header_names_row_1: List[str] = [
+            "",
+            "",
+            "",
+            _("Crypto"),
+            _("{} Per Unit").format(currency_code),
+            _("{} Unrealized").format(currency_code),
+            _("Cost Basis"),
+            _("{} Per Unit").format(currency_code),
+            _("{} Unrealized").format(currency_code),
+            _("{} Unrealized").format(currency_code),
+            _("{} Unrealized").format(currency_code),
+            _("Unrealized G/L of"),
+            _("{} Unrealized").format(currency_code),
+        ]
+
+        self.__asset_exchange_header_names_row_2: List[str] = [
+            _("Asset"),
+            _("Holder"),
+            _("Exchange"),
+            _("Balance"),
+            _("Cost Basis"),
+            _("Cost Basis"),
+            _("Weight %"),
+            _("Input Price"),
+            _("Value"),
+            _("Gain / Loss"),
+            _("Gain / Loss %"),
+            _("Total Cost Basis %"),
+            _("Value Weight %"),
+        ]
+
+        self.__input_header_names_row_1: List[str] = [
+            _("Crypto"),
+            "",
+        ]
+
+        self.__input_header_names_row_2: List[str] = [
+            _("Asset"),
+            _("Price"),
+        ]
+
     def generate(
         self,
         country: AbstractCountry,
@@ -54,22 +172,22 @@ class Generator(AbstractODSGenerator):
         output_file_prefix: str,
         from_date: date,
         to_date: date,
+        generation_language: str,
     ) -> None:
 
         # pylint: disable=too-many-branches
 
-        row_indexes: Dict[str, int] = {sheet_name: self.HEADER_ROWS for sheet_name in _TEMPLATE_SHEETS}
-
         if not isinstance(asset_to_computed_data, Dict):
             raise RP2TypeError(f"Parameter 'asset_to_computed_data' has non-Dict value {asset_to_computed_data}")
 
-        template_path: str = str(
-            Path(os.path.dirname(__file__)).parent.absolute() / Path("".join(["data/template_open_positions_", country.country_iso_code, ".ods"]))
-        )
+        self._setup_text_data(country)
+
+        template_path: str = self._get_template_path("open_positions", country, generation_language)
 
         output_file: Any
         output_file = self._initialize_output_file(
             country=country,
+            legend_data=self.__legend,
             accounting_method=accounting_method,
             output_dir_path=output_dir_path,
             output_file_prefix=output_file_prefix,
@@ -83,9 +201,27 @@ class Generator(AbstractODSGenerator):
         asset: str
         computed_data: ComputedData
 
-        input_sheet = output_file.sheets[_INPUT]
-        asset_exchange_sheet = output_file.sheets[_ASSET_EXCHANGE]
         asset_sheet = output_file.sheets[_ASSET]
+        asset_exchange_sheet = output_file.sheets[_ASSET_EXCHANGE]
+        input_sheet = output_file.sheets[_INPUT]
+
+        self._fill_header(_("Open Positions by Asset"), self.__asset_header_names_row_1, self.__asset_header_names_row_2, asset_sheet, 0, 0, apply_style=False)
+        self._fill_cell(asset_sheet, 0, 6, _("ENTER PRICES ON INPUT TAB"), apply_style=False)
+
+        self._fill_header(
+            _("Open Positions by Asset and Exchange"),
+            self.__asset_exchange_header_names_row_1,
+            self.__asset_exchange_header_names_row_2,
+            asset_exchange_sheet,
+            0,
+            0,
+            apply_style=False,
+        )
+        self._fill_cell(asset_exchange_sheet, 0, 7, _("ENTER PRICES ON INPUT TAB"), apply_style=False)
+
+        self._fill_header(_("Asset Price Lookup Table"), self.__input_header_names_row_1, self.__input_header_names_row_2, input_sheet, 0, 0, apply_style=False)
+
+        row_indexes: Dict[str, int] = {sheet_name: self.HEADER_ROWS for sheet_name in _TEMPLATE_SHEETS}
 
         # First loop - primary data collection
         #  - total_cost_basis: total cost basis for all transactions and all assets
@@ -173,7 +309,7 @@ class Generator(AbstractODSGenerator):
 
                 asset_sheet.append_rows(1)
                 asset_row_index: int = row_indexes[_ASSET]
-                _vlookup_formula = f"VLOOKUP(A{asset_row_index+1};$Input.A:B;2;0)"
+                _vlookup_formula = f"VLOOKUP(A{asset_row_index+1};${_('Input')}.A:B;2;0)"
                 _lookup_field = f'=IF({_vlookup_formula}="{_INPUT_VALUE_STRING}";"{_REPORT_INPUT_VALUE_STRING}";{_vlookup_formula}'
 
                 self._fill_cell(asset_sheet, asset_row_index, 0, asset)
@@ -196,7 +332,7 @@ class Generator(AbstractODSGenerator):
 
                     asset_exchange_sheet.append_rows(1)
                     asset_exchange_row_index: int = row_indexes[_ASSET_EXCHANGE]
-                    _vlookup_formula = f"VLOOKUP(A{asset_exchange_row_index+1};$Input.A:B;2;0)"
+                    _vlookup_formula = f"VLOOKUP(A{asset_exchange_row_index+1};${_('Input')}.A:B;2;0)"
                     _lookup_field = f'=IF({_vlookup_formula}="{_INPUT_VALUE_STRING}";"{_REPORT_INPUT_VALUE_STRING}";{_vlookup_formula}'
 
                     self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 0, asset)
@@ -246,7 +382,7 @@ class Generator(AbstractODSGenerator):
                 asset_sheet.append_rows(1)
                 asset_row_index = row_indexes[_ASSET]
                 last_data_index = last_data_row_indexes[_ASSET]
-                self._fill_cell(asset_sheet, asset_row_index, 0, "Total", visual_style="bold_border")
+                self._fill_cell(asset_sheet, asset_row_index, 0, _("Total"), visual_style="bold_border")
                 self._fill_cell(asset_sheet, asset_row_index, 1, holder, visual_style="bold_border")
                 self._fill_cell(asset_sheet, asset_row_index, 2, "", visual_style="bold_border")
                 self._fill_cell(asset_sheet, asset_row_index, 3, "", visual_style="bold_border")
@@ -291,7 +427,7 @@ class Generator(AbstractODSGenerator):
         asset_sheet.append_rows(1)
         asset_row_index = row_indexes[_ASSET]
         last_data_index = last_data_row_indexes[_ASSET]
-        self._fill_cell(asset_sheet, asset_row_index, 0, "Grand Total", visual_style="bold_border")
+        self._fill_cell(asset_sheet, asset_row_index, 0, _("Grand Total"), visual_style="bold_border")
         self._fill_cell(asset_sheet, asset_row_index, 1, "", visual_style="bold_border")
         self._fill_cell(asset_sheet, asset_row_index, 2, "", visual_style="bold_border")
         self._fill_cell(asset_sheet, asset_row_index, 3, "", visual_style="bold_border")
@@ -318,7 +454,7 @@ class Generator(AbstractODSGenerator):
                 asset_exchange_sheet.append_rows(1)
                 asset_exchange_row_index = row_indexes[_ASSET_EXCHANGE]
                 last_data_index = last_data_row_indexes[_ASSET_EXCHANGE]
-                self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 0, "Total", visual_style="bold_border")
+                self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 0, _("Total"), visual_style="bold_border")
                 self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 1, holder, visual_style="bold_border")
                 self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 2, "", visual_style="bold_border")
                 self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 3, "", visual_style="bold_border")
@@ -364,7 +500,7 @@ class Generator(AbstractODSGenerator):
         asset_exchange_sheet.append_rows(1)
         asset_exchange_row_index = row_indexes[_ASSET_EXCHANGE]
         last_data_index = last_data_row_indexes[_ASSET_EXCHANGE]
-        self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 0, "Grand Total", visual_style="bold_border")
+        self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 0, _("Grand Total"), visual_style="bold_border")
         self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 1, "", visual_style="bold_border")
         self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 2, "", visual_style="bold_border")
         self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 3, "", visual_style="bold_border")
@@ -406,6 +542,10 @@ class Generator(AbstractODSGenerator):
         self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 11, "", visual_style="bold_border")
         self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 12, "", visual_style="bold_border")
         row_indexes[_ASSET_EXCHANGE] = asset_exchange_row_index + 1
+
+        asset_sheet.name = _("Asset")
+        asset_exchange_sheet.name = _("Asset - Exchange")
+        input_sheet.name = _("Input")
 
         output_file.save()
         LOGGER.info("Plugin '%s' output: %s", __name__, Path(output_file.docname).resolve())
