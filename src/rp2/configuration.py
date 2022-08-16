@@ -28,6 +28,8 @@ from rp2.rp2_error import RP2TypeError, RP2ValueError
 MIN_DATE: date = date(1970, 1, 1)
 MAX_DATE: date = date(9999, 12, 31)
 
+REPORT_GENERATOR_PACKAGE = "rp2.plugin.report"
+
 # Parametrized and extensible method to generate string representation
 def to_string(indent: int = 0, repr_format: bool = True, data: Optional[List[str]] = None) -> str:
     padding: str
@@ -105,7 +107,7 @@ class Configuration:  # pylint: disable=too-many-public-methods
             self.__assets = set(json_configuration["assets"])
             self.__exchanges = set(json_configuration["exchanges"])
             self.__holders = set(json_configuration["holders"])
-            self.__generators = country.get_default_generators()
+            self.__generators = {f"{REPORT_GENERATOR_PACKAGE}.{generator}" for generator in country.get_generators()}
             if "generators" in json_configuration:
                 self.__generators = set(json_configuration["generators"])
 

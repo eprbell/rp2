@@ -330,7 +330,7 @@ To add support for a new country, add a new Python file to the `src/rp2/plugin/c
 * `get_default_accounting_method()` method returning accounting method to use if the user doesn't specify one on the command line (e.g. for the US case it's `"fifo"`);
 * `get_accounting_methods()` method returning a set of accounting methods that are accepted in the country (e.g. `{"fifo", "lifo", "hifo"}`);
 * `rp2_entry()` global function calling `rp2_main()` and passing it an instance of the new country class (in fact technically subclasses of `AbstractCountry` are entry points, not plugins).
-* `get_default_generators()`: method returning a set of generators to use if the user doesn't specify them on the command line
+* `get_generators()`: method returning a set of generators to use if the user doesn't specify them on the command line.
 * `get_default_generation_language()`: method returning the default language to use at report generation if the user doesn't specify it on the command line (in ISO 639-1 format)
 
 As an example see the [us.py](src/rp2/plugin/country/us.py) file.

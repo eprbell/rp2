@@ -27,7 +27,7 @@ from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.abstract_country import AbstractCountry
 from rp2.abstract_report_generator import AbstractReportGenerator
 from rp2.computed_data import ComputedData
-from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
+from rp2.configuration import MAX_DATE, MIN_DATE, REPORT_GENERATOR_PACKAGE, Configuration
 from rp2.input_data import InputData
 from rp2.localization import set_generation_language
 from rp2.logger import LOG_FILE, LOGGER
@@ -37,7 +37,6 @@ from rp2.tax_engine import compute_tax
 _VERSION: str = "1.0.8"
 
 _ACCOUNTING_METHOD_PACKAGE = "rp2.plugin.accounting_method"
-_REPORT_GENERATOR_PACKAGE = "rp2.plugin.report"
 
 
 def rp2_main(country: AbstractCountry) -> None:
@@ -110,7 +109,7 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
         # Run report generators (both country-specific and non-country-specific)
         _find_and_run_report_generators(
             configuration=configuration,
-            package_paths=[_REPORT_GENERATOR_PACKAGE, f"{_REPORT_GENERATOR_PACKAGE}.{country.country_iso_code}"],
+            package_paths=[REPORT_GENERATOR_PACKAGE, f"{REPORT_GENERATOR_PACKAGE}.{country.country_iso_code}"],
             args=args,
             country=country,
             accounting_method=accounting_method,
@@ -152,7 +151,7 @@ def _find_and_run_report_generators(
             if plugin_name not in generators:
                 continue
             generators.remove(plugin_name)
-            output_module: ModuleType = import_module(plugin_name, package=_REPORT_GENERATOR_PACKAGE)
+            output_module: ModuleType = import_module(plugin_name, package=REPORT_GENERATOR_PACKAGE)
             if hasattr(output_module, "Generator"):
                 generator: AbstractReportGenerator = output_module.Generator()
                 LOGGER.debug("Generator object: '%s'", generator)

@@ -37,11 +37,11 @@ class US(AbstractCountry):
         return {"fifo", "lifo", "hifo"}
 
     # Default set of generators to use if the user doesn't specify them on the command line
-    def get_default_generators(self) -> Set[str]:
+    def get_generators(self) -> Set[str]:
         return {
-            "rp2.plugin.report.open_positions",
-            "rp2.plugin.report.rp2_full_report",
-            "rp2.plugin.report.us.tax_report_us",
+            "open_positions",
+            "rp2_full_report",
+            "us.tax_report_us",
         }
 
     # Default language to use at report generation if the user doesn't specify it on the command line (in ISO 639-1 format)
