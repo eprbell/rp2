@@ -41,7 +41,7 @@ check: $(VENV)/bin/activate
 	$(VENV)/bin/pytest --tb=native --verbose
 
 static_analysis: $(VENV)/bin/activate
-	MYPYPATH=$(PYTHONPATH):$(CURDIR)/src/stubs $(VENV)/bin/mypy src/ tests/
+	$(VENV)/bin/mypy src/ tests/
 	$(VENV)/bin/pylint -r y src tests/*.py
 	$(VENV)/bin/bandit -r src/
 
