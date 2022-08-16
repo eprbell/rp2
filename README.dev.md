@@ -316,7 +316,7 @@ from logger import LOGGER
 **NOTE**: If you're interested in adding support for a new accounting method, open a [PR](CONTRIBUTING.md).
 
 ### Adding Support for a New Country
-RP2 has experimental infrastructure to support countries other than the US. The abstract superclass is [AbstractCountry](src/rp2/abstract_country.py), which captures the following:
+RP2 has infrastructure to support countries other than the US. The abstract superclass is [AbstractCountry](src/rp2/abstract_country.py), which captures the following:
 * country code (2-letter string in [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format);
 * currency code (3-letter string in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format);
 * long term capital gain period in days (e.g. for the US it's 365);
@@ -336,8 +336,6 @@ To add support for a new country, add a new Python file to the `src/rp2/plugin/c
 As an example see the [us.py](src/rp2/plugin/country/us.py) file.
 
 Finally add a console script to [setup.cfg](setup.cfg) pointing the new country rp2_entry (see the US example in the console_scripts section of setup.cfg).
-
-**NOTE**: as mentioned, the country infrastructure is experimental. If you're interested in adding support for a new country and have feedback or notice missing functionality, open a [PR](CONTRIBUTING.md).
 
 ## Localization
 RP2 supports generation of tax reports in any language via the Babel Python package. For example the JP country plugin supports the rp2_full_report and the open_positions report generators. The user can the `-g` command line option to generate Japanese taxes in English, Japanese, or any language for which there are translations (the argument to `-g` is a [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format, 2-letter string). Translatable strings are enclosed in the code with `_(...)` (see examples in the [rp2_full_report](src/rp2/plugin/report/rp2_full_report.py) plugin).
