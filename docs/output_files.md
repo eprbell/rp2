@@ -75,4 +75,3 @@ The report contains:
 * the Input sheet for entering current asset values (or asset values on a given date to be used for the calculations per user requirements). ![Open Positions input tab example](images/open_positions_input.png)
 * the Asset sheet which among other things shows the crypto balance, cost basis information (by unit and in whole) and portfolio weighting of each asset as well as the unrealized / market value and the gains / loss data in fiat and percentage terms in addition to further breakdowns. This tab summarizes the information by asset and holder. ![Open Positions asset tab example](images/open_positions_asset.png)
 * The Asset - Exchange sheet provides the same information as the asset tab, but further breaks the information down by exchange. ![Open Positions asset exchange tab example](images/open_positions_asset_exchange.png)
-

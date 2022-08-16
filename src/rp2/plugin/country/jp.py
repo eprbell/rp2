@@ -41,12 +41,10 @@ class JP(AbstractCountry):
         return {"fifo"}
 
     def get_default_generators(self) -> Set[str]:
-        return set(
-            [
-                "rp2.plugin.report.open_positions",
-                "rp2.plugin.report.rp2_full_report",
-            ]
-        )
+        return {
+            "rp2.plugin.report.open_positions",
+            "rp2.plugin.report.rp2_full_report",
+        }
 
     # Default language to use at report generation if the user doesn't specify it on the command line (in ISO 639-1 format)
     def get_default_generation_language(self) -> str:

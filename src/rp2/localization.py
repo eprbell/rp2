@@ -15,6 +15,7 @@
 import gettext
 import os
 from pathlib import Path
+
 from babel import Locale
 from babel.core import UnknownLocaleError
 

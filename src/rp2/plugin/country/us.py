@@ -14,6 +14,7 @@
 
 
 from typing import Set
+
 from rp2.abstract_country import AbstractCountry
 from rp2.rp2_main import rp2_main
 
@@ -37,13 +38,11 @@ class US(AbstractCountry):
 
     # Default set of generators to use if the user doesn't specify them on the command line
     def get_default_generators(self) -> Set[str]:
-        return set(
-            [
-                "rp2.plugin.report.open_positions",
-                "rp2.plugin.report.rp2_full_report",
-                "rp2.plugin.report.us.tax_report_us",
-            ]
-        )
+        return {
+            "rp2.plugin.report.open_positions",
+            "rp2.plugin.report.rp2_full_report",
+            "rp2.plugin.report.us.tax_report_us",
+        }
 
     # Default language to use at report generation if the user doesn't specify it on the command line (in ISO 639-1 format)
     def get_default_generation_language(self) -> str:

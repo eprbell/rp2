@@ -1163,4 +1163,3 @@ msgstr ""
 #: src/rp2/plugin/report/rp2_full_report.py:141
 msgid "{} value of the transaction without fees"
 msgstr ""
-

@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import date
 import os
+from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, Set
 
@@ -107,7 +107,7 @@ class AbstractODSGenerator(AbstractReportGenerator):
         txt_path = Path(f"{base_path}.txt")
         if txt_path.exists():
             new_ods_path = Path(os.path.dirname(__file__)).absolute()
-            with open(txt_path, "r", encoding="utf-8") as template_link:
+            with open(txt_path, encoding="utf-8") as template_link:
                 contents = template_link.read().strip()
                 if not contents or not contents.endswith(".ods"):
                     raise Exception(f"Internal error: template link {txt_path} doesn't contain a path ending with .ods: {contents}")
