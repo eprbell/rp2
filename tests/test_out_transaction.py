@@ -658,7 +658,7 @@ class TestOutTransaction(unittest.TestCase):
                 crypto_out_with_fee=RP2Decimal("2.2"),
                 internal_id=38,
             )
-            self.assertTrue(re.search("crypto_out_with_fee != crypto_out_no_fee.*crypto_fee:.*", log.output[0]))  # type: ignore
+            self.assertTrue(re.search("crypto_out_with_fee != crypto_out_no_fee.*crypto_fee:.*", log.output[0]))
         with self.assertLogs(level="WARNING") as log:
             OutTransaction(
                 self._configuration,
@@ -674,7 +674,7 @@ class TestOutTransaction(unittest.TestCase):
                 fiat_fee=RP2Decimal("5.9"),
                 internal_id=38,
             )
-            self.assertTrue(re.search("crypto_fee.*spot_price.*!= fiat_fee.*:.*", log.output[0]))  # type: ignore
+            self.assertTrue(re.search("crypto_fee.*spot_price.*!= fiat_fee.*:.*", log.output[0]))
         with self.assertLogs(level="WARNING") as log:
             OutTransaction(
                 self._configuration,
@@ -690,7 +690,7 @@ class TestOutTransaction(unittest.TestCase):
                 fiat_fee=RP2Decimal("90.09"),
                 internal_id=38,
             )
-            self.assertTrue(re.search("crypto_out_no_fee.*spot_price.*!= fiat_out_no_fee.*:.*", log.output[0]))  # type: ignore
+            self.assertTrue(re.search("crypto_out_no_fee.*spot_price.*!= fiat_out_no_fee.*:.*", log.output[0]))
 
 
 if __name__ == "__main__":

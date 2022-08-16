@@ -826,7 +826,7 @@ class TestInTransaction(unittest.TestCase):
                 fiat_in_with_fee=RP2Decimal("2000.2"),
                 internal_id=19,
             )
-            self.assertTrue(re.search(".* InTransaction .*, id.*crypto_in.*spot_price != fiat_in_no_fee:.*", log.output[0]))  # type: ignore
+            self.assertTrue(re.search(".* InTransaction .*, id.*crypto_in.*spot_price != fiat_in_no_fee:.*", log.output[0]))
 
         with self.assertLogs(level="WARNING") as log:
             # fiat in (with fee) != fiat in (without fee) + fiat fee
@@ -844,7 +844,7 @@ class TestInTransaction(unittest.TestCase):
                 fiat_in_with_fee=RP2Decimal("2020.2"),
                 internal_id=19,
             )
-            self.assertTrue(re.search(".* InTransaction .*, id.*fiat_in_with_fee != fiat_in_no_fee.*fiat_fee:.*", log.output[0]))  # type: ignore
+            self.assertTrue(re.search(".* InTransaction .*, id.*fiat_in_with_fee != fiat_in_no_fee.*fiat_fee:.*", log.output[0]))
 
 
 if __name__ == "__main__":

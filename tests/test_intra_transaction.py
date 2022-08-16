@@ -657,7 +657,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1.9998"),
                 internal_id=19,
             )
-            self.assertTrue(re.search(".*IntraTransaction.*: from/to exchanges/holders are the same: sending to self", log.output[0]))  # type: ignore
+            self.assertTrue(re.search(".*IntraTransaction.*: from/to exchanges/holders are the same: sending to self", log.output[0]))
 
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_sent' has non-positive value .*"):
             # Crypto sent < 0
@@ -735,7 +735,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1.9998"),
                 internal_id=19,
             )
-            self.assertTrue(re.search(".*IntraTransaction.*: from/to exchanges/holders are the same: sending to self", log.output[0]))  # type: ignore
+            self.assertTrue(re.search(".*IntraTransaction.*: from/to exchanges/holders are the same: sending to self", log.output[0]))
         with self.assertRaisesRegex(RP2ValueError, ".*IntraTransaction .*, id.*crypto sent < crypto received"):
             # Crypto sent < crypto received
             IntraTransaction(
