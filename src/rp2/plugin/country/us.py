@@ -37,7 +37,7 @@ class US(AbstractCountry):
         return {"fifo", "lifo", "hifo"}
 
     # Default set of generators to use if the user doesn't specify them on the command line
-    def get_generators(self) -> Set[str]:
+    def get_report_generators(self) -> Set[str]:
         return {
             "open_positions",
             "rp2_full_report",

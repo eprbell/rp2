@@ -107,7 +107,7 @@ class Configuration:  # pylint: disable=too-many-public-methods
             self.__assets = set(json_configuration["assets"])
             self.__exchanges = set(json_configuration["exchanges"])
             self.__holders = set(json_configuration["holders"])
-            self.__generators = {f"{REPORT_GENERATOR_PACKAGE}.{generator}" for generator in country.get_generators()}
+            self.__generators = {f"{REPORT_GENERATOR_PACKAGE}.{generator}" for generator in country.get_report_generators()}
             if "generators" in json_configuration:
                 self.__generators = set(json_configuration["generators"])
 

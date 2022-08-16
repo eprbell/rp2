@@ -40,7 +40,7 @@ class JP(AbstractCountry):
         # This is incorrect and only a placeholder: we still need to implement Japan-specific accounting methods
         return {"fifo"}
 
-    def get_generators(self) -> Set[str]:
+    def get_report_generators(self) -> Set[str]:
         return {
             "open_positions",
             "rp2_full_report",
