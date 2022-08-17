@@ -349,7 +349,7 @@ RP2 supports generation of tax reports in any language via the Babel Python pack
 
 Localizable strings and their translations are kept in the `src/rp2/locales` directory and here's how to manage them, when strings change in the code:
 * generate the main message catalog (locales/messages.pot):
-  ```pybabel extract . -o src/rp2/locales/messages.pot --no-wrap --sort-output --copyright-holder=eprbell --project=rp2 --version=`cat .bumpversion.cfg | grep "current_version =" | cut -f3 -d " "` ```
+  ```pybabel extract . -o src/rp2/locales/messages.pot --no-wrap --sort-output --copyright-holder=eprbell --project=rp2 --version=`cat .bumpversion.cfg | grep "current_version =" | cut -f3 -d " "` --no-location src ```
 * manage language-specific catalogs (which are generated from src/rp2/locales/messages.pot): this step updates locales/&lt;language&gt;/LC_MESSAGES/messages.po:
   * if the .po file doesn't exist, add support for a new language by creating a new translation catalog:
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rp2 1.0.6\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-08-11 21:49-0700\n"
+"POT-Creation-Date: 2022-08-17 00:13-0700\n"
 "PO-Revision-Date: 2022-08-10 19:04-0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: kl\n"
@@ -18,1151 +18,696 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.10.3\n"
 
-#: src/rp2/plugin/report/rp2_full_report.py:101
 msgid "<Crypto> In-Out"
 msgstr "__test_<Crypto> In-Out"
 
-#: src/rp2/plugin/report/rp2_full_report.py:102
 msgid "<Crypto> Tax"
 msgstr "__test_<Crypto> Tax"
 
-#: src/rp2/plugin/report/rp2_full_report.py:109
-#: src/rp2/plugin/report/rp2_full_report.py:174
-#: src/rp2/plugin/report/rp2_full_report.py:724
 msgid "Account Balances"
 msgstr "__test_Account Balances"
 
-#: src/rp2/plugin/report/abstract_ods_generator.py:85
-#: src/rp2/plugin/report/open_positions.py:69
-#: src/rp2/plugin/report/rp2_full_report.py:96
 msgid "Accounting Method"
 msgstr "__test_Accounting Method"
 
-#: src/rp2/plugin/report/rp2_full_report.py:344
 msgid "Acquired"
 msgstr "__test_Acquired"
 
-#: src/rp2/plugin/report/rp2_full_report.py:178
 msgid "Acquired Balance"
 msgstr "__test_Acquired Balance"
 
-#: src/rp2/plugin/report/rp2_full_report.py:395
-#: src/rp2/plugin/report/rp2_full_report.py:396
-#: src/rp2/plugin/report/rp2_full_report.py:400
 msgid "Acquired Lot"
 msgstr "__test_Acquired Lot"
 
-#: src/rp2/plugin/report/rp2_full_report.py:402
 msgid "Acquired Lot Fraction"
 msgstr "__test_Acquired Lot Fraction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:199
 msgid "Acquired Lot Fraction %"
 msgstr "__test_Acquired Lot Fraction %"
 
-#: src/rp2/plugin/report/rp2_full_report.py:204
 msgid "Acquired Lot Fraction Description"
 msgstr "__test_Acquired Lot Fraction Description"
 
-#: src/rp2/plugin/report/rp2_full_report.py:203
 msgid "Acquired Lot Spot Price"
 msgstr "__test_Acquired Lot Spot Price"
 
-#: src/rp2/plugin/report/rp2_full_report.py:198
 msgid "Acquired Lot Timestamp"
 msgstr "__test_Acquired Lot Timestamp"
 
-#: src/rp2/plugin/report/rp2_full_report.py:397
-#: src/rp2/plugin/report/rp2_full_report.py:398
-#: src/rp2/plugin/report/rp2_full_report.py:399
 msgid "Acquired Lot {}"
 msgstr "__test_Acquired Lot {}"
 
-#: src/rp2/plugin/report/rp2_full_report.py:200
 msgid "Acquired Lot {} Amount Fraction"
 msgstr "__test_Acquired Lot {} Amount Fraction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:202
 msgid "Acquired Lot {} Cost Basis"
 msgstr "__test_Acquired Lot {} Cost Basis"
 
-#: src/rp2/plugin/report/rp2_full_report.py:201
 msgid "Acquired Lot {} Fee Fraction"
 msgstr "__test_Acquired Lot {} Fee Fraction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:406
 msgid "Amount"
 msgstr "__test_Amount"
 
-#: src/rp2/plugin/report/rp2_full_report.py:414
-#: src/rp2/plugin/report/rp2_full_report.py:420
 msgid "Amount Fraction"
 msgstr "__test_Amount Fraction"
 
-#: src/rp2/plugin/report/open_positions.py:77
 msgid "Amount of given asset held"
 msgstr "__test_Amount of given asset held"
 
-#: src/rp2/plugin/report/open_positions.py:74
-#: src/rp2/plugin/report/open_positions.py:110
-#: src/rp2/plugin/report/open_positions.py:141
-#: src/rp2/plugin/report/open_positions.py:162
-#: src/rp2/plugin/report/open_positions.py:546
-#: src/rp2/plugin/report/rp2_full_report.py:116
-#: src/rp2/plugin/report/rp2_full_report.py:132
-#: src/rp2/plugin/report/rp2_full_report.py:149
-#: src/rp2/plugin/report/rp2_full_report.py:166
-#: src/rp2/plugin/report/rp2_full_report.py:177
-#: src/rp2/plugin/report/rp2_full_report.py:188
-#: src/rp2/plugin/report/rp2_full_report.py:221
-#: src/rp2/plugin/report/rp2_full_report.py:252
-#: src/rp2/plugin/report/rp2_full_report.py:288
-#: src/rp2/plugin/report/rp2_full_report.py:324
-#: src/rp2/plugin/report/rp2_full_report.py:353
-#: src/rp2/plugin/report/rp2_full_report.py:373
-#: src/rp2/plugin/report/rp2_full_report.py:407
 msgid "Asset"
 msgstr "__test_Asset"
 
-#: src/rp2/plugin/report/open_positions.py:547
 msgid "Asset - Exchange"
 msgstr "__test_Asset - Exchange"
 
-#: src/rp2/plugin/report/open_positions.py:222
 msgid "Asset Price Lookup Table"
 msgstr "__test_Asset Price Lookup Table"
 
-#: src/rp2/plugin/report/open_positions.py:75
 msgid "Asset holder"
 msgstr "__test_Asset holder"
 
-#: src/rp2/plugin/report/rp2_full_report.py:110
-#: src/rp2/plugin/report/rp2_full_report.py:183
-#: src/rp2/plugin/report/rp2_full_report.py:760
-#: src/rp2/plugin/report/rp2_full_report.py:761
 msgid "Average Price"
 msgstr "__test_Average Price"
 
-#: src/rp2/plugin/report/rp2_full_report.py:184
 msgid "Average Price Paid Per 1 crypto"
 msgstr "__test_Average Price Paid Per 1 crypto"
 
-#: src/rp2/plugin/report/rp2_full_report.py:110
 msgid "Average price at which the crypto was acquired"
 msgstr "__test_Average price at which the crypto was acquired"
 
-#: src/rp2/plugin/report/rp2_full_report.py:184
 msgid "Average price at which the crypto was acquired, across all transactions"
 msgstr "__test_Average price at which the crypto was acquired, across all transactions"
 
-#: src/rp2/plugin/report/open_positions.py:112
-#: src/rp2/plugin/report/open_positions.py:144
-#: src/rp2/plugin/report/rp2_full_report.py:354
-#: src/rp2/plugin/report/rp2_full_report.py:355
-#: src/rp2/plugin/report/rp2_full_report.py:356
-#: src/rp2/plugin/report/rp2_full_report.py:357
 msgid "Balance"
 msgstr "__test_Balance"
 
-#: src/rp2/plugin/report/rp2_full_report.py:178
 msgid "Balance of all the BUY and EARN transactions for a given exchange and holder"
 msgstr "__test_Balance of all the BUY and EARN transactions for a given exchange and holder"
 
-#: src/rp2/plugin/report/rp2_full_report.py:180
 msgid "Balance of all the SEND and SOLD transactions for which the given exchange and holder are receiver"
 msgstr "__test_Balance of all the SEND and SOLD transactions for which the given exchange and holder are receiver"
 
-#: src/rp2/plugin/report/rp2_full_report.py:179
 msgid "Balance of all the SEND and SOLD transactions for which the given exchange and holder are sender"
 msgstr "__test_Balance of all the SEND and SOLD transactions for which the given exchange and holder are sender"
 
-#: src/rp2/plugin/report/rp2_full_report.py:211
-#: src/rp2/plugin/report/rp2_full_report.py:212
-#: src/rp2/plugin/report/rp2_full_report.py:363
-#: src/rp2/plugin/report/rp2_full_report.py:364
-#: src/rp2/plugin/report/rp2_full_report.py:386
-#: src/rp2/plugin/report/rp2_full_report.py:387
 msgid "Capital"
 msgstr "__test_Capital"
 
-#: src/rp2/plugin/report/rp2_full_report.py:167
-#: src/rp2/plugin/report/rp2_full_report.py:190
 msgid "Capital Gains"
 msgstr "__test_Capital Gains"
 
-#: src/rp2/plugin/report/rp2_full_report.py:168
-#: src/rp2/plugin/report/rp2_full_report.py:191
 msgid "Capital Gains Type"
 msgstr "__test_Capital Gains Type"
 
-#: src/rp2/plugin/report/rp2_full_report.py:101
 msgid "Captures all transactions coming in (IN), going out (OUT) and transferring across accounts (INTRA)"
 msgstr "__test_Captures all transactions coming in (IN), going out (OUT) and transferring across accounts (INTRA)"
 
-#: src/rp2/plugin/report/open_positions.py:88
 msgid "Color Code"
 msgstr "__test_Color Code"
 
-#: src/rp2/plugin/report/rp2_full_report.py:102
 msgid "Computation of balances and gain / loss"
 msgstr "__test_Computation of balances and gain / loss"
 
-#: src/rp2/plugin/report/rp2_full_report.py:109
 msgid "Computed balances of all accounts. Useful to double-check that the input transactions have been entered correctly. If values don’t match actual balances some data is missing or wrong"
 msgstr "__test_Computed balances of all accounts. Useful to double-check that the input transactions have been entered correctly. If values don’t match actual balances some data is missing or wrong"
 
-#: src/rp2/plugin/report/rp2_full_report.py:108
 msgid "Computed gain and loss for the given cryptocurrency, organized by year and capital gains type (LONG or SHORT)"
 msgstr "__test_Computed gain and loss for the given cryptocurrency, organized by year and capital gains type (LONG or SHORT)"
 
-#: src/rp2/plugin/report/open_positions.py:100
-#: src/rp2/plugin/report/open_positions.py:113
-#: src/rp2/plugin/report/open_positions.py:114
-#: src/rp2/plugin/report/open_positions.py:131
-#: src/rp2/plugin/report/open_positions.py:145
-#: src/rp2/plugin/report/open_positions.py:146
-#: src/rp2/plugin/report/rp2_full_report.py:227
-#: src/rp2/plugin/report/rp2_full_report.py:379
-#: src/rp2/plugin/report/rp2_full_report.py:422
 msgid "Cost Basis"
 msgstr "__test_Cost Basis"
 
-#: src/rp2/plugin/report/open_positions.py:80
 msgid "Cost Basis Weight %"
 msgstr "__test_Cost Basis Weight %"
 
-#: src/rp2/plugin/report/open_positions.py:97
-#: src/rp2/plugin/report/open_positions.py:128
-#: src/rp2/plugin/report/open_positions.py:157
-#: src/rp2/plugin/report/rp2_full_report.py:214
-#: src/rp2/plugin/report/rp2_full_report.py:238
-#: src/rp2/plugin/report/rp2_full_report.py:313
-#: src/rp2/plugin/report/rp2_full_report.py:366
-#: src/rp2/plugin/report/rp2_full_report.py:383
 msgid "Crypto"
 msgstr "__test_Crypto"
 
-#: src/rp2/plugin/report/open_positions.py:74
 msgid "Crypto / asset symbol"
 msgstr "__test_Crypto / asset symbol"
 
-#: src/rp2/plugin/report/rp2_full_report.py:187
 msgid "Crypto Amount"
 msgstr "__test_Crypto Amount"
 
-#: src/rp2/plugin/report/rp2_full_report.py:385
 msgid "Crypto Amt"
 msgstr "__test_Crypto Amt"
 
-#: src/rp2/plugin/report/rp2_full_report.py:189
 msgid "Crypto Amt Running Sum"
 msgstr "__test_Crypto Amt Running Sum"
 
-#: src/rp2/plugin/report/open_positions.py:77
 msgid "Crypto Balance"
 msgstr "__test_Crypto Balance"
 
-#: src/rp2/plugin/report/open_positions.py:82
 msgid "Crypto Balance * Input Price"
 msgstr "__test_Crypto Balance * Input Price"
 
-#: src/rp2/plugin/report/rp2_full_report.py:138
-#: src/rp2/plugin/report/rp2_full_report.py:157
-#: src/rp2/plugin/report/rp2_full_report.py:278
-#: src/rp2/plugin/report/rp2_full_report.py:294
-#: src/rp2/plugin/report/rp2_full_report.py:315
-#: src/rp2/plugin/report/rp2_full_report.py:332
 msgid "Crypto Fee"
 msgstr "__test_Crypto Fee"
 
-#: src/rp2/plugin/report/rp2_full_report.py:140
-#: src/rp2/plugin/report/rp2_full_report.py:158
 msgid "Crypto Fee Running Sum"
 msgstr "__test_Crypto Fee Running Sum"
 
-#: src/rp2/plugin/report/rp2_full_report.py:121
-#: src/rp2/plugin/report/rp2_full_report.py:239
 msgid "Crypto In"
 msgstr "__test_Crypto In"
 
-#: src/rp2/plugin/report/rp2_full_report.py:122
 msgid "Crypto In Running Sum"
 msgstr "__test_Crypto In Running Sum"
 
-#: src/rp2/plugin/report/rp2_full_report.py:137
-#: src/rp2/plugin/report/rp2_full_report.py:277
-#: src/rp2/plugin/report/rp2_full_report.py:293
 msgid "Crypto Out"
 msgstr "__test_Crypto Out"
 
-#: src/rp2/plugin/report/rp2_full_report.py:139
 msgid "Crypto Out Running Sum"
 msgstr "__test_Crypto Out Running Sum"
 
-#: src/rp2/plugin/report/rp2_full_report.py:156
 msgid "Crypto Received"
 msgstr "__test_Crypto Received"
 
-#: src/rp2/plugin/report/rp2_full_report.py:155
-#: src/rp2/plugin/report/rp2_full_report.py:330
 msgid "Crypto Sent"
 msgstr "__test_Crypto Sent"
 
-#: src/rp2/plugin/report/rp2_full_report.py:170
 msgid "Crypto Taxable Total"
 msgstr "__test_Crypto Taxable Total"
 
-#: src/rp2/plugin/report/rp2_full_report.py:187
 msgid "Crypto amount for the given taxable event fraction"
 msgstr "__test_Crypto amount for the given taxable event fraction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:138
-#: src/rp2/plugin/report/rp2_full_report.py:157
 msgid "Crypto value of the fees"
 msgstr "__test_Crypto value of the fees"
 
-#: src/rp2/plugin/report/rp2_full_report.py:425
 msgid "Description"
 msgstr "__test_Description"
 
-#: src/rp2/plugin/report/rp2_full_report.py:128
-#: src/rp2/plugin/report/rp2_full_report.py:145
-#: src/rp2/plugin/report/rp2_full_report.py:162
 msgid "Description of the transaction"
 msgstr "__test_Description of the transaction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:111
 msgid "Detailed computation of gain and loss: each lot is divided into fractions, which are used to calculate the cost basis and the gain/loss"
 msgstr "__test_Detailed computation of gain and loss: each lot is divided into fractions, which are used to calculate the cost basis and the gain/loss"
 
-#: src/rp2/plugin/report/rp2_full_report.py:193
 msgid "Direction (IN/OUT/INTRA) and type (BUY, SOLD, etc) of the taxable event"
 msgstr "__test_Direction (IN/OUT/INTRA) and type (BUY, SOLD, etc) of the taxable event"
 
-#: src/rp2/plugin/report/rp2_full_report.py:412
 msgid "Direction/Type"
 msgstr "__test_Direction/Type"
 
-#: src/rp2/plugin/report/rp2_full_report.py:126
-#: src/rp2/plugin/report/rp2_full_report.py:143
-#: src/rp2/plugin/report/rp2_full_report.py:160
 msgid "Does the transaction contain a taxable event? If so the taxable amount is highlighted in yellow"
 msgstr "__test_Does the transaction contain a taxable event? If so the taxable amount is highlighted in yellow"
 
-#: src/rp2/plugin/report/rp2_full_report.py:169
 msgid "EARN (crypto earned through interest, etc.), GIFT (crypto given), SOLD (crypto sold) OR INTRA (fees for transferring crypto across accounts)"
 msgstr "__test_EARN (crypto earned through interest, etc.), GIFT (crypto given), SOLD (crypto sold) OR INTRA (fees for transferring crypto across accounts)"
 
-#: src/rp2/plugin/report/open_positions.py:209
-#: src/rp2/plugin/report/open_positions.py:220
 msgid "ENTER PRICES ON INPUT TAB"
 msgstr "__test_ENTER PRICES ON INPUT TAB"
 
-#: src/rp2/plugin/report/rp2_full_report.py:204
 msgid "English description of this in-transaction fraction"
 msgstr "__test_English description of this in-transaction fraction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:197
 msgid "English description of this taxable event fraction"
 msgstr "__test_English description of this taxable event fraction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:262
-#: src/rp2/plugin/report/rp2_full_report.py:299
-#: src/rp2/plugin/report/rp2_full_report.py:335
 msgid "Event"
 msgstr "__test_Event"
 
-#: src/rp2/plugin/report/open_positions.py:76
-#: src/rp2/plugin/report/open_positions.py:143
-#: src/rp2/plugin/report/rp2_full_report.py:117
-#: src/rp2/plugin/report/rp2_full_report.py:133
-#: src/rp2/plugin/report/rp2_full_report.py:175
-#: src/rp2/plugin/report/rp2_full_report.py:253
-#: src/rp2/plugin/report/rp2_full_report.py:289
-#: src/rp2/plugin/report/rp2_full_report.py:325
-#: src/rp2/plugin/report/rp2_full_report.py:351
 msgid "Exchange"
 msgstr "__test_Exchange"
 
-#: src/rp2/plugin/report/rp2_full_report.py:118
-#: src/rp2/plugin/report/rp2_full_report.py:134
 msgid "Exchange account or wallet owner"
 msgstr "__test_Exchange account or wallet owner"
 
-#: src/rp2/plugin/report/rp2_full_report.py:150
 msgid "Exchange or wallet from which the transfer of crypto occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.)"
 msgstr "__test_Exchange or wallet from which the transfer of crypto occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.)"
 
-#: src/rp2/plugin/report/rp2_full_report.py:117
-#: src/rp2/plugin/report/rp2_full_report.py:133
-#: src/rp2/plugin/report/rp2_full_report.py:175
 msgid "Exchange or wallet on which the transaction occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.)"
 msgstr "__test_Exchange or wallet on which the transaction occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.)"
 
-#: src/rp2/plugin/report/rp2_full_report.py:152
 msgid "Exchange or wallet to which the transfer of crypto occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.)"
 msgstr "__test_Exchange or wallet to which the transfer of crypto occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.)"
 
-#: src/rp2/plugin/report/open_positions.py:76
-#, fuzzy
 msgid "Exchange or wallet where balance is held (Asset - Exchange tab only)"
-msgstr "__test_Exchange or wallet where balance is held (asset and exchange tab only)"
+msgstr "__test_Exchange or wallet where balance is held (Asset - Exchange tab only)"
 
-#: src/rp2/plugin/report/rp2_full_report.py:421
 msgid "Fee Fraction"
 msgstr "__test_Fee Fraction"
 
-#: src/rp2/plugin/report/open_positions.py:64
 msgid "Fill in Asset Prices in the Input Tab for calculations"
 msgstr "__test_Fill in Asset Prices in the Input Tab for calculations"
 
-#: src/rp2/plugin/report/rp2_full_report.py:347
 msgid "Final"
 msgstr "__test_Final"
 
-#: src/rp2/plugin/report/rp2_full_report.py:181
 msgid "Final Balance"
 msgstr "__test_Final Balance"
 
-#: src/rp2/plugin/report/rp2_full_report.py:181
 msgid "Final balance of all transactions for a given exchange and holder"
 msgstr "__test_Final balance of all transactions for a given exchange and holder"
 
-#: src/rp2/plugin/report/rp2_full_report.py:413
-#: src/rp2/plugin/report/rp2_full_report.py:419
 msgid "Fraction %"
 msgstr "__test_Fraction %"
 
-#: src/rp2/plugin/report/rp2_full_report.py:417
 msgid "Fraction Description"
 msgstr "__test_Fraction Description"
 
-#: src/rp2/plugin/report/rp2_full_report.py:307
-#: src/rp2/plugin/report/rp2_full_report.py:308
 msgid "From"
 msgstr "__test_From"
 
-#: src/rp2/plugin/report/open_positions.py:70
-#: src/rp2/plugin/report/rp2_full_report.py:97
 msgid "From Date Filter"
 msgstr "__test_From Date Filter"
 
-#: src/rp2/plugin/report/rp2_full_report.py:150
 msgid "From Exchange"
 msgstr "__test_From Exchange"
 
-#: src/rp2/plugin/report/rp2_full_report.py:151
 msgid "From Holder"
 msgstr "__test_From Holder"
 
-#: src/rp2/plugin/report/open_positions.py:118
-#: src/rp2/plugin/report/open_positions.py:150
 msgid "Gain / Loss"
 msgstr "__test_Gain / Loss"
 
-#: src/rp2/plugin/report/open_positions.py:119
-#: src/rp2/plugin/report/open_positions.py:151
 msgid "Gain / Loss %"
 msgstr "__test_Gain / Loss %"
 
-#: src/rp2/plugin/report/rp2_full_report.py:111
-#: src/rp2/plugin/report/rp2_full_report.py:186
-#: src/rp2/plugin/report/rp2_full_report.py:790
 msgid "Gain / Loss Detail"
 msgstr "__test_Gain / Loss Detail"
 
-#: src/rp2/plugin/report/rp2_full_report.py:108
-#: src/rp2/plugin/report/rp2_full_report.py:164
-#: src/rp2/plugin/report/rp2_full_report.py:701
 msgid "Gain / Loss Summary"
 msgstr "__test_Gain / Loss Summary"
 
-#: src/rp2/plugin/report/rp2_full_report.py:222
-#: src/rp2/plugin/report/rp2_full_report.py:374
-#: src/rp2/plugin/report/rp2_full_report.py:409
 msgid "Gains"
 msgstr "__test_Gains"
 
-#: src/rp2/plugin/report/rp2_full_report.py:223
-#: src/rp2/plugin/report/rp2_full_report.py:375
-#: src/rp2/plugin/report/rp2_full_report.py:410
 msgid "Gains Type"
 msgstr "__test_Gains Type"
 
-#: src/rp2/plugin/report/open_positions.py:68
-#: src/rp2/plugin/report/rp2_full_report.py:95
 msgid "General"
 msgstr "__test_General"
 
-#: src/rp2/plugin/report/open_positions.py:430
-#: src/rp2/plugin/report/open_positions.py:503
 msgid "Grand Total"
 msgstr "__test_Grand Total"
 
-#: src/rp2/plugin/report/open_positions.py:89
 msgid "Gray"
 msgstr "__test_Gray"
 
-#: src/rp2/plugin/report/rp2_full_report.py:161
 msgid "Hash of the transaction"
 msgstr "__test_Hash of the transaction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:127
-#: src/rp2/plugin/report/rp2_full_report.py:144
 msgid "Hash or exchange-specific unique identifier for the transaction"
 msgstr "__test_Hash or exchange-specific unique identifier for the transaction"
 
-#: src/rp2/plugin/report/open_positions.py:75
-#: src/rp2/plugin/report/open_positions.py:111
-#: src/rp2/plugin/report/open_positions.py:142
-#: src/rp2/plugin/report/rp2_full_report.py:118
-#: src/rp2/plugin/report/rp2_full_report.py:134
-#: src/rp2/plugin/report/rp2_full_report.py:176
-#: src/rp2/plugin/report/rp2_full_report.py:254
-#: src/rp2/plugin/report/rp2_full_report.py:290
-#: src/rp2/plugin/report/rp2_full_report.py:326
-#: src/rp2/plugin/report/rp2_full_report.py:352
 msgid "Holder"
 msgstr "__test_Holder"
 
-#: src/rp2/plugin/report/rp2_full_report.py:121
 msgid "How much of the given cryptocurrency was acquired with the transaction"
 msgstr "__test_How much of the given cryptocurrency was acquired with the transaction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:156
 msgid "How much of the given cryptocurrency was received with the transaction"
 msgstr "__test_How much of the given cryptocurrency was received with the transaction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:137
-#: src/rp2/plugin/report/rp2_full_report.py:155
 msgid "How much of the given cryptocurrency was sent with the transaction"
 msgstr "__test_How much of the given cryptocurrency was sent with the transaction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:257
 msgid "In"
 msgstr "__test_In"
 
-#: src/rp2/plugin/report/rp2_full_report.py:105
-#: src/rp2/plugin/report/rp2_full_report.py:113
-#: src/rp2/plugin/report/rp2_full_report.py:555
 msgid "In-Flow Detail"
 msgstr "__test_In-Flow Detail"
 
-#: src/rp2/plugin/report/open_positions.py:85
 msgid "Indicates the percent of which this asset's unrealized gain/loss contributed to the whole portfolio's Unrealized Gain / Loss % (Gain/Loss relative to total cash investment)"
 msgstr "__test_Indicates the percent of which this asset's unrealized gain/loss contributed to the whole portfolio's Unrealized Gain / Loss % (Gain/Loss relative to total cash investment)"
 
-#: src/rp2/plugin/report/open_positions.py:90
 msgid "Information calculated based on values entered in the Input tab"
 msgstr "__test_Information calculated based on values entered in the Input tab"
 
-#: src/rp2/plugin/report/open_positions.py:89
 msgid "Information from transactions"
 msgstr "__test_Information from transactions"
 
-#: src/rp2/plugin/report/open_positions.py:548
 msgid "Input"
 msgstr "__test_Input"
 
-#: src/rp2/plugin/report/open_positions.py:116
-#: src/rp2/plugin/report/open_positions.py:148
 msgid "Input Price"
 msgstr "__test_Input Price"
 
-#: src/rp2/plugin/report/rp2_full_report.py:107
-#: src/rp2/plugin/report/rp2_full_report.py:147
-#: src/rp2/plugin/report/rp2_full_report.py:662
 msgid "Intra-Flow Detail"
 msgstr "__test_Intra-Flow Detail"
 
-#: src/rp2/plugin/report/rp2_full_report.py:707
-#: src/rp2/plugin/report/rp2_full_report.py:830
-#: src/rp2/plugin/report/rp2_full_report.py:975
 msgid "LONG"
 msgstr "__test_LONG"
 
-#: src/rp2/plugin/report/rp2_full_report.py:168
-#: src/rp2/plugin/report/rp2_full_report.py:191
 msgid "LONG (> 1 year) or SHORT (< 1 year)"
 msgstr "__test_LONG (> 1 year) or SHORT (< 1 year)"
 
-#: src/rp2/plugin/report/abstract_ods_generator.py:93
 msgid "Legend"
 msgstr "__test_Legend"
 
-#: src/rp2/plugin/report/open_positions.py:81
 msgid "Looked up from the Input tab for the given asset"
 msgstr "__test_Looked up from the Input tab for the given asset"
 
-#: src/rp2/plugin/report/rp2_full_report.py:114
 msgid "Lots that have been sent or sold, according to the order defined by the Accounting Method (see General section)"
 msgstr "__test_Lots that have been sent or sold, according to the order defined by the Accounting Method (see General section)"
 
-#: src/rp2/plugin/report/rp2_full_report.py:107
 msgid "Movements across accounts without increasing/decreasing total value of crypto owned. The amount transferred is non-taxable but the transfer fee is considered a crypto sale and it is a taxable event"
 msgstr "__test_Movements across accounts without increasing/decreasing total value of crypto owned. The amount transferred is non-taxable but the transfer fee is considered a crypto sale and it is a taxable event"
 
-#: src/rp2/plugin/report/rp2_full_report.py:263
 msgid "N/A"
 msgstr "__test_N/A"
 
-#: src/rp2/plugin/report/rp2_full_report.py:597
-#: src/rp2/plugin/report/rp2_full_report.py:651
-#: src/rp2/plugin/report/rp2_full_report.py:689
 msgid "NO"
 msgstr "__test_NO"
 
-#: src/rp2/plugin/report/rp2_full_report.py:176
 msgid "Name of the exchange or wallet account holder"
 msgstr "__test_Name of the exchange or wallet account holder"
 
-#: src/rp2/plugin/report/rp2_full_report.py:260
 msgid "No Fee"
 msgstr "__test_No Fee"
 
-#: src/rp2/plugin/report/rp2_full_report.py:128
-#: src/rp2/plugin/report/rp2_full_report.py:145
-#: src/rp2/plugin/report/rp2_full_report.py:162
-#: src/rp2/plugin/report/rp2_full_report.py:265
-#: src/rp2/plugin/report/rp2_full_report.py:301
-#: src/rp2/plugin/report/rp2_full_report.py:337
 msgid "Notes"
 msgstr "__test_Notes"
 
-#: src/rp2/plugin/report/open_positions.py:63
 msgid "Open Positions / Unrealized Gains"
 msgstr "__test_Open Positions / Unrealized Gains"
 
-#: src/rp2/plugin/report/open_positions.py:208
 msgid "Open Positions by Asset"
 msgstr "__test_Open Positions by Asset"
 
-#: src/rp2/plugin/report/open_positions.py:212
 msgid "Open Positions by Asset and Exchange"
 msgstr "__test_Open Positions by Asset and Exchange"
 
-#: src/rp2/plugin/report/rp2_full_report.py:106
-#: src/rp2/plugin/report/rp2_full_report.py:130
-#: src/rp2/plugin/report/rp2_full_report.py:610
 msgid "Out-Flow Detail"
 msgstr "__test_Out-Flow Detail"
 
-#: src/rp2/plugin/report/rp2_full_report.py:151
 msgid "Owner of the exchange account or wallet from which the transfer of crypto occurred"
 msgstr "__test_Owner of the exchange account or wallet from which the transfer of crypto occurred"
 
-#: src/rp2/plugin/report/rp2_full_report.py:153
 msgid "Owner of the exchange account or wallet to which the transfer of crypto occurred"
 msgstr "__test_Owner of the exchange account or wallet to which the transfer of crypto occurred"
 
-#: src/rp2/plugin/report/rp2_full_report.py:762
 msgid "Paid Per 1 {}"
 msgstr "__test_Paid Per 1 {}"
 
-#: src/rp2/plugin/report/open_positions.py:84
 msgid "Percent change between Unrealized Value and Unrealized Cost Basis"
 msgstr "__test_Percent change between Unrealized Value and Unrealized Cost Basis"
 
-#: src/rp2/plugin/report/rp2_full_report.py:199
 msgid "Percentage of the in-transaction"
 msgstr "__test_Percentage of the in-transaction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:194
 msgid "Percentage of the taxable event"
 msgstr "__test_Percentage of the taxable event"
 
-#: src/rp2/plugin/report/open_positions.py:163
 msgid "Price"
 msgstr "__test_Price"
 
-#: src/rp2/plugin/report/rp2_full_report.py:331
-#: src/rp2/plugin/report/rp2_full_report.py:346
 msgid "Received"
 msgstr "__test_Received"
 
-#: src/rp2/plugin/report/rp2_full_report.py:180
 msgid "Received Balance"
 msgstr "__test_Received Balance"
 
-#: src/rp2/plugin/report/open_positions.py:73
 msgid "Report Fields"
 msgstr "__test_Report Fields"
 
-#: src/rp2/plugin/report/rp2_full_report.py:258
-#: src/rp2/plugin/report/rp2_full_report.py:295
-#: src/rp2/plugin/report/rp2_full_report.py:296
-#: src/rp2/plugin/report/rp2_full_report.py:333
-#: src/rp2/plugin/report/rp2_full_report.py:408
 msgid "Running Sum"
 msgstr "__test_Running Sum"
 
-#: src/rp2/plugin/report/rp2_full_report.py:189
 msgid "Running sum of crypto amount"
 msgstr "__test_Running sum of crypto amount"
 
-#: src/rp2/plugin/report/rp2_full_report.py:140
-#: src/rp2/plugin/report/rp2_full_report.py:158
 msgid "Running sum of crypto fees"
 msgstr "__test_Running sum of crypto fees"
 
-#: src/rp2/plugin/report/rp2_full_report.py:122
 msgid "Running sum of crypto received"
 msgstr "__test_Running sum of crypto received"
 
-#: src/rp2/plugin/report/rp2_full_report.py:139
 msgid "Running sum of crypto sent"
 msgstr "__test_Running sum of crypto sent"
 
-#: src/rp2/plugin/report/rp2_full_report.py:707
-#: src/rp2/plugin/report/rp2_full_report.py:830
-#: src/rp2/plugin/report/rp2_full_report.py:975
 msgid "SHORT"
 msgstr "__test_SHORT"
 
-#: src/rp2/plugin/report/rp2_full_report.py:345
 msgid "Sent"
 msgstr "__test_Sent"
 
-#: src/rp2/plugin/report/rp2_full_report.py:179
 msgid "Sent Balance"
 msgstr "__test_Sent Balance"
 
-#: src/rp2/plugin/report/rp2_full_report.py:114
-#: src/rp2/plugin/report/rp2_full_report.py:250
 msgid "Sent/Sold"
 msgstr "__test_Sent/Sold"
 
-#: src/rp2/plugin/report/rp2_full_report.py:100
 msgid "Sheet Types"
 msgstr "__test_Sheet Types"
 
-#: src/rp2/plugin/report/open_positions.py:80
 msgid "Size of investment relative to other assets for cost basis ({} Unrealized Cost Basis divided by the sum of all assets' {} Unrealized Cost Basis)"
 msgstr "__test_Size of investment relative to other assets for cost basis ({} Unrealized Cost Basis divided by the sum of all assets' {} Unrealized Cost Basis)"
 
-#: src/rp2/plugin/report/open_positions.py:86
 msgid "Size of investment relative to the portfolio's unrealized value (Unrealized Value divided by sum of all assets' Unrealized Values)"
 msgstr "__test_Size of investment relative to the portfolio's unrealized value (Unrealized Value divided by sum of all assets' Unrealized Values)"
 
-#: src/rp2/plugin/report/rp2_full_report.py:120
-#: src/rp2/plugin/report/rp2_full_report.py:136
-#: src/rp2/plugin/report/rp2_full_report.py:154
-#: src/rp2/plugin/report/rp2_full_report.py:256
-#: src/rp2/plugin/report/rp2_full_report.py:292
-#: src/rp2/plugin/report/rp2_full_report.py:329
-#: src/rp2/plugin/report/rp2_full_report.py:415
-#: src/rp2/plugin/report/rp2_full_report.py:423
 msgid "Spot Price"
 msgstr "__test_Spot Price"
 
-#: src/rp2/plugin/report/rp2_full_report.py:167
-#: src/rp2/plugin/report/rp2_full_report.py:190
 msgid "Sum of all capital gains in {} for transactions of the given capital gains type"
 msgstr "__test_Sum of all capital gains in {} for transactions of the given capital gains type"
 
-#: src/rp2/plugin/report/rp2_full_report.py:172
 msgid "Sum of all cost bases in {} for transactions of the given capital gains type"
 msgstr "__test_Sum of all cost bases in {} for transactions of the given capital gains type"
 
-#: src/rp2/plugin/report/rp2_full_report.py:170
 msgid "Sum of all taxable events in crypto for transactions of the given capital gains type"
 msgstr "__test_Sum of all taxable events in crypto for transactions of the given capital gains type"
 
-#: src/rp2/plugin/report/rp2_full_report.py:171
 msgid "Sum of all taxable events in {} for transactions of the given capital gains type"
 msgstr "__test_Sum of all taxable events in {} for transactions of the given capital gains type"
 
-#: src/rp2/plugin/report/open_positions.py:79
 msgid "Sum of fiat cost to acquire the balance of crypto based on in-flow transactions"
 msgstr "__test_Sum of fiat cost to acquire the balance of crypto based on in-flow transactions"
 
-#: src/rp2/plugin/report/open_positions.py:78
 msgid "Sum of fiat cost to acquire the balance of crypto based on in-flow transactions divided by the crypto balance"
 msgstr "__test_Sum of fiat cost to acquire the balance of crypto based on in-flow transactions divided by the crypto balance"
 
-#: src/rp2/plugin/report/rp2_full_report.py:478
 msgid "Summary"
 msgstr "__test_Summary"
 
-#: src/rp2/plugin/report/rp2_full_report.py:165
 msgid "Summary year"
 msgstr "__test_Summary year"
 
-#: src/rp2/plugin/report/rp2_full_report.py:104
 msgid "Table Types"
 msgstr "__test_Table Types"
 
-#: src/rp2/plugin/report/rp2_full_report.py:243
-#: src/rp2/plugin/report/rp2_full_report.py:281
-#: src/rp2/plugin/report/rp2_full_report.py:317
 msgid "Taxable"
 msgstr "__test_Taxable"
 
-#: src/rp2/plugin/report/rp2_full_report.py:126
-#: src/rp2/plugin/report/rp2_full_report.py:143
-#: src/rp2/plugin/report/rp2_full_report.py:160
-#: src/rp2/plugin/report/rp2_full_report.py:388
-#: src/rp2/plugin/report/rp2_full_report.py:389
-#: src/rp2/plugin/report/rp2_full_report.py:390
-#: src/rp2/plugin/report/rp2_full_report.py:392
-#: src/rp2/plugin/report/rp2_full_report.py:394
 msgid "Taxable Event"
 msgstr "__test_Taxable Event"
 
-#: src/rp2/plugin/report/rp2_full_report.py:193
 msgid "Taxable Event Direction/Type"
 msgstr "__test_Taxable Event Direction/Type"
 
-#: src/rp2/plugin/report/rp2_full_report.py:194
 msgid "Taxable Event Fraction %"
 msgstr "__test_Taxable Event Fraction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:197
 msgid "Taxable Event Fraction Description"
 msgstr "__test_Taxable Event Fraction Description"
 
-#: src/rp2/plugin/report/rp2_full_report.py:196
 msgid "Taxable Event Spot Price"
 msgstr "__test_Taxable Event Spot Price"
 
-#: src/rp2/plugin/report/rp2_full_report.py:192
 msgid "Taxable Event Timestamp"
 msgstr "__test_Taxable Event Timestamp"
 
-#: src/rp2/plugin/report/rp2_full_report.py:391
 msgid "Taxable Event {}"
 msgstr "__test_Taxable Event {}"
 
-#: src/rp2/plugin/report/rp2_full_report.py:195
 msgid "Taxable Event {} Amount Fraction"
 msgstr "__test_Taxable Event {} Amount Fraction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:225
-#: src/rp2/plugin/report/rp2_full_report.py:226
-#: src/rp2/plugin/report/rp2_full_report.py:377
-#: src/rp2/plugin/report/rp2_full_report.py:378
 msgid "Taxable Total"
 msgstr "__test_Taxable Total"
 
-#: src/rp2/plugin/report/open_positions.py:66
 msgid "This file contains two versions of the same report. One version is grouped by Asset, the other by Asset and Exchange (or wallet)"
 msgstr "__test_This file contains two versions of the same report. One version is grouped by Asset, the other by Asset and Exchange (or wallet)"
 
-#: src/rp2/plugin/report/open_positions.py:65
 msgid "This report leverages the details of your transactions to give you a snapshot of the value of your unsold holdings"
 msgstr "__test_This report leverages the details of your transactions to give you a snapshot of the value of your unsold holdings"
 
-#: src/rp2/plugin/report/rp2_full_report.py:198
 msgid "Time at which the in-transaction occurred"
 msgstr "__test_Time at which the in-transaction occurred"
 
-#: src/rp2/plugin/report/rp2_full_report.py:192
 msgid "Time at which the taxable event occurred"
 msgstr "__test_Time at which the taxable event occurred"
 
-#: src/rp2/plugin/report/rp2_full_report.py:115
-#: src/rp2/plugin/report/rp2_full_report.py:131
-#: src/rp2/plugin/report/rp2_full_report.py:148
 msgid "Time at which the transaction occurred"
 msgstr "__test_Time at which the transaction occurred"
 
-#: src/rp2/plugin/report/rp2_full_report.py:115
-#: src/rp2/plugin/report/rp2_full_report.py:131
-#: src/rp2/plugin/report/rp2_full_report.py:148
-#: src/rp2/plugin/report/rp2_full_report.py:251
-#: src/rp2/plugin/report/rp2_full_report.py:287
-#: src/rp2/plugin/report/rp2_full_report.py:323
-#: src/rp2/plugin/report/rp2_full_report.py:411
-#: src/rp2/plugin/report/rp2_full_report.py:418
 msgid "Timestamp"
 msgstr "__test_Timestamp"
 
-#: src/rp2/plugin/report/open_positions.py:71
-#: src/rp2/plugin/report/rp2_full_report.py:98
 msgid "To Date Filter"
 msgstr "__test_To Date Filter"
 
-#: src/rp2/plugin/report/rp2_full_report.py:152
-#: src/rp2/plugin/report/rp2_full_report.py:327
 msgid "To Exchange"
 msgstr "__test_To Exchange"
 
-#: src/rp2/plugin/report/rp2_full_report.py:153
-#: src/rp2/plugin/report/rp2_full_report.py:328
 msgid "To Holder"
 msgstr "__test_To Holder"
 
-#: src/rp2/plugin/report/open_positions.py:385
-#: src/rp2/plugin/report/open_positions.py:457
-#: src/rp2/plugin/report/rp2_full_report.py:748
 msgid "Total"
 msgstr "__test_Total"
 
-#: src/rp2/plugin/report/open_positions.py:120
-#: src/rp2/plugin/report/open_positions.py:152
 msgid "Total Cost Basis %"
 msgstr "__test_Total Cost Basis %"
 
-#: src/rp2/plugin/report/rp2_full_report.py:213
-#: src/rp2/plugin/report/rp2_full_report.py:236
-#: src/rp2/plugin/report/rp2_full_report.py:273
-#: src/rp2/plugin/report/rp2_full_report.py:365
 msgid "Transaction"
 msgstr "__test_Transaction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:119
-#: src/rp2/plugin/report/rp2_full_report.py:135
-#: src/rp2/plugin/report/rp2_full_report.py:169
 msgid "Transaction Type"
 msgstr "__test_Transaction Type"
 
-#: src/rp2/plugin/report/rp2_full_report.py:105
 msgid "Transactions that added new crypto to accounts (e.g. buy, etc.). Only EARN-typed transactions are taxable events (interest received on crypto)"
 msgstr "__test_Transactions that added new crypto to accounts (e.g. buy, etc.). Only EARN-typed transactions are taxable events (interest received on crypto)"
 
-#: src/rp2/plugin/report/rp2_full_report.py:106
 msgid "Transactions that removed some crypto from accounts (e.g. sell, send as gift, etc.). These are taxable events"
 msgstr "__test_Transactions that removed some crypto from accounts (e.g. sell, send as gift, etc.). These are taxable events"
 
-#: src/rp2/plugin/report/rp2_full_report.py:224
-#: src/rp2/plugin/report/rp2_full_report.py:255
-#: src/rp2/plugin/report/rp2_full_report.py:291
-#: src/rp2/plugin/report/rp2_full_report.py:376
 msgid "Type"
 msgstr "__test_Type"
 
-#: src/rp2/plugin/report/rp2_full_report.py:119
 msgid "Type of the transaction (BUY, GIFT, INTEREST, STAKING, etc.)"
 msgstr "__test_Type of the transaction (BUY, GIFT, INTEREST, STAKING, etc.)"
 
-#: src/rp2/plugin/report/rp2_full_report.py:135
 msgid "Type of the transaction (DONATE, GIFT, SELL, etc.)"
 msgstr "__test_Type of the transaction (DONATE, GIFT, SELL, etc.)"
 
-#: src/rp2/plugin/report/rp2_full_report.py:215
 msgid "USD"
 msgstr "__test_USD"
 
-#: src/rp2/plugin/report/rp2_full_report.py:216
 msgid "USD Total"
 msgstr "__test_USD Total"
 
-#: src/rp2/plugin/report/rp2_full_report.py:127
-#: src/rp2/plugin/report/rp2_full_report.py:144
-#: src/rp2/plugin/report/rp2_full_report.py:161
-#: src/rp2/plugin/report/rp2_full_report.py:264
-#: src/rp2/plugin/report/rp2_full_report.py:300
-#: src/rp2/plugin/report/rp2_full_report.py:336
-#: src/rp2/plugin/report/rp2_full_report.py:416
-#: src/rp2/plugin/report/rp2_full_report.py:424
 msgid "Unique Id"
 msgstr "__test_Unique Id"
 
-#: src/rp2/plugin/report/open_positions.py:105
-#: src/rp2/plugin/report/open_positions.py:136
 msgid "Unrealized G/L of"
 msgstr "__test_Unrealized G/L of"
 
-#: src/rp2/plugin/report/open_positions.py:85
 msgid "Unrealized G/L of Total Cost Basis %"
 msgstr "__test_Unrealized G/L of Total Cost Basis %"
 
-#: src/rp2/plugin/report/open_positions.py:83
 msgid "Unrealized Value - Unrealized Cost Basis"
 msgstr "__test_Unrealized Value - Unrealized Cost Basis"
 
-#: src/rp2/plugin/report/open_positions.py:117
-#: src/rp2/plugin/report/open_positions.py:149
 msgid "Value"
 msgstr "__test_Value"
 
-#: src/rp2/plugin/report/open_positions.py:121
-#: src/rp2/plugin/report/open_positions.py:153
 msgid "Value Weight %"
 msgstr "__test_Value Weight %"
 
-#: src/rp2/plugin/report/rp2_full_report.py:203
 msgid "Value of 1 unit of the given cryptocurrency at the time the in-transaction occurred"
 msgstr "__test_Value of 1 unit of the given cryptocurrency at the time the in-transaction occurred"
 
-#: src/rp2/plugin/report/rp2_full_report.py:196
 msgid "Value of 1 unit of the given cryptocurrency at the time the taxable event occurred"
 msgstr "__test_Value of 1 unit of the given cryptocurrency at the time the taxable event occurred"
 
-#: src/rp2/plugin/report/rp2_full_report.py:120
-#: src/rp2/plugin/report/rp2_full_report.py:136
-#: src/rp2/plugin/report/rp2_full_report.py:154
 msgid "Value of 1 unit of the given cryptocurrency at the time the transaction occurred"
 msgstr "__test_Value of 1 unit of the given cryptocurrency at the time the transaction occurred"
 
-#: src/rp2/plugin/report/open_positions.py:115
-#: src/rp2/plugin/report/open_positions.py:147
 msgid "Weight %"
 msgstr "__test_Weight %"
 
-#: src/rp2/plugin/report/rp2_full_report.py:166
-#: src/rp2/plugin/report/rp2_full_report.py:188
 msgid "Which cryptocurrency (e.g. BTC, ETH, etc.)"
 msgstr "__test_Which cryptocurrency (e.g. BTC, ETH, etc.)"
 
-#: src/rp2/plugin/report/rp2_full_report.py:116
-#: src/rp2/plugin/report/rp2_full_report.py:132
-#: src/rp2/plugin/report/rp2_full_report.py:149
-#: src/rp2/plugin/report/rp2_full_report.py:177
 msgid "Which cryptocurrency was transacted (e.g. BTC, ETH, etc.)"
 msgstr "__test_Which cryptocurrency was transacted (e.g. BTC, ETH, etc.)"
 
-#: src/rp2/plugin/report/rp2_full_report.py:261
 msgid "With Fee"
 msgstr "__test_With Fee"
 
-#: src/rp2/plugin/report/rp2_full_report.py:597
-#: src/rp2/plugin/report/rp2_full_report.py:651
-#: src/rp2/plugin/report/rp2_full_report.py:689
 msgid "YES"
 msgstr "__test_YES"
 
-#: src/rp2/plugin/report/rp2_full_report.py:165
-#: src/rp2/plugin/report/rp2_full_report.py:220
-#: src/rp2/plugin/report/rp2_full_report.py:372
 msgid "Year"
 msgstr "__test_Year"
 
-#: src/rp2/plugin/report/rp2_full_report.py:465
 msgid "Yearly Gain / Loss Summary"
 msgstr "__test_Yearly Gain / Loss Summary"
 
-#: src/rp2/plugin/report/open_positions.py:90
 msgid "Yellow"
 msgstr "__test_Yellow"
 
-#: src/rp2/plugin/report/rp2_full_report.py:367
 msgid "{}"
 msgstr "__test_{}"
 
-#: src/rp2/plugin/report/rp2_full_report.py:123
-#: src/rp2/plugin/report/rp2_full_report.py:142
-#: src/rp2/plugin/report/rp2_full_report.py:159
-#: src/rp2/plugin/report/rp2_full_report.py:259
-#: src/rp2/plugin/report/rp2_full_report.py:298
-#: src/rp2/plugin/report/rp2_full_report.py:334
 msgid "{} Fee"
 msgstr "__test_{} Fee"
 
-#: src/rp2/plugin/report/rp2_full_report.py:241
-#: src/rp2/plugin/report/rp2_full_report.py:242
 msgid "{} In"
 msgstr "__test_{} In"
 
-#: src/rp2/plugin/report/rp2_full_report.py:124
 msgid "{} In No Fee"
 msgstr "__test_{} In No Fee"
 
-#: src/rp2/plugin/report/rp2_full_report.py:125
 msgid "{} In With Fee"
 msgstr "__test_{} In With Fee"
 
-#: src/rp2/plugin/report/rp2_full_report.py:485
 msgid "{} In-Out"
 msgstr "__test_{} In-Out"
 
-#: src/rp2/plugin/report/rp2_full_report.py:141
-#: src/rp2/plugin/report/rp2_full_report.py:297
 msgid "{} Out"
 msgstr "__test_{} Out"
 
-#: src/rp2/plugin/report/open_positions.py:98
-#: src/rp2/plugin/report/open_positions.py:101
-#: src/rp2/plugin/report/open_positions.py:129
-#: src/rp2/plugin/report/open_positions.py:132
 msgid "{} Per Unit"
 msgstr "__test_{} Per Unit"
 
-#: src/rp2/plugin/report/open_positions.py:78
 msgid "{} Per Unit Cost Basis"
 msgstr "__test_{} Per Unit Cost Basis"
 
-#: src/rp2/plugin/report/open_positions.py:81
 msgid "{} Per Unit Input Price"
 msgstr "__test_{} Per Unit Input Price"
 
-#: src/rp2/plugin/report/rp2_full_report.py:489
 msgid "{} Tax"
 msgstr "__test_{} Tax"
 
-#: src/rp2/plugin/report/rp2_full_report.py:171
 msgid "{} Taxable Total"
 msgstr "__test_{} Taxable Total"
 
-#: src/rp2/plugin/report/rp2_full_report.py:368
 msgid "{} Total"
 msgstr "__test_{} Total"
 
-#: src/rp2/plugin/report/rp2_full_report.py:172
 msgid "{} Total Cost Basis"
 msgstr "__test_{} Total Cost Basis"
 
-#: src/rp2/plugin/report/open_positions.py:99
-#: src/rp2/plugin/report/open_positions.py:102
-#: src/rp2/plugin/report/open_positions.py:103
-#: src/rp2/plugin/report/open_positions.py:104
-#: src/rp2/plugin/report/open_positions.py:106
-#: src/rp2/plugin/report/open_positions.py:130
-#: src/rp2/plugin/report/open_positions.py:133
-#: src/rp2/plugin/report/open_positions.py:134
-#: src/rp2/plugin/report/open_positions.py:135
-#: src/rp2/plugin/report/open_positions.py:137
 msgid "{} Unrealized"
 msgstr "__test_{} Unrealized"
 
-#: src/rp2/plugin/report/open_positions.py:79
 msgid "{} Unrealized Cost Basis"
 msgstr "__test_{} Unrealized Cost Basis"
 
-#: src/rp2/plugin/report/open_positions.py:83
 msgid "{} Unrealized Gain / Loss"
 msgstr "__test_{} Unrealized Gain / Loss"
 
-#: src/rp2/plugin/report/open_positions.py:84
 msgid "{} Unrealized Gain / Loss %"
 msgstr "__test_{} Unrealized Gain / Loss %"
 
-#: src/rp2/plugin/report/open_positions.py:82
 msgid "{} Unrealized Value"
 msgstr "__test_{} Unrealized Value"
 
-#: src/rp2/plugin/report/open_positions.py:86
 msgid "{} Unrealized Value Weight %"
 msgstr "__test_{} Unrealized Value Weight %"
 
-#: src/rp2/plugin/report/rp2_full_report.py:200
 msgid "{} amount of this in-transaction fraction"
 msgstr "__test_{} amount of this in-transaction fraction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:195
 msgid "{} amount of this taxable event fraction"
 msgstr "__test_{} amount of this taxable event fraction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:202
 msgid "{} cost basis of this in-transaction fraction"
 msgstr "__test_{} cost basis of this in-transaction fraction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:201
 msgid "{} fee of this in-transaction fraction"
 msgstr "__test_{} fee of this in-transaction fraction"
 
-#: src/rp2/plugin/report/rp2_full_report.py:123
-#: src/rp2/plugin/report/rp2_full_report.py:142
-#: src/rp2/plugin/report/rp2_full_report.py:159
 msgid "{} value of the fees"
 msgstr "__test_{} value of the fees"
 
-#: src/rp2/plugin/report/rp2_full_report.py:125
 msgid "{} value of the transaction with fees"
 msgstr "__test_{} value of the transaction with fees"
 
-#: src/rp2/plugin/report/rp2_full_report.py:124
-#: src/rp2/plugin/report/rp2_full_report.py:141
 msgid "{} value of the transaction without fees"
 msgstr "__test_{} value of the transaction without fees"
 
@@ -1174,3 +719,4 @@ msgstr "__test_{} value of the transaction without fees"
 
 #~ msgid "US dollar value of the fees"
 #~ msgstr "__test_US dollar value of the fees"
+
