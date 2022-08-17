@@ -53,12 +53,12 @@ Another unique advantage of RP2 is [transparent computation](https://github.com/
 
 RP2 supports the [FIFO](https://www.investopedia.com/terms/f/fifo.asp), [LIFO](https://www.investopedia.com/terms/l/lifo.asp) and [HIFO](https://www.investopedia.com/terms/h/hifo.asp) accounting methods, to help minimize the amount due.
 
-It reads in a spreadsheet containing crypto transactions. The spreadsheet can be generated either manually or automatically using [DaLI](https://github.com/eprbell/dali-rp2), a RP2 data loader and input generator (which is also privacy-focused, free and open-source). After parsing the input RP2 uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates output spreadsheets.
+RP2 reads in a spreadsheet containing crypto transactions. The spreadsheet can be generated either manually or automatically using [DaLI](https://github.com/eprbell/dali-rp2), a RP2 data loader and input generator (which is also privacy-focused, free and open-source). After parsing the input RP2 uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates output spreadsheets.
 
-RP2 has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-report-generator), [accounting methods](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-accounting-method) and [countries](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-support-for-a-new-country). The output generator builtin plugins are US-specific, but RP2's architecture makes it possible to contribute additional generators for different countries or for different US-based cases. The builtin generator plugins are:
-* tax_report_us: generates a tax report meant to be read by tax preparers (in the format of form 8949);
-* rp2_full_report: generates a comprehensive report, with complete transaction history, lot relationships/fractions and computation details;
-* open_positions: geterates a report on assets with non-zero crypto balance: unrealized gains / losses, portfolio weighting, and more.
+RP2 has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-report-generator), [accounting methods](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-accounting-method) and [countries](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-support-for-a-new-country). The output generator builtin plugins are in part generic and in part US-specific, but RP2's architecture makes it possible to contribute additional generators for different countries or for different US-based cases. The builtin generator plugins are:
+* tax_report_us: generates a US-specific tax report meant to be read by tax preparers (in the format of form 8949);
+* rp2_full_report: generates a comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
+* open_positions: geterates a report (valid for any country) on assets with non-zero crypto balance: unrealized gains / losses, portfolio weighting, and more.
 
 RP2 has extensive [unit test](https://github.com/eprbell/rp2/tree/main/tests/) coverage to reduce the risk of regression.
 
@@ -67,7 +67,7 @@ RP2 has extensive [unit test](https://github.com/eprbell/rp2/tree/main/tests/) c
 * The author of RP2 is not a tax professional, but has used RP2 personally for a few years.
 
 ### How RP2 Operates
-RP2 has been designed to have expressive primitives that can be used as building blocks for most tax scenarios: complex tax events can be described with patterns, built using these primitives (see the [FAQ list](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#tax-scenarios) for examples).
+RP2 has been designed to have expressive primitives that can be used as building blocks for most tax scenarios: complex tax events can be described with patterns, built on top of these primitives (see the [FAQ list](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#tax-scenarios) for examples).
 
 RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Currency Guidance](https://www.irs.gov/newsroom/irs-reminds-taxpayers-to-report-virtual-currency-transactions).
 
@@ -75,19 +75,19 @@ RP2 supports the FIFO, LIFO and HIFO accounting methods: however, in and out lot
 
 RP2 groups lot fractions into the following taxable event categories, each of which has a [specific tax treatment](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#which-crypto-tax-forms-to-file):
 * [AIRDROP](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-airdrops): gains from airdrops;
-* DONATE: donations to charitable organizations;
+* [DONATE](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-handle-donations): donations to charitable organizations;
 * [FEE](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#hhow-to-handle-fee-only-defi-transactions): fee-only transaction, used in some DeFi scenarios (e.g. gas fee for running certain smart contracts);
-* GIFT: gifts to parties who are not charitable organizations (not tax-deductible).
+* [GIFT](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-handle-gifts): gifts to parties who are not charitable organizations (not tax-deductible).
 * [HARDFORK](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-hard-forks): gains from hard forks;
-* INCOME: gains from miscellaneous income (e.g. Coinbase Earn);
-* INTEREST: gains from interest;
+* [INCOME](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-handle-miscellaneous-crypto-income): gains from miscellaneous income (e.g. Coinbase Earn);
+* [INTEREST](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-handle-crypto-interest): gains from interest;
 * [MINING](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-mining): gains from mining;
-* MOVE: the fee for moving currency between two accounts controlled by the same owner;
-* SELL: specifically, sale and [exchange of one cryptocurrency for another](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-conversion-of-a-cryptocurrency-to-another). RP2 splits them in two subcategories:
-  * long-term capital gains, if the lot was held for more than 1 year, or
+* [MOVE](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-handle-a-transfer-of-funds-from-a-wallet-or-exchange-to-another): the fee for moving currency between two accounts controlled by the same owner;
+* SELL: specifically, sale and [conversion of a cryptocurrency to another](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-conversion-of-a-cryptocurrency-to-another). RP2 splits them in two subcategories:
+  * long-term capital gains (if supported by the country plugin: e.g. in the US it's 1 year or more), or
   * short-term capital gains otherwise;
 * [STAKING](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-staking): gains from staking;
-* WAGES: income from crypto wages.
+* [WAGES](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-handle-income-from-crypto-wages): income from crypto wages.
 
 For each of these categories RP2 generates an output spreadsheet with transaction details and computed gains/losses (see [Input and Output Files](https://github.com/eprbell/rp2/tree/main/README.md#input-and-output-files) for more details). Users can give this output to their tax preparer with the rest of their tax documentation (see also FAQ on [which tax forms to file](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#which-crypto-tax-forms-to-file)). Note that buying cryptocurrency using fiat currency is not a taxable event.
 
@@ -148,13 +148,13 @@ The formats of these files are described in detail in the [Input Files](https://
 
 Examples of an input spreadsheet and its respective config file:
 * [input/crypto_example.ods](https://github.com/eprbell/rp2/tree/main/input/crypto_example.ods)
-* [config/crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config) (if desired, this config file can be used as boilerplate).
+* [config/crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config).
 
-After reading the input files, RP2 computes taxes and generates output files, which contain information on long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. They are described in detail in the [Output Files](https://github.com/eprbell/rp2/tree/main/docs/output_files.md) section of the documentation.
+After reading the input files, RP2 computes taxes and generates output files, which contain information on long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions, etc. They are described in detail in the [Output Files](https://github.com/eprbell/rp2/tree/main/docs/output_files.md) section of the documentation.
 
 To try RP2 with example files, download [crypto_example.ods](https://github.com/eprbell/rp2/tree/main/input/crypto_example.ods) and [crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config). Let's call `<download_directory>` the location of the downloaded files.
 
-To generate output for the example files open a terminal window (or PowerShell if on Windows) and enter the following commands:
+To generate US tax output for the example files open a terminal window (or PowerShell if on Windows) and enter the following commands:
   ```
   cd <download_directory>
   rp2_us -m fifo -o output -p crypto_example_ crypto_example.config crypto_example.ods
@@ -172,7 +172,7 @@ To print full command usage information for the `rp2_us` command:
 Read the [input files](https://github.com/eprbell/rp2/tree/main/docs/input_files.md) and [output files](https://github.com/eprbell/rp2/tree/main/docs/output_files.md) documentation.
 
 ## RP2 Ecosystem
-This is a call for projects: come and help us expand RP2's functionality!
+This is a call for coders: come and help us expand RP2's functionality!
 
 RP2 is the first component of what could be a powerful, community-driven suite of open-source, crypto tax software. It is intended as the core of a larger project ecosystem, maintained by the community. These projects can extend RP2's capability, usefulness and ease of use in new ways. For example:
 * [DaLI data loader plugins](https://github.com/eprbell/dali-rp2/blob/main/README.dev.md#dali-internals): add support for more exchanges and wallets (via REST API and/or CSV files). [Dali](https://github.com/eprbell/dali-rp2), the RP2 data loader, uses them to generate an input ODS file and a config file that can be fed directly to RP2;
@@ -181,7 +181,7 @@ RP2 is the first component of what could be a powerful, community-driven suite o
 * RP2 high-level interface: RP2 captures complex tax events using a few powerful, low-level primitives, aggregated in patterns. A higher level tool, might abstract out these patterns and present them to the user in a friendlier way (for example it may capture a complex concept like DeFi bridging as a primitive, rather than a pattern);
 * more...
 
-Important note: any RP2 ecosystem project must make user privacy its first priority.
+**Important note**: any RP2 ecosystem project must make user privacy its first priority.
 
 If you'd like to start an ecosystem project, please open an [issue](https://github.com/eprbell/rp2/issues) to let the RP2 community know.
 
