@@ -154,7 +154,7 @@ After reading the input files, RP2 computes taxes and generates output files, wh
 
 To try RP2 with example files, download [crypto_example.ods](https://github.com/eprbell/rp2/tree/main/input/crypto_example.ods) and [crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config). Let's call `<download_directory>` the location of the downloaded files.
 
-The RP2 executable is country-dependent: `rp2_<country_code>`, where country code is a [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes), 2-letter identifier (e.g. `rp2_us`, `rp2_jp`, etc).
+The RP2 executable is country-dependent: `rp2_<country_code>`, where country code is a [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2), 2-letter identifier (e.g. `rp2_us`, `rp2_jp`, etc).
 
 To generate US tax output for the example files open a terminal window (or PowerShell if on Windows) and enter the following commands:
   ```
