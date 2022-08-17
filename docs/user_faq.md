@@ -20,6 +20,7 @@
   * [How to Verify that Tax Computation is Correct?](#how-to-verify-that-tax-computation-is-correct)
   * [What Is the Timestamp Format?](#what-is-the-timestamp-format)
   * [What Accounting Methods Are Supported?](#what-accounting-methods-are-supported)
+  * [What Countries Are Supported?](#what-countries-are-supported)
   * [How to Switch from Another Tax Software to RP2?](#how-to-switch-from-another-tax-software-to-rp2)
   * [Can I Avoid Writing the Input Spreadsheet Manually?](#can-i-avoid-writing-the-input-spreadsheet-manually)
   * [Can I Avoid Writing a Config File from Scratch?](#can-i-avoid-writing-a-config-file-from-scratch)
@@ -77,6 +78,9 @@ Timestamp format is [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) (see [exam
 
 ### What Accounting Methods Are Supported?
 Currently the [FIFO](https://www.investopedia.com/terms/f/fifo.asp), [LIFO](https://www.investopedia.com/terms/l/lifo.asp) and [HIFO](https://www.investopedia.com/terms/h/hifo.asp) accounting methods are supported: they can be selected using the `-m` option on the command line.
+
+### What Countries Are Supported?
+Currently only the US is supported, but more countries are being added. As new countries are added this FAQ will be updated.
 
 ### How to Switch from Another Tax Software to RP2?
 In other words, how does RP2 handle transactions that were managed by other software in previous years? In this case the user can just leave out from the RP2 input spreadsheet the transactions/lots that were already sold in previous years.
