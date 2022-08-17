@@ -110,6 +110,7 @@ The RP2 source tree is organized as follows:
 * `CONTRIBUTING.md`: contribution guidelines;
 * `docs/`: additional documentation, referenced from the README files;
 * `.editorconfig`;
+* `.gitattributes`;
 * `.github/workflows/`: configuration of Github continuous integration;
 * `.gitignore`;
 * `input/`: examples and tests;
@@ -127,6 +128,7 @@ The RP2 source tree is organized as follows:
 * `setup.cfg`: static packaging configuration file;
 * `setup.py`: dynamic packaging configuration file;
 * `src/rp2`: RP2 code, including classes for transactions, gains, tax engine, balances, logger, ODS parser, etc.;
+* `src/locales`: RP2 localization data;
 * `src/rp2/plugin/accounting_method/`: accounting method plugins;
 * `src/rp2/plugin/country/`: country plugins/entry points;
 * `src/rp2/plugin/report/`: report generator plugins;
@@ -208,8 +210,10 @@ Report generator plugins translate data structures that result from tax computat
 Report generator plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * if the new plugin is not country-specific, add a new Python file in the `src/rp2/plugin/report/` directory and give it a meaningful name
 * if the new plugin is country-specific, add a new Python file in the `src/rp2/plugin/report/<country>` directory and give it a meaningful name (where `<country>` is a 2-letter country code adhering to the [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format)
-* import the following (plus any other RP2 file you might need):
+* import the following (plus any other RP2 or Python package you might need):
 ```
+from typing import Dict
+
 from rp2.abstract_country import AbstractCountry
 from rp2.computed_data import ComputedData
 from rp2.entry_types import TransactionType
@@ -220,11 +224,11 @@ from rp2.gain_loss_set import GainLossSet
 ```
 from logger import LOGGER
 ```
-* Add a class named `Generator`, deriving from `AbstractReportGenerator`:
+* Add a class named `Generator`, deriving from `AbstractReportGenerator` or `AbstractODSGenerator` (if generating a .ods file):
 ```
 class Generator(AbstractReportGenerator):
 ```
-* Add a `generate()` method with the following signature:
+* Add a `generate()` method to the class with the following signature:
 ```
     def generate(
         self,
@@ -238,14 +242,14 @@ class Generator(AbstractReportGenerator):
         generation_language: str,
     ) -> None:
 ```
-* write the body of the method. The parameters are:
+* write the body of the `generate()`. The parameters are:
   * `country`: instance of [AbstractCountry](src/rp2/abstract_country.py); see [Adding Support for a New Country](#adding-support-for-a-new-country) for more details;
-  * `accounting_method`: string name of the accounting method used to compute the taxes;
-  * `asset_to_computed_data`: dictionary mapping user asset (i.e. cryptocurrency) to the computed tax data for that asset. For each user asset there is one instance of [ComputedData](src/rp2/computed_data.py);
+  * `accounting_method`: string name of the accounting method used to compute the taxes. This is for purposes of generation only (it can be emitted in the output);
+  * `asset_to_computed_data`: dictionary mapping user assets (i.e. cryptocurrency) to the computed tax data for that asset. For each user asset there is one instance of [ComputedData](src/rp2/computed_data.py);
   * `output_dir_path`: directory in which to write the output;
   * `output_file_prefix`: prefix to be prepended to the output file name;
-  * `from_date`: filter out transactions before this date;
-  * `to_date`: filter out transactions after this date;
+  * `from_date`: filter out transactions before this date. This is for generation purposes only (it can be emitted in the output): the computed data is already time-filtered;
+  * `to_date`: filter out transactions after this date. This is for generation purposes only (it can be emitted in the output): the computed data is already time-filtered;
   * `generation_language`: language to use for generation. This is a hint and, depending on the nature of the plugin it can be used or ignored: e.g.
     * the tax_report_us plugin ignores `generation_language` because it generates a 8849-sytle report that has no use outside the US (so only English is used)
     * the rp2_full_report plugin uses `generation_language` because it generates a generic report that can be useful in any country (so it has to be localization-friendly)
@@ -259,7 +263,7 @@ Accounting method plugins modify the behavior of the tax engine. They pair in/ou
 
 Accounting method plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * add a new Python file to the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
-* import the following (plus any other RP2 file you might need):
+* import the following (plus any other RP2 or Python package you might need):
 ```
 from typing import Iterator, Optional
 
@@ -277,14 +281,15 @@ from rp2.rp2_decimal import RP2Decimal
 ```
 from logger import LOGGER
 ```
-* Add an `initialize()` method with the following signature:
+* Add a class named `AccountingMethod`, deriving from `AbstractAccountingMethod`:
+* Add an `initialize()` method to the class with the following signature:
 ```
     def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], acquired_lot_iterator: Iterator[InTransaction]) -> None:
 ```
 * write the body of `initialize()`. This method is passed iterators on taxable events and acquired lots and performs accounting-method-specific initialization (e.g. it might iterate over the iterators and add the elements to custom data structures, like AVL trees, etc.). The parameters are:
   * `taxable_event_iterator`: iterator over TaxableEvent instances (disposed-of lots), in chronological order;
   * `acquired_lot_iterator`: iterator over InTransaction instances (acquired lots), in chronological order;
-* Add `get_next_taxable_event_and_amount()` and `get_acquired_lot_for_taxable_event()` methods with the following signatures:
+* Add `get_next_taxable_event_and_amount()` and `get_acquired_lot_for_taxable_event()` methods to the class with the following signatures:
 ```
     def get_next_taxable_event_and_amount(
         self,
@@ -307,7 +312,7 @@ from logger import LOGGER
   * `taxable_event_amount`: the amount that is leftover of the current taxable event;
   * `acquired_lot_amount`: the amount that is leftover of the current acquired lot.
   * it returns TaxableEventAndAcquiredLot, which captures a new taxable event/acquired lot pair. Notice that in most cases only one of the two is new and the other stays the same and only gets its amount adjusted. However in some special cases that depend on the semantics of the plugin, one of these methods may need to update both taxable event and acquired lot (e.g. in the LIFO version of `get_next_taxable_event_and_amount()`, if the new taxable event has a timestamp with a new year, then the method also has to look for a new acquired lot in the same new year).
-* Add a `validate_acquired_lot_ancestor_timestamp()` method with the following signature:
+* Add a `validate_acquired_lot_ancestor_timestamp()` method to the class with the following signature:
 ```
     def validate_acquired_lot_ancestor_timestamp(self, acquired_lot: InTransaction, acquired_lot_parent: InTransaction) -> bool:
 ```
@@ -316,7 +321,7 @@ from logger import LOGGER
 **NOTE**: If you're interested in adding support for a new accounting method, open a [PR](CONTRIBUTING.md).
 
 ### Adding Support for a New Country
-RP2 has infrastructure to support countries other than the US. The abstract superclass is [AbstractCountry](src/rp2/abstract_country.py), which captures the following:
+RP2 has built-in support for the US but it also has infrastructure to support other countries. The abstract superclass of country plugins is [AbstractCountry](src/rp2/abstract_country.py), which captures the following:
 * country code (2-letter string in [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format);
 * currency code (3-letter string in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format);
 * long term capital gain period in days (e.g. for the US it's 365);
@@ -324,39 +329,40 @@ RP2 has infrastructure to support countries other than the US. The abstract supe
 * accepted report generators;
 * default language for the country.
 
-To add support for a new country, add a new Python file to the `src/rp2/plugin/country` directory and name it after the ISO 3166-1 alpha-2 2-letter code for the country. Then define the following:
-* in the constructor, invoke the superclass constructor passing in country code and currency code;
-* `get_long_term_capital_gain_period()` method with the appropriate value (if there is no long-term capital gains, return `sys.maxsize`);
+ To add a new plugin follow this procedure:
+* add a new Python file to the `src/rp2/plugin/country/` directory and name it after the ISO 3166-1 alpha-2, 2-letter code for the country (e.g. us.py or jp.py);
+* add a class named as the ISO 3166-1 alpha-2, 2-letter code for the country (all uppercase), deriving from AbstractCountry;
+* in the constructor invoke the superclass constructor passing in country code and currency code;
+* add the `get_long_term_capital_gain_period()` method with the appropriate value. If there is no long-term capital gains, return `sys.maxsize`;
 * `get_default_accounting_method()` method returning accounting method to use if the user doesn't specify one on the command line (e.g. for the US case it's `"fifo"`);
 * `get_accounting_methods()` method returning a set of accounting methods that are accepted in the country (e.g. `{"fifo", "lifo", "hifo"}`);
+* `get_report_generators()`: method returning a set of report generators to use if the user doesn't specify them on the command line;
+* `get_default_generation_language()`: method returning the default language (in [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format) to use at report generation if the user doesn't specify it on the command line;
 * `rp2_entry()` global function calling `rp2_main()` and passing it an instance of the new country class (in fact technically subclasses of `AbstractCountry` are entry points, not plugins).
-* `get_report_generators()`: method returning a set of report generators to use if the user doesn't specify them on the command line.
-* `get_default_generation_language()`: method returning the default language to use at report generation if the user doesn't specify it on the command line (in ISO 639-1 format)
 
 As an example see the [us.py](src/rp2/plugin/country/us.py) file.
 
 Finally add a console script to [setup.cfg](setup.cfg) pointing the new country rp2_entry (see the US example in the console_scripts section of setup.cfg).
 
 ## Localization
-RP2 supports generation of tax reports in any language via the Babel Python package. For example the JP country plugin supports the rp2_full_report and the open_positions report generators. The user can the `-g` command line option to generate Japanese taxes in English, Japanese, or any language for which there are translations (the argument to `-g` is a [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format, 2-letter string). Translatable strings are enclosed in the code with `_(...)` (see examples in the [rp2_full_report](src/rp2/plugin/report/rp2_full_report.py) plugin).
+RP2 supports generation of tax reports in any language via the Babel Python package. For example the JP country plugin accepts the rp2_full_report and the open_positions report generators. The user can use the `-g` command line option to generate Japanese taxes in English, Japanese, or any language for which there are translations (the argument to `-g` is a [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format, 2-letter string). Translatable strings are enclosed in the code with `_(...)` (see examples in the [rp2_full_report](src/rp2/plugin/report/rp2_full_report.py) plugin).
 
-Localizable strings and their translations are kept in the `src/rp2/locales` directory and here's how to manage them:
-* create or update the main message catalog (locales/messages.pot) anytime new localizable strings have been added to the code:
-
+Localizable strings and their translations are kept in the `src/rp2/locales` directory and here's how to manage them, when strings change in the code:
+* generate the main message catalog (locales/messages.pot):
   ```pybabel extract . -o src/rp2/locales/messages.pot --no-wrap --sort-output --copyright-holder=eprbell --project=rp2 --version=`cat .bumpversion.cfg | grep "current_version =" | cut -f3 -d " "` ```
 * manage language-specific catalogs (which are generated from src/rp2/locales/messages.pot): this step updates locales/&lt;language&gt;/LC_MESSAGES/messages.po:
-  * add support for a new language (if the .po file doesn't exist): create a new translation catalog:
+  * if the .po file doesn't exist, add support for a new language by creating a new translation catalog:
 
     ```pybabel init --no-wrap -l ja -i src/rp2/locales/messages.pot -d src/rp2/locales```
-  * or update catalog for a language (if the .po file already exists):
+  * or if the .po file already exists, update the catalog for a language:
 
      ```pybabel update -i src/rp2/locales/messages.pot -d src/rp2/locales --no-wrap```
 
-* translate any new strings: open src/rp2/locales/&lt;language&gt;/LC_MESSAGES/messages.po and add the missing translations in `msgstr` lines. If you don't know how to translate strings for a language leave them blank.
+* manually translate any new strings: open src/rp2/locales/&lt;language&gt;/LC_MESSAGES/messages.po and add the missing translations in `msgstr` lines. If you don't know how to translate strings for a language leave them blank.
 
 * check for `fuzzy`-marked translations in src/rp2/locales/&lt;language&gt;/LC_MESSAGES/messages.po: sometimes Babel marks a translation as `fuzzy` in the .po file. Such entries must be reviewed manually for correctness and then the `fuzzy` comment must be removed (otherwise that translation doesn't get included at runtime).
 
-* compile the .po file in the final binary format (.mo): this step updates src/rp2/locales/&lt;language&gt;/LC_MESSAGES/messages.mo:
+* compile the .po file into the final binary format (.mo): this step updates src/rp2/locales/&lt;language&gt;/LC_MESSAGES/messages.mo:
 
   ```pybabel compile -d src/rp2/locales```
 
