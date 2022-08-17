@@ -442,7 +442,7 @@ class Generator(AbstractODSGenerator):
 
         self._setup_text_data(country)
 
-        template_path: str = self._get_template_path("rp2_full_report", country, generation_language)
+        template_path: str = self._get_template_path("rp2_full_report", None, generation_language)
 
         output_file: Any
         output_file = self._initialize_output_file(

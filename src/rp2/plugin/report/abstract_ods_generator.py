@@ -15,7 +15,7 @@
 import os
 from datetime import date
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Optional, Set
 
 import ezodf
 
@@ -98,12 +98,17 @@ class AbstractODSGenerator(AbstractReportGenerator):
 
         return output_file
 
-    def _get_template_path(self, template_name: str, country: AbstractCountry, generation_language: str) -> str:
-        base_path = Path(os.path.dirname(__file__)).absolute() / Path(f"data/{country.country_iso_code}/template_{template_name}_{generation_language}")
+    def _get_template_path(self, template_name: str, country: Optional[AbstractCountry], generation_language: str) -> str:
+        country_path = f"{country.country_iso_code}/" if country else ""
+        language_suffix = f"_{generation_language}" if country else ""
+        base_path = Path(os.path.dirname(__file__)).absolute() / Path(f"data/{country_path}template_{template_name}{language_suffix}")
         ods_path = Path(f"{base_path}.ods")
         if ods_path.exists():
             return str(ods_path)
+        if not country:
+            raise Exception(f"Internal error: template {ods_path} doesn't exist")
 
+        # Look for a link (a .txt file containing the path to the .ods file)
         txt_path = Path(f"{base_path}.txt")
         if txt_path.exists():
             new_ods_path = Path(os.path.dirname(__file__)).absolute()
