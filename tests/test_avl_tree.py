@@ -20,7 +20,7 @@ from typing import List, Optional
 from rp2.avl_tree import AVLTree
 
 
-class TestRP2Decimal(unittest.TestCase):
+class TestAVLTree(unittest.TestCase):
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
 
