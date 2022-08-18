@@ -14,6 +14,11 @@
 
 # RP2 Change Log
 
+## 1.0.9
+* reviewed and improved all documentation
+* added FAQs
+* minor fixes
+
 ## 1.0.8
 * added generated report localization infrastructure: it's now possible to generate taxes for any country in any language (e.g. Japanese taxes in French). See README.dev.md for details
 * added -g command line option to select the language to use for generated reports
