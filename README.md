@@ -49,6 +49,8 @@
 * it prioritizes user privacy by storing crypto transactions and tax results on the user's computer and not sending them anywhere else;
 * it's free and open-source.
 
+This means that with RP2 there are no payment requests, no transaction limits, no account creation, no premium version, no personal data collection (that can be hacked), etc.
+
 Another unique advantage of RP2 is [transparent computation](https://github.com/eprbell/rp2/tree/main/docs/output_files.md#transparent-computation-rp2-full-report-output): it generates full computation details for every lot fraction, so that it's possible to verify step-by-step how RP2 reaches the final result.
 
 RP2 supports the [FIFO](https://www.investopedia.com/terms/f/fifo.asp), [LIFO](https://www.investopedia.com/terms/l/lifo.asp) and [HIFO](https://www.investopedia.com/terms/h/hifo.asp) accounting methods, to help minimize the amount due.
