@@ -47,9 +47,9 @@
 [RP2](https://github.com/eprbell/rp2) is a privacy-focused, free, non-commercial, open-source cryptocurrency tax calculator. Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This task could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
 * it manages the complexity related to coin flows and tax calculation and it generates [data that accountants can understand](https://github.com/eprbell/rp2/tree/main/docs/output_files.md#advisor-friendly-report-tax-report-us-output) (in the format of form 8949, for the US case), even if they are not cryptocurrency experts;
 * it prioritizes user privacy by storing crypto transactions and tax results on the user's computer and not sending them anywhere else;
-* it's free and open-source.
+* it's 100% free, open-source and non-commercial.
 
-This means that with RP2 there are no payment requests, no transaction limits, no account creation, no premium version, no personal data collection (that can be hacked), etc.
+This means that with RP2 there are no transaction limits, no premium versions, no payment requests, no personal data collected (at risk of being hacked), no account creation, no unauditable source code, etc.
 
 Another unique advantage of RP2 is [transparent computation](https://github.com/eprbell/rp2/tree/main/docs/output_files.md#transparent-computation-rp2-full-report-output): it generates full computation details for every lot fraction, so that it's possible to verify step-by-step how RP2 reaches the final result.
 
