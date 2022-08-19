@@ -22,6 +22,8 @@
   * [What Accounting Methods Are Supported?](#what-accounting-methods-are-supported)
   * [What Countries Are Supported?](#what-countries-are-supported)
   * [How to Switch from Another Tax Software to RP2?](#how-to-switch-from-another-tax-software-to-rp2)
+  * [What the Differentiates RP2 From Other Crypto Tax Software?](#what-differentiates-rp2-from-other-crypto-tax-software)
+  * [What's the Difference Between Rotki and RP2?](#whats-the-difference-between-rotki-and-rp2)
   * [Can I Avoid Writing the Input Spreadsheet Manually?](#can-i-avoid-writing-the-input-spreadsheet-manually)
   * [Can I Avoid Writing a Config File from Scratch?](#can-i-avoid-writing-a-config-file-from-scratch)
   * [What Tokens Does RP2 Support?](#what-tokens-does-rp2-support)
@@ -30,7 +32,6 @@
   * [How to Report a RP2 Bug Without Sharing Personal Information?](#how-to-report-a-rp2-bug-without-sharing-personal-information)
   * [What if I Don't Trust RP2 With My Crypto Data?](#what-if-i-dont-trust-rp2-with-my-crypto-data)
   * [Why Can't I Open the RP2 Output Report with Excel](#why-cant-i-open-the-rp2-output-report-with-excel)
-  * [What's the Difference Between Rotki and RP2?](#whats-the-difference-between-rotki-and-rp2)
   * [Who is the Author of RP2?](#who-is-the-author-of-rp2)
   * [How to Pronounce RP2?](#how-to-pronounce-rp2)
   * [What Does RP2 Mean?](#what-does-rp2-mean)
@@ -105,6 +106,19 @@ This is because a), part of b) and c) are already accounted for in the pre-RP2 s
 
 Of course the user still needs to keep all the documentation for previous years as well as for the current year. Also they will need to keep the same accounting method they were using previously: to switch accounting method (e.g. from FIFO to LIFO) it's necessary to speak to a tax professional first.
 
+### What Differentiates RP2 From Other Crypto Tax Software?
+RP2 has all of the following features:
+* 100% privacy-focused;
+* 100% open-source;
+* 100% free;
+* 100% non-commercial;
+* powerful and robust.
+
+This means that with RP2 there are no transaction limits, no premium versions, no payment requests, no personal data collected (at risk of being hacked), no account creation, no unauditable source code, etc.
+
+### What's the Difference Between Rotki and RP2?
+One difference is that RP2 is 100% free and non-commercial, whereas Rotki is a commercial product: their free offering has transaction limits and other constraints that can be lifted by purchasing the premium product. Another difference relates to privacy protection: to access premium features in Rotki the user needs to open an account on the Rotki web site and pay them (thus disclosing some personal information to them), whereas on RP2 no personal information ever leaves the user's computer. See also the question on [what differentiates RP2 from other crypto tax software](#what-differentiates-rp2-from-other-crypto-tax-software).
+
 ### Can I Avoid Writing the Input Spreadsheet Manually?
 You can generate it automatically using [DaLI](https://github.com/eprbell/dali-rp2), the data loader and input generator for RP2.
 
@@ -135,9 +149,6 @@ In other words, how to be sure RP2 is not malware/spyware? After all, Bitcoin's 
 
 ### Why Can't I Open the RP2 Output Report with Excel
 Some people have reported a problem when opening the rp2_full_report.ods file in Excel. RP2 generates ODS output using the pyexcel-ezodf library, which works well with [Libre Office](https://www.libreoffice.org/) and Open Office (both of which are free). If Excel is unable to open a RP2 file, try again with one of its free alternatives.
-
-### What's the Difference Between Rotki and RP2?
-One difference is that RP2 is 100% free and non-commercial, whereas Rotki is a commercial product: their free offering has transaction limits and other constraints that can be lifted by purchasing the premium product. Another difference relates to privacy protection: to access premium features in Rotki the user needs to open an account on the Rotki web site and pay them (thus disclosing some personal information to them), whereas on RP2 no personal information ever leaves the user's computer.
 
 ### Who is the Author of RP2?
 The author of RP2 is a Silicon Valley veteran, a software engineer and bitcoiner who also dabbles in Quantum Computing.
