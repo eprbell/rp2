@@ -15,7 +15,7 @@
 # RP2 Change Log
 
 ## 1.0.9
-* reviewed and improved all documentation
+* revised and improved all documentation
 * added FAQs
 * minor fixes
 
