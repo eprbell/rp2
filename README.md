@@ -49,7 +49,7 @@
 * it prioritizes user privacy by storing crypto transactions and tax results on the user's computer and not sending them anywhere else;
 * it's 100% free, open-source and non-commercial.
 
-This means that with RP2 there are no transaction limits, no premium versions, no payment requests, no personal data collected (at risk of being hacked), no account creation, no unauditable source code, etc.
+This means that with RP2 there are no transaction limits, no premium versions, no payment requests, no personal data stored on a server (at risk of being hacked), no account creation, no unauditable source code, etc.
 
 Another unique advantage of RP2 is [transparent computation](https://github.com/eprbell/rp2/tree/main/docs/output_files.md#transparent-computation-rp2-full-report-output): it generates full computation details for every lot fraction, so that it's possible to verify step-by-step how RP2 reaches the final result.
 
