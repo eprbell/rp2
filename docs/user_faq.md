@@ -114,7 +114,7 @@ RP2 has all of the following features:
 * 100% non-commercial;
 * powerful and robust.
 
-This means that with RP2 there are no transaction limits, no premium versions, no payment requests, no personal data collected (at risk of being hacked), no account creation, no unauditable source code, etc.
+This means that with RP2 there are no transaction limits, no premium versions, no payment requests, no personal data stored on a server (at risk of being hacked), no account creation, no unauditable source code, etc.
 
 Additionally RP2 offers [transparent computation](output_files.md#transparent-computation-rp2-full-report-output) and generates full computation details for every lot fraction, so that it's possible to verify step-by-step how RP2 reaches the final result.
 
