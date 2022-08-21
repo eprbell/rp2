@@ -14,6 +14,8 @@
 
 from typing import Dict, Iterator, List, NamedTuple, Optional
 
+from prezzemolo.avl_tree import AVLNode, AVLTree
+
 from rp2.abstract_accounting_method import (
     AcquiredLotsExhaustedException,
     TaxableEventAndAcquiredLot,
@@ -21,7 +23,6 @@ from rp2.abstract_accounting_method import (
 )
 from rp2.abstract_specific_id import AbstractSpecificId
 from rp2.abstract_transaction import AbstractTransaction
-from rp2.avl_tree import AVLNode, AVLTree
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 

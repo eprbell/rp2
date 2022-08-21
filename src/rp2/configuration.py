@@ -15,7 +15,7 @@
 import json
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Set
 
 from dateutil.parser import parse
 from jsonschema import validate
@@ -29,32 +29,6 @@ MIN_DATE: date = date(1970, 1, 1)
 MAX_DATE: date = date(9999, 12, 31)
 
 REPORT_GENERATOR_PACKAGE = "rp2.plugin.report"
-
-# Parametrized and extensible method to generate string representation
-def to_string(indent: int = 0, repr_format: bool = True, data: Optional[List[str]] = None) -> str:
-    padding: str
-    output: List[str] = []
-    separator: str
-    if not data:
-        return ""
-
-    if repr_format:
-        padding = ""
-        separator = ", "
-        data[0] = f"{'  ' * indent}{data[0]}"
-    else:
-        padding = "  " * indent
-        separator = "\n  "
-
-    if data:
-        for line in data:
-            output.append(f"{padding}{line}")
-
-    if repr_format:
-        output[-1] += ")"
-
-    # Joining by separator adds one level of indentation to internal fields (like id) in str mode, which is correct.
-    return separator.join(output)
 
 
 class Configuration:  # pylint: disable=too-many-public-methods

@@ -16,7 +16,9 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Callable, Dict, List, Optional, cast
 
-from rp2.configuration import Configuration, to_string
+from prezzemolo.utility import to_string
+
+from rp2.configuration import Configuration
 from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData
 from rp2.intra_transaction import IntraTransaction

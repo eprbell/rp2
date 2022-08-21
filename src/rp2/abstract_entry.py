@@ -15,7 +15,9 @@
 from datetime import datetime
 from typing import List, Optional
 
-from rp2.configuration import Configuration, to_string
+from prezzemolo.utility import to_string
+
+from rp2.configuration import Configuration
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError
 
