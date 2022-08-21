@@ -172,20 +172,31 @@ class AccountingMethod(AbstractSpecificId):
         # This while loop causes O(nm) complexity, where n is the number of taxable events and m is the number of acquired lots):
         # for every taxable event, loop over the acquired lot list. There are non-trivial ways of making this faster (by changing
         # the data structures).
+        acquired_lot_amount: RP2Decimal = None
+        acquired_lot: InTransaction = None
         for index in range(start, -1, -1):
-            acquired_lot: InTransaction = acquired_lot_list[index]
-            acquired_lot_amount: RP2Decimal
+            # if the next next is less than us or zero partial, skip
+            if acquired_lot != None and (acquired_lot.spot_price > acquired_lot_list[index].spot_price or (self._has_partial_amount(acquired_lot_list[index]) and self._get_partial_amount(acquired_lot_list[index])<=ZERO)):
+                continue;
+            else:
+                acquired_lot_amount = None
+                acquired_lot = acquired_lot_list[index]
             if self._has_partial_amount(acquired_lot):
                 if self._get_partial_amount(acquired_lot) > ZERO:
                     acquired_lot_amount = self._get_partial_amount(acquired_lot)
-                    self._clear_partial_amount(acquired_lot)
-                    return AcquiredLotAndAmount(acquired_lot=acquired_lot, amount=acquired_lot_amount)
+                else:
+                    acquired_lot = None # if we ourselves are zero, clear this variable so the next itteration forces picking out of the array
+                    # edge case, but if the first one is a depleted lot, return none
+                    if index == start:
+                        return None
             else:
                 acquired_lot_amount = acquired_lot.crypto_in
-                self._clear_partial_amount(acquired_lot)
-                return AcquiredLotAndAmount(acquired_lot=acquired_lot, amount=acquired_lot_amount)
-
-        return None
+        
+        if acquired_lot_amount:
+            self._clear_partial_amount(acquired_lot)
+            return AcquiredLotAndAmount(acquired_lot=acquired_lot, amount=acquired_lot_amount) 
+        else:
+            return None
 
     def _has_partial_amount(self, acquired_lot: InTransaction) -> bool:
         return acquired_lot in self.__acquired_lot_2_partial_amount
