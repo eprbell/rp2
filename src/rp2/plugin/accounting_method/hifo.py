@@ -172,14 +172,14 @@ class AccountingMethod(AbstractSpecificId):
         # This while loop causes O(nm) complexity, where n is the number of taxable events and m is the number of acquired lots):
         # for every taxable event, loop over the acquired lot list. There are non-trivial ways of making this faster (by changing
         # the data structures).
-        acquired_lot_amount: RP2Decimal = None
-        acquired_lot: InTransaction = None
+        acquired_lot_amount: RP2Decimal = ZERO
+        acquired_lot: Optional[InTransaction] = None
         for index in range(start, -1, -1):
             # if the next next is less than us or zero partial, skip
-            if acquired_lot != None and (acquired_lot.spot_price > acquired_lot_list[index].spot_price or (self._has_partial_amount(acquired_lot_list[index]) and self._get_partial_amount(acquired_lot_list[index])<=ZERO)):
+            if (acquired_lot and acquired_lot.spot_price > acquired_lot_list[index].spot_price or (self._has_partial_amount(acquired_lot_list[index]) and self._get_partial_amount(acquired_lot_list[index])<=ZERO)):
                 continue;
             else:
-                acquired_lot_amount = None
+                acquired_lot_amount = ZERO
                 acquired_lot = acquired_lot_list[index]
             if self._has_partial_amount(acquired_lot):
                 if self._get_partial_amount(acquired_lot) > ZERO:
@@ -192,7 +192,7 @@ class AccountingMethod(AbstractSpecificId):
             else:
                 acquired_lot_amount = acquired_lot.crypto_in
         
-        if acquired_lot_amount:
+        if acquired_lot_amount != ZERO and acquired_lot:
             self._clear_partial_amount(acquired_lot)
             return AcquiredLotAndAmount(acquired_lot=acquired_lot, amount=acquired_lot_amount) 
         else:
