@@ -176,8 +176,12 @@ class AccountingMethod(AbstractSpecificId):
         acquired_lot: Optional[InTransaction] = None
         for index in range(start, -1, -1):
             # if the next next is less than us or zero partial, skip
-            if (acquired_lot and acquired_lot.spot_price > acquired_lot_list[index].spot_price or (self._has_partial_amount(acquired_lot_list[index]) and self._get_partial_amount(acquired_lot_list[index])<=ZERO)):
-                continue;
+            if (
+                acquired_lot
+                and acquired_lot.spot_price > acquired_lot_list[index].spot_price
+                or (self._has_partial_amount(acquired_lot_list[index]) and self._get_partial_amount(acquired_lot_list[index]) <= ZERO)
+            ):
+                continue
             else:
                 acquired_lot_amount = ZERO
                 acquired_lot = acquired_lot_list[index]
@@ -185,16 +189,16 @@ class AccountingMethod(AbstractSpecificId):
                 if self._get_partial_amount(acquired_lot) > ZERO:
                     acquired_lot_amount = self._get_partial_amount(acquired_lot)
                 else:
-                    acquired_lot = None # if we ourselves are zero, clear this variable so the next itteration forces picking out of the array
+                    acquired_lot = None  # if we ourselves are zero, clear this variable so the next itteration forces picking out of the array
                     # edge case, but if the first one is a depleted lot, return none
                     if index == start:
                         return None
             else:
                 acquired_lot_amount = acquired_lot.crypto_in
-        
+
         if acquired_lot_amount != ZERO and acquired_lot:
             self._clear_partial_amount(acquired_lot)
-            return AcquiredLotAndAmount(acquired_lot=acquired_lot, amount=acquired_lot_amount) 
+            return AcquiredLotAndAmount(acquired_lot=acquired_lot, amount=acquired_lot_amount)
         else:
             return None
 
