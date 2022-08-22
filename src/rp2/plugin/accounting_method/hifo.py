@@ -189,7 +189,7 @@ class AccountingMethod(AbstractSpecificId):
                 if self._get_partial_amount(acquired_lot) > ZERO:
                     acquired_lot_amount = self._get_partial_amount(acquired_lot)
                 else:
-                    acquired_lot = None  # if we ourselves are zero, clear this variable so the next itteration forces picking out of the array
+                     acquired_lot = None  # if partial amount of acquired lot is zero, clear it so the next iteration forces picking out of the array
                     # edge case, but if the first one is a depleted lot, return none
                     if index == start:
                         return None
