@@ -175,7 +175,7 @@ class AccountingMethod(AbstractSpecificId):
         acquired_lot_amount: RP2Decimal = ZERO
         acquired_lot: Optional[InTransaction] = None
         for index in range(start, -1, -1):
-            # if the next next is less than us or zero partial, skip
+             # if the lot at index is less than acquired_lot or has zero partial amount, skip
             if (
                 acquired_lot
                 and acquired_lot.spot_price > acquired_lot_list[index].spot_price
