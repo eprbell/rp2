@@ -178,8 +178,10 @@ class AccountingMethod(AbstractSpecificId):
              # if the lot at index is less than acquired_lot or has zero partial amount, skip
             if (
                 acquired_lot
-                and acquired_lot.spot_price > acquired_lot_list[index].spot_price
-                or (self._has_partial_amount(acquired_lot_list[index]) and self._get_partial_amount(acquired_lot_list[index]) <= ZERO)
+                and (
+                    acquired_lot.spot_price > acquired_lot_list[index].spot_price 
+                    or (self._has_partial_amount(acquired_lot_list[index]) and self._get_partial_amount(acquired_lot_list[index]) <= ZERO)
+                    )
             ):
                 continue
             else:
