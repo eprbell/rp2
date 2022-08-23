@@ -179,14 +179,14 @@ class AccountingMethod(AbstractSpecificId):
             if (
                 acquired_lot
                 and (
-                    acquired_lot.spot_price > acquired_lot_list[index].spot_price 
+                    acquired_lot.spot_price > acquired_lot_list[index].spot_price
                     or (self._has_partial_amount(acquired_lot_list[index]) and self._get_partial_amount(acquired_lot_list[index]) <= ZERO)
                     )
             ):
                 continue
-            else:
-                acquired_lot_amount = ZERO
-                acquired_lot = acquired_lot_list[index]
+
+            acquired_lot_amount = ZERO
+            acquired_lot = acquired_lot_list[index]
             if self._has_partial_amount(acquired_lot):
                 if self._get_partial_amount(acquired_lot) > ZERO:
                     acquired_lot_amount = self._get_partial_amount(acquired_lot)
@@ -201,8 +201,7 @@ class AccountingMethod(AbstractSpecificId):
         if acquired_lot_amount != ZERO and acquired_lot:
             self._clear_partial_amount(acquired_lot)
             return AcquiredLotAndAmount(acquired_lot=acquired_lot, amount=acquired_lot_amount)
-        else:
-            return None
+        return None
 
     def _has_partial_amount(self, acquired_lot: InTransaction) -> bool:
         return acquired_lot in self.__acquired_lot_2_partial_amount
