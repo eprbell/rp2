@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, Iterator, List, NamedTuple, Optional
 
-from rp2.avl_tree import AVLTree
+from prezzemolo.avl_tree import AVLTree
 
 from rp2.abstract_accounting_method import (
     AcquiredLotsExhaustedException,
