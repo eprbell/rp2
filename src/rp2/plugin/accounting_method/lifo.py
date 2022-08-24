@@ -163,14 +163,15 @@ class AccountingMethod(AbstractSpecificId):
                 continue
             acquired_lot_list: List[InTransaction] = self.__year_2_acquired_lot_list[year]
             acquired_lot_avl: AVLTree[str, AcquiredLotAndIndex] = self.__year_2_acquired_lot_avl[year]
-            first_lot: Optional[AcquiredLotAndIndex] = acquired_lot_avl.find_max_value_less_than(
-                f"{self._get_avl_node_key_with_max_disambiguator(taxable_event.timestamp)}"
+            if not acquired_lot_avl.root:
+                raise Exception("Internal error: AVL tree has no root node")
+            avl_result: Optional[AcquiredLotAndIndex] = acquired_lot_avl.find_max_value_less_than(
+                self._get_avl_node_key_with_max_disambiguator(taxable_event.timestamp)
             )
-            if first_lot is not None:
-                acquired_lot_index: int = first_lot.index
-                if first_lot.acquired_lot != acquired_lot_list[acquired_lot_index]:
+            if avl_result is not None:
+                if avl_result.acquired_lot != acquired_lot_list[avl_result.index]:
                     raise Exception("Internal error: acquired_lot incongruence in LIFO accounting logic")
-                acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = self._seek_first_non_exhausted_acquired_lot(acquired_lot_list, acquired_lot_index)
+                acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = self._seek_first_non_exhausted_acquired_lot(acquired_lot_list, avl_result.index)
                 if acquired_lot_and_amount:
                     return TaxableEventAndAcquiredLot(
                         taxable_event=taxable_event,

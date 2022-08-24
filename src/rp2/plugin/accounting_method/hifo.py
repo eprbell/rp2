@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
+from datetime import datetime
 from typing import Dict, Iterator, List, NamedTuple, Optional
 
-from prezzemolo.avl_tree import AVLNode, AVLTree
+from prezzemolo.avl_tree import AVLTree
 
 from rp2.abstract_accounting_method import (
     AcquiredLotsExhaustedException,
@@ -27,9 +29,10 @@ from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 
 
-class AcquiredLotAndIndex(NamedTuple):
+@dataclass
+class AcquiredLotAndIndex:
     acquired_lot: InTransaction
-    idx: int  # Using idx instead of index to workaround a mypy bug: https://github.com/python/mypy/issues/4507
+    index: int
 
 
 class AcquiredLotAndAmount(NamedTuple):
@@ -41,48 +44,46 @@ class AcquiredLotAndAmount(NamedTuple):
 class AccountingMethod(AbstractSpecificId):
 
     __taxable_event_iterator: Iterator[AbstractTransaction]
-    __acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal]
-    __acquired_lot_avl: AVLTree[str, AcquiredLotAndIndex]
-    __spot_price_list: List[RP2Decimal]
     __acquired_lot_list: List[InTransaction]
+    __acquired_lot_avl: AVLTree[str, AcquiredLotAndIndex]
+    __acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal]
 
-    # Disambiguation is needed for transactions that have the same spot_price, because the avl tree class expects unique keys: 12 decimal digits express
-    # 1 quadrillion, which should be enough to capture the maximum number of same-spot_price transactions in all reasonable cases.
+    # Disambiguation is needed for transactions that have the same timestamp, because the avl tree class expects unique keys: 12 decimal digits express
+    # 1 quadrillion, which should be enough to capture the maximum number of same-timestamp transactions in all reasonable cases.
     KEY_DISAMBIGUATOR_LENGTH: int = 12
     MAX_KEY_DISAMBIGUATOR = "9" * KEY_DISAMBIGUATOR_LENGTH
-    MIN_ACQUIRED_LOT_INDEX: int = 0
 
     # Iterators yield transactions in ascending chronological order
     def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], acquired_lot_iterator: Iterator[InTransaction]) -> None:
         self.__taxable_event_iterator = taxable_event_iterator
-        self.__acquired_lot_2_partial_amount = {}
-        self.__spot_price_list = []
         self.__acquired_lot_list = []
         self.__acquired_lot_avl: AVLTree[str, AcquiredLotAndIndex] = AVLTree()
+        self.__acquired_lot_2_partial_amount = {}
 
-        index: int = self.MIN_ACQUIRED_LOT_INDEX
+        index: int = 0
         try:
             while True:
                 acquired_lot: InTransaction = next(acquired_lot_iterator)
-                self.__acquired_lot_avl.insert_node(f"{self._get_avl_node_key((acquired_lot.spot_price), index)}", AcquiredLotAndIndex(acquired_lot, index))
-                self.__spot_price_list.append(acquired_lot.spot_price)
                 self.__acquired_lot_list.append(acquired_lot)
+                # Key is <timestamp>_<internal_id>
+                self.__acquired_lot_avl.insert_node(
+                    f"{self._get_avl_node_key(acquired_lot.timestamp, acquired_lot.internal_id)}", AcquiredLotAndIndex(acquired_lot, index)
+                )
                 index += 1
         except StopIteration:
             # End of acquired_lots
             pass
-        self.__spot_price_list.sort()
 
-    # AVL tree node keys have this format: <spot_price>_<acquired_lot_index>. The acquired_lot_index part is needed to disambiguate transactions
-    # that have the same spot_price. acquired_lot_index is padded right in a string of fixed length (KEY_DISAMBIGUATOR_LENGTH).
-    # The highest acquired_lot_index is for the earliest acquired lot
-    def _get_avl_node_key(self, spot_price: RP2Decimal, acquired_lot_index: int) -> str:
-        return f"{spot_price}_{(int(self.MAX_KEY_DISAMBIGUATOR) - acquired_lot_index):0>{self.KEY_DISAMBIGUATOR_LENGTH}}"
+    # AVL tree node keys have this format: <timestamp>_<internal_id>. The internal_id part is needed to disambiguate transactions
+    # that have the same timestamp. Timestamp is in format "YYYYmmddHHMMSS.ffffff" and internal_id is padded right in a string of fixed
+    # length (KEY_DISAMBIGUATOR_LENGTH).
+    def _get_avl_node_key(self, timestamp: datetime, internal_id: str) -> str:
+        return f"{timestamp.strftime('%Y%m%d%H%M%S.%f')}_{internal_id:0>{self.KEY_DISAMBIGUATOR_LENGTH}}"
 
-    # This function calls _get_avl_node_key with acquired_lot_index=MIN_ACQUIRED_LOT_INDEX, so that the generated key is larger than any other key
-    # with the same spot_price.
-    def _get_avl_node_key_with_max_disambiguator(self, spot_price: RP2Decimal) -> str:
-        return self._get_avl_node_key(spot_price, self.MIN_ACQUIRED_LOT_INDEX)
+    # This function calls _get_avl_node_key with internal_id=MAX_KEY_DISAMBIGUATOR, so that the generated key is larger than any other key
+    # with the same timestamp.
+    def _get_avl_node_key_with_max_disambiguator(self, timestamp: datetime) -> str:
+        return self._get_avl_node_key(timestamp, self.MAX_KEY_DISAMBIGUATOR)
 
     def get_next_taxable_event_and_amount(
         self,
@@ -121,7 +122,30 @@ class AccountingMethod(AbstractSpecificId):
     def get_acquired_lot_for_taxable_event(
         self, taxable_event: AbstractTransaction, acquired_lot: Optional[InTransaction], taxable_event_amount: RP2Decimal, acquired_lot_amount: RP2Decimal
     ) -> TaxableEventAndAcquiredLot:
-        # This while loop causes O(n^2) complexity, where n is the number of acquired lots. Non-trivial optimizations are possible
+        new_taxable_event_amount: RP2Decimal = taxable_event_amount - acquired_lot_amount
+        if not self.__acquired_lot_avl.root:
+            raise Exception("Internal error: AVL tree has no root node")
+        avl_result: Optional[AcquiredLotAndIndex] = self.__acquired_lot_avl.find_max_value_less_than(
+            self._get_avl_node_key_with_max_disambiguator(taxable_event.timestamp)
+        )
+        if avl_result is not None:
+            if avl_result.acquired_lot != self.__acquired_lot_list[avl_result.index]:
+                raise Exception("Internal error: acquired_lot incongruence in HIFO accounting logic")
+            acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = self._seek_highest_price_non_exhausted_acquired_lot_before_index(
+                self.__acquired_lot_list, avl_result.index + 1
+            )
+            if acquired_lot_and_amount:
+                return TaxableEventAndAcquiredLot(
+                    taxable_event=taxable_event,
+                    acquired_lot=acquired_lot_and_amount.acquired_lot,
+                    taxable_event_amount=new_taxable_event_amount,
+                    acquired_lot_amount=acquired_lot_and_amount.amount,
+                )
+
+        raise AcquiredLotsExhaustedException()
+
+    def _seek_highest_price_non_exhausted_acquired_lot_before_index(self, acquired_lot_list: List[InTransaction], end: int) -> Optional[AcquiredLotAndAmount]:
+        # This loop causes O(n^2) complexity, where n is the number of acquired lots. Non-trivial optimizations are possible
         # using different data structures (but they are likely to have expensive space/time tradeoff): e.g. a dict mapping timestamp
         # to list of transactions before that timestamp, ordered by spot price. Note that such a dict would have to have a new copy
         # of the list for each timestamp: i.e. we can't just use a single list tracking what's the next highest-priced transaction
@@ -137,55 +161,27 @@ class AccountingMethod(AbstractSpecificId):
         # have separate list for each transaction. This would mean trading off O(n^2) time for O(n^2) space. This may cause users with
         # lots of transactions (e.g. high frequency traders) to run out of memory. There may be more complex solutions that are faster
         # without needing quadratic memory, but they need to be researched.
+        highest_price_acquired_lot_amount: RP2Decimal = ZERO
+        highest_price_acquired_lot: Optional[InTransaction] = None
+        for index in range(0, end):
+            acquired_lot_amount: RP2Decimal = ZERO
+            acquired_lot = acquired_lot_list[index]
 
-        new_taxable_event_amount: RP2Decimal = taxable_event_amount - acquired_lot_amount
-        spot_price_index = len(self.__spot_price_list) - 1
-        current_key: str = f"{self._get_avl_node_key_with_max_disambiguator(self.__spot_price_list[spot_price_index])}"
-        while spot_price_index >= 0:
-            acquired_lot_list: List[InTransaction] = self.__acquired_lot_list
-            if not self.__acquired_lot_avl.root:
-                raise Exception("Internal error: AVL tree has no root node")
-            node: Optional[AVLNode[str, AcquiredLotAndIndex]] = self.__acquired_lot_avl.find_max_node_less_than_at_node(
-                self.__acquired_lot_avl.root,
-                current_key,
-            )
-            acquired_lot_index: Optional[int] = None
-            first_lot: Optional[AcquiredLotAndIndex] = node.value if node else None
-            if first_lot is not None and first_lot.acquired_lot.timestamp <= taxable_event.timestamp:
-                acquired_lot_index = first_lot.idx
-                if first_lot.acquired_lot != acquired_lot_list[acquired_lot_index]:
-                    raise Exception("Internal error: acquired_lot incongruence in HIFO accounting logic")
-                acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = self._seek_first_non_exhausted_acquired_lot(acquired_lot_list, acquired_lot_index)
-                if acquired_lot_and_amount:
-                    return TaxableEventAndAcquiredLot(
-                        taxable_event=taxable_event,
-                        acquired_lot=acquired_lot_and_amount.acquired_lot,
-                        taxable_event_amount=new_taxable_event_amount,
-                        acquired_lot_amount=acquired_lot_and_amount.amount,
-                    )
-            spot_price_index -= 1
-            current_key = f"{self._get_avl_node_key_with_max_disambiguator(self.__spot_price_list[spot_price_index])}"
-            if acquired_lot_index is not None and self.__spot_price_list[spot_price_index] == self.__spot_price_list[spot_price_index + 1]:
-                current_key = f"{self._get_avl_node_key((self.__spot_price_list[spot_price_index]), acquired_lot_index + 1)}"
-        raise AcquiredLotsExhaustedException()
-
-    def _seek_first_non_exhausted_acquired_lot(self, acquired_lot_list: List[InTransaction], start: int) -> Optional[AcquiredLotAndAmount]:
-        # This while loop causes O(nm) complexity, where n is the number of taxable events and m is the number of acquired lots):
-        # for every taxable event, loop over the acquired lot list. There are non-trivial ways of making this faster (by changing
-        # the data structures).
-        for index in range(start, -1, -1):
-            acquired_lot: InTransaction = acquired_lot_list[index]
-            acquired_lot_amount: RP2Decimal
-            if self._has_partial_amount(acquired_lot):
-                if self._get_partial_amount(acquired_lot) > ZERO:
-                    acquired_lot_amount = self._get_partial_amount(acquired_lot)
-                    self._clear_partial_amount(acquired_lot)
-                    return AcquiredLotAndAmount(acquired_lot=acquired_lot, amount=acquired_lot_amount)
-            else:
+            if not self._has_partial_amount(acquired_lot):
                 acquired_lot_amount = acquired_lot.crypto_in
-                self._clear_partial_amount(acquired_lot)
-                return AcquiredLotAndAmount(acquired_lot=acquired_lot, amount=acquired_lot_amount)
+            elif self._get_partial_amount(acquired_lot) > ZERO:
+                acquired_lot_amount = self._get_partial_amount(acquired_lot)
+            else:
+                # The acquired lot has zero partial amount
+                continue
 
+            if highest_price_acquired_lot is None or highest_price_acquired_lot.spot_price < acquired_lot.spot_price:
+                highest_price_acquired_lot_amount = acquired_lot_amount
+                highest_price_acquired_lot = acquired_lot
+
+        if highest_price_acquired_lot_amount > ZERO and highest_price_acquired_lot:
+            self._clear_partial_amount(highest_price_acquired_lot)
+            return AcquiredLotAndAmount(acquired_lot=highest_price_acquired_lot, amount=highest_price_acquired_lot_amount)
         return None
 
     def _has_partial_amount(self, acquired_lot: InTransaction) -> bool:
