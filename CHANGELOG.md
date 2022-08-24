@@ -14,6 +14,11 @@
 
 # RP2 Change Log
 
+## 1.1.0
+* fixed 2 bugs in HIFO plugin: see #74 for details. If you're using HIFO, be sure to upgrade to this or later version.
+* refactored classic computer science data structures in separate Prezzemolo library
+* added FAQs and tweaked documentation
+
 ## 1.0.9
 * revised and improved all documentation
 * added FAQs
