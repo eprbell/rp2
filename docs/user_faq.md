@@ -19,14 +19,14 @@
   * [How to Verify that I Entered Data Correctly in the Input Spreadsheet?](#how-to-verify-that-i-entered-data-correctly-in-the-input-spreadsheet)
   * [How to Verify that Tax Computation is Correct?](#how-to-verify-that-tax-computation-is-correct)
   * [What Is the Timestamp Format?](#what-is-the-timestamp-format)
+  * [What Tokens Does RP2 Support?](#what-tokens-does-rp2-support)
   * [What Accounting Methods Are Supported?](#what-accounting-methods-are-supported)
   * [What Countries Are Supported?](#what-countries-are-supported)
   * [How to Switch from Another Tax Software to RP2?](#how-to-switch-from-another-tax-software-to-rp2)
-  * [Why Should I Use RP2 Instead on Another Software?](#why-should-i-use-rp2-instead-on-another-software)
+  * [Why Should I Use RP2 Instead of Another Software?](#why-should-i-use-rp2-instead-of-another-software)
   * [What's the Difference Between Rotki and RP2?](#whats-the-difference-between-rotki-and-rp2)
   * [Can I Avoid Writing the Input Spreadsheet Manually?](#can-i-avoid-writing-the-input-spreadsheet-manually)
   * [Can I Avoid Writing a Config File from Scratch?](#can-i-avoid-writing-a-config-file-from-scratch)
-  * [What Tokens Does RP2 Support?](#what-tokens-does-rp2-support)
   * [What if I Don't Have the Spot Price for Some Transactions?](#what-if-i-dont-have-the-spot-price-for-some-transactions)
   * [Is My Tax Report Browsable?](#is-my-tax-report-browsable)
   * [How to Report a RP2 Bug Without Sharing Personal Information?](#how-to-report-a-rp2-bug-without-sharing-personal-information)
@@ -77,6 +77,9 @@ RP2 supports [transparent computation](output_files.md#transparent-computation-r
 ### What Is the Timestamp Format?
 Timestamp format is [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) (see [examples](https://en.wikipedia.org/wiki/ISO_8601#Combined_date_and_time_representations) of timestamps in this format). Note that RP2 requires full timestamps, including date, time and timezone.
 
+### What Tokens Does RP2 Support?
+The user adds the tokens to the `assets` field of the [config file](input_files.md#the-config-file): RP2 accepts as valid all the tokens present in this field. See also the question on [writing a config file from scratch](#can-i-avoid-writing-a-config-file-from-scratch).
+
 ### What Accounting Methods Are Supported?
 Currently the [FIFO](https://www.investopedia.com/terms/f/fifo.asp), [LIFO](https://www.investopedia.com/terms/l/lifo.asp) and [HIFO](https://www.investopedia.com/terms/h/hifo.asp) accounting methods are supported: they can be selected using the `-m` option on the command line.
 
@@ -106,7 +109,7 @@ This is because a), part of b) and c) are already accounted for in the pre-RP2 s
 
 Of course the user still needs to keep all the documentation for previous years as well as for the current year. Also they will need to keep the same accounting method they were using previously: to switch accounting method (e.g. from FIFO to LIFO) it's necessary to speak to a tax professional first.
 
-### Why Should I Use RP2 Instead on Another Software?
+### Why Should I Use RP2 Instead of Another Software?
 RP2 has all of the following features:
 * 100% privacy-focused;
 * 100% open-source;
@@ -114,7 +117,7 @@ RP2 has all of the following features:
 * 100% non-commercial;
 * powerful and robust.
 
-This means that with RP2 there are no transaction limits, no premium versions, no payment requests, no personal data sent to a server (at risk of being hacked), no account creation, no unauditable source code. 
+This means that with RP2 there are no transaction limits, no premium versions, no payment requests, no personal data sent to a server (at risk of being hacked), no account creation, no unauditable source code.
 
 Additionally RP2 offers [transparent computation](output_files.md#transparent-computation-rp2-full-report-output) and generates full computation details for every lot fraction, so that it's possible to verify step-by-step how RP2 reaches the final result.
 
@@ -126,9 +129,6 @@ You can generate it automatically using [DaLI](https://github.com/eprbell/dali-r
 
 ### Can I Avoid Writing a Config File from Scratch?
 You can generate it automatically using [DaLI](https://github.com/eprbell/dali-rp2), the data loader and input generator for RP2. Alternatively you can use [crypto_example.config](../config/crypto_example.config) as boilerplate and the [Input Files](input_files.md) document as reference.
-
-### What Tokens Does RP2 Support?
-The user adds the tokens to the `assets` field of the [config file](input_files.md#the-config-file): RP2 accepts as valid all the tokens present in this field. See also the question on [writing a config file from scratch](#can-i-avoid-writing-a-config-file-from-scratch).
 
 ### What if I Don't Have the Spot Price for Some Transactions?
 In some cases exchange reports miss spot price information. In such situations you can retrieve historical price data from [Yahoo](https://finance.yahoo.com/quote/BTC-USD/history/), [CoinMarketCap](https://coinmarketcap.com/currencies/bitcoin/historical-data/) and others.
