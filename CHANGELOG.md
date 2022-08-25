@@ -14,6 +14,9 @@
 
 # RP2 Change Log
 
+## In Progress
+* added support for simplified accounting method plugin creation. With this new infrastructure a new accounting method can be added by defining just two small methods. Documentation: https://github.com/eprbell/rp2/blob/main/README.dev.md#simplified-procedure
+
 ## 1.1.0
 * fixed 2 bugs in HIFO plugin: see #74 for details. If you're using HIFO, be sure to upgrade to this or later version.
 * refactored classic computer science data structures in separate Prezzemolo library
