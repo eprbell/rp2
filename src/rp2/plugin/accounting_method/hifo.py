@@ -24,12 +24,12 @@ class AccountingMethod(AbstractSpecificId):
 
     def _seek_non_exhausted_acquired_lot_before_index(self, acquired_lot_list: List[InTransaction], last_valid_index: int) -> Optional[AcquiredLotAndAmount]:
         # This loop causes O(m*n) complexity, where m is the number of acquired lots and n in the number of taxable events. The taxable
-        # event loop is in the caller (the superclass). Non-trivial optimizations are possible using different data structures but they
-        # need to be researched (and they are likely to have expensive space/time tradeoff): e.g. a dict mapping timestamp to list of
-        # transactions before that timestamp, ordered by spot price. Note that such a dict would have to have a new copy of the list for
-        # each timestamp: i.e. we can't just use a single list tracking what's the next highest-priced transaction before a timestamp.
-        # This is because the "next highest-priced" transaction can vary, depending on what is the initial transaction: in other words
-        # the order is not global, it's relative to the initial transaction. For example:
+        # event loop is in the caller. Non-trivial optimizations are possible using different data structures but they need to be
+        # researched (and they are likely to have expensive space/time tradeoff): e.g. a dict mapping timestamp to list of transactions
+        # before that timestamp, ordered by spot price. Note that such a dict would have to have a new copy of the list for each
+        # timestamp: i.e. we can't just use a single list tracking what's the next highest-priced transaction before a timestamp. This
+        # is because the "next highest-priced" transaction can vary, depending on what is the initial transaction: in other words the
+        # order is not global, it's relative to the initial transaction. For example:
         # * 2020-08-10, 1 BTC, $20000
         # * 2020-09-10, 1 BTC, $10000
         # * 2020-10-10, 1 BTC, $15000
