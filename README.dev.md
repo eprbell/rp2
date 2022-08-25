@@ -265,7 +265,7 @@ Accounting method plugins are discovered by RP2 at runtime and they must adhere 
 * simplified procedure;
 * complete procedure.
 
-The simplified procedure is recommended for most cases: the complete procedure is more complex and it's useful when introducing optimizations that are not supported by the simplified one. [LIFO](src/rp2/plugin/accounting_method/lifo.py) and [HIFO](src/rp2/plugin/accounting_method/hifo.py) are examples of plugins built with the simplified procedure.
+The simplified procedure is recommended for most cases: the complete procedure is more complex and it's useful when introducing optimizations that are not supported by the simplified one. [LIFO](src/rp2/plugin/accounting_method/lifo.py) and [HIFO](src/rp2/plugin/accounting_method/hifo.py) are examples of plugins built with the simplified procedure. [FIFO](src/rp2/plugin/accounting_method/fifo.py) is an example of a plugin built with the complete procedure.
 
 **NOTE**: If you're interested in adding support for a new accounting method, open a [PR](CONTRIBUTING.md).
 
