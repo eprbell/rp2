@@ -25,8 +25,9 @@ from rp2.rp2_decimal import ZERO, RP2Decimal
 class AccountingMethod(AbstractSpecificId):
 
     def _seek_non_exhausted_acquired_lot_before_index(self, acquired_lot_list: List[InTransaction], last_valid_index: int) -> Optional[AcquiredLotAndAmount]:
-        # This loop causes O(n^2) complexity, where n is the number of acquired lots. As a potential optimization we can consider removing
-        # exhausted lots from the list.
+        # This loop causes O(m*n) complexity, where m is the number of acquired lots and n in the number of taxable events. The taxable
+        # event loop is in the caller (the superclass). Non-trivial optimizations are possible using different data structures but they
+        # need to be researched.
         selected_acquired_lot_amount: RP2Decimal = ZERO
         selected_acquired_lot: Optional[InTransaction] = None
         for index in range(last_valid_index, -1, -1):
