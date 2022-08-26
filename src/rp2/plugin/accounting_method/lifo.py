@@ -41,10 +41,9 @@ class AccountingMethod(AbstractSpecificId):
                 # The acquired lot has zero partial amount
                 continue
 
-            if selected_acquired_lot is None or selected_acquired_lot.timestamp > acquired_lot.timestamp:
-                selected_acquired_lot_amount = acquired_lot_amount
-                selected_acquired_lot = acquired_lot
-                break
+            selected_acquired_lot_amount = acquired_lot_amount
+            selected_acquired_lot = acquired_lot
+            break
 
         if selected_acquired_lot_amount > ZERO and selected_acquired_lot:
             self._clear_partial_amount(selected_acquired_lot)
