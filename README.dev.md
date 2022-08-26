@@ -261,15 +261,7 @@ Report plugin output can be localized in many languages (see the [Localization](
 ### Adding a New Accounting Method
 Accounting method plugins modify the behavior of the tax engine. They pair in/out lots according to the given accounting algorithm: [FIFO](src/rp2/plugin/accounting_method/fifo.py), [LIFO](src/rp2/plugin/accounting_method/lifo.py) and [HIFO](src/rp2/plugin/accounting_method/hifo.py) are examples of accounting method plugins.
 
-Accounting method plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. There are two ways to add a new plugin:
-* simplified procedure;
-* complete procedure.
-
-The simplified procedure is recommended for most cases: the complete procedure is more complex and it's useful when introducing optimizations that are not supported by the simplified one. [LIFO](src/rp2/plugin/accounting_method/lifo.py) and [HIFO](src/rp2/plugin/accounting_method/hifo.py) are examples of plugins built with the simplified procedure. [FIFO](src/rp2/plugin/accounting_method/fifo.py) is an example of a plugin built with the complete procedure.
-
-**NOTE**: If you're interested in adding support for a new accounting method, open a [PR](CONTRIBUTING.md).
-
-#### Simplified Procedure
+Accounting method plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * add a new Python file to the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
 * import the following (plus any other RP2 or Python package you might need):
 ```
@@ -287,10 +279,10 @@ class AccountingMethod(AbstractSpecificId):
 ```
     def _seek_non_exhausted_acquired_lot_before_index(self, acquired_lot_list: List[InTransaction], last_valid_index: int) -> Optional[AcquiredLotAndAmount]:
 ```
-* write the body of the methods. The parameters/return values are:
+* write the body of the method. The parameters/return values are:
   * `acquired_lot_list`: the list of acquired lots to select from according to the accounting method. The list is in ascending chronological order;
-  * `last_valid_index`: only elements from 0 to (and including) `last_valid_index` can be accessed and selected. Accessing elements outside this range is incorrect and would cause undefined results;
-  * it returns `None` if it doesn't find a suitable lot or `AcquiredLotAndAmount`, which captures a new acquired lot and its remaining amount. Note that the amount can be less than the `crypto_in` field of the acquired lot. Since lots can be fractioned, the remaining amount can be less than `crypto_in`. In the body of the function use `_has_partial_amount()` and `_get_partial_amount()` to check if the lot has a partial amount and how much it is.
+  * `last_valid_index`: only elements from 0 to (and including) `last_valid_index` can be accessed and selected. IMPORTANT: accessing elements outside this range is incorrect and causes undefined results;
+  * it returns `None` if it doesn't find a suitable lot or `AcquiredLotAndAmount`, which captures a new acquired lot and its remaining amount. Note that, since lots can be fractioned, the remaining amount can be less than `crypto_in`. In the body of the function use `_has_partial_amount()` and `_get_partial_amount()` to check if the lot has a partial amount and how much it is.
 
 * Add a `validate_acquired_lot_ancestor_timestamp()` method to the class with the following signature:
 ```
@@ -298,65 +290,7 @@ class AccountingMethod(AbstractSpecificId):
 ```
 * write the body of the method: it returns `True` if the ancestor's acquired lot timestamp is compatible with the current acquired lot timestamp according to the accounting method and `False` otherwise: e.g. in FIFO the ancestor must be earlier than the current. The ancestor lot has been processed before the current one, according to the logic of the accounting method.
 
-#### Complete Procedure
-* add a new Python file to the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
-* import the following (plus any other RP2 or Python package you might need):
-```
-from typing import Iterator, Optional
-
-from rp2.abstract_accounting_method import (
-    AbstractAccountingMethod,
-    AcquiredLotsExhaustedException,
-    TaxableEventAndAcquiredLot,
-    TaxableEventsExhaustedException,
-)
-from rp2.abstract_transaction import AbstractTransaction
-from rp2.in_transaction import InTransaction
-from rp2.rp2_decimal import RP2Decimal
-```
-* Optionally, RP2 provides a logger facility:
-```
-from logger import LOGGER
-```
-* Add a class named `AccountingMethod`, deriving from `AbstractAccountingMethod`:
-```
-class AccountingMethod(AbstractAccountingMethod):
-```
-* Add an `initialize()` method to the class with the following signature:
-```
-    def initialize(self, taxable_event_iterator: Iterator[AbstractTransaction], acquired_lot_iterator: Iterator[InTransaction]) -> None:
-```
-* write the body of `initialize()`. This method is passed iterators on taxable events and acquired lots and performs accounting-method-specific initialization (e.g. it might iterate over the iterators and add the elements to custom data structures, like AVL trees, etc.). The parameters are:
-  * `taxable_event_iterator`: iterator over TaxableEvent instances (disposed-of lots), in chronological order;
-  * `acquired_lot_iterator`: iterator over InTransaction instances (acquired lots), in chronological order;
-* Add `get_next_taxable_event_and_amount()` and `get_acquired_lot_for_taxable_event()` methods to the class with the following signatures:
-```
-    def get_next_taxable_event_and_amount(
-        self,
-        taxable_event: Optional[AbstractTransaction],
-        acquired_lot: Optional[InTransaction],
-        taxable_event_amount: RP2Decimal,
-        acquired_lot_amount: RP2Decimal,
-    ) -> TaxableEventAndAcquiredLot:
-    def get_acquired_lot_for_taxable_event(
-        self,
-        taxable_event: AbstractTransaction,
-        acquired_lot: Optional[InTransaction],
-        taxable_event_amount: RP2Decimal,
-        acquired_lot_amount: RP2Decimal
-    ) -> TaxableEventAndAcquiredLot:
-```
-* write the bodies of the methods. The parameters/return values are:
-  * `taxable_event`: the disposed-of lot;
-  * `acquired_lot`: the acquired lot;
-  * `taxable_event_amount`: the amount that is leftover of the current taxable event;
-  * `acquired_lot_amount`: the amount that is leftover of the current acquired lot.
-  * it returns TaxableEventAndAcquiredLot, which captures a new taxable event/acquired lot pair. Notice that in most cases only one of the two is new and the other stays the same and only gets its amount adjusted. However in some special cases that depend on the semantics of the plugin, one of these methods may need to update both taxable event and acquired lot (e.g. in the LIFO version of `get_next_taxable_event_and_amount()`, if the new taxable event has a timestamp with a new year, then the method also has to look for a new acquired lot in the same new year).
-* Add a `validate_acquired_lot_ancestor_timestamp()` method to the class with the following signature:
-```
-    def validate_acquired_lot_ancestor_timestamp(self, acquired_lot: InTransaction, acquired_lot_parent: InTransaction) -> bool:
-```
-* write the body of the method: it returns `True` if the ancestor's acquired lot timestamp is compatible with the current acquired lot timestamp according to the accounting method and `False` otherwise: e.g. in FIFO the ancestor must be earlier than the current. The ancestor lot has been processed before the current one, according to the logic of the accounting method.
+**NOTE**: If you're interested in adding support for a new accounting method, open a [PR](CONTRIBUTING.md).
 
 ### Adding Support for a New Country
 RP2 has built-in support for the US but it also has infrastructure to support other countries. The abstract superclass of country plugins is [AbstractCountry](src/rp2/abstract_country.py), which captures the following:
