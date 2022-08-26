@@ -104,7 +104,7 @@ class AbstractSpecificId(AbstractAccountingMethod):
         # is a newer acquired lot that is higher price (but still older than the new taxable event)
         if taxable_event and taxable_event.timestamp < new_taxable_event.timestamp:
             if acquired_lot:
-                self.__acquired_lot_2_partial_amount[acquired_lot] = new_acquired_lot_amount
+                self._set_partial_amount(acquired_lot, new_acquired_lot_amount)
             (_, new_acquired_lot, _, new_acquired_lot_amount) = self.get_acquired_lot_for_taxable_event(
                 new_taxable_event, acquired_lot, new_taxable_event_amount, new_acquired_lot_amount
             )
@@ -150,6 +150,9 @@ class AbstractSpecificId(AbstractAccountingMethod):
         if not self._has_partial_amount(acquired_lot):
             raise Exception(f"Internal error: acquired lot has no partial amount: {acquired_lot}")
         return self.__acquired_lot_2_partial_amount[acquired_lot]
+
+    def _set_partial_amount(self, acquired_lot: InTransaction, amount: RP2Decimal) -> None:
+        self.__acquired_lot_2_partial_amount[acquired_lot] = amount
 
     def _clear_partial_amount(self, acquired_lot: InTransaction) -> None:
         self.__acquired_lot_2_partial_amount[acquired_lot] = ZERO
