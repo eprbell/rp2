@@ -247,5 +247,11 @@ CONFIGURATION_SCHEMA = {
             "minItems": 0,
             "uniqueItems": True,
         },
+        "accounting_methods": {
+            "type": "object",
+            "propertyNames": {"pattern": "[2-9][0-9][0-9][0-9]"},
+            "patternProperties": {"[2-9][0-9][0-9][0-9]": {"type": "string"}},
+            "additionalProperties": False,
+        },
     },
 }
