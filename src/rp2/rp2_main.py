@@ -23,9 +23,12 @@ from pkgutil import iter_modules
 from types import ModuleType
 from typing import Dict, List, Set
 
+from prezzemolo.avl_tree import AVLTree
+
 from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.abstract_country import AbstractCountry
 from rp2.abstract_report_generator import AbstractReportGenerator
+from rp2.accounting_engine import AccountingEngine
 from rp2.computed_data import ComputedData
 from rp2.configuration import MAX_DATE, MIN_DATE, REPORT_GENERATOR_PACKAGE, Configuration
 from rp2.input_data import InputData
@@ -46,7 +49,7 @@ def rp2_main(country: AbstractCountry) -> None:
         _rp2_main_internal(country)
 
 
-def _rp2_main_internal(country: AbstractCountry) -> None:
+def _rp2_main_internal(country: AbstractCountry) -> None:  # pylint: disable=too-many-branches
     args: Namespace
     assets: List[str]
     parser: ArgumentParser
@@ -64,21 +67,49 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
         LOGGER.info("Country: %s", country.country_iso_code)
         LOGGER.info("Generation Language: %s", args.generation_language)
 
-        accounting_method_module: ModuleType = import_module(f"{_ACCOUNTING_METHOD_PACKAGE}.{args.method}", package=_ACCOUNTING_METHOD_PACKAGE)
-        if not hasattr(accounting_method_module, "AccountingMethod"):
-            LOGGER.error("Accounting method plugin %s doesn't have an AccountingMethod class", args.method)
-            sys.exit(1)
-        accounting_method: AbstractAccountingMethod = accounting_method_module.AccountingMethod()
-        LOGGER.info("Accounting Method: %s", args.method)
-
         configuration: Configuration = Configuration(
             configuration_path=args.configuration_file,
             country=country,
             from_date=args.from_date,
             to_date=args.to_date,
         )
-        LOGGER.info("Configuration file: %s", args.configuration_file)
         LOGGER.debug("Configuration object: %s", configuration)
+
+        years_2_accounting_method_names: Dict[int, str] = configuration.years_2_accounting_method_names
+        if args.method and configuration.years_2_accounting_method_names:
+            LOGGER.error(
+                "Accounting method cannot be defined both via -m command line option and 'accounting_methods' section in configuration file: "
+                "use only one of them."
+            )
+            sys.exit(1)
+        elif not args.method and configuration.years_2_accounting_method_names:
+            years_2_accounting_method_names = configuration.years_2_accounting_method_names
+        elif args.method and not configuration.years_2_accounting_method_names:
+            years_2_accounting_method_names = {MIN_DATE.year: args.method}
+        else:  # neither is defined
+            years_2_accounting_method_names = {MIN_DATE.year: country.get_default_accounting_method()}
+
+        old_year: int = MIN_DATE.year
+        years_2_accounting_methods: AVLTree[int, AbstractAccountingMethod] = AVLTree()
+        for year, accounting_method_name in years_2_accounting_method_names.items():
+            accounting_method_module: ModuleType = import_module(f"{_ACCOUNTING_METHOD_PACKAGE}.{accounting_method_name}", package=_ACCOUNTING_METHOD_PACKAGE)
+            if not hasattr(accounting_method_module, "AccountingMethod"):
+                LOGGER.error("Accounting method plugin %s doesn't have an AccountingMethod class", accounting_method_name)
+                sys.exit(1)
+            accounting_method: AbstractAccountingMethod = accounting_method_module.AccountingMethod()
+            if len(years_2_accounting_method_names) == 1:
+                LOGGER.info("Accounting method: %s", accounting_method_name)
+            else:
+                if year - old_year > 1:
+                    LOGGER.info("Accounting method for %s->%s: %s", old_year, year, accounting_method_name)
+                else:
+                    LOGGER.info("Accounting method for %s: %s", year, accounting_method_name)
+            years_2_accounting_methods.insert_node(year, accounting_method)
+            old_year = year
+
+        accounting_engine: AccountingEngine = AccountingEngine(years_2_methods=years_2_accounting_methods)
+
+        LOGGER.info("Configuration file: %s", args.configuration_file)
 
         if args.plugin:
             LOGGER.error("Command line option '-l' or '--plugin' has been deprecated: use the 'generators' section in the configuration file instead.")
@@ -101,7 +132,7 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
             input_data: InputData = parse_ods(configuration=configuration, asset=asset, input_file_handle=input_file_handle)
             LOGGER.debug("InputData object: %s", input_data)
 
-            computed_data: ComputedData = compute_tax(configuration=configuration, accounting_method=accounting_method, input_data=input_data)
+            computed_data: ComputedData = compute_tax(configuration=configuration, accounting_engine=accounting_engine, input_data=input_data)
             LOGGER.debug("ComputedData object: %s", computed_data)
 
             asset_to_computed_data[asset] = computed_data
@@ -112,13 +143,14 @@ def _rp2_main_internal(country: AbstractCountry) -> None:
             package_paths=[REPORT_GENERATOR_PACKAGE, f"{REPORT_GENERATOR_PACKAGE}.{country.country_iso_code}"],
             args=args,
             country=country,
-            accounting_method=accounting_method,
+            years_2_accounting_method_names=years_2_accounting_method_names,
             asset_to_computed_data=asset_to_computed_data,
             from_date=configuration.from_date,
             to_date=configuration.to_date,
         )
     except Exception:  # pylint: disable=broad-except
         LOGGER.exception("Fatal exception occurred:")
+        sys.exit(1)
 
     LOGGER.info("Log file: %s", LOG_FILE)
     LOGGER.info("Generated output directory: %s", args.output_dir)
@@ -130,7 +162,7 @@ def _find_and_run_report_generators(
     package_paths: List[str],
     args: Namespace,
     country: AbstractCountry,
-    accounting_method: AbstractAccountingMethod,
+    years_2_accounting_method_names: Dict[int, str],
     asset_to_computed_data: Dict[str, ComputedData],
     from_date: date,
     to_date: date,
@@ -161,7 +193,7 @@ def _find_and_run_report_generators(
                     sys.exit(1)
                 generator.generate(
                     country=country,
-                    accounting_method=repr(accounting_method),
+                    years_2_accounting_method_names=years_2_accounting_method_names,
                     asset_to_computed_data=asset_to_computed_data,
                     output_dir_path=args.output_dir,
                     output_file_prefix=args.prefix,
@@ -256,7 +288,7 @@ def _setup_argument_parser(country: AbstractCountry) -> ArgumentParser:
     parser.add_argument(
         "-m",
         "--method",
-        default=country.get_default_accounting_method(),
+        default="",
         choices=accounting_methods,
         help=f"accounting method (default: '%(default)s'). Supported values: {', '.join(accounting_methods)}",
         metavar="METHOD",
