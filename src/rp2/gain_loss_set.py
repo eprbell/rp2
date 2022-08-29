@@ -15,7 +15,6 @@
 from datetime import date
 from typing import Dict, List, Optional, cast
 
-from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_entry_set import AbstractEntrySet
 from rp2.abstract_transaction import AbstractTransaction
@@ -39,13 +38,11 @@ class GainLossSet(AbstractEntrySet):
     def __init__(
         self,
         configuration: Configuration,
-        accounting_method: AbstractAccountingMethod,
         asset: str,
         from_date: date = MIN_DATE,
         to_date: date = MAX_DATE,
     ) -> None:
         super().__init__(configuration, "MIXED", asset, from_date, to_date)
-        self.__accounting_method = AbstractAccountingMethod.type_check("accounting_method", accounting_method)
         self.__taxable_events_to_fraction: Dict[GainLoss, int] = {}
         self.__acquired_lots_to_fraction: Dict[GainLoss, int] = {}
         self.__taxable_events_to_number_of_fractions: Dict[AbstractTransaction, int] = {}
@@ -125,19 +122,6 @@ class GainLossSet(AbstractEntrySet):
             self.__transaction_type_2_count[gain_loss.taxable_event.transaction_type] = count + 1
 
             if gain_loss.acquired_lot:
-                # Ensure acquired_lot timestamp and its ancestor's validate against accounting method rules.
-                if (
-                    last_gain_loss_with_acquired_lot
-                    and last_gain_loss_with_acquired_lot.acquired_lot
-                    and not self.__accounting_method.validate_acquired_lot_ancestor_timestamp(
-                        gain_loss.acquired_lot, last_gain_loss_with_acquired_lot.acquired_lot
-                    )
-                ):
-                    raise RP2ValueError(
-                        f"Timestamp {gain_loss.acquired_lot.timestamp} of acquired_lot entry (id {gain_loss.acquired_lot.internal_id}) "
-                        f"is incompatible with timestamp {last_gain_loss_with_acquired_lot.acquired_lot.timestamp} of its ancestor "
-                        f"(id {last_gain_loss_with_acquired_lot.acquired_lot.internal_id}) using {self.__accounting_method} accounting method: {gain_loss}"
-                    )
                 last_gain_loss_with_acquired_lot = gain_loss
 
             current_taxable_event_amount += gain_loss.crypto_amount

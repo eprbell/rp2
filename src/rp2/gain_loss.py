@@ -15,7 +15,6 @@
 from datetime import datetime
 from typing import Callable, List, Optional, cast
 
-from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.configuration import Configuration
@@ -28,13 +27,11 @@ class GainLoss(AbstractEntry):
     def __init__(
         self,
         configuration: Configuration,
-        accounting_method: AbstractAccountingMethod,
         crypto_amount: RP2Decimal,
         taxable_event: AbstractTransaction,
         acquired_lot: Optional[InTransaction],
     ) -> None:
 
-        AbstractAccountingMethod.type_check("accounting_method", accounting_method)
         self.__taxable_event: AbstractTransaction = cast(AbstractTransaction, AbstractTransaction.type_check("taxable_event", taxable_event))
         if not taxable_event.is_taxable():
             raise RP2ValueError(f"Parameter 'taxable_event' of class {taxable_event.__class__.__name__} is not taxable: {taxable_event}")
