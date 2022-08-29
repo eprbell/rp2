@@ -428,7 +428,7 @@ class Generator(AbstractODSGenerator):
     def generate(
         self,
         country: AbstractCountry,
-        accounting_method: str,
+        years_2_accounting_method_names: Dict[int, str],
         asset_to_computed_data: Dict[str, ComputedData],
         output_dir_path: str,
         output_file_prefix: str,
@@ -448,7 +448,7 @@ class Generator(AbstractODSGenerator):
         output_file = self._initialize_output_file(
             country=country,
             legend_data=self.__legend,
-            accounting_method=accounting_method,
+            years_2_accounting_method_names=years_2_accounting_method_names,
             output_dir_path=output_dir_path,
             output_file_prefix=output_file_prefix,
             output_file_name=self.OUTPUT_FILE,

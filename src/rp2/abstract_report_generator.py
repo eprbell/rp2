@@ -24,7 +24,7 @@ class AbstractReportGenerator:
     def generate(
         self,
         country: AbstractCountry,
-        accounting_method: str,
+        years_2_accounting_method_names: Dict[int, str],
         asset_to_computed_data: Dict[str, ComputedData],
         output_dir_path: str,
         output_file_prefix: str,
