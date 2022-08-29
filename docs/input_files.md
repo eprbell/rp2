@@ -102,13 +102,14 @@ Here follows an example of an input spreadsheet with 2 sheets (one for BTC and o
 The config file tells RP2 how to interpret the input spreadsheet (i.e. what values are contained in what column). The purpose of the config file is input flexibility: unfortunately exchanges don't provide user transaction data in a standardized way, so customizing column positions can be useful. See an [example of config file](../config/crypto_example.config) to learn more.
 
 The config file is in JSON format and is structured as described below. Note that:
-* header descriptions are given in the [input spreadsheet section](#the-input-spreadsheet);
 * optional elements are marked with &#x1F537;;
-* *`<...>`* must be substituted with user-provided values, and, specifically, *`<column_number>`* must be substituted with 0 for column A in the input spreadsheet, 1 for B, etc;
+* the `in_header`, `out_header` and `intra_header` sections are optional. Their fields are described in the [input spreadsheet section](#the-input-spreadsheet);
 * the `assets` section contains all cryptocurrencies the user transacted with;
 * the `exchanges` section can contain both exchange and wallet identifiers;
 * the `holders` section typically contains only one name, unless multiple people are filing taxes jointly;
-* the `generators` section is optional and can contain the names of the output generator plugins to use at generation time. If the section is not specified the following plugins are ran by default: `rp2.plugin.report.rp2_full_report`, `rp2.plugin.report.us.tax_report_us`, `rp2.plugin.report.us.open_positions`.
+* the `generators` section is optional and contains the names of output generator plugins to use at generation time. If the section is not specified the default plugin set is used;
+* the `accounting_methods` section is optional and contains information on which accounting methods to use on any given year (see an [example](../config/test_data_multi_method.config)).
+* *`<...>`* must be substituted with user-provided values (e.g. *`<column_number>`* must be substituted with 0 for column A in the input spreadsheet, 1 for B, etc);
 <pre>
 {
     "in_header": {
@@ -173,6 +174,11 @@ The config file is in JSON format and is structured as described below. Note tha
         <em>&lt;"generator_1_in_quotes"&gt;</em>,
         ...&#x1F537;
         <em>&lt;"generator_n_in_quotes"&gt;</em>&#x1F537;
-    ]
+    ],
+    "accounting_methods": {
+        <em>&lt;"from_year_1"&gt;</em>: <em>&lt;"accounting_method_1"&gt;</em>,
+        ...
+        <em>&lt;"from_year_n"&gt;</em>: <em>&lt;"accounting_method_n"&gt;</em>,
+    }
 }
 </pre>
