@@ -33,11 +33,11 @@ from rp2.rp2_error import RP2TypeError
 
 class AbstractODSGenerator(AbstractReportGenerator):
     @classmethod
-    def _initialize_output_file(
+    def _initialize_output_file(  # pylint: disable=too-many-branches
         cls,
         country: AbstractCountry,  # pylint: disable=unused-argument
         legend_data: List[List[str]],
-        accounting_method: str,
+        years_2_accounting_method_names: Dict[int, str],
         output_dir_path: str,
         output_file_prefix: str,
         output_file_name: str,
@@ -53,6 +53,7 @@ class AbstractODSGenerator(AbstractReportGenerator):
         if not isinstance(template_sheets_to_keep, Set):
             raise RP2TypeError(f"Parameter 'template_sheets_to_keep' is not a Set: {template_sheets_to_keep}")
 
+        accounting_method: str = years_2_accounting_method_names[MIN_DATE.year] if len(years_2_accounting_method_names) == 1 else "mixed"
         output_file_path: Path = Path(output_dir_path) / Path(f"{output_file_prefix}{accounting_method}_{output_file_name}")
         if Path(output_file_path).exists():
             output_file_path.unlink()
@@ -83,7 +84,18 @@ class AbstractODSGenerator(AbstractReportGenerator):
         method_cell_found: bool = False
         for index in range(0, 100):
             if legend_sheet[index, 0].value == _("Accounting Method"):
-                cls._fill_cell(legend_sheet, index, 1, accounting_method.upper(), visual_style="transparent")
+                accounting_method_by_year: List[str] = []
+                if len(years_2_accounting_method_names) == 1:
+                    accounting_method_by_year.append(years_2_accounting_method_names[MIN_DATE.year].upper())
+                else:
+                    old_year = MIN_DATE.year
+                    for year, method in years_2_accounting_method_names.items():
+                        if year - old_year > 1:
+                            accounting_method_by_year.append(f"{old_year}->{year}:{method.upper()}")
+                        else:
+                            accounting_method_by_year.append(f"{year}:{method.upper()}")
+                        old_year = year
+                cls._fill_cell(legend_sheet, index, 1, ", ".join(accounting_method_by_year), visual_style="transparent")
                 method_cell_found = True
                 cls._fill_cell(legend_sheet, index + 1, 1, from_date if from_date != MIN_DATE else "non-specified", visual_style="transparent")
                 cls._fill_cell(legend_sheet, index + 2, 1, to_date if to_date != MAX_DATE else "non-specified", visual_style="transparent")
@@ -126,7 +138,7 @@ class AbstractODSGenerator(AbstractReportGenerator):
     def generate(
         self,
         country: AbstractCountry,
-        accounting_method: str,
+        years_2_accounting_method_names: Dict[int, str],
         asset_to_computed_data: Dict[str, ComputedData],
         output_dir_path: str,
         output_file_prefix: str,
