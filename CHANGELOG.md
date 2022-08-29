@@ -15,7 +15,9 @@
 # RP2 Change Log
 
 ## In Progress
-* added support for simplified accounting method plugin creation. With this new infrastructure a new accounting method can be added by defining just two small methods. Documentation: https://github.com/eprbell/rp2/blob/main/README.dev.md#simplified-procedure
+* added support for [switching accounting methods year over year](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#can-i-change-accounting-method)
+* added support for simplified accounting method plugin creation. With this new infrastructure a new accounting method can be added by defining just two small methods. See [documentation](https://github.com/eprbell/rp2/blob/main/README.dev.md#simplified-procedure)
+* updated documentation with new accounting method features
 
 ## 1.1.0
 * fixed 2 bugs in HIFO plugin: see #74 for details. If you're using HIFO, be sure to upgrade to this or later version.
@@ -92,7 +94,7 @@
 * added a new FAQ on crypto rewards and reworded various answers.
 
 ## v0.9.23
-* added fee-only transactions: this type of transactions occur in certain DeFi scenarios (see [relevant FAQ](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#hhow-to-handle-fee-only-defi-transactions) for more)
+* added fee-only transactions: this type of transactions occur in certain DeFi scenarios (see [relevant FAQ](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-fee-only-defi-transactions) for more)
 * added documentation of transparent computation, including one new FAQ on how to verify RP2 tax computation results: https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-verify-that-tax-computation-is-correct
 * minor edits to documentation
 
