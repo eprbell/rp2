@@ -30,7 +30,7 @@ After running RP2, the output files can be found in the `output` directory or in
 
 ## Transparent Computation (RP2 Full Report Output)
 The rp2_full_report.ods output file is a comprehensive, ODS-format report containing full details about the computed taxes: it can be used to follow step-by-step the process RP2 uses to produce results and verify them. It contains:
-* a Legend sheet containing the accounting method and the meaning of each column and keyword
+* a Legend sheet containing accounting method information and the meaning of each column and keyword
 * a Summary sheet containing total short/long term capital gains per year, per cryptocurrency. Here follows an example of this sheet: ![RP2 full report summary example](images/rp2_full_report_output_summary.png)
 * two sheets per cryptocurrency:
   * *cryptocurrency* In-Out: full transaction history for the given *cryptocurrency*, organized by direction (In, Out, Intra). Taxable events are shown in blue, with taxable amount in yellow. The *In* table has a *Sent/Sold* column showing which lots have been fully or partially sold (in purple). Timestamps are homogenized (in the user input spreadsheet they may have different formats), transactions are sorted by time and some running sums are computed. Here follows an example of this sheet: ![RP2 full report in-out example](images/rp2_full_report_output_in_out.png)
