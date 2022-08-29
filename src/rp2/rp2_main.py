@@ -246,7 +246,7 @@ def _setup_argument_parser(country: AbstractCountry) -> ArgumentParser:
             "Generate capital gain/loss report and balances for crypto holdings. Links:\n"
             "- documentation: https://github.com/eprbell/rp2/blob/main/README.md\n"
             "- FAQ: https://github.com/eprbell/rp2/blob/main/docs/user_faq.md\n"
-            "- leave a star on Github: https://github.com/eprbell/rp2"
+            "- support RP2 by leaving a star on Github: https://github.com/eprbell/rp2"
         ),
         formatter_class=RawTextHelpFormatter,
     )
