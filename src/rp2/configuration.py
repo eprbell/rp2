@@ -65,6 +65,7 @@ class Configuration:  # pylint: disable=too-many-public-methods
         self.__exchanges: Set[str]
         self.__holders: Set[str]
         self.__generators: Set[str]
+        self.__years_2_accounting_method_names: Dict[int, str]
 
         if not Path(configuration_path).exists():
             raise RP2ValueError(f"Error: {configuration_path} does not exist")
@@ -84,6 +85,16 @@ class Configuration:  # pylint: disable=too-many-public-methods
             self.__generators = {f"{REPORT_GENERATOR_PACKAGE}.{generator}" for generator in country.get_report_generators()}
             if "generators" in json_configuration:
                 self.__generators = set(json_configuration["generators"])
+            self.__years_2_accounting_method_names = {}
+            if "accounting_methods" in json_configuration:
+                year_string_2_accounting_method_names = dict(json_configuration["accounting_methods"])
+                for year_string, accounting_method_name in year_string_2_accounting_method_names.items():
+                    try:
+                        self.__years_2_accounting_method_names[int(year_string)] = accounting_method_name
+                    except ValueError as exc:
+                        raise RP2ValueError(f"Invalid year value in accounting method section of configuration file: {year_string}") from exc
+                    except TypeError as exc:
+                        raise RP2TypeError(f"Invalid year type in accounting method section of configuration file: {year_string}") from exc
 
         # Used by __repr__()
         self.__sorted_assets: List[str] = sorted(self.__assets)
@@ -127,6 +138,10 @@ class Configuration:  # pylint: disable=too-many-public-methods
     @property
     def generators(self) -> Set[str]:
         return self.__generators
+
+    @property
+    def years_2_accounting_method_names(self) -> Dict[int, str]:
+        return self.__years_2_accounting_method_names
 
     def __get_table_constructor_argument_pack(self, data: List[Any], table_type: str, header: Dict[str, int]) -> Dict[str, Any]:
         if not isinstance(data, List):
