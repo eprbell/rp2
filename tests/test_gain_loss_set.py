@@ -15,25 +15,24 @@
 import unittest
 from typing import Dict, List
 
-from rp2_test_output import RP2_TEST_OUTPUT  # pylint: disable=wrong-import-order
-
 from rp2.configuration import Configuration
 from rp2.gain_loss import GainLoss
 from rp2.gain_loss_set import GainLossSet
 from rp2.in_transaction import InTransaction
 from rp2.intra_transaction import IntraTransaction
 from rp2.out_transaction import OutTransaction
-from rp2.plugin.accounting_method.fifo import AccountingMethod
 from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
+
+from rp2_test_output import RP2_TEST_OUTPUT  # pylint: disable=wrong-import-order
+
 
 _ASSETS: List[str] = ["B1", "B2", "B3", "B4"]
 
 
 class TestGainLossSet(unittest.TestCase):
     _configuration: Configuration
-    _accounting_method: AccountingMethod
 
     _in3: Dict[str, InTransaction]
     _in2: Dict[str, InTransaction]
@@ -59,7 +58,6 @@ class TestGainLossSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls._configuration = Configuration("./config/test_data.config", US())
-        cls._accounting_method = AccountingMethod()
 
         cls._in3 = {}
         cls._in2 = {}
@@ -244,51 +242,47 @@ class TestGainLossSet(unittest.TestCase):
             RP2Decimal("0.46"),
             internal_id=23,
         )
-        cls._gain_loss_set[asset] = GainLossSet(cls._configuration, cls._accounting_method, asset)
+        cls._gain_loss_set[asset] = GainLossSet(cls._configuration, asset)
         if asset == "B1":
             # In transactions only
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("2"), cls._in2[asset], None))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("3"), cls._in6[asset], None))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("2"), cls._in2[asset], None))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("3"), cls._in6[asset], None))
         elif asset == "B2":
             # In and out transactions only
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("0.2"), cls._out15[asset], cls._in3[asset]))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("2"), cls._in2[asset], None))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("0.8"), cls._out14[asset], cls._in3[asset]))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("0.20"), cls._out14[asset], cls._in2[asset]))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("3"), cls._in6[asset], None))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("1.8"), cls._out16[asset], cls._in2[asset]))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("3"), cls._out16[asset], cls._in6[asset]))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("0.2"), cls._out16[asset], cls._in5[asset]))
-            cls._gain_loss_set[asset].add_entry(
-                GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("3.79"), cls._out12[asset], cls._in5[asset])
-            )  # ==
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("0.01"), cls._out13[asset], cls._in5[asset]))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("2.0"), cls._out13[asset], cls._in4[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("0.2"), cls._out15[asset], cls._in3[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("2"), cls._in2[asset], None))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("0.8"), cls._out14[asset], cls._in3[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("0.20"), cls._out14[asset], cls._in2[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("3"), cls._in6[asset], None))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("1.8"), cls._out16[asset], cls._in2[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("3"), cls._out16[asset], cls._in6[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("0.2"), cls._out16[asset], cls._in5[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("3.79"), cls._out12[asset], cls._in5[asset]))  # ==
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("0.01"), cls._out13[asset], cls._in5[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("2.0"), cls._out13[asset], cls._in4[asset]))
         elif asset == "B3":
             # In and intra transactions only
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("0.01"), cls._intra25[asset], cls._in3[asset]))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("2"), cls._in2[asset], None))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("3"), cls._in6[asset], None))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("0.02"), cls._intra24[asset], cls._in3[asset]))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("0.04"), cls._intra22[asset], cls._in3[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("0.01"), cls._intra25[asset], cls._in3[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("2"), cls._in2[asset], None))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("3"), cls._in6[asset], None))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("0.02"), cls._intra24[asset], cls._in3[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("0.04"), cls._intra22[asset], cls._in3[asset]))
         else:  # asset == "B4", "BTC" or others
-            cls._gain_loss1 = GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("0.2"), cls._out15[asset], cls._in3[asset])
-            cls._gain_loss2 = GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("0.01"), cls._intra25[asset], cls._in3[asset])
+            cls._gain_loss1 = GainLoss(cls._configuration, RP2Decimal("0.2"), cls._out15[asset], cls._in3[asset])
+            cls._gain_loss2 = GainLoss(cls._configuration, RP2Decimal("0.01"), cls._intra25[asset], cls._in3[asset])
             cls._gain_loss_set[asset].add_entry(cls._gain_loss1)
             cls._gain_loss_set[asset].add_entry(cls._gain_loss2)
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("2"), cls._in2[asset], None))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("0.79"), cls._out14[asset], cls._in3[asset]))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("0.21"), cls._out14[asset], cls._in2[asset]))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("3"), cls._in6[asset], None))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("1.79"), cls._out16[asset], cls._in2[asset]))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("3"), cls._out16[asset], cls._in6[asset]))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("0.21"), cls._out16[asset], cls._in5[asset]))
-            cls._gain_loss_set[asset].add_entry(
-                GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("3.79"), cls._out12[asset], cls._in5[asset])
-            )  # ==
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("0.02"), cls._intra24[asset], cls._in4[asset]))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("2.01"), cls._out13[asset], cls._in4[asset]))
-            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, cls._accounting_method, RP2Decimal("0.04"), cls._intra22[asset], cls._in4[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("2"), cls._in2[asset], None))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("0.79"), cls._out14[asset], cls._in3[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("0.21"), cls._out14[asset], cls._in2[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("3"), cls._in6[asset], None))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("1.79"), cls._out16[asset], cls._in2[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("3"), cls._out16[asset], cls._in6[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("0.21"), cls._out16[asset], cls._in5[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("3.79"), cls._out12[asset], cls._in5[asset]))  # ==
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("0.02"), cls._intra24[asset], cls._in4[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("2.01"), cls._out13[asset], cls._in4[asset]))
+            cls._gain_loss_set[asset].add_entry(GainLoss(cls._configuration, RP2Decimal("0.04"), cls._intra22[asset], cls._in4[asset]))
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -313,25 +307,21 @@ class TestGainLossSet(unittest.TestCase):
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
             # Bad configuration
-            GainLossSet(None, self._accounting_method, asset)  # type: ignore
+            GainLossSet(None, asset)  # type: ignore
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
             # Bad configuration
-            GainLossSet("configuration", self._accounting_method, asset)  # type: ignore
-
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'accounting_method' is not of type AbstractAccountingMethod: .*"):
-            # Bad configuration
-            GainLossSet(self._configuration, None, asset)  # type: ignore
+            GainLossSet("configuration", asset)  # type: ignore
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'asset' has non-string value .*"):
             # Bad asset
-            GainLossSet(self._configuration, self._accounting_method, None)  # type: ignore
+            GainLossSet(self._configuration, None)  # type: ignore
 
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'asset' value is not known: .*"):
             # Bad configuration
-            GainLossSet(self._configuration, self._accounting_method, "foobar")
+            GainLossSet(self._configuration, "foobar")
 
-        gain_loss_set = GainLossSet(self._configuration, self._accounting_method, asset)
+        gain_loss_set = GainLossSet(self._configuration, asset)
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'entry' is not of type GainLoss: .*"):
             # Bad transaction add
@@ -353,7 +343,7 @@ class TestGainLossSet(unittest.TestCase):
             # Unknown get_parent parameter (set empty)
             gain_loss_set.get_parent(gain_loss1)
 
-        gain_loss_set = GainLossSet(self._configuration, self._accounting_method, asset)
+        gain_loss_set = GainLossSet(self._configuration, asset)
         gain_loss_set.add_entry(gain_loss1)
 
         with self.assertRaisesRegex(RP2ValueError, "Unknown entry:.*"):
@@ -377,10 +367,18 @@ class TestGainLossSet(unittest.TestCase):
         with self.assertRaisesRegex(RP2ValueError, "Unknown transaction:.*"):
             # Bad get_taxable_event_fractions parameter
             gain_loss_set.get_acquired_lot_number_of_fractions(in3)
-        with self.assertRaisesRegex(
-            RP2ValueError, "Timestamp .* of acquired_lot entry .* is incompatible with timestamp .* of its ancestor .* using .* accounting method: .*"
-        ):
-            gain_loss_set = GainLossSet(self._configuration, self._accounting_method, asset)
+        with self.assertRaisesRegex(RP2ValueError, "Entry already added: GainLoss"):
+            gain_loss_set = GainLossSet(self._configuration, asset)
+            gain_loss_set.add_entry(gain_loss1)
+            gain_loss_set.add_entry(gain_loss1)
+        with self.assertRaisesRegex(RP2ValueError, "Entry already added: GainLoss"):
+            gain_loss_set = GainLossSet(self._configuration, asset)
+            gain_loss_set.add_entry(gain_loss1)
+            # Different instance with same contents as gain_loss1
+            gain_loss_test: GainLoss = GainLoss(self._configuration, RP2Decimal("0.2"), self._out15[asset], self._in3[asset])
+            gain_loss_set.add_entry(gain_loss_test)
+        with self.assertRaisesRegex(RP2ValueError, "Taxable event crypto amount already exhausted for OutTransaction"):
+            gain_loss_set = GainLossSet(self._configuration, asset)
             in_transaction_test: InTransaction = InTransaction(
                 self._configuration,
                 "2020-01-05 11:18:00.000000 +0000",
@@ -393,51 +391,26 @@ class TestGainLossSet(unittest.TestCase):
                 fiat_fee=RP2Decimal("0"),
                 internal_id=3,
             )
-            gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("0.2"), out15, in_transaction_test))
-            gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("0.01"), out14, in3))
-            for _ in gain_loss_set:
-                pass
-        with self.assertRaisesRegex(
-            RP2ValueError, "Timestamp .* of acquired_lot entry .* is incompatible with timestamp .* of its ancestor .* using .* accounting method: .*"
-        ):
-            gain_loss_set = GainLossSet(self._configuration, self._accounting_method, asset)
-            gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("0.2"), out15, in_transaction_test))
-            gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("2"), self._in2[asset], None))
-            gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("0.01"), out14, in3))
-            for _ in gain_loss_set:
-                pass
-        with self.assertRaisesRegex(RP2ValueError, "Entry already added: GainLoss"):
-            gain_loss_set = GainLossSet(self._configuration, self._accounting_method, asset)
-            gain_loss_set.add_entry(gain_loss1)
-            gain_loss_set.add_entry(gain_loss1)
-        with self.assertRaisesRegex(RP2ValueError, "Entry already added: GainLoss"):
-            gain_loss_set = GainLossSet(self._configuration, self._accounting_method, asset)
-            gain_loss_set.add_entry(gain_loss1)
-            # Different instance with same contents as gain_loss1
-            gain_loss_test: GainLoss = GainLoss(self._configuration, self._accounting_method, RP2Decimal("0.2"), self._out15[asset], self._in3[asset])
-            gain_loss_set.add_entry(gain_loss_test)
-        with self.assertRaisesRegex(RP2ValueError, "Taxable event crypto amount already exhausted for OutTransaction"):
-            gain_loss_set = GainLossSet(self._configuration, self._accounting_method, asset)
-            gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("0.2"), out15, in3))
-            gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("0.2"), out15, in_transaction_test))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.2"), out15, in3))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.2"), out15, in_transaction_test))
             for _ in gain_loss_set:
                 pass
         with self.assertRaisesRegex(RP2ValueError, "Acquired lot crypto amount already exhausted for InTransaction"):
-            gain_loss_set = GainLossSet(self._configuration, self._accounting_method, asset)
-            gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("1"), out14, in3))
-            gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("1"), out16, in3))
+            gain_loss_set = GainLossSet(self._configuration, asset)
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("1"), out14, in3))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("1"), out16, in3))
             for _ in gain_loss_set:
                 pass
         with self.assertRaisesRegex(RP2ValueError, "Current taxable event amount .* exceeded crypto balance change of taxable event .* GainLoss"):
-            gain_loss_set = GainLossSet(self._configuration, self._accounting_method, asset)
-            gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("3"), out16, in6))
-            gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("4"), out16, in5))
+            gain_loss_set = GainLossSet(self._configuration, asset)
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("3"), out16, in6))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("4"), out16, in5))
             for _ in gain_loss_set:
                 pass
         with self.assertRaisesRegex(RP2ValueError, "Current acquired lot amount .* exceeded crypto balance change of acquired lot .* GainLoss"):
-            gain_loss_set = GainLossSet(self._configuration, self._accounting_method, asset)
-            gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("0.2"), out15, in3))
-            gain_loss_set.add_entry(GainLoss(self._configuration, self._accounting_method, RP2Decimal("1"), out14, in3))
+            gain_loss_set = GainLossSet(self._configuration, asset)
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("0.2"), out15, in3))
+            gain_loss_set.add_entry(GainLoss(self._configuration, RP2Decimal("1"), out14, in3))
             for _ in gain_loss_set:
                 pass
 

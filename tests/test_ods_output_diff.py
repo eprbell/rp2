@@ -67,6 +67,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
         AbstractTestODSOutputDiff._generate(
             cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", from_date=date(2019, 1, 1), to_date=date(2019, 12, 31)
         )
+        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data_multi_method", config="test_data_multi_method", method="mixed")
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -315,6 +316,22 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             output_plugin=OutputPlugins.TAX_REPORT_US,
             from_date=date(2019, 1, 1),
             to_date=date(2019, 12, 31),
+        )
+
+    def test_test_data_multi_method_rp2_full_report(self) -> None:
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data_multi_method",
+            method="mixed",
+            output_plugin=OutputPlugins.RP2_FULL_REPORT,
+        )
+
+    def test_test_data_multi_method_tax_report_us(self) -> None:
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data_multi_method",
+            method="mixed",
+            output_plugin=OutputPlugins.TAX_REPORT_US,
         )
 
 

@@ -14,11 +14,12 @@
 
 import unittest
 
-from rp2_test_output import RP2_TEST_OUTPUT  # pylint: disable=wrong-import-order
+from prezzemolo.avl_tree import AVLTree
 
 from rp2.abstract_accounting_method import AbstractAccountingMethod
+from rp2.accounting_engine import AccountingEngine
 from rp2.computed_data import ComputedData
-from rp2.configuration import Configuration
+from rp2.configuration import MIN_DATE, Configuration
 from rp2.input_data import InputData
 from rp2.ods_parser import open_ods, parse_ods
 from rp2.out_transaction import OutTransaction
@@ -28,17 +29,21 @@ from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 from rp2.tax_engine import compute_tax
 
+from rp2_test_output import RP2_TEST_OUTPUT  # pylint: disable=wrong-import-order
+
 
 class TestTaxEngine(unittest.TestCase):
     _good_input_configuration: Configuration
     _bad_input_configuration: Configuration
-    _accounting_method: AbstractAccountingMethod
+    _accounting_engine: AccountingEngine
 
     @classmethod
     def setUpClass(cls) -> None:
         TestTaxEngine._good_input_configuration = Configuration("./config/test_data.config", US())
         TestTaxEngine._bad_input_configuration = Configuration("./config/test_bad_data.config", US())
-        TestTaxEngine._accounting_method = AccountingMethod()
+        years_2_methods = AVLTree[int, AbstractAccountingMethod]()
+        years_2_methods.insert_node(MIN_DATE.year, AccountingMethod())
+        TestTaxEngine._accounting_engine = AccountingEngine(years_2_methods)
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -57,7 +62,7 @@ class TestTaxEngine(unittest.TestCase):
         input_data: InputData = parse_ods(self._good_input_configuration, asset, input_file_handle)
 
         # In table is always present
-        computed_data: ComputedData = compute_tax(self._good_input_configuration, self._accounting_method, input_data)
+        computed_data: ComputedData = compute_tax(self._good_input_configuration, self._accounting_engine, input_data)
 
         if asset in RP2_TEST_OUTPUT:
             self.assertEqual(str(computed_data.gain_loss_set), RP2_TEST_OUTPUT[asset])
@@ -70,22 +75,22 @@ class TestTaxEngine(unittest.TestCase):
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
             compute_tax(
                 None,  # type: ignore
-                self._accounting_method,
+                self._accounting_engine,
                 input_data,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
             compute_tax(
                 1111,  # type: ignore
-                self._accounting_method,
+                self._accounting_engine,
                 input_data,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'accounting_method' is not of type AbstractAccountingMethod: .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'accounting_engine' is not of type AccountingEngine: .*"):
             compute_tax(
                 self._good_input_configuration,
                 None,  # type: ignore
                 input_data,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'accounting_method' is not of type AbstractAccountingMethod: .*"):
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'accounting_engine' is not of type AccountingEngine: .*"):
             compute_tax(
                 self._good_input_configuration,
                 1111,  # type: ignore
@@ -94,13 +99,13 @@ class TestTaxEngine(unittest.TestCase):
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'input_data' is not of type InputData: .*"):
             compute_tax(
                 self._bad_input_configuration,
-                self._accounting_method,
+                self._accounting_engine,
                 None,  # type: ignore
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'input_data' is not of type InputData: .*"):
             compute_tax(
                 self._bad_input_configuration,
-                self._accounting_method,
+                self._accounting_engine,
                 "foobar",  # type: ignore
             )
 
@@ -122,7 +127,7 @@ class TestTaxEngine(unittest.TestCase):
         with self.assertRaisesRegex(RP2ValueError, "Total in-transaction crypto value < total taxable crypto value"):
             compute_tax(
                 self._good_input_configuration,
-                self._accounting_method,
+                self._accounting_engine,
                 input_data,
             )
 

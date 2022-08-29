@@ -73,13 +73,13 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
 
         arguments: List[str] = [
             f"rp2_{country}",
-            "-m",
-            method,
             "-o",
             str(output_dir),
             "-p",
             f"{test_name}_{f'{generation_language}_' if generation_language != 'en' else ''}{time_interval}",
         ]
+        if method != "mixed":
+            arguments.extend(["-m", method])
         if generation_language != "en":
             arguments.extend(["-g", generation_language])
         if from_date:
