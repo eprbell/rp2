@@ -265,30 +265,38 @@ Accounting method plugins are discovered by RP2 at runtime and they must adhere 
 * add a new Python file to the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
 * import the following (plus any other RP2 or Python package you might need):
 ```
-from typing import List, Optional
+from typing import Optional
 
-from rp2.abstract_specific_id import AbstractSpecificId, AcquiredLotAndAmount
+from rp2.abstract_accounting_method import AbstractAccountingMethod
+from rp2.abstract_accounting_method import AcquiredLotCandidates, AcquiredLotCandidatesOrder, AcquiredLotAndAmount
+from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 ```
-* Add a class named `AccountingMethod`, deriving from `AbstractSpecificId`:
+* Add a class named `AccountingMethod`, deriving from `AbstractAccountingMethod`:
 ```
-class AccountingMethod(AbstractSpecificId):
+class AccountingMethod(AbstractAccountingMethod):
 ```
-* Add a `_seek_non_exhausted_acquired_lot_before_index()` method to the class with the following signature:
+* Add a `seek_non_exhausted_acquired_lot()` method to the class with the following signature:
 ```
-    def _seek_non_exhausted_acquired_lot_before_index(self, acquired_lot_list: List[InTransaction], last_valid_index: int) -> Optional[AcquiredLotAndAmount]:
+    def seek_non_exhausted_acquired_lot(
+        self,
+        lot_candidates: AcquiredLotCandidates,
+        taxable_event: Optional[AbstractTransaction],
+        taxable_event_amount: RP2Decimal,
+    ) -> Optional[AcquiredLotAndAmount]:
 ```
 * write the body of the method. The parameters/return values are:
-  * `acquired_lot_list`: the list of acquired lots to select from according to the accounting method. The list is in ascending chronological order;
-  * `last_valid_index`: only elements from 0 to (and including) `last_valid_index` can be accessed and selected. IMPORTANT: accessing elements outside this range is incorrect and causes undefined results;
-  * it returns `None` if it doesn't find a suitable lot or `AcquiredLotAndAmount`, which captures a new acquired lot and its remaining amount. Note that, since lots can be fractioned, the remaining amount can be less than `crypto_in`. In the body of the function use `_has_partial_amount()` and `_get_partial_amount()` to check if the lot has a partial amount and how much it is.
+  * `lot_candidates`: iterable of acquired lot candidates to select from according to the accounting method. The lots are in the order specified by the `lot_candidates_order()` method (see below);
+  * `taxable_event`: the taxable event the method is finding an acquired lot to pair with;
+  * `taxable_event_amount`: the amount left in taxable event;
+  * it returns `None` if it doesn't find a suitable acquired lot, or `AcquiredLotAndAmount`, which captures a new acquired lot and its remaining amount. Note that, since lots can be fractioned, the remaining amount can be less than `crypto_in`. In the body of the function use the `has_partial_amount()` and `get_partial_amount()` methods of `AcquiredLotCandidates` to check if the lot has a partial amount and how much it is.
 
-* Add a `validate_acquired_lot_ancestor_timestamp()` method to the class with the following signature:
+* Add a `lot_candidates_order()` method to the class with the following signature:
 ```
-    def validate_acquired_lot_ancestor_timestamp(self, acquired_lot: InTransaction, acquired_lot_parent: InTransaction) -> bool:
+    def lot_candidates_order(self) -> AcquiredLotCandidatesOrder:
 ```
-* write the body of the method: it returns `True` if the ancestor's acquired lot timestamp is compatible with the current acquired lot timestamp according to the accounting method and `False` otherwise: e.g. in FIFO the ancestor must be earlier than the current. The ancestor lot has been processed before the current one, according to the logic of the accounting method.
+* write the body of the method: it returns `AcquiredLotCandidatesOrder.OLDER_TO_NEWER` or `AcquiredLotCandidatesOrder.NEWER_TO_OLDER`, depending on whether the desired chronological order is ascending or descending.
 
 **NOTE**: If you're interested in adding support for a new accounting method, open a [PR](CONTRIBUTING.md).
 
