@@ -14,7 +14,7 @@
 
 # RP2 Change Log
 
-## In Progress
+## 1.2.0
 * added support for [switching accounting methods year over year](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#can-i-change-accounting-method)
 * added support for simplified accounting method plugin creation. With this new infrastructure a new accounting method can be added by defining just two small methods. See [documentation](https://github.com/eprbell/rp2/blob/main/README.dev.md#simplified-procedure)
 * updated documentation with new accounting method features
