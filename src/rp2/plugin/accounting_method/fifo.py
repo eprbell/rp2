@@ -29,11 +29,11 @@ class AccountingMethod(AbstractAccountingMethod):
         taxable_event: Optional[AbstractTransaction],
         taxable_event_amount: RP2Decimal,
     ) -> Optional[AcquiredLotAndAmount]:
-        # This loop causes O(m*n) complexity, where m is the number of acquired lots and n in the number of taxable events. The taxable
-        # event loop is in the caller. Non-trivial optimizations are possible using different data structures but they need to be researched.
         selected_acquired_lot_amount: RP2Decimal = ZERO
         selected_acquired_lot: Optional[InTransaction] = None
         acquired_lot: InTransaction
+        # This loop causes O(m*n) complexity, where m is the number of acquired lots and n in the number of taxable events. The taxable
+        # event loop is in the caller. Non-trivial optimizations are possible using different data structures but they need to be researched.
         for acquired_lot in lot_candidates:
             acquired_lot_amount: RP2Decimal = ZERO
 
