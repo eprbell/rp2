@@ -12,18 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
+from configparser import ConfigParser
 import os
 import unittest
 from datetime import datetime
 from tempfile import NamedTemporaryFile
-from typing import Any, Optional
+from typing import Optional
 
-import jsonschema
 from dateutil.tz import tzoffset, tzutc
 
 from rp2.abstract_country import AbstractCountry
-from rp2.configuration import Configuration
+from rp2.configuration import Configuration, Keyword
 from rp2.plugin.country.us import US
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
@@ -36,16 +35,16 @@ class TestConfiguration(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         TestConfiguration._country = US()
-        TestConfiguration._configuration = Configuration("./config/test_data.config", TestConfiguration._country)
+        TestConfiguration._configuration = Configuration("./config/test_data.ini", TestConfiguration._country)
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
 
     @staticmethod
-    def _test_config(config: Any) -> Configuration:
+    def _test_config(config: ConfigParser) -> Configuration:
         result: Optional[Configuration] = None
-        with NamedTemporaryFile(delete=False) as temporary_file:
-            temporary_file.write(json.dumps(config).encode())
+        with NamedTemporaryFile("w", delete=False) as temporary_file:
+            config.write(temporary_file)
             temporary_file.flush()
 
             result = Configuration(temporary_file.name, TestConfiguration._country)
@@ -54,143 +53,265 @@ class TestConfiguration(unittest.TestCase):
         return result
 
     def test_config_file(self) -> None:
-        config: Any = {}
-        with self.assertRaisesRegex(KeyError, "in_header"):
+        config = ConfigParser()
+        with self.assertRaisesRegex(RP2ValueError, f" no 'assets' field defined in {Keyword.GENERAL.value} section"):
             self._test_config(config)
 
-        config["in_header"] = None
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "None is not of type 'object'"):
+        config[Keyword.GENERAL.value] = {}
+        with self.assertRaisesRegex(RP2ValueError, f"section '{Keyword.GENERAL.value}' doesn't contain mandatory field 'assets'"):
             self._test_config(config)
 
-        config["in_header"] = {}
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "'timestamp' is a required property"):
+        config[Keyword.GENERAL.value][Keyword.ASSETS.value] = ""
+        with self.assertRaisesRegex(RP2ValueError, f"field .* in section '{Keyword.GENERAL.value}' cannot be empty"):
             self._test_config(config)
 
-        config["in_header"].update(
-            {
-                "timestamp": 0,
-                "asset": 6,
-                "exchange": 1,
-                "holder": 2,
-                "transaction_type": 5,
-            }
-        )
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "'spot_price' is a required property"):
+        config[Keyword.GENERAL.value][Keyword.ASSETS.value] = ",,,"
+        with self.assertRaisesRegex(RP2ValueError, f"field .* in section '{Keyword.GENERAL.value}' cannot contain empty elements"):
             self._test_config(config)
 
-        config["in_header"].update({"spot_price": 8, "crypto_in": 7, "fiat_fee": 11, "fiat_in_no_fee": 9, "fiat_in_with_fee": 10, "notes": 12})
-        with self.assertRaisesRegex(KeyError, "out_header"):
+        config[Keyword.GENERAL.value][Keyword.ASSETS.value] = " ,, ,  ,   "
+        with self.assertRaisesRegex(RP2ValueError, f"field .* in section '{Keyword.GENERAL.value}' cannot contain empty elements"):
             self._test_config(config)
 
-        config["out_header"] = "foobar"
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "'foobar' is not of type 'object'"):
+        config[Keyword.GENERAL.value][Keyword.ASSETS.value] = "B1"
+        with self.assertRaisesRegex(RP2ValueError, f"section '{Keyword.GENERAL.value}' doesn't contain mandatory field .*"):
             self._test_config(config)
 
-        config["out_header"] = {}
-        config["out_header"].update({"timestamp": 0, "asset": 6, "exchange": 1, "holder": 2, "transaction_type": 5})
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "'spot_price' is a required property"):
+        config[Keyword.GENERAL.value][Keyword.ASSETS.value] = "B1, B2"
+        with self.assertRaisesRegex(RP2ValueError, f"section '{Keyword.GENERAL.value}' doesn't contain mandatory field .*"):
             self._test_config(config)
 
-        config["out_header"].update({"spot_price": 8, "crypto_out_no_fee": 7, "crypto_fee": 9, "notes": 12})
-        with self.assertRaisesRegex(KeyError, "intra_header"):
+        config[Keyword.GENERAL.value][Keyword.EXCHANGES.value] = ""
+        with self.assertRaisesRegex(RP2ValueError, f"field .* in section '{Keyword.GENERAL.value}' cannot be empty"):
             self._test_config(config)
 
-        config["intra_header"] = [1, 2, 3]
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, r"\[1, 2, 3\] is not of type 'object'"):
+        config[Keyword.GENERAL.value][Keyword.EXCHANGES.value] = ",,,"
+        with self.assertRaisesRegex(RP2ValueError, f"field .* in section '{Keyword.GENERAL.value}' cannot contain empty elements"):
             self._test_config(config)
 
-        config["intra_header"] = {}
-        config["intra_header"].update(
-            {
-                "timestamp": 0,
-                "asset": 6,
-                "from_exchange": 1,
-                "from_holder": 2,
-                "to_exchange": 3,
-            }
-        )
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "'to_holder' is a required property"):
+        config[Keyword.GENERAL.value][Keyword.EXCHANGES.value] = ",, ,  Coinbase   ,"
+        with self.assertRaisesRegex(RP2ValueError, f"field .* in section '{Keyword.GENERAL.value}' cannot contain empty elements"):
             self._test_config(config)
 
-        config["intra_header"].update({"to_holder": 4, "spot_price": 8, "crypto_sent": 7, "crypto_received": 10, "notes": 12})
-        with self.assertRaisesRegex(KeyError, "assets"):
+        config[Keyword.GENERAL.value][Keyword.EXCHANGES.value] = "Coinbase"
+        with self.assertRaisesRegex(RP2ValueError, f"section '{Keyword.GENERAL.value}' doesn't contain mandatory field .*"):
             self._test_config(config)
 
-        config["assets"] = "foobar"
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "'foobar' is not of type 'array'"):
+        config[Keyword.GENERAL.value][Keyword.EXCHANGES.value] = "BlockFi,Coinbase,Kraken"
+        with self.assertRaisesRegex(RP2ValueError, f"section '{Keyword.GENERAL.value}' doesn't contain mandatory field .*"):
             self._test_config(config)
 
-        config["assets"] = []
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, r"\[\] is too short"):
+        config[Keyword.GENERAL.value][Keyword.HOLDERS.value] = ""
+        with self.assertRaisesRegex(RP2ValueError, f"field .* in section '{Keyword.GENERAL.value}' cannot be empty"):
             self._test_config(config)
 
-        config["assets"] = [1, 2, 3]
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "1 is not of type 'string'"):
+        config[Keyword.GENERAL.value][Keyword.HOLDERS.value] = ",,,"
+        with self.assertRaisesRegex(RP2ValueError, f"field .* in section '{Keyword.GENERAL.value}' cannot contain empty elements"):
             self._test_config(config)
 
-        config["assets"] = ["B1", "B2"]
-        with self.assertRaisesRegex(KeyError, "exchanges"):
+        config[Keyword.GENERAL.value][Keyword.HOLDERS.value] = "Bob,, ,  ,   "
+        with self.assertRaisesRegex(RP2ValueError, f"field .* in section '{Keyword.GENERAL.value}' cannot contain empty elements"):
             self._test_config(config)
 
-        config["exchanges"] = None
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "None is not of type 'array'"):
+        config[Keyword.GENERAL.value][Keyword.HOLDERS.value] = "Bob"
+        with self.assertRaisesRegex(RP2ValueError, f"empty '{Keyword.IN_HEADER.value}' section"):
             self._test_config(config)
 
-        config["exchanges"] = []
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, r"\[\] is too short"):
+        config[Keyword.IN_HEADER.value] = {}
+        with self.assertRaisesRegex(RP2ValueError, f"section '{Keyword.IN_HEADER.value}' cannot be empty"):
             self._test_config(config)
 
-        config["exchanges"] = [1, 2, 3]
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "1 is not of type 'string'"):
+        config[Keyword.IN_HEADER.value][Keyword.TIMESTAMP.value] = "abc"
+        with self.assertRaisesRegex(RP2ValueError, f"invalid column value for field .* in section '{Keyword.IN_HEADER.value}' .*integer was expected.*:"):
             self._test_config(config)
 
-        config["exchanges"] = ["BlockFi", "Coinbase", "Kraken"]
-        with self.assertRaisesRegex(KeyError, "holders"):
+        config[Keyword.IN_HEADER.value][Keyword.TIMESTAMP.value] = ""
+        with self.assertRaisesRegex(RP2ValueError, f"invalid column value for field .* in section '{Keyword.IN_HEADER.value}' .*integer was expected.*:"):
             self._test_config(config)
 
-        config["holders"] = 7
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "7 is not of type 'array'"):
+        config[Keyword.IN_HEADER.value][Keyword.TIMESTAMP.value] = "8.8"
+        with self.assertRaisesRegex(RP2ValueError, f"invalid column value for field .* in section '{Keyword.IN_HEADER.value}' .*integer was expected.*:"):
             self._test_config(config)
 
-        config["holders"] = []
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, r"\[\] is too short"):
+        config[Keyword.IN_HEADER.value][Keyword.TIMESTAMP.value] = "-14"
+        with self.assertRaisesRegex(
+            RP2ValueError, f"invalid column value for field .* in section '{Keyword.IN_HEADER.value}' .*positive integer was expected.*:"
+        ):
             self._test_config(config)
 
-        config["holders"] = [1, 2, 3]
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "1 is not of type 'string'"):
+        config[Keyword.IN_HEADER.value][Keyword.TIMESTAMP.value] = "0"
+        config[Keyword.IN_HEADER.value]["foobar"] = "66"
+        with self.assertRaisesRegex(RP2ValueError, f"invalid column header in section '{Keyword.IN_HEADER.value}': .*"):
             self._test_config(config)
 
-        config["holders"] = ["Bob"]
-        self.assertIsNotNone(self._test_config(config))
+        config[Keyword.IN_HEADER.value] = {
+            Keyword.TIMESTAMP.value: "0",
+            Keyword.ASSET.value: "6",
+            Keyword.EXCHANGE.value: "1",
+            Keyword.HOLDER.value: "2",
+            Keyword.TRANSACTION_TYPE.value: "5",
+            Keyword.SPOT_PRICE.value: "8",
+            Keyword.CRYPTO_IN.value: "7",
+            Keyword.FIAT_FEE.value: "11",
+            Keyword.FIAT_IN_NO_FEE.value: "9",
+            Keyword.FIAT_IN_WITH_FEE.value: "10",
+            Keyword.NOTES.value: "12",
+        }
 
-        config["in_header"].update({"spot_price": -8})
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "-8 is less than the minimum of 0"):
+        config[Keyword.OUT_HEADER.value] = {}
+        with self.assertRaisesRegex(RP2ValueError, f"section '{Keyword.OUT_HEADER.value}' cannot be empty"):
             self._test_config(config)
 
-        config["in_header"].update({"spot_price": 8})
-        config["out_header"].update({"notes": -12})
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "-12 is less than the minimum of 0"):
+        config[Keyword.OUT_HEADER.value][Keyword.ASSET.value] = "def ghi"
+        with self.assertRaisesRegex(RP2ValueError, f"invalid column value for field .* in section '{Keyword.OUT_HEADER.value}' .*integer was expected.*:"):
             self._test_config(config)
 
-        config["out_header"].update({"notes": 12})
-        config["intra_header"].update({"crypto_sent": -7})
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "-7 is less than the minimum of 0"):
+        config[Keyword.OUT_HEADER.value][Keyword.ASSET.value] = ""
+        with self.assertRaisesRegex(RP2ValueError, f"invalid column value for field .* in section '{Keyword.OUT_HEADER.value}' .*integer was expected.*:"):
             self._test_config(config)
 
-        config["intra_header"].update({"crypto_sent": 7})
-        config["assets"].append("B1")
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, ".* has non-unique elements"):
+        config[Keyword.OUT_HEADER.value][Keyword.ASSET.value] = "147.222"
+        with self.assertRaisesRegex(RP2ValueError, f"invalid column value for field .* in section '{Keyword.OUT_HEADER.value}' .*integer was expected.*:"):
             self._test_config(config)
 
-        config["assets"] = ["B1", "B2"]
-
-        config["in_header"].update({"foobar": 23})
-        with self.assertRaisesRegex(jsonschema.exceptions.ValidationError, "Additional properties are not allowed .*'foobar' was unexpected.*"):
+        config[Keyword.OUT_HEADER.value][Keyword.ASSET.value] = "-903"
+        with self.assertRaisesRegex(
+            RP2ValueError, f"invalid column value for field .* in section '{Keyword.OUT_HEADER.value}' .*positive integer was expected.*:"
+        ):
             self._test_config(config)
+
+        config[Keyword.OUT_HEADER.value][Keyword.ASSET.value] = "0"
+        config[Keyword.OUT_HEADER.value]["__dummy"] = "718"
+        with self.assertRaisesRegex(RP2ValueError, f"invalid column header in section '{Keyword.OUT_HEADER.value}': .*"):
+            self._test_config(config)
+
+        config[Keyword.OUT_HEADER.value] = {
+            Keyword.TIMESTAMP.value: "0",
+            Keyword.ASSET.value: "6",
+            Keyword.EXCHANGE.value: "1",
+            Keyword.HOLDER.value: "2",
+            Keyword.TRANSACTION_TYPE.value: "5",
+            Keyword.SPOT_PRICE.value: "8",
+            Keyword.CRYPTO_OUT_NO_FEE.value: "7",
+            Keyword.CRYPTO_FEE.value: "9",
+            Keyword.NOTES.value: "12",
+        }
+        with self.assertRaisesRegex(RP2ValueError, f"empty '{Keyword.INTRA_HEADER.value}' section"):
+            self._test_config(config)
+
+        config[Keyword.INTRA_HEADER.value] = {}
+        with self.assertRaisesRegex(RP2ValueError, f"section '{Keyword.INTRA_HEADER.value}' cannot be empty"):
+            self._test_config(config)
+
+        config[Keyword.INTRA_HEADER.value][Keyword.FROM_EXCHANGE.value] = "x y z"
+        with self.assertRaisesRegex(RP2ValueError, f"invalid column value for field .* in section '{Keyword.INTRA_HEADER.value}' .*integer was expected.*:"):
+            self._test_config(config)
+
+        config[Keyword.INTRA_HEADER.value][Keyword.FROM_EXCHANGE.value] = ""
+        with self.assertRaisesRegex(RP2ValueError, f"invalid column value for field .* in section '{Keyword.INTRA_HEADER.value}' .*integer was expected.*:"):
+            self._test_config(config)
+
+        config[Keyword.INTRA_HEADER.value][Keyword.FROM_EXCHANGE.value] = "52.76"
+        with self.assertRaisesRegex(RP2ValueError, f"invalid column value for field .* in section '{Keyword.INTRA_HEADER.value}' .*integer was expected.*:"):
+            self._test_config(config)
+
+        config[Keyword.INTRA_HEADER.value][Keyword.FROM_EXCHANGE.value] = "-55082824"
+        with self.assertRaisesRegex(
+            RP2ValueError, f"invalid column value for field .* in section '{Keyword.INTRA_HEADER.value}' .*positive integer was expected.*:"
+        ):
+            self._test_config(config)
+
+        config[Keyword.INTRA_HEADER.value][Keyword.FROM_EXCHANGE.value] = "0"
+        config[Keyword.INTRA_HEADER.value]["whatever"] = "349"
+        with self.assertRaisesRegex(RP2ValueError, f"invalid column header in section '{Keyword.INTRA_HEADER.value}': .*"):
+            self._test_config(config)
+
+        config[Keyword.INTRA_HEADER.value] = {
+            Keyword.TIMESTAMP.value: "0",
+            Keyword.ASSET.value: "6",
+            Keyword.FROM_EXCHANGE.value: "1",
+            Keyword.FROM_HOLDER.value: "2",
+            Keyword.TO_EXCHANGE.value: "3",
+            Keyword.TO_HOLDER.value: "4",
+            Keyword.SPOT_PRICE.value: "8",
+            Keyword.CRYPTO_SENT.value: "7",
+            Keyword.CRYPTO_RECEIVED.value: "10",
+            Keyword.NOTES.value: "12",
+        }
+        self._test_config(config)
+
+        config[Keyword.IN_HEADER.value][Keyword.TIMESTAMP.value] = "8"
+        with self.assertRaisesRegex(RP2ValueError, f"fields .* and .* have the same value in section '{Keyword.IN_HEADER.value}': .*"):
+            self._test_config(config)
+        config[Keyword.IN_HEADER.value][Keyword.TIMESTAMP.value] = "0"
+
+        config[Keyword.OUT_HEADER.value][Keyword.ASSET.value] = "12"
+        with self.assertRaisesRegex(RP2ValueError, f"fields .* and .* have the same value in section '{Keyword.OUT_HEADER.value}': .*"):
+            self._test_config(config)
+        config[Keyword.OUT_HEADER.value][Keyword.ASSET.value] = "6"
+
+        config[Keyword.INTRA_HEADER.value][Keyword.FROM_EXCHANGE.value] = "4"
+        with self.assertRaisesRegex(RP2ValueError, f"fields .* and .* have the same value in section '{Keyword.INTRA_HEADER.value}': .*"):
+            self._test_config(config)
+        config[Keyword.INTRA_HEADER.value][Keyword.FROM_EXCHANGE.value] = "1"
+
+        config[Keyword.GENERAL.value][Keyword.ASSETS.value] = "B1, B2, B1"
+        with self.assertRaisesRegex(RP2ValueError, f"field .* in section '{Keyword.GENERAL.value}' contains duplicate elements"):
+            self._test_config(config)
+        config[Keyword.GENERAL.value][Keyword.ASSETS.value] = "B1, B2"
+
+        config[Keyword.GENERAL.value][Keyword.EXCHANGES.value] = "BlockFi,BlockFi"
+        with self.assertRaisesRegex(RP2ValueError, f"field .* in section '{Keyword.GENERAL.value}' contains duplicate elements"):
+            self._test_config(config)
+        config[Keyword.GENERAL.value][Keyword.EXCHANGES.value] = "BlockFi,Coinbase,Kraken"
+
+        config[Keyword.GENERAL.value][Keyword.HOLDERS.value] = "Bob, Alice, Alice"
+        with self.assertRaisesRegex(RP2ValueError, f"field .* in section '{Keyword.GENERAL.value}' contains duplicate elements"):
+            self._test_config(config)
+        config[Keyword.GENERAL.value][Keyword.HOLDERS.value] = "Bob"
+
+        config[f"{Keyword.GENERAL.value} foo bar"] = config[Keyword.GENERAL.value]
+        with self.assertRaisesRegex(RP2ValueError, f"section '{Keyword.GENERAL.value}' found multiple times in configuration file"):
+            self._test_config(config)
+        del config[f"{Keyword.GENERAL.value} foo bar"]
+
+        config[f"{Keyword.IN_HEADER.value} yy"] = config[Keyword.IN_HEADER.value]
+        with self.assertRaisesRegex(RP2ValueError, f"section '{Keyword.IN_HEADER.value}' found multiple times in configuration file"):
+            self._test_config(config)
+        del config[f"{Keyword.IN_HEADER.value} yy"]
+
+        config[f"{Keyword.OUT_HEADER.value} 1 2 3"] = config[Keyword.OUT_HEADER.value]
+        with self.assertRaisesRegex(RP2ValueError, f"section '{Keyword.OUT_HEADER.value}' found multiple times in configuration file"):
+            self._test_config(config)
+        del config[f"{Keyword.OUT_HEADER.value} 1 2 3"]
+
+        config[f"{Keyword.INTRA_HEADER.value} "] = config[Keyword.INTRA_HEADER.value]
+        with self.assertRaisesRegex(RP2ValueError, f"section '{Keyword.INTRA_HEADER.value}' found multiple times in configuration file"):
+            self._test_config(config)
+        del config[f"{Keyword.INTRA_HEADER.value} "]
+
+        config["__bad_section"] = config[Keyword.IN_HEADER.value]
+        with self.assertRaisesRegex(RP2ValueError, "invalid section '__bad_section' found"):
+            self._test_config(config)
+        del config["__bad_section"]
+
+        config[Keyword.ACCOUNTING_METHODS.value] = {}
+        with self.assertRaisesRegex(RP2ValueError, f"section '{Keyword.ACCOUNTING_METHODS.value}' cannot be empty"):
+            self._test_config(config)
+
+        config[Keyword.ACCOUNTING_METHODS.value] = {"1218": "fifo"}
+        with self.assertRaisesRegex(RP2ValueError, "invalid year value in accounting method section .*integer > 1970 was expected"):
+            self._test_config(config)
+
+        config[Keyword.ACCOUNTING_METHODS.value] = {"abc": "fifo"}
+        with self.assertRaisesRegex(RP2ValueError, "invalid year value in accounting method section .*integer was expected"):
+            self._test_config(config)
+
+        config[Keyword.ACCOUNTING_METHODS.value] = {"1970": "hifo", "2020": "lifo"}
 
     def test_creation(self) -> None:
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'country' is not of type AbstractCountry: .*"):
-            Configuration("./config/test_data.config", None)  # type: ignore
+            Configuration("./config/test_data.ini", None)  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration_path' has non-string value .*"):
             Configuration(None, self._country)  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration_path' has non-string value .*"):
@@ -198,13 +319,13 @@ class TestConfiguration(unittest.TestCase):
         with self.assertRaisesRegex(RP2ValueError, "/non/existing/file does not exist"):
             Configuration("/non/existing/file", self._country)
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_date' is not of type date"):
-            Configuration("./config/test_data.config", self._country, from_date=None)  # type: ignore
+            Configuration("./config/test_data.ini", self._country, from_date=None)  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_date' is not of type date"):
-            Configuration("./config/test_data.config", self._country, from_date="foobar")  # type: ignore
+            Configuration("./config/test_data.ini", self._country, from_date="foobar")  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'to_date' is not of type date"):
-            Configuration("./config/test_data.config", self._country, to_date=None)  # type: ignore
+            Configuration("./config/test_data.ini", self._country, to_date=None)  # type: ignore
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'to_date' is not of type date"):
-            Configuration("./config/test_data.config", self._country, to_date="foobar")  # type: ignore
+            Configuration("./config/test_data.ini", self._country, to_date="foobar")  # type: ignore
 
     def test_argument_packs(self) -> None:
         self.assertEqual(
@@ -295,7 +416,7 @@ class TestConfiguration(unittest.TestCase):
         self.assertEqual(
             str(self._configuration),
             (
-                "Configuration(configuration_path=./config/test_data.config, country=US(country_iso_code=us, "
+                "Configuration(configuration_path=./config/test_data.ini, country=US(country_iso_code=us, "
                 "currency_iso_code=usd, long_term_capital_gain_period=365), from_date=non-specified, "
                 "to_date=non-specified, in_header={'timestamp': 0, 'asset': 6, 'exchange': 1, 'holder': 2, 'transaction_type': 5, 'spot_price': 8, "
                 "'crypto_in': 7, 'fiat_fee': 11, 'fiat_in_no_fee': 9, 'fiat_in_with_fee': 10, 'notes': 12}, out_header={'timestamp': 0, 'asset': 6, "
