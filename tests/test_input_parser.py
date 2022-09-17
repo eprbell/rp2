@@ -41,8 +41,8 @@ class TestInputParser(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        TestInputParser._good_input_configuration = Configuration("./config/test_data.config", US())
-        TestInputParser._bad_input_configuration = Configuration("./config/test_bad_data.config", US())
+        TestInputParser._good_input_configuration = Configuration("./config/test_data.ini", US())
+        TestInputParser._bad_input_configuration = Configuration("./config/test_bad_data.ini", US())
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name

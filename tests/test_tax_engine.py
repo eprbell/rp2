@@ -39,8 +39,8 @@ class TestTaxEngine(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        TestTaxEngine._good_input_configuration = Configuration("./config/test_data.config", US())
-        TestTaxEngine._bad_input_configuration = Configuration("./config/test_bad_data.config", US())
+        TestTaxEngine._good_input_configuration = Configuration("./config/test_data.ini", US())
+        TestTaxEngine._bad_input_configuration = Configuration("./config/test_bad_data.ini", US())
         years_2_methods = AVLTree[int, AbstractAccountingMethod]()
         years_2_methods.insert_node(MIN_DATE.year, AccountingMethod())
         TestTaxEngine._accounting_engine = AccountingEngine(years_2_methods)

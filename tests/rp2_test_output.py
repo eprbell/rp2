@@ -15,7 +15,7 @@
 # pylint: disable=too-many-lines
 RP2_TEST_OUTPUT = {
     "B1": """GainLossSet:
-  configuration=./config/test_data.config
+  configuration=./config/test_data.ini
   asset=B1
   from_date=non-specified
   to_date=non-specified
@@ -77,7 +77,7 @@ RP2_TEST_OUTPUT = {
       taxable_event_fraction=1 of 1
       parent=3->None""",
     "B2": """GainLossSet:
-  configuration=./config/test_data.config
+  configuration=./config/test_data.ini
   asset=B2
   from_date=non-specified
   to_date=non-specified
@@ -508,7 +508,7 @@ RP2_TEST_OUTPUT = {
       acquired_lot_fraction=1 of 1
       parent=14->6""",
     "B3": """GainLossSet:
-  configuration=./config/test_data.config
+  configuration=./config/test_data.ini
   asset=B3
   from_date=non-specified
   to_date=non-specified
@@ -705,7 +705,7 @@ RP2_TEST_OUTPUT = {
       acquired_lot_fraction=3 of 3
       parent=25->4""",
     "B4": """GainLossSet:
-  configuration=./config/test_data.config
+  configuration=./config/test_data.ini
   asset=B4
   from_date=non-specified
   to_date=non-specified

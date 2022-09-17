@@ -35,7 +35,7 @@ class TestTransactionSet(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        TestTransactionSet._configuration = Configuration("./config/test_data.config", US())
+        TestTransactionSet._configuration = Configuration("./config/test_data.ini", US())
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -211,7 +211,7 @@ class TestTransactionSet(unittest.TestCase):
             count += 1
         self.assertEqual(count, 5)
 
-        self.assertTrue(str(transaction_set).startswith("TransactionSet:\n  configuration=./config/test_data.config\n  entry_set_type=EntrySetType.MIXED"))
+        self.assertTrue(str(transaction_set).startswith("TransactionSet:\n  configuration=./config/test_data.ini\n  entry_set_type=EntrySetType.MIXED"))
 
     def test_bad_transaction_set(self) -> None:
         in_transaction = InTransaction(

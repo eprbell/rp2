@@ -88,7 +88,7 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
             arguments.extend(["-t", str(to_date)])
         arguments.extend(
             [
-                str(CONFIG_PATH / Path(f"{config}.config")),
+                str(CONFIG_PATH / Path(f"{config}.ini")),
                 str(input_path / Path(f"{test_name}.ods")),
             ]
         )
