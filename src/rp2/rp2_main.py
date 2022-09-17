@@ -92,7 +92,13 @@ def _rp2_main_internal(country: AbstractCountry) -> None:  # pylint: disable=too
         old_year: int = MIN_DATE.year
         years_2_accounting_methods: AVLTree[int, AbstractAccountingMethod] = AVLTree()
         for year, accounting_method_name in years_2_accounting_method_names.items():
-            accounting_method_module: ModuleType = import_module(f"{_ACCOUNTING_METHOD_PACKAGE}.{accounting_method_name}", package=_ACCOUNTING_METHOD_PACKAGE)
+            try:
+                accounting_method_module: ModuleType = import_module(
+                    f"{_ACCOUNTING_METHOD_PACKAGE}.{accounting_method_name}", package=_ACCOUNTING_METHOD_PACKAGE
+                )
+            except ModuleNotFoundError:
+                LOGGER.error("Invalid/unsupported accounting method: %s", accounting_method_name)
+                sys.exit(1)
             if not hasattr(accounting_method_module, "AccountingMethod"):
                 LOGGER.error("Accounting method plugin %s doesn't have an AccountingMethod class", accounting_method_name)
                 sys.exit(1)
