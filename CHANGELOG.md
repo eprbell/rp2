@@ -14,6 +14,9 @@
 
 # RP2 Change Log
 
+## 1.3.0
+* configuration files are no longer expressed in JSON format: they now use the INI format. Old JSON-format configuration files can be converted automatically to the new INI format with the following command: rp2_config <json_config>
+
 ## 1.2.0
 * added support for [switching accounting methods year over year](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#can-i-change-accounting-method)
 * added support for simplified accounting method plugin creation. With this new infrastructure a new accounting method can be added by defining just two small methods. See [documentation](https://github.com/eprbell/rp2/blob/main/README.dev.md#simplified-procedure)
