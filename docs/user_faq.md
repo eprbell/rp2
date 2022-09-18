@@ -88,7 +88,7 @@ The user adds the tokens to the `assets` field of the [config file](input_files.
 Currently the [FIFO](https://www.investopedia.com/terms/f/fifo.asp), [LIFO](https://www.investopedia.com/terms/l/lifo.asp) and [HIFO](https://www.investopedia.com/terms/h/hifo.asp) accounting methods are supported: they can be selected using the `-m` option on the command line. See also question on [changing accounting methods](#can-i-change-accounting-method).
 
 ### Can I Change Accounting Method?
-Yes, RP2 allows users to select a different accounting method on any given year. To do it don't pass the `-m` command line option and fill the `accounting_methods` of the configuration file. Read the [configuration file documentation](input_files.md#the-config-file) for more information.
+Yes, RP2 allows users to select a different accounting method on any given year. To do it don't pass the `-m` command line option and fill the `accounting_methods` section of the configuration file. Read the [configuration file documentation](input_files.md#the-config-file) for more information.
 
 ### What Countries Are Supported?
 Currently only the US is supported, but more countries are being added. As new countries are added this FAQ will be updated.
@@ -137,7 +137,7 @@ One difference is that RP2 is 100% free and non-commercial, whereas Rotki is a c
 You can generate it automatically using [DaLI](https://github.com/eprbell/dali-rp2), the data loader and input generator for RP2.
 
 ### Can I Avoid Writing a Config File from Scratch?
-You can generate it automatically using [DaLI](https://github.com/eprbell/dali-rp2), the data loader and input generator for RP2. Alternatively you can use [crypto_example.config](../config/crypto_example.config) as boilerplate and the [Input Files](input_files.md) document as reference.
+You can generate it automatically using [DaLI](https://github.com/eprbell/dali-rp2), the data loader and input generator for RP2. Alternatively you can use [crypto_example.ini](../config/crypto_example.ini) as boilerplate and the [Input Files](input_files.md) document as reference.
 
 ### Is My Tax Report Browsable?
 The rp2_full_report output contains full tax computation details. Part of its contents are hyperlinked to enable browsing: in LibreOffice, CTRL-click (on Mac, Command-click) on a cell to jump to the target. The browsable elements are:
@@ -196,7 +196,7 @@ Also read the question on [crypto tax resources](#which-resources-can-i-use-to-l
 
 ### What if I and My Spouse File Taxes Jointly?
 The names of people filing taxes jointly should be added to the holders section of the config file (which is used for validation) and also in the holder column of each transaction in the input file. With this information RP2 generates a joint output. Here's an example in which the people filing jointly are called Alice and Bob:
-* [config/crypto_example.config](../config/crypto_example.config) (see Alice and Bob in the holders section)
+* [config/crypto_example.ini](../config/crypto_example.ini) (see Alice and Bob in the holders section)
 * [input/crypto_example.ods](../input/crypto_example.ods) (see transactions moving BTC from Bob to Alice in the INTRA table of the BTC tab).
 
 See the [input files](input_files.md) section of the documentation for format details.
