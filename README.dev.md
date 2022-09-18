@@ -178,7 +178,7 @@ While every commit and push is automatically tested as described, sometimes it's
 
 Logs are stored in the `log` directory. To generate debug logs, prepend the command line with `LOG_LEVEL=DEBUG`, e.g.:
 ```
-LOG_LEVEL=DEBUG bin/rp2_us -o output -p crypto_example_ config/crypto_example.config input/crypto_example.ods
+LOG_LEVEL=DEBUG bin/rp2_us -o output -p crypto_example_ config/crypto_example.ini input/crypto_example.ods
 ```
 
 ### Unit Tests
