@@ -21,7 +21,7 @@
 [![Windows Unit Tests / Main Branch](https://github.com/eprbell/rp2/actions/workflows/windows_unit_tests.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/windows_unit_tests.yml)
 [![CodeQL/Main Branch](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml)
 
-[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20RP2,%20the%20privacy-focused,%20free,%20open%20source%20US%20crypto%20tax%20calculator&url=https://github.com/eprbell/rp2/?anything)
+[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=I%20use%20RP2,%20the%20privacy-focused,%20open%20source,%20free,%20non-commercial%20crypto%20tax%20calculator&url=https://github.com/eprbell/rp2/?anything)
 
 ## Table of Contents
 * **[Introduction](https://github.com/eprbell/rp2/tree/main/README.md#introduction)**
@@ -142,7 +142,7 @@ pip install rp2
 ## Running
 RP2 requires two files as input:
 * an ODS-format spreadsheet, containing crypto transactions (ODS-format files can be opened and edited with [LibreOffice](https://www.libreoffice.org/) and many other spreadsheet applications);
-* a JSON config file, describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies and exchanges to expect.
+* a config file, describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies and exchanges to expect.
 
 The two input files can either:
 * be generated automatically using [DaLI](https://github.com/eprbell/dali-rp2), the data loader and input generator for RP2, or
@@ -152,18 +152,18 @@ The formats of these files are described in detail in the [Input Files](https://
 
 Examples of an input spreadsheet and its respective config file:
 * [input/crypto_example.ods](https://github.com/eprbell/rp2/tree/main/input/crypto_example.ods)
-* [config/crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config).
+* [config/crypto_example.ini](https://github.com/eprbell/rp2/tree/main/config/crypto_example.ini).
 
 After reading the input files, RP2 computes taxes and generates output files, which contain information on long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions, etc. They are described in detail in the [Output Files](https://github.com/eprbell/rp2/tree/main/docs/output_files.md) section of the documentation.
 
-To try RP2 with example files, download [crypto_example.ods](https://github.com/eprbell/rp2/tree/main/input/crypto_example.ods) and [crypto_example.config](https://github.com/eprbell/rp2/tree/main/config/crypto_example.config). Let's call `<download_directory>` the location of the downloaded files.
+To try RP2 with example files, download [crypto_example.ods](https://github.com/eprbell/rp2/tree/main/input/crypto_example.ods) and [crypto_example.ini](https://github.com/eprbell/rp2/tree/main/config/crypto_example.ini). Let's call `<download_directory>` the location of the downloaded files.
 
 The RP2 executable is country-dependent: `rp2_<country_code>`, where country code is a [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2), 2-letter identifier (e.g. `rp2_us`, `rp2_jp`, etc).
 
 To generate US tax output for the example files open a terminal window (or PowerShell if on Windows) and enter the following commands:
   ```
   cd <download_directory>
-  rp2_us -m fifo -o output -p crypto_example_ crypto_example.config crypto_example.ods
+  rp2_us -m fifo -o output -p crypto_example_ crypto_example.ini crypto_example.ods
   ```
 Results are generated in the `output` directory and logs are stored in the `log` directory.
 
