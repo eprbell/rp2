@@ -25,7 +25,7 @@
 ## Introduction
 RP2 requires two files as input:
 * an [ODS-format spreadsheet](#the-input-spreadsheet), containing crypto transactions (ODS-format files can be opened and edited with [LibreOffice](https://www.libreoffice.org/) and many other spreadsheet applications), originally reported in the user's records of exchange and wallet activity. The [crypto_example.ods](../input/crypto_example.ods) provides an example of an .ods input file;
-* a [JSON config file](#the-config-file), describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies, exchanges and account owners to expect. If desired, the [crypto_example.config](../config/crypto_example.config) file  can be used as an config example or boilerplate.
+* a [config file](#the-config-file), describing the format of the spreadsheet file: what value each column corresponds to (e.g. timestamp, amount, exchange, fee, etc.) and which cryptocurrencies, exchanges and account owners to expect. If desired, the [crypto_example.ini](../config/crypto_example.ini) file  can be used as an config example or boilerplate.
 
 The two input files can either:
 * be generated automatically using [DaLI](https://github.com/eprbell/dali-rp2), the data loader and input generator for RP2, or
@@ -99,86 +99,68 @@ Here follows an example of an input spreadsheet with 2 sheets (one for BTC and o
   * **notes** (optional): user-provided description of the transaction.
 
 ## The Config File
-The config file tells RP2 how to interpret the input spreadsheet (i.e. what values are contained in what column). The purpose of the config file is input flexibility: unfortunately exchanges don't provide user transaction data in a standardized way, so customizing column positions can be useful. See an [example of config file](../config/crypto_example.config) to learn more.
+The config file tells RP2 how to interpret the input spreadsheet (i.e. what values are contained in what column). The purpose of the config file is input flexibility: unfortunately exchanges don't provide user transaction data in a standardized way, so customizing column positions can be useful. See an [example of config file](../config/crypto_example.ini) to learn more.
 
-The config file is in JSON format and is structured as described below. Note that:
+The config file is in [INI format](https://en.wikipedia.org/wiki/INI_file). In older versions of RP2 the format of the config file was is JSON format (now obsolete): to convert automatically an old JSON config file to INI use the `rp2_config` utility as follows: <pre>rp2_config <em>&lt;json_file&gt;</em></pre>
+
+The config file is structured as described below. Note that:
 * optional elements are marked with &#x1F537;;
-* the `in_header`, `out_header` and `intra_header` sections are optional. Their fields are described in the [input spreadsheet section](#the-input-spreadsheet);
-* the `assets` section contains all cryptocurrencies the user transacted with;
-* the `exchanges` section can contain both exchange and wallet identifiers;
-* the `holders` section typically contains only one name, unless multiple people are filing taxes jointly;
-* the `generators` section is optional and contains the names of output generator plugins to use at generation time. If the section is not specified the default plugin set is used;
-* the `accounting_methods` section is optional and contains information on which accounting methods to use on any given year (see an [example](../config/test_data_multi_method.config)).
+* the fields of the `in_header`, `out_header` and `intra_header` sections are described in the [input spreadsheet section](#the-input-spreadsheet);
+* the `assets` field of the `general` section contains a comma-separated list of all cryptocurrencies the user transacted with;
+* the `exchanges` field of the `general` section contains a comma-separated list of exchange or wallet identifiers;
+* the `holders` field of the `general` section typically contains only one name, unless multiple people are filing taxes jointly (in which case a comma-separated list is used);
+* the `generators` filed of the `general` section is optional and contains a comma-separated list of names of output generator plugins to use at generation time. If the section is not specified the default plugin set is used;
+* the `accounting_methods` section is optional and contains information on which accounting methods to use on any given year (see an [example](../config/test_data_multi_method.ini)).
 * *`<...>`* must be substituted with user-provided values (e.g. *`<column_number>`* must be substituted with 0 for column A in the input spreadsheet, 1 for B, etc);
 <pre>
-{
-    "in_header": {
-        "timestamp": <em>&lt;column_number&gt;</em>,
-        "asset": <em>&lt;column_number&gt;</em>,
-        "exchange": <em>&lt;column_number&gt;</em>,
-        "holder": <em>&lt;column_number&gt;</em>,
-        "transaction_type": <em>&lt;column_number&gt;</em>,
-        "spot_price": <em>&lt;column_number&gt;</em>,
-        "crypto_in": <em>&lt;column_number&gt;</em>,
-        "crypto_fee": <em>&lt;column_number&gt;</em>,
-        "fiat_in_no_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
-        "fiat_in_with_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
-        "fiat_fee": <em>&lt;column_number&gt;</em>,
-        "notes": <em>&lt;column_number&gt;</em>&#x1F537;
-    },
+[in_header]
+timestamp = <em>&lt;column_number&gt;</em>
+asset = <em>&lt;column_number&gt;</em>
+exchange = <em>&lt;column_number&gt;</em>
+holder = <em>&lt;column_number&gt;</em>
+transaction_type = <em>&lt;column_number&gt;</em>
+spot_price = <em>&lt;column_number&gt;</em>
+crypto_in = <em>&lt;column_number&gt;</em>
+crypto_fee = <em>&lt;column_number&gt;</em>
+fiat_in_no_fee = <em>&lt;column_number&gt;</em>&#x1F537;
+fiat_in_with_fee = <em>&lt;column_number&gt;</em>&#x1F537;
+fiat_fee = <em>&lt;column_number&gt;</em>
+notes = <em>&lt;column_number&gt;</em>&#x1F537;
 
-    "out_header": {
-        "timestamp": <em>&lt;column_number&gt;</em>,
-        "asset": <em>&lt;column_number&gt;</em>,
-        "exchange": <em>&lt;column_number&gt;</em>,
-        "holder": <em>&lt;column_number&gt;</em>,
-        "transaction_type": <em>&lt;column_number&gt;</em>,
-        "spot_price": <em>&lt;column_number&gt;</em>,
-        "crypto_out_no_fee": <em>&lt;column_number&gt;</em>,
-        "crypto_fee": <em>&lt;column_number&gt;</em>,
-        "crypto_out_with_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
-        "fiat_out_no_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
-        "fiat_fee": <em>&lt;column_number&gt;</em>,&#x1F537;
-        "notes": <em>&lt;column_number&gt;</em>&#x1F537;
-    },
+[out_header]
+timestamp = <em>&lt;column_number&gt;</em>
+asset = <em>&lt;column_number&gt;</em>
+exchange = <em>&lt;column_number&gt;</em>
+holder = <em>&lt;column_number&gt;</em>
+transaction_type = <em>&lt;column_number&gt;</em>
+spot_price = <em>&lt;column_number&gt;</em>
+crypto_out_no_fee = <em>&lt;column_number&gt;</em>
+crypto_fee = <em>&lt;column_number&gt;</em>
+crypto_out_with_fee = <em>&lt;column_number&gt;</em>&#x1F537;
+fiat_out_no_fee = <em>&lt;column_number&gt;</em>&#x1F537;
+fiat_fee = <em>&lt;column_number&gt;</em>&#x1F537;
+notes = <em>&lt;column_number&gt;</em>&#x1F537;
 
-    "intra_header": {
-        "timestamp": <em>&lt;column_number&gt;</em>,
-        "asset": <em>&lt;column_number&gt;</em>,
-        "from_exchange": <em>&lt;column_number&gt;</em>,
-        "from_holder": <em>&lt;column_number&gt;</em>,
-        "to_exchange": <em>&lt;column_number&gt;</em>,
-        "to_holder": <em>&lt;column_number&gt;</em>,
-        "spot_price": <em>&lt;column_number&gt;</em>,&#x1F537;
-        "crypto_sent": <em>&lt;column_number&gt;</em>,
-        "crypto_received": <em>&lt;column_number&gt;</em>,
-        "notes": <em>&lt;column_number&gt;</em>&#x1F537;
-    },
+[intra_header]
+timestamp = <em>&lt;column_number&gt;</em>
+asset = <em>&lt;column_number&gt;</em>
+from_exchange = <em>&lt;column_number&gt;</em>
+from_holder = <em>&lt;column_number&gt;</em>
+to_exchange = <em>&lt;column_number&gt;</em>
+to_holder = <em>&lt;column_number&gt;</em>
+spot_price = <em>&lt;column_number&gt;</em>&#x1F537;
+crypto_sent = <em>&lt;column_number&gt;</em>
+crypto_received = <em>&lt;column_number&gt;</em>
+notes = <em>&lt;column_number&gt;</em>&#x1F537;
 
-    "assets": [
-        <em>&lt;"asset_1_in_quotes"&gt;</em>,
-        ...&#x1F537;
-        <em>&lt;"asset_n_in_quotes"&gt;</em>&#x1F537;
-    ],
-    "exchanges": [
-        <em>&lt;"exchange_or_wallet_1_in_quotes"&gt;</em>,
-        ...&#x1F537;
-        <em>&lt;"exchange_or_wallet_n_in_quotes"&gt;</em>&#x1F537;
-    ],
-    "holders": [
-        <em>&lt;"holder_1_in_quotes"&gt;</em>,
-        ...&#x1F537;
-        <em>&lt;"holder_n_in_quotes"&gt;</em>&#x1F537;
-    ]
-    "generators": [&#x1F537;
-        <em>&lt;"generator_1_in_quotes"&gt;</em>,
-        ...&#x1F537;
-        <em>&lt;"generator_n_in_quotes"&gt;</em>&#x1F537;
-    ],
-    "accounting_methods": {
-        <em>&lt;"from_year_1"&gt;</em>: <em>&lt;"accounting_method_1"&gt;</em>,
-        ...
-        <em>&lt;"from_year_n"&gt;</em>: <em>&lt;"accounting_method_n"&gt;</em>,
-    }
-}
+[general]
+assets = <em>&lt;"asset_1_in_quotes"&gt;</em>, ...&#x1F537; <em>&lt;"asset_n_in_quotes"&gt;</em>&#x1F537;
+exchanges = <em>&lt;"exchange_or_wallet_1_in_quotes"&gt;</em>, ...&#x1F537; <em>&lt;"exchange_or_wallet_n_in_quotes"&gt;</em>&#x1F537;
+holders = <em>&lt;"holder_1_in_quotes"&gt;</em>, ...&#x1F537; <em>&lt;"holder_n_in_quotes"&gt;</em>&#x1F537;
+generators&#x1F537; = <em>&lt;"generator_1_in_quotes"&gt;</em>, ...&#x1F537; <em>&lt;"generator_n_in_quotes"&gt;</em>&#x1F537;
+
+[accounting_methods]&#x1F537;
+<em>&lt;"from_year_1"&gt;</em> = <em>&lt;"accounting_method_1"&gt;</em>
+...&#x1F537;
+<em>&lt;"from_year_n"&gt;</em> = <em>&lt;"accounting_method_n"&gt;</em>&#x1F537;
 </pre>
