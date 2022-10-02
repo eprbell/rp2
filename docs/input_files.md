@@ -60,7 +60,7 @@ Here follows an example of an input spreadsheet with 2 sheets (one for BTC and o
   * **holder**: exchange account or wallet owner. It must match one of the values in the **holders** section of the config file.
   * **transaction_type**: AIRDROP, BUY, DONATE, GIFT, HARDFORK, INCOME, INTEREST, MINING, STAKING or WAGES.
   * **spot_price**: value of 1 unit of the given cryptocurrency at the time the transaction occurred.
-  * **crypto_in**: how much of the given cryptocurrency was acquired with the transaction.
+  * **crypto_in**: how much of the given cryptocurrency was acquired with the transaction (without fee).
   * **crypto_fee**: (optional) crypto value of the transaction fees. This field is mutually exclusive with fiat_fee. If fiat_fee is assigned, crypto_fee is set to 0. If crypto_fee is assigned, fiat_fee is set to crypto_fee * spot_price. The reason for this behavior is that if the fee is paid in fiat, then no crypto is used for the fee, but if the fee is paid in crypto, then its converted fiat value is needed to compute taxes. Note that RP2 models a non-zero crypto_fee with a separate fee-typed out-transaction.
   * **fiat_in_no_fee** (optional): fiat value of the transaction without fees. If not provided, RP2 will compute this value automatically.
   * **fiat_in_with_fee** (optional): fiat value of the transaction with fees. If not provided, RP2 will compute this value automatically.
