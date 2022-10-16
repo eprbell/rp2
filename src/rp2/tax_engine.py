@@ -105,6 +105,7 @@ def _create_unfiltered_gain_and_loss_set(
         acquired_lot: Optional[InTransaction]
         taxable_event_amount: RP2Decimal
         acquired_lot_amount: RP2Decimal
+        total_amount: RP2Decimal = ZERO
 
         # Retrieve first taxable event and acquired lot
         (taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount) = _get_next_taxable_event_and_acquired_lot(
@@ -124,6 +125,15 @@ def _create_unfiltered_gain_and_loss_set(
             if taxable_event.transaction_type.is_earn_type():
                 # Handle earn-typed transactions first: they have no acquired-lot
                 gain_loss = GainLoss(configuration, taxable_event_amount, taxable_event, None)
+                LOGGER.debug(
+                    "tax_engine: taxable is earn: %s / %s + %s = %s: %s",
+                    taxable_event_amount,
+                    total_amount,
+                    taxable_event_amount,
+                    total_amount + taxable_event_amount,
+                    gain_loss,
+                )
+                total_amount += taxable_event_amount
                 gain_loss_set.add_entry(gain_loss)
                 (taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount) = new_accounting_engine.get_next_taxable_event_and_amount(
                     taxable_event, acquired_lot, ZERO, acquired_lot_amount
@@ -131,18 +141,48 @@ def _create_unfiltered_gain_and_loss_set(
                 continue
             if taxable_event_amount == acquired_lot_amount:
                 gain_loss = GainLoss(configuration, taxable_event_amount, taxable_event, acquired_lot)
+                LOGGER.debug(
+                    "tax_engine: taxable == acquired: %s == %s / %s + %s = %s: %s",
+                    taxable_event_amount,
+                    acquired_lot_amount,
+                    total_amount,
+                    taxable_event_amount,
+                    total_amount + taxable_event_amount,
+                    gain_loss,
+                )
+                total_amount += taxable_event_amount
                 gain_loss_set.add_entry(gain_loss)
                 (taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount) = _get_next_taxable_event_and_acquired_lot(
                     new_accounting_engine, taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount
                 )
             elif taxable_event_amount < acquired_lot_amount:
                 gain_loss = GainLoss(configuration, taxable_event_amount, taxable_event, acquired_lot)
+                LOGGER.debug(
+                    "tax_engine: taxable < acquired: %s < %s / %s + %s = %s: %s",
+                    taxable_event_amount,
+                    acquired_lot_amount,
+                    total_amount,
+                    taxable_event_amount,
+                    total_amount + taxable_event_amount,
+                    gain_loss,
+                )
+                total_amount += taxable_event_amount
                 gain_loss_set.add_entry(gain_loss)
                 (taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount) = new_accounting_engine.get_next_taxable_event_and_amount(
                     taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount
                 )
             else:  # taxable_amount > acquired_lot_amount
                 gain_loss = GainLoss(configuration, acquired_lot_amount, taxable_event, acquired_lot)
+                LOGGER.debug(
+                    "tax_engine: taxable > acquired: %s > %s / %s + %s = %s: %s",
+                    taxable_event_amount,
+                    acquired_lot_amount,
+                    total_amount,
+                    acquired_lot_amount,
+                    total_amount + acquired_lot_amount,
+                    gain_loss,
+                )
+                total_amount += acquired_lot_amount
                 gain_loss_set.add_entry(gain_loss)
                 (taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount) = new_accounting_engine.get_acquired_lot_for_taxable_event(
                     taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount
