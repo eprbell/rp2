@@ -16,7 +16,7 @@ import logging
 from datetime import date
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Set, cast
+from typing import Any, Dict, List, Set, Tuple, cast
 
 from rp2.abstract_country import AbstractCountry
 from rp2.computed_data import ComputedData
@@ -46,22 +46,23 @@ class SheetNames(Enum):
 
 _TEMPLATE_SHEETS_TO_KEEP: Set[str] = {f"__{item.value}" for item in SheetNames}
 
-_SHEET_TO_TYPE: Dict[str, TransactionType] = {
-    SheetNames.AIRDROPS.value: TransactionType.AIRDROP,
-    SheetNames.CAPITAL_GAINS.value: TransactionType.SELL,
-    SheetNames.DONATIONS.value: TransactionType.DONATE,
-    SheetNames.GIFTS.value: TransactionType.GIFT,
-    SheetNames.HARDFORKS.value: TransactionType.HARDFORK,
-    SheetNames.INCOME.value: TransactionType.INCOME,
-    SheetNames.INTEREST.value: TransactionType.INTEREST,
-    SheetNames.INVESTMENT_EXPENSES.value: TransactionType.MOVE,
-    SheetNames.MINING.value: TransactionType.MINING,
-    SheetNames.STAKING.value: TransactionType.STAKING,
-    SheetNames.WAGES.value: TransactionType.WAGES,
+_SHEET_TO_TYPES: Dict[str, Tuple[TransactionType, ...]] = {
+    SheetNames.AIRDROPS.value: (TransactionType.AIRDROP,),
+    SheetNames.CAPITAL_GAINS.value: (TransactionType.SELL,),
+    SheetNames.DONATIONS.value: (TransactionType.DONATE,),
+    SheetNames.GIFTS.value: (TransactionType.GIFT,),
+    SheetNames.HARDFORKS.value: (TransactionType.HARDFORK,),
+    SheetNames.INCOME.value: (TransactionType.INCOME,),
+    SheetNames.INTEREST.value: (TransactionType.INTEREST,),
+    SheetNames.INVESTMENT_EXPENSES.value: (TransactionType.FEE, TransactionType.MOVE,),
+    SheetNames.MINING.value: (TransactionType.MINING,),
+    SheetNames.STAKING.value: (TransactionType.STAKING,),
+    SheetNames.WAGES.value: (TransactionType.WAGES,),
 }
 
-_TYPE_TO_SHEET: Dict[TransactionType, str] = {transaction_type: sheet_name for sheet_name, transaction_type in _SHEET_TO_TYPE.items()}
-_TYPE_TO_SHEET[TransactionType.FEE] = SheetNames.INVESTMENT_EXPENSES.value
+_TYPE_TO_SHEET: Dict[TransactionType, str] = {
+    transaction_type: sheet_name for sheet_name, transaction_types in _SHEET_TO_TYPES.items() for transaction_type in transaction_types
+}
 
 
 class Generator(AbstractODSGenerator):
@@ -135,8 +136,9 @@ class Generator(AbstractODSGenerator):
         for sheet in output_file.sheets:
             if sheet.name == "Legend":
                 continue
-            sheet_type: TransactionType = _SHEET_TO_TYPE[sheet.name]
-            sheet.append_rows(self.MIN_ROWS + gain_loss_set.get_transaction_type_count(sheet_type) + 1)
+            sheet_types: Tuple[TransactionType, ...] = _SHEET_TO_TYPES[sheet.name]
+            for sheet_type in sheet_types:
+                sheet.append_rows(self.MIN_ROWS + gain_loss_set.get_transaction_type_count(sheet_type) + 1)
 
         border_suffix: str = "_border"
         for entry in gain_loss_set:
