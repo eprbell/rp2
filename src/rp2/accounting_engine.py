@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Iterator, List, NamedTuple, Optional
 
 from prezzemolo.avl_tree import AVLTree
@@ -116,7 +116,7 @@ class AccountingEngine:
     # that have the same timestamp. Timestamp is in format "YYYYmmddHHMMSS.ffffff" and internal_id is padded right in a string of fixed
     # length (KEY_DISAMBIGUATOR_LENGTH).
     def _get_avl_node_key(self, timestamp: datetime, internal_id: str) -> str:
-        return f"{timestamp.strftime('%Y%m%d%H%M%S.%f')}_{internal_id:0>{self.KEY_DISAMBIGUATOR_LENGTH}}"
+        return f"{timestamp.astimezone(timezone.utc).strftime('%Y%m%d%H%M%S.%f')}_{internal_id:0>{self.KEY_DISAMBIGUATOR_LENGTH}}"
 
     # This function calls _get_avl_node_key with internal_id=MAX_KEY_DISAMBIGUATOR, so that the generated key is larger than any other key
     # with the same timestamp.
