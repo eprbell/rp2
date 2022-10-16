@@ -14,6 +14,12 @@
 
 # RP2 Change Log
 
+## 1.3.1
+* fixed #77: accounting engine AVLTree keys didn't normalize timezones, which caused a rare but obscure bug in certain cases
+* added debug log for progress of tax engine during lot accounting. This should make it much easier to debug certain user data errors, such as "Total in-transaction crypto value < total taxable crypto value"
+* fixed tax_report_us plugin bug: investment expenses sheet was resized only with number of move transactions (ignoring number of fee ones): this caused a row overflow when generating tax_report_us output under certain conditions
+* minor documentation improvements
+
 ## 1.3.0
 * configuration files are no longer expressed in JSON format: they now use the INI format. Old JSON-format configuration files can be converted automatically to the new INI format with the following command: rp2_config <json_config>
 
