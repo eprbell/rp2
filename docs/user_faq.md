@@ -85,7 +85,7 @@ In some cases exchange reports miss spot price information. In such situations y
 The user adds the tokens to the `assets` field of the [config file](input_files.md#the-config-file): RP2 accepts as valid all the tokens present in this field. See also the question on [writing a config file from scratch](#can-i-avoid-writing-a-config-file-from-scratch).
 
 ### What Accounting Methods Are Supported?
-Currently the [FIFO](https://www.investopedia.com/terms/f/fifo.asp), [LIFO](https://www.investopedia.com/terms/l/lifo.asp) and [HIFO](https://www.investopedia.com/terms/h/hifo.asp) accounting methods are supported: they can be selected using the `-m` option on the command line. See also question on [changing accounting methods](#can-i-change-accounting-method).
+Currently the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) accounting method is supported: it can be selected using the `-m` option on the command line. See also question on [changing accounting methods](#can-i-change-accounting-method).
 
 ### Can I Change Accounting Method?
 Yes, RP2 allows users to select a different accounting method on any given year. To do it don't pass the `-m` command line option and fill the `accounting_methods` section of the configuration file. Read the [configuration file documentation](input_files.md#the-config-file) for more information.
@@ -114,7 +114,7 @@ So if they want to start using RP2 for their 2021 taxes, they would just leave o
 
 This is because a), part of b) and c) are already accounted for in the pre-RP2 system. The Notes column can be useful here: it can be used to describe why lot b) is partial.
 
-Of course the user still needs to keep all the documentation for previous years as well as for the current year. Also they will need to keep the same accounting method they were using previously: to switch accounting method (e.g. from FIFO to LIFO) it's necessary to speak to a tax professional first.
+Of course the user still needs to keep all the documentation for previous years as well as for the current year. Also they will need to keep the same accounting method they were using previously: to switch accounting method it is a good idea to speak to a tax professional first.
 
 ### Why Should I Use RP2 Instead of Another Software?
 RP2 has all of the following features:

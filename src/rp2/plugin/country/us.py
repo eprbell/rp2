@@ -34,7 +34,8 @@ class US(AbstractCountry):
 
     # Set of accounting methods accepted in the country
     def get_accounting_methods(self) -> Set[str]:
-        return {"fifo", "lifo", "hifo"}
+        # Temporarily removed lifo and hifo due to https://github.com/eprbell/rp2/issues/79
+        return {"fifo"}
 
     # Default set of generators to use if the user doesn't specify them on the command line
     def get_report_generators(self) -> Set[str]:
