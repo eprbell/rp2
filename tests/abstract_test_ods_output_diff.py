@@ -18,7 +18,7 @@ from datetime import date
 from enum import Enum
 from pathlib import Path
 from subprocess import run
-from typing import List
+from typing import List, Optional
 
 from ods_diff import ods_diff
 
@@ -34,6 +34,7 @@ GOLDEN_PATH: Path = INPUT_PATH / Path("golden")
 class OutputPlugins(Enum):
     OPEN_POSITIONS = "open_positions"
     RP2_FULL_REPORT = "rp2_full_report"
+    TAX_REPORT_JP = "tax_report_jp"
     TAX_REPORT_US = "tax_report_us"
 
 
@@ -65,7 +66,7 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
         input_path: Path = INPUT_PATH,
         from_date: date = MIN_DATE,
         to_date: date = MAX_DATE,
-        generation_language: str = "en",
+        generation_language: Optional[str] = None,
         country: str = "us",
     ) -> None:
         config = test_name if config is None else config
@@ -76,11 +77,11 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
             "-o",
             str(output_dir),
             "-p",
-            f"{test_name}_{f'{generation_language}_' if generation_language != 'en' else ''}{time_interval}",
+            f"{test_name}_{f'{generation_language}_' if generation_language else ''}{time_interval}",
         ]
         if method != "mixed":
             arguments.extend(["-m", method])
-        if generation_language != "en":
+        if generation_language:
             arguments.extend(["-g", generation_language])
         if from_date:
             arguments.extend(["-f", str(from_date)])
@@ -103,12 +104,13 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
         output_plugin: OutputPlugins,
         from_date: date = MIN_DATE,
         to_date: date = MAX_DATE,
-        generation_language: str = "en",
+        generation_language: str = None,
     ) -> None:
         time_interval: str = self.__get_time_interval(from_date, to_date)
         diff: str
+
         output_file_name: Path = Path(
-            f"{test_name}_{f'{generation_language}_' if generation_language != 'en' else ''}{time_interval}{method}_{output_plugin.value}.ods"
+            f"{test_name}_{f'{generation_language}_' if generation_language else ''}{time_interval}{method}_{output_plugin.value}.ods"
         )
         full_output_file_name: Path = output_dir / output_file_name
         full_golden_file_name: Path = GOLDEN_PATH / output_file_name
