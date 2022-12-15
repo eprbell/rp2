@@ -104,7 +104,7 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
         output_plugin: OutputPlugins,
         from_date: date = MIN_DATE,
         to_date: date = MAX_DATE,
-        generation_language: str = None,
+        generation_language: Optional[str] = None,
     ) -> None:
         time_interval: str = self.__get_time_interval(from_date, to_date)
         diff: str

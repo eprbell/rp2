@@ -15,7 +15,8 @@
 import os
 import shutil
 import unittest
-from datetime import date
+
+# from datetime import date
 from pathlib import Path
 
 from abstract_test_ods_output_diff import AbstractTestODSOutputDiff, OutputPlugins
@@ -33,7 +34,9 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
 
         shutil.rmtree(cls.output_dir, ignore_errors=True)
 
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="crypto_example", config="crypto_example", method="fifo", country="jp", generation_language="en")
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir, test_name="crypto_example", config="crypto_example", method="fifo", country="jp", generation_language="en"
+        )
         # AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data", config="test_data", method="fifo")
         # AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data2", config="test_data", method="fifo")
         # AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data3", config="test_data", method="fifo")
@@ -72,10 +75,13 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
         self.maxDiff = None  # pylint: disable=invalid-name
 
     # def test_crypto_example_rp2_full_report(self) -> None:
-    #     self._compare(output_dir=self.output_dir, test_name="crypto_example", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, generation_language="en")
+    #     self._compare(output_dir=self.output_dir,
+    #     test_name="crypto_example", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, generation_language="en")
 
     def test_crypto_example_tax_report_jp(self) -> None:
-        self._compare(output_dir=self.output_dir, test_name="crypto_example", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, generation_language="en")
+        self._compare(
+            output_dir=self.output_dir, test_name="crypto_example", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, generation_language="en"
+        )
 
     # def test_test_data_rp2_full_report(self) -> None:
     #     self._compare(output_dir=self.output_dir, test_name="test_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT)
@@ -141,77 +147,92 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
 
     # def test_test_many_year_data_rp2_full_report_0_2016(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, to_date=date(2016, 12, 31)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, to_date=date(2016, 12, 31)
     #     )
 
     # def test_test_many_year_data_tax_report_us_0_2016(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, to_date=date(2016, 12, 31)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, to_date=date(2016, 12, 31)
     #     )
 
     # def test_test_many_year_data_rp2_full_report_0_2017(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, to_date=date(2017, 12, 31)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, to_date=date(2017, 12, 31)
     #     )
 
     # def test_test_many_year_data_tax_report_us_0_2017(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, to_date=date(2017, 12, 31)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, to_date=date(2017, 12, 31)
     #     )
 
     # def test_test_many_year_data_rp2_full_report_0_2018(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, to_date=date(2018, 12, 31)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, to_date=date(2018, 12, 31)
     #     )
 
     # def test_test_many_year_data_tax_report_us_0_2018(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, to_date=date(2018, 12, 31)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, to_date=date(2018, 12, 31)
     #     )
 
     # def test_test_many_year_data_rp2_full_report_0_2019(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, to_date=date(2019, 12, 31)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, to_date=date(2019, 12, 31)
     #     )
 
     # def test_test_many_year_data_tax_report_us_0_2019(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, to_date=date(2019, 12, 31)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, to_date=date(2019, 12, 31)
     #     )
 
     # def test_test_many_year_data_rp2_full_report_0_2020(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, to_date=date(2020, 12, 31)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, to_date=date(2020, 12, 31)
     #     )
 
     # def test_test_many_year_data_tax_report_us_0_2020(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, to_date=date(2020, 12, 31)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, to_date=date(2020, 12, 31)
     #     )
 
     # def test_test_many_year_data_rp2_full_report_2017_infinity(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, from_date=date(2017, 1, 1)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, from_date=date(2017, 1, 1)
     #     )
 
     # def test_test_many_year_data_tax_report_us_2017_infinity(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, from_date=date(2017, 1, 1)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, from_date=date(2017, 1, 1)
     #     )
 
     # def test_test_many_year_data_rp2_full_report_2018_infinity(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, from_date=date(2018, 1, 1)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, from_date=date(2018, 1, 1)
     #     )
 
     # def test_test_many_year_data_tax_report_us_2018_infinity(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, from_date=date(2018, 1, 1)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, from_date=date(2018, 1, 1)
     #     )
 
     # def test_test_many_year_data_rp2_full_report_2019_infinity(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, from_date=date(2019, 1, 1)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, from_date=date(2019, 1, 1)
     #     )
 
     # def test_test_many_year_data_tax_report_us_2019_infinity(self) -> None:
@@ -221,22 +242,26 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
 
     # def test_test_many_year_data_rp2_full_report_2020_infinity(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, from_date=date(2020, 1, 1)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, from_date=date(2020, 1, 1)
     #     )
 
     # def test_test_many_year_data_tax_report_us_2020_infinity(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, from_date=date(2020, 1, 1)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, from_date=date(2020, 1, 1)
     #     )
 
     # def test_test_many_year_data_rp2_full_report_2021_infinity(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, from_date=date(2021, 1, 1)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, from_date=date(2021, 1, 1)
     #     )
 
     # def test_test_many_year_data_tax_report_us_2021_infinity(self) -> None:
     #     self._compare(
-    #         output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, from_date=date(2021, 1, 1)
+    #         output_dir=self.output_dir,
+    #         test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, from_date=date(2021, 1, 1)
     #     )
 
     # def test_test_many_year_data_rp2_full_report_2017_2019(self) -> None:

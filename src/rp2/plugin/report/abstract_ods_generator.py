@@ -101,8 +101,10 @@ class AbstractODSGenerator(AbstractReportGenerator):
                 cls._fill_cell(legend_sheet, index + 2, 1, to_date if to_date != MAX_DATE else "non-specified", visual_style="transparent")
                 break
         if not method_cell_found:
-            local_accounting_method: str =  _("Accounting Method")
-            raise Exception(f"Internal error: ODS template has no 'Accounting Method' ({local_accounting_method}) cell in column 0 of Legend sheet ({legend_sheet_name})")
+            local_accounting_method: str = _("Accounting Method")
+            raise Exception(
+                f"Internal error: ODS template has no 'Accounting Method' ({local_accounting_method}) cell in column 0 of Legend sheet ({legend_sheet_name})"
+            )
         legend_sheet.name = _("Legend")
 
         # Remove sheets that were marked for removal
