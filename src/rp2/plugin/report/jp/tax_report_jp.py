@@ -55,7 +55,7 @@ class TransactionRow(NamedTuple):
     purchase_amount_in_yen: Optional[RP2Decimal] = None
     sales_crypto_amount: Optional[RP2Decimal] = None
     sales_amount_in_yen: Optional[RP2Decimal] = None
-    donated_amount_in_yen: Optional[str] = None
+    donated_amount_in_yen: Optional[RP2Decimal] = None
 
 
 class SheetNames(Enum):
@@ -223,7 +223,7 @@ class Generator(AbstractODSGenerator):
             sales_crypto_amount = ZERO
             sales_amount_in_yen = purchase_amount_in_yen
 
-        gift: Optional[RP2Decimal] = ZERO
+        gift: RP2Decimal = ZERO
         if transaction.transaction_type == TransactionType.GIFT:
             gift = purchase_amount_in_yen
 
@@ -253,7 +253,7 @@ class Generator(AbstractODSGenerator):
         donated_amount_in_yen: Optional[RP2Decimal] = None
         sales_amount_in_yen: Optional[RP2Decimal] = None
         if transaction.transaction_type == TransactionType.DONATE:
-            donated_amount_in_yen: RP2Decimal = RP2Decimal(str(transaction.crypto_out_no_fee * transaction.spot_price))
+            donated_amount_in_yen = RP2Decimal(str(transaction.crypto_out_no_fee * transaction.spot_price))
             sales_amount_in_yen = RP2Decimal("0")
         else:
             sales_amount_in_yen = transaction.crypto_out_no_fee * transaction.spot_price
