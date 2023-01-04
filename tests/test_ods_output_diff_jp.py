@@ -37,7 +37,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
         AbstractTestODSOutputDiff._generate(
             cls.output_dir, test_name="crypto_example", config="crypto_example", method="fifo", country="jp", generation_language="en"
         )
-        # AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data", config="test_data", method="fifo")
+        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data", config="test_data", method="fifo", country="jp", generation_language="en")
         # AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data2", config="test_data", method="fifo")
         # AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data3", config="test_data", method="fifo")
         # AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data4", config="test_data4", method="fifo")
@@ -74,9 +74,10 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
 
-    # def test_crypto_example_rp2_full_report(self) -> None:
-    #     self._compare(output_dir=self.output_dir,
-    #     test_name="crypto_example", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, generation_language="en")
+    def test_crypto_example_rp2_full_report(self) -> None:
+        self._compare(
+            output_dir=self.output_dir, test_name="crypto_example", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, generation_language="en"
+        )
 
     def test_crypto_example_tax_report_jp(self) -> None:
         self._compare(
