@@ -444,7 +444,7 @@ class Generator(AbstractODSGenerator):
 
         if currency_code not in COMPATIBLE_FIAT:
             raise Exception(
-                "Compatible fiat style not found in 'template_rp2_full_report.ods'. " "Please add one and update COMPATIBLE_FIAT in 'rp2_full_report.py'."
+                "Compatible fiat style not found in 'template_rp2_full_report.ods'. Please add one and update COMPATIBLE_FIAT in 'rp2_full_report.py'."
             )
 
         if not isinstance(asset_to_computed_data, Dict):

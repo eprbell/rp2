@@ -24,10 +24,12 @@ from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_entry_set import AbstractEntrySet
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.computed_data import ComputedData
+from rp2.configuration import MAX_DATE, MIN_DATE
 from rp2.entry_types import TransactionType
 from rp2.gain_loss import GainLoss
 from rp2.gain_loss_set import GainLossSet
 from rp2.in_transaction import InTransaction
+from rp2.intra_transaction import IntraTransaction
 from rp2.localization import _
 from rp2.logger import create_logger
 from rp2.out_transaction import OutTransaction
@@ -85,6 +87,8 @@ class Generator(AbstractODSGenerator):
     SUMMARY_TEMPLATE_SHEET: str = "Summary"
     TRANSACTION_ROW_START: int = 22
 
+    TRANSFER: str = "Transfer"
+
     def __init__(self) -> None:
 
         super().__init__()
@@ -102,6 +106,9 @@ class Generator(AbstractODSGenerator):
         to_date: date,
         generation_language: str,
     ) -> None:
+
+        if from_date != MIN_DATE and to_date != MAX_DATE:
+            raise Exception("To and From Dates can not be specified for the JP tax report.")
 
         if not isinstance(asset_to_computed_data, Dict):
             raise RP2TypeError(f"Parameter 'asset_to_computed_data' has non-Dict value {asset_to_computed_data}")
@@ -172,13 +179,14 @@ class Generator(AbstractODSGenerator):
 
         in_transaction_set: TransactionSet = computed_data.in_transaction_set
         out_transaction_set: TransactionSet = computed_data.out_transaction_set
+        intra_transaction_set: TransactionSet = computed_data.intra_transaction_set
         entry: AbstractEntry
         year: int
         years_2_transaction_sets: Dict[int, List[AbstractTransaction]] = {}
         previous_year_row_offset: int = 0
 
-        # Sort all in and out transactions by year, intra transactions do not need to be reported
-        for entry in chain(in_transaction_set, out_transaction_set):  # type: ignore
+        # Sort all in and out transactions by year, the fee from intra transactions must be reported
+        for entry in chain(in_transaction_set, out_transaction_set, intra_transaction_set):  # type: ignore
             transaction: AbstractTransaction = cast(AbstractTransaction, entry)
             years_2_transaction_sets.setdefault(transaction.timestamp.year, []).append(entry)
 
@@ -240,6 +248,25 @@ class Generator(AbstractODSGenerator):
             gift=gift,
         )
 
+    def __process_intra_transaction(self, transaction: IntraTransaction) -> TransactionRow:
+
+        transaction_fee_in_crypto: Optional[RP2Decimal] = None
+        transaction_fee_in_yen: Optional[RP2Decimal] = None
+
+        transaction_fee_in_crypto = transaction.crypto_sent - transaction.crypto_received
+        transaction_fee_in_yen = transaction_fee_in_crypto * transaction.spot_price
+
+        return TransactionRow(
+            transaction_type=TransactionType.FEE.value.upper(),
+            transaction_month=transaction.timestamp.month,
+            transaction_day=transaction.timestamp.day,
+            transaction_client=_(self.TRANSFER),
+            sales_crypto_amount=transaction_fee_in_crypto if transaction_fee_in_crypto > ZERO else None,
+            sales_amount_in_yen=transaction_fee_in_yen if transaction_fee_in_yen > ZERO else None,
+            fee_in_yen=ZERO,
+            gift=ZERO,
+        )
+
     def __process_out_transaction(self, transaction: OutTransaction) -> TransactionRow:
 
         # Find the fee in yen
@@ -263,7 +290,7 @@ class Generator(AbstractODSGenerator):
             transaction_month=transaction.timestamp.month,
             transaction_day=transaction.timestamp.day,
             transaction_client=transaction.exchange,
-            sales_crypto_amount=transaction.crypto_out_no_fee,
+            sales_crypto_amount=transaction.crypto_out_with_fee,
             sales_amount_in_yen=sales_amount_in_yen,
             fee_in_yen=fee_in_yen,
             donated_amount_in_yen=donated_amount_in_yen,
@@ -294,8 +321,14 @@ class Generator(AbstractODSGenerator):
                     total_donations += transaction_row.donated_amount_in_yen
                     formatted_donation_amount = f"0 (￥{float(transaction_row.donated_amount_in_yen):0,.2f})"
 
+            elif isinstance(entry, IntraTransaction):
+                transaction_row = self.__process_intra_transaction(entry)
+
             else:
                 raise Exception("Transaction is not InTransaction or OutTransaction.")
+
+            if transaction_row.purchase_crypto_amount is None and transaction_row.sales_crypto_amount is None:
+                continue
 
             self.__insert_secondary_transaction_row(asset_year_sheet, row_index)
             self._fill_cell(asset_year_sheet, row_index, 0, transaction_row.transaction_month, apply_style=False)
@@ -317,6 +350,7 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(asset_year_sheet, row_index, 8, transaction_row.fee_in_yen, apply_style=False)
 
             row_index += 1
+            formatted_donation_amount = None
 
         # Adding the summary formulas at the bottom
         self._fill_cell(asset_year_sheet, row_index + 2, 4, f"=IF(SUM(E22:E{row_index+2})=0;0;SUM(E22:E{row_index+2}))", apply_style=False)
