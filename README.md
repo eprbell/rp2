@@ -26,24 +26,24 @@ Privacy-focused, free, powerful crypto tax calculator
 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=I%20use%20RP2,%20the%20privacy-focused,%20open%20source,%20free,%20non-commercial%20crypto%20tax%20calculator&url=https://github.com/eprbell/rp2/?anything)
 
 ## Table of Contents
-* **[Introduction](https://github.com/eprbell/rp2/tree/main/README.md#introduction)**
-  * [How RP2 Operates](https://github.com/eprbell/rp2/tree/main/README.md#how-rp2-operates)
-* **[License](https://github.com/eprbell/rp2/tree/main/README.md#license)**
-* **[Download](https://github.com/eprbell/rp2/tree/main/README.md#download)**
-* **[Installation](https://github.com/eprbell/rp2/tree/main/README.md#installation)**
-  * [Ubuntu Linux](https://github.com/eprbell/rp2/tree/main/README.md#installation-on-ubuntu-linux)
-  * [macOS](https://github.com/eprbell/rp2/tree/main/README.md#installation-on-macos)
-  * [Windows 10](https://github.com/eprbell/rp2/tree/main/README.md#installation-on-windows-10)
-  * [Other Unix-like Systems](https://github.com/eprbell/rp2/tree/main/README.md#installation-on-other-unix-like-systems)
-* **[Running](https://github.com/eprbell/rp2/tree/main/README.md#running)**
-* **[Input and Output Files](https://github.com/eprbell/rp2/tree/main/README.md#input-and-output-files)**
-* **[RP2 Ecosystem](https://github.com/eprbell/rp2/tree/main/README.md#rp2-ecosystem)**
-  * [List of Ecosystem Projects](https://github.com/eprbell/rp2/tree/main/README.md#list-of-ecosystem-projects)
-* **[Reporting Bugs](https://github.com/eprbell/rp2/tree/main/README.md#reporting-bugs)**
-* **[Contributing](https://github.com/eprbell/rp2/tree/main/README.md#contributing)**
-* **[Developer Documentation](https://github.com/eprbell/rp2/tree/main/README.md#developer-documentation)**
-* **[Frequently Asked Questions](https://github.com/eprbell/rp2/tree/main/README.md#frequently-asked-questions)**
-* **[Change Log](https://github.com/eprbell/rp2/tree/main/README.md#change-log)**
+* **[Introduction](#introduction)**
+  * [How RP2 Operates](#how-rp2-operates)
+* **[License](#license)**
+* **[Download](#download)**
+* **[Installation](#installation)**
+  * [Ubuntu Linux](#installation-on-ubuntu-linux)
+  * [macOS](#installation-on-macos)
+  * [Windows 10](#installation-on-windows-10)
+  * [Other Unix-like Systems](#installation-on-other-unix-like-systems)
+* **[Running](#running)**
+* **[Input and Output Files](#input-and-output-files)**
+* **[RP2 Ecosystem](#rp2-ecosystem)**
+  * [List of Ecosystem Projects](#list-of-ecosystem-projects)
+* **[Reporting Bugs](#reporting-bugs)**
+* **[Contributing](#contributing)**
+* **[Developer Documentation](#developer-documentation)**
+* **[Frequently Asked Questions](#frequently-asked-questions)**
+* **[Change Log](#change-log)**
 
 ## Introduction
 [RP2](https://github.com/eprbell/rp2) is a privacy-focused, free, non-commercial, open-source cryptocurrency tax calculator. Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This task could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
@@ -95,7 +95,7 @@ RP2 groups lot fractions into the following taxable event categories, each of wh
 * [STAKING](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-income-from-staking): gains from staking;
 * [WAGES](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-handle-income-from-crypto-wages): income from crypto wages.
 
-For each of these categories RP2 generates an output spreadsheet with transaction details and computed gains/losses (see [Input and Output Files](https://github.com/eprbell/rp2/tree/main/README.md#input-and-output-files) for more details). Users can give this output to their tax preparer with the rest of their tax documentation (see also FAQ on [which tax forms to file](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#which-crypto-tax-forms-to-file)). Note that buying cryptocurrency using fiat currency is not a taxable event.
+For each of these categories RP2 generates an output spreadsheet with transaction details and computed gains/losses (see [Input and Output Files](#input-and-output-files) for more details). Users can give this output to their tax preparer with the rest of their tax documentation (see also FAQ on [which tax forms to file](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#which-crypto-tax-forms-to-file)). Note that buying cryptocurrency using fiat currency is not a taxable event.
 
 **NOTE ON NFTs**: Read the [FAQ on NFTs](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#how-to-handle-nfts) to learn about how RP2 treats NFTs.
 
