@@ -115,7 +115,7 @@ def ods_diff(file1_path: Path, file2_path: Path, generate_ascii_representation: 
 
     if generate_ascii_representation:
         for file_path, contents in zip([file1_path, file2_path], [contents1, contents2]):
-            with NamedTemporaryFile(mode="w", delete=False) as temp_file:
+            with NamedTemporaryFile(mode="w", delete=False, encoding="utf-8") as temp_file:
                 temp_file.write("\n".join(contents))
                 temp_file.flush()
                 print(f"ASCII representation of {file_path}: {temp_file.name}")

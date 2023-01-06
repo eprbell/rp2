@@ -85,7 +85,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, generation_language="en"
         )
 
-    def test_test_many_year_data_tax_report_us(self) -> None:
+    def test_test_many_year_data_tax_report_jp(self) -> None:
         self._compare(
             output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, generation_language="en"
         )
