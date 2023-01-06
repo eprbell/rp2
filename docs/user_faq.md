@@ -85,13 +85,14 @@ In some cases exchange reports miss spot price information. In such situations y
 The user adds the tokens to the `assets` field of the [config file](input_files.md#the-config-file): RP2 accepts as valid all the tokens present in this field. See also the question on [writing a config file from scratch](#can-i-avoid-writing-a-config-file-from-scratch).
 
 ### What Accounting Methods Are Supported?
-Currently the [FIFO](https://www.investopedia.com/terms/f/fifo.asp), [LIFO](https://www.investopedia.com/terms/l/lifo.asp) and [HIFO](https://www.investopedia.com/terms/h/hifo.asp) accounting methods are supported: they can be selected using the `-m` option on the command line. See also question on [changing accounting methods](#can-i-change-accounting-method).
+Currently only the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) accounting method is supported for US taxes. Only the Total Average Method is supported for Japanese taxes. <!--- , [LIFO](https://www.investopedia.com/terms/l/lifo.asp) and [HIFO](https://www.investopedia.com/terms/h/hifo.asp) accounting methods are supported: they can be selected using the `-m` option on the command line. See also question on [changing accounting methods](#can-i-change-accounting-method). --->
 
 ### Can I Change Accounting Method?
-Yes, RP2 allows users to select a different accounting method on any given year. To do it don't pass the `-m` command line option and fill the `accounting_methods` section of the configuration file. Read the [configuration file documentation](input_files.md#the-config-file) for more information.
+No, currently RP2 only supports FIFO for US taxes and the Total Average Method for JP taxes.
+<!--- Yes, RP2 allows users to select a different accounting method on any given year. To do it don't pass the `-m` command line option and fill the `accounting_methods` section of the configuration file. Read the [configuration file documentation](input_files.md#the-config-file) for more information. --->
 
 ### What Countries Are Supported?
-Currently only the US is supported, but more countries are being added. As new countries are added this FAQ will be updated.
+Currently the US and Japan are supported, but more countries are being added. As new countries are added this FAQ will be updated.
 
 ### How to Switch from Another Tax Software to RP2?
 In other words, how does RP2 handle transactions that were managed by other software in previous years? In this case the user can just leave out from the RP2 input spreadsheet the transactions/lots that were already sold in previous years.
