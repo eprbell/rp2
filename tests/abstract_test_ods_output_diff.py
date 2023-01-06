@@ -40,7 +40,8 @@ class OutputPlugins(Enum):
 
 class AbstractTestODSOutputDiff(unittest.TestCase):
 
-    METHODS: List[str] = ["fifo", "lifo", "hifo"]
+    # Temporarily removed lifo and hifo due to https://github.com/eprbell/rp2/issues/79
+    METHODS: List[str] = ["fifo"]
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name

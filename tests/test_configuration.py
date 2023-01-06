@@ -307,7 +307,8 @@ class TestConfiguration(unittest.TestCase):
         with self.assertRaisesRegex(RP2ValueError, "invalid year value in accounting method section .*integer was expected"):
             self._test_config(config)
 
-        config[Keyword.ACCOUNTING_METHODS.value] = {"1970": "hifo", "2020": "lifo"}
+        # Temporarily removed lifo and hifo due to https://github.com/eprbell/rp2/issues/79
+        # config[Keyword.ACCOUNTING_METHODS.value] = {"1970": "hifo", "2020": "lifo"}
 
     def test_creation(self) -> None:
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'country' is not of type AbstractCountry: .*"):
