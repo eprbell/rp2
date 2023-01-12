@@ -40,9 +40,6 @@ from rp2.transaction_set import TransactionSet
 
 LOGGER: logging.Logger = create_logger("rp2_full_report")
 
-# Add the ISO code of the fiat if a style has been defined for it
-COMPATIBLE_FIAT: Dict[str, None] = {"JPY": None, "USD": None}
-
 
 class _TransactionVisualStyle(NamedTuple):
     year: int
@@ -91,7 +88,9 @@ class Generator(AbstractODSGenerator):
     __gain_loss_detail_header_names_row_2: List[str] = []
 
     # pylint: disable=line-too-long
-    def _setup_text_data(self, currency_code: str) -> None:
+    def _setup_text_data(self, country: AbstractCountry) -> None:
+
+        currency_code: str = country.currency_iso_code.upper()
 
         self.__legend: List[List[str]] = [
             # fmt: off
@@ -440,19 +439,12 @@ class Generator(AbstractODSGenerator):
         generation_language: str,
     ) -> None:
 
-        currency_code: str = country.currency_iso_code.upper()
-
-        if currency_code not in COMPATIBLE_FIAT:
-            raise Exception(
-                "Compatible fiat style not found in 'template_rp2_full_report.ods'. Please add one and update COMPATIBLE_FIAT in 'rp2_full_report.py'."
-            )
-
         if not isinstance(asset_to_computed_data, Dict):
             raise RP2TypeError(f"Parameter 'asset_to_computed_data' has non-Dict value {asset_to_computed_data}")
 
-        self._setup_text_data(currency_code)
+        self._setup_text_data(country)
 
-        template_path: str = self._get_template_path("rp2_full_report", None, generation_language)
+        template_path: str = self._get_template_path("rp2_full_report", country, generation_language)
 
         output_file: Any
         output_file = self._initialize_output_file(
@@ -483,7 +475,7 @@ class Generator(AbstractODSGenerator):
             if not isinstance(asset, str):
                 raise RP2TypeError(f"Parameter 'asset' has non-string value {asset}")
             ComputedData.type_check("computed_data", computed_data)
-            summary_row_index = self.__generate_asset(computed_data, output_file, summary_row_index, currency_code)
+            summary_row_index = self.__generate_asset(computed_data, output_file, summary_row_index)
 
         summary_sheet.name = _("Summary")
 
@@ -504,7 +496,7 @@ class Generator(AbstractODSGenerator):
     def __get_number_of_rows_in_output_sheet(self, computed_data: ComputedData) -> int:
         return self.MIN_ROWS + len(computed_data.yearly_gain_loss_list) + computed_data.balance_set.count + computed_data.gain_loss_set.count
 
-    def __generate_asset(self, computed_data: ComputedData, output_file: Any, summary_row_index: int, currency_code: str) -> int:
+    def __generate_asset(self, computed_data: ComputedData, output_file: Any, summary_row_index: int) -> int:
         asset: str = computed_data.asset
         transaction_sheet_name: str = self.get_in_out_sheet_name(asset)
         output_sheet_name: str = self.get_tax_sheet_name(asset)
@@ -524,17 +516,17 @@ class Generator(AbstractODSGenerator):
             summary_sheet.append_rows(new_lines)
 
         row_index: int = 0
-        row_index = self.__generate_in_table(transaction_sheet, computed_data, row_index, currency_code)
-        row_index = self.__generate_out_table(transaction_sheet, computed_data, row_index + 2, currency_code)
-        row_index = self.__generate_intra_table(transaction_sheet, computed_data, row_index + 2, currency_code)
+        row_index = self.__generate_in_table(transaction_sheet, computed_data, row_index)
+        row_index = self.__generate_out_table(transaction_sheet, computed_data, row_index + 2)
+        row_index = self.__generate_intra_table(transaction_sheet, computed_data, row_index + 2)
 
         row_index = 0
-        row_index = self.__generate_gain_loss_summary(output_sheet, computed_data.yearly_gain_loss_list, row_index, currency_code)
+        row_index = self.__generate_gain_loss_summary(output_sheet, computed_data.yearly_gain_loss_list, row_index)
         row_index = self.__generate_account_balances(output_sheet, computed_data.balance_set, row_index + 2)
-        row_index = self.__generate_average_price_per_unit(output_sheet, asset, computed_data.price_per_unit, row_index + 2, currency_code)
-        row_index = self.__generate_gain_loss_detail(output_sheet, asset, computed_data, row_index + 2, currency_code)
+        row_index = self.__generate_average_price_per_unit(output_sheet, asset, computed_data.price_per_unit, row_index + 2)
+        row_index = self.__generate_gain_loss_detail(output_sheet, asset, computed_data, row_index + 2)
 
-        return self.__generate_yearly_gain_loss_summary(summary_sheet, asset, computed_data.yearly_gain_loss_list, summary_row_index, currency_code)
+        return self.__generate_yearly_gain_loss_summary(summary_sheet, asset, computed_data.yearly_gain_loss_list, summary_row_index)
 
     @staticmethod
     def __get_transaction_visual_style(transaction: AbstractTransaction, year: int) -> _TransactionVisualStyle:
@@ -561,7 +553,7 @@ class Generator(AbstractODSGenerator):
             year = current_year
         return _BorderStyle(year, border_suffix)
 
-    def __generate_in_table(self, sheet: Any, computed_data: ComputedData, row_index: int, currency_code: str) -> int:
+    def __generate_in_table(self, sheet: Any, computed_data: ComputedData, row_index: int) -> int:
         row_index = self._fill_header(_("In-Flow Detail"), self.__in_header_names_row_1, self.__in_header_names_row_2, sheet, row_index, 0)
 
         in_transaction_set: TransactionSet = computed_data.in_transaction_set
@@ -598,15 +590,13 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 3, transaction.exchange, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 4, transaction.holder, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 5, transaction.transaction_type.value.upper(), visual_style=visual_style)
-            self._fill_cell(sheet, row_index, 6, transaction.spot_price, data_style=currency_code, visual_style=visual_style, currency_code=currency_code)
+            self._fill_cell(sheet, row_index, 6, transaction.spot_price, data_style="fiat", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 7, transaction.crypto_in, data_style="crypto", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 8, computed_data.get_crypto_in_running_sum(transaction), data_style="crypto", visual_style=visual_style)
-            self._fill_cell(sheet, row_index, 9, transaction.fiat_fee, data_style=currency_code, visual_style=visual_style, currency_code=currency_code)
-            self._fill_cell(sheet, row_index, 10, transaction.fiat_in_no_fee, data_style=currency_code, visual_style=visual_style, currency_code=currency_code)
-            self._fill_cell(
-                sheet, row_index, 11, transaction.fiat_in_with_fee, data_style=currency_code, visual_style=highlighted_style, currency_code=currency_code
-            )
-            self._fill_cell(sheet, row_index, 12, _("YES") if transaction.is_taxable() else _("NO"), data_style=currency_code, visual_style=visual_style)
+            self._fill_cell(sheet, row_index, 9, transaction.fiat_fee, data_style="fiat", visual_style=visual_style)
+            self._fill_cell(sheet, row_index, 10, transaction.fiat_in_no_fee, data_style="fiat", visual_style=visual_style)
+            self._fill_cell(sheet, row_index, 11, transaction.fiat_in_with_fee, data_style="fiat", visual_style=highlighted_style)
+            self._fill_cell(sheet, row_index, 12, _("YES") if transaction.is_taxable() else _("NO"), data_style="fiat", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 13, "", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 14, transaction.unique_id, visual_style="transparent")
             self._fill_cell(sheet, row_index, 15, transaction.notes, visual_style="transparent")
@@ -618,7 +608,7 @@ class Generator(AbstractODSGenerator):
 
         return row_index
 
-    def __generate_out_table(self, sheet: Any, computed_data: ComputedData, row_index: int, currency_code: str) -> int:
+    def __generate_out_table(self, sheet: Any, computed_data: ComputedData, row_index: int) -> int:
         row_index = self._fill_header(_("Out-Flow Detail"), self.__out_header_names_row_1, self.__out_header_names_row_2, sheet, row_index, 1)
 
         out_transaction_set: TransactionSet = computed_data.out_transaction_set
@@ -639,7 +629,7 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 3, transaction.exchange, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 4, transaction.holder, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 5, transaction.transaction_type.value.upper(), visual_style=visual_style)
-            self._fill_cell(sheet, row_index, 6, transaction.spot_price, visual_style=visual_style, data_style=currency_code, currency_code=currency_code)
+            self._fill_cell(sheet, row_index, 6, transaction.spot_price, visual_style=visual_style, data_style="fiat")
             self._fill_cell(sheet, row_index, 7, transaction.crypto_out_no_fee, visual_style=visual_style, data_style="crypto")
             self._fill_cell(sheet, row_index, 8, transaction.crypto_fee, visual_style=visual_style, data_style="crypto")
             self._fill_cell(sheet, row_index, 9, computed_data.get_crypto_out_running_sum(transaction), data_style="crypto", visual_style=visual_style)
@@ -650,8 +640,7 @@ class Generator(AbstractODSGenerator):
                 11,
                 transaction.crypto_out_no_fee * transaction.spot_price,
                 visual_style=highlighted_style if transaction.crypto_out_no_fee * transaction.spot_price > ZERO else visual_style,
-                data_style=currency_code,
-                currency_code=currency_code,
+                data_style="fiat",
             )
             self._fill_cell(
                 sheet,
@@ -659,10 +648,9 @@ class Generator(AbstractODSGenerator):
                 12,
                 transaction.fiat_fee,
                 visual_style=highlighted_style if transaction.fiat_fee > ZERO else visual_style,
-                data_style=currency_code,
-                currency_code=currency_code,
+                data_style="fiat",
             )
-            self._fill_cell(sheet, row_index, 13, _("YES") if transaction.is_taxable() else _("NO"), data_style=currency_code, visual_style=visual_style)
+            self._fill_cell(sheet, row_index, 13, _("YES") if transaction.is_taxable() else _("NO"), data_style="fiat", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 14, transaction.unique_id, visual_style="transparent")
             self._fill_cell(sheet, row_index, 15, transaction.notes, visual_style="transparent")
 
@@ -672,7 +660,7 @@ class Generator(AbstractODSGenerator):
 
         return row_index
 
-    def __generate_intra_table(self, sheet: Any, computed_data: ComputedData, row_index: int, currency_code: str) -> int:
+    def __generate_intra_table(self, sheet: Any, computed_data: ComputedData, row_index: int) -> int:
         row_index = self._fill_header(_("Intra-Flow Detail"), self.__intra_header_names_row_1, self.__intra_header_names_row_2, sheet, row_index, 1)
 
         intra_transaction_set: TransactionSet = computed_data.intra_transaction_set
@@ -694,13 +682,13 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 4, transaction.from_holder, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 5, transaction.to_exchange, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 6, transaction.to_holder, visual_style=visual_style)
-            self._fill_cell(sheet, row_index, 7, transaction.spot_price, visual_style=visual_style, data_style=currency_code, currency_code=currency_code)
+            self._fill_cell(sheet, row_index, 7, transaction.spot_price, visual_style=visual_style, data_style="fiat")
             self._fill_cell(sheet, row_index, 8, transaction.crypto_sent, visual_style=visual_style, data_style="crypto")
             self._fill_cell(sheet, row_index, 9, transaction.crypto_received, visual_style=visual_style, data_style="crypto")
             self._fill_cell(sheet, row_index, 10, transaction.crypto_fee, visual_style=visual_style, data_style="crypto")
             self._fill_cell(sheet, row_index, 11, computed_data.get_crypto_intra_fee_running_sum(transaction), data_style="crypto", visual_style=visual_style)
-            self._fill_cell(sheet, row_index, 12, transaction.fiat_fee, visual_style=highlighted_style, data_style=currency_code, currency_code=currency_code)
-            self._fill_cell(sheet, row_index, 13, _("YES") if transaction.is_taxable() else _("NO"), data_style=currency_code, visual_style=visual_style)
+            self._fill_cell(sheet, row_index, 12, transaction.fiat_fee, visual_style=highlighted_style, data_style="fiat")
+            self._fill_cell(sheet, row_index, 13, _("YES") if transaction.is_taxable() else _("NO"), data_style="fiat", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 14, transaction.unique_id, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 15, transaction.notes, visual_style="transparent")
 
@@ -710,7 +698,7 @@ class Generator(AbstractODSGenerator):
 
         return row_index
 
-    def __generate_gain_loss_summary(self, sheet: Any, yearly_gain_loss_list: List[YearlyGainLoss], row_index: int, currency_code: str) -> int:
+    def __generate_gain_loss_summary(self, sheet: Any, yearly_gain_loss_list: List[YearlyGainLoss], row_index: int) -> int:
         row_index = self._fill_header(
             _("Gain / Loss Summary"), self.__gain_loss_summary_header_names_row_1, self.__gain_loss_summary_header_names_row_2, sheet, row_index, 0
         )
@@ -724,9 +712,7 @@ class Generator(AbstractODSGenerator):
             border_suffix = border_style.border_suffix
             self._fill_cell(sheet, row_index, 0, yearly_gain_loss.year, visual_style="transparent" + border_suffix, data_style="default")
             self._fill_cell(sheet, row_index, 1, yearly_gain_loss.asset, visual_style="transparent" + border_suffix, data_style="default")
-            self._fill_cell(
-                sheet, row_index, 2, yearly_gain_loss.fiat_gain_loss, visual_style="bold" + border_suffix, data_style=currency_code, currency_code=currency_code
-            )
+            self._fill_cell(sheet, row_index, 2, yearly_gain_loss.fiat_gain_loss, visual_style="bold" + border_suffix, data_style="fiat")
             self._fill_cell(sheet, row_index, 3, capital_gains_type, visual_style="bold" + border_suffix, data_style="default")
             self._fill_cell(sheet, row_index, 4, yearly_gain_loss.transaction_type.value.upper(), visual_style="bold" + border_suffix, data_style="default")
             self._fill_cell(sheet, row_index, 5, yearly_gain_loss.crypto_amount, visual_style="transparent" + border_suffix, data_style="crypto")
@@ -736,8 +722,7 @@ class Generator(AbstractODSGenerator):
                 6,
                 yearly_gain_loss.fiat_amount,
                 visual_style="taxable_event" + border_suffix,
-                data_style=currency_code,
-                currency_code=currency_code,
+                data_style="fiat",
             )
             self._fill_cell(
                 sheet,
@@ -745,8 +730,7 @@ class Generator(AbstractODSGenerator):
                 7,
                 yearly_gain_loss.fiat_cost_basis,
                 visual_style="acquired_lot" + border_suffix,
-                data_style=currency_code,
-                currency_code=currency_code,
+                data_style="fiat",
             )
             row_index += 1
 
@@ -788,11 +772,11 @@ class Generator(AbstractODSGenerator):
 
         return row_index
 
-    def __generate_average_price_per_unit(self, sheet: Any, asset: str, price_per_unit: RP2Decimal, row_index: int, currency_code: str) -> int:
+    def __generate_average_price_per_unit(self, sheet: Any, asset: str, price_per_unit: RP2Decimal, row_index: int) -> int:
         self._fill_cell(sheet, row_index, 0, _("Average Price"), visual_style="title")
         self._fill_cell(sheet, row_index + 1, 0, _("Average Price"), visual_style="header")
         self._fill_cell(sheet, row_index + 2, 0, _("Paid Per 1 {}").format(asset), visual_style="header")
-        self._fill_cell(sheet, row_index + 3, 0, price_per_unit, visual_style="transparent", data_style=currency_code, currency_code=currency_code)
+        self._fill_cell(sheet, row_index + 3, 0, price_per_unit, visual_style="transparent", data_style="fiat")
 
         return row_index + 4
 
@@ -816,7 +800,7 @@ class Generator(AbstractODSGenerator):
             return None
         return self.__in_out_sheet_transaction_2_row[transaction]
 
-    def __generate_gain_loss_detail(self, sheet: Any, asset: str, computed_data: ComputedData, row_index: int, currency_code: str) -> int:
+    def __generate_gain_loss_detail(self, sheet: Any, asset: str, computed_data: ComputedData, row_index: int) -> int:
 
         row_index = self._fill_header(
             _("Gain / Loss Detail"), self.__gain_loss_detail_header_names_row_1, self.__gain_loss_detail_header_names_row_2, sheet, row_index, 0
@@ -858,7 +842,7 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 0, gain_loss.crypto_amount, visual_style=transparent_style, data_style="crypto")
             self._fill_cell(sheet, row_index, 1, gain_loss.asset, visual_style=transparent_style)
             self._fill_cell(sheet, row_index, 2, computed_data.get_crypto_gain_loss_running_sum(gain_loss), visual_style=transparent_style, data_style="crypto")
-            self._fill_cell(sheet, row_index, 3, gain_loss.fiat_gain, visual_style=transparent_style, data_style=currency_code, currency_code=currency_code)
+            self._fill_cell(sheet, row_index, 3, gain_loss.fiat_gain, visual_style=transparent_style, data_style="fiat")
             self._fill_cell(sheet, row_index, 4, _("LONG") if gain_loss.is_long_term_capital_gains() else _("SHORT"), visual_style=transparent_style)
             self._fill_cell(
                 sheet,
@@ -884,8 +868,7 @@ class Generator(AbstractODSGenerator):
                 8,
                 self.__get_hyperlinked_transaction_value(gain_loss.taxable_event, gain_loss.taxable_event_fiat_amount_with_fee_fraction),
                 visual_style=highlighted_style,
-                data_style=currency_code,
-                currency_code=currency_code,
+                data_style="fiat",
             )
             self._fill_cell(
                 sheet,
@@ -893,8 +876,7 @@ class Generator(AbstractODSGenerator):
                 9,
                 self.__get_hyperlinked_transaction_value(gain_loss.taxable_event, gain_loss.taxable_event.spot_price),
                 visual_style=taxable_event_style,
-                data_style=currency_code,
-                currency_code=currency_code,
+                data_style="fiat",
             )
             self._fill_cell(
                 sheet,
@@ -902,7 +884,7 @@ class Generator(AbstractODSGenerator):
                 10,
                 self.__get_hyperlinked_transaction_value(gain_loss.taxable_event, gain_loss.taxable_event.unique_id),
                 visual_style=taxable_event_style,
-                data_style=currency_code,
+                data_style="fiat",
             )
             self._fill_cell(
                 sheet,
@@ -950,8 +932,7 @@ class Generator(AbstractODSGenerator):
                     14,
                     self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot_fiat_amount_with_fee_fraction),
                     visual_style=acquired_lot_style,
-                    data_style=currency_code,
-                    currency_code=currency_code,
+                    data_style="fiat",
                 )
                 fiat_fee_fraction: RP2Decimal = gain_loss.acquired_lot.fiat_fee * gain_loss.acquired_lot_fraction_percentage
                 self._fill_cell(
@@ -960,8 +941,7 @@ class Generator(AbstractODSGenerator):
                     15,
                     self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, fiat_fee_fraction),
                     visual_style=acquired_lot_style,
-                    data_style=currency_code,
-                    currency_code=currency_code,
+                    data_style="fiat",
                 )
                 self._fill_cell(
                     sheet,
@@ -969,8 +949,7 @@ class Generator(AbstractODSGenerator):
                     16,
                     self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.fiat_cost_basis),
                     visual_style=highlighted_style,
-                    data_style=currency_code,
-                    currency_code=currency_code,
+                    data_style="fiat",
                 )
                 self._fill_cell(
                     sheet,
@@ -978,8 +957,7 @@ class Generator(AbstractODSGenerator):
                     17,
                     self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot.spot_price),
                     visual_style=acquired_lot_style,
-                    data_style=currency_code,
-                    currency_code=currency_code,
+                    data_style="fiat",
                 )
                 self._fill_cell(
                     sheet,
@@ -987,7 +965,7 @@ class Generator(AbstractODSGenerator):
                     18,
                     self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot.unique_id),
                     visual_style=acquired_lot_style,
-                    data_style=currency_code,
+                    data_style="fiat",
                 )
                 self._fill_cell(
                     sheet,
@@ -1007,9 +985,7 @@ class Generator(AbstractODSGenerator):
 
         return row_index
 
-    def __generate_yearly_gain_loss_summary(
-        self, sheet: Any, asset: str, yearly_gain_loss_list: List[YearlyGainLoss], row_index: int, currency_code: str
-    ) -> int:
+    def __generate_yearly_gain_loss_summary(self, sheet: Any, asset: str, yearly_gain_loss_list: List[YearlyGainLoss], row_index: int) -> int:
         for gain_loss in yearly_gain_loss_list:
             visual_style: str = "transparent"
             capital_gains_type: str = _("LONG") if gain_loss.is_long_term_capital_gains else _("SHORT")
@@ -1022,8 +998,7 @@ class Generator(AbstractODSGenerator):
                 2,
                 self.__get_hyperlinked_summary_value(asset, gain_loss.fiat_gain_loss, year),
                 visual_style=visual_style,
-                data_style=currency_code,
-                currency_code=currency_code,
+                data_style="fiat",
             )
             self._fill_cell(sheet, row_index, 3, self.__get_hyperlinked_summary_value(asset, capital_gains_type, year), visual_style=visual_style)
             self._fill_cell(
@@ -1038,8 +1013,7 @@ class Generator(AbstractODSGenerator):
                 6,
                 self.__get_hyperlinked_summary_value(asset, gain_loss.fiat_amount, year),
                 visual_style=visual_style,
-                data_style=currency_code,
-                currency_code=currency_code,
+                data_style="fiat",
             )
             self._fill_cell(
                 sheet,
@@ -1047,8 +1021,7 @@ class Generator(AbstractODSGenerator):
                 7,
                 self.__get_hyperlinked_summary_value(asset, gain_loss.fiat_cost_basis, year),
                 visual_style=visual_style,
-                data_style=currency_code,
-                currency_code=currency_code,
+                data_style="fiat",
             )
             row_index += 1
 

@@ -181,11 +181,10 @@ class AbstractODSGenerator(AbstractReportGenerator):
         style_name: str = f"{visual_style}_{data_style}"
         if isinstance(value, RP2Decimal):
             # The ezodf API doesn't accept RP2Decimal, so we are forced to cast to float before writing to the spreadsheet
-            value = float(value) if value else 0.0
+            value = float(value)
         if is_formula:
             sheet[row_index, column_index].formula = value
         elif currency_code is not None:
-            print(value)
             sheet[row_index, column_index].set_value(value, "currency", currency_code)
         else:
             sheet[row_index, column_index].set_value(value)
