@@ -115,7 +115,7 @@ So if they want to start using RP2 for their 2021 taxes, they would just leave o
 
 This is because a), part of b) and c) are already accounted for in the pre-RP2 system. The Notes column can be useful here: it can be used to describe why lot b) is partial.
 
-Of course the user still needs to keep all the documentation for previous years as well as for the current year. Also they will need to keep the same accounting method they were using previously: to switch accounting method (e.g. from FIFO to LIFO) it's necessary to speak to a tax professional first.
+Of course the user still needs to keep all the documentation for previous years as well as for the current year. Also they will need to keep the same accounting method they were using previously: to switch accounting method it is a good idea to speak to a tax professional first.
 
 ### Why Should I Use RP2 Instead of Another Software?
 RP2 has all of the following features:

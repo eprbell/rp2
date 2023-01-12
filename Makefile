@@ -33,9 +33,10 @@ run: $(VENV)/bin/activate
 	$(VENV)/bin/rp2_us -o output/ -p test_data_ config/test_data.ini input/test_data.ods
 	$(VENV)/bin/rp2_us -o output/ -p test_many_year_data_ config/test_data.ini input/test_data.ods
 	$(VENV)/bin/rp2_us -o output/ -p crypto_example_ config/crypto_example.ini input/crypto_example.ods
-	$(VENV)/bin/rp2_us -m lifo -o output/ -p test_data_ config/test_data.ini input/test_data.ods
-	$(VENV)/bin/rp2_us -m lifo -o output/ -p test_many_year_data_ config/test_data.ini input/test_data.ods
-	$(VENV)/bin/rp2_us -m lifo -o output/ -p crypto_example_ config/crypto_example.ini input/crypto_example.ods
+# Temporarily removed lifo and hifo due to https://github.com/eprbell/rp2/issues/79
+#	$(VENV)/bin/rp2_us -m lifo -o output/ -p test_data_ config/test_data.ini input/test_data.ods
+#	$(VENV)/bin/rp2_us -m lifo -o output/ -p test_many_year_data_ config/test_data.ini input/test_data.ods
+#	$(VENV)/bin/rp2_us -m lifo -o output/ -p crypto_example_ config/crypto_example.ini input/crypto_example.ods
 
 check: $(VENV)/bin/activate
 	$(VENV)/bin/pytest --tb=native --verbose

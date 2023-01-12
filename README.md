@@ -77,7 +77,7 @@ RP2 has been designed to have expressive primitives that can be used as building
 
 RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Currency Guidance](https://www.irs.gov/newsroom/irs-reminds-taxpayers-to-report-virtual-currency-transactions).
 
-RP2 supports the FIFO, LIFO and HIFO accounting methods: however, in and out lots typically don't have matching amounts, so RP2 fractions them, maps in/out lot fractions and computes the resulting cost basis and capital gains for each lot fraction.
+RP2 supports the FIFO accounting method: however, in and out lots typically don't have matching amounts, so RP2 fractions them, maps in/out lot fractions and computes the resulting cost basis and capital gains for each lot fraction.
 
 RP2 groups lot fractions into the following taxable event categories, each of which has a [specific tax treatment](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#which-crypto-tax-forms-to-file):
 * [AIRDROP](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-handle-airdrops): gains from airdrops;
