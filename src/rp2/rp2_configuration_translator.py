@@ -14,12 +14,12 @@
 
 import json
 import sys
-
-from configparser import ConfigParser
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
-from jsonschema import validate
+from configparser import ConfigParser
 from pathlib import Path
 from typing import Any
+
+from jsonschema import validate
 
 from rp2.configuration import Keyword
 from rp2.configuration_schema import CONFIGURATION_SCHEMA

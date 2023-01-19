@@ -70,7 +70,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
         self._compare(
             output_dir=self.output_dir,
             test_name="test_data",
-            method="fifo", 
+            method="fifo",
             country="jp",
             output_plugin=OutputPlugins.RP2_FULL_REPORT,
             generation_language="en",
@@ -141,7 +141,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             output_dir=self.output_dir,
             test_name="test_data4",
             method="fifo",
-            country="jp",            
+            country="jp",
             output_plugin=OutputPlugins.TAX_REPORT_JP,
             generation_language="en",
         )
@@ -165,6 +165,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             output_plugin=OutputPlugins.TAX_REPORT_JP,
             generation_language="en",
         )
+
 
 if __name__ == "__main__":
     unittest.main()

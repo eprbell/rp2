@@ -17,9 +17,12 @@ from datetime import datetime, timezone
 from typing import Dict, Iterator, List, NamedTuple, Optional
 
 from prezzemolo.avl_tree import AVLTree
-from rp2.abstract_accounting_method import AbstractAccountingMethod
 
-from rp2.abstract_accounting_method import AcquiredLotCandidates, AcquiredLotAndAmount
+from rp2.abstract_accounting_method import (
+    AbstractAccountingMethod,
+    AcquiredLotAndAmount,
+    AcquiredLotCandidates,
+)
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal

@@ -112,7 +112,9 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
         diff: str
 
         output_file_name: Path = Path(
-            f"{test_name}_{f'{country}_' if country != 'us' else ''}{f'{generation_language}_' if generation_language else ''}{time_interval}{method}_{output_plugin.value}.ods"
+            f"{test_name}_{f'{country}_' if country != 'us' else ''}"
+            f"{f'{generation_language}_' if generation_language else ''}"
+            f"{time_interval}{method}_{output_plugin.value}.ods"
         )
         full_output_file_name: Path = output_dir / output_file_name
         full_golden_file_name: Path = GOLDEN_PATH / output_file_name

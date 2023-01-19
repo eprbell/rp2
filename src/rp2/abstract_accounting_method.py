@@ -15,6 +15,7 @@
 
 from enum import Enum
 from typing import Dict, List, NamedTuple, Optional
+
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
