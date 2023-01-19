@@ -167,7 +167,6 @@ class AbstractODSGenerator(AbstractReportGenerator):
         visual_style: str = "transparent",
         data_style: str = "default",
         apply_style: bool = True,
-        currency_code: Optional[str] = None,
     ) -> None:
 
         Configuration.type_check_string("visual_style", visual_style)
@@ -184,8 +183,6 @@ class AbstractODSGenerator(AbstractReportGenerator):
             value = float(value)
         if is_formula:
             sheet[row_index, column_index].formula = value
-        elif currency_code is not None:
-            sheet[row_index, column_index].set_value(value, "currency", currency_code)
         else:
             sheet[row_index, column_index].set_value(value)
         if apply_style:

@@ -48,48 +48,123 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
 
     def test_crypto_example_rp2_full_report(self) -> None:
         self._compare(
-            output_dir=self.output_dir, test_name="crypto_example", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, generation_language="en"
+            output_dir=self.output_dir,
+            test_name="crypto_example",
+            method="fifo",
+            country="jp",
+            output_plugin=OutputPlugins.RP2_FULL_REPORT,
+            generation_language="en",
         )
 
     def test_crypto_example_tax_report_jp(self) -> None:
         self._compare(
-            output_dir=self.output_dir, test_name="crypto_example", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, generation_language="en"
+            output_dir=self.output_dir,
+            test_name="crypto_example",
+            method="fifo",
+            country="jp",
+            output_plugin=OutputPlugins.TAX_REPORT_JP,
+            generation_language="en",
         )
 
     def test_test_data_rp2_full_report(self) -> None:
-        self._compare(output_dir=self.output_dir, test_name="test_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, generation_language="en")
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data",
+            method="fifo", 
+            country="jp",
+            output_plugin=OutputPlugins.RP2_FULL_REPORT,
+            generation_language="en",
+        )
 
     def test_test_data_tax_report_jp(self) -> None:
-        self._compare(output_dir=self.output_dir, test_name="test_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, generation_language="en")
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data",
+            method="fifo",
+            country="jp",
+            output_plugin=OutputPlugins.TAX_REPORT_JP,
+            generation_language="en",
+        )
 
     def test_test_data2_rp2_full_report(self) -> None:
-        self._compare(output_dir=self.output_dir, test_name="test_data2", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, generation_language="en")
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data2",
+            method="fifo",
+            country="jp",
+            output_plugin=OutputPlugins.RP2_FULL_REPORT,
+            generation_language="en",
+        )
 
     def test_test_data2_tax_report_jp(self) -> None:
-        self._compare(output_dir=self.output_dir, test_name="test_data2", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, generation_language="en")
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data2",
+            method="fifo",
+            country="jp",
+            output_plugin=OutputPlugins.TAX_REPORT_JP,
+            generation_language="en",
+        )
 
     def test_test_data3_rp2_full_report(self) -> None:
-        self._compare(output_dir=self.output_dir, test_name="test_data3", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, generation_language="en")
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data3",
+            method="fifo",
+            country="jp",
+            output_plugin=OutputPlugins.RP2_FULL_REPORT,
+            generation_language="en",
+        )
 
     def test_test_data3_tax_report_jp(self) -> None:
-        self._compare(output_dir=self.output_dir, test_name="test_data3", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, generation_language="en")
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data3",
+            method="fifo",
+            country="jp",
+            output_plugin=OutputPlugins.TAX_REPORT_JP,
+            generation_language="en",
+        )
 
     def test_test_data4_rp2_full_report(self) -> None:
-        self._compare(output_dir=self.output_dir, test_name="test_data4", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, generation_language="en")
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data4",
+            method="fifo",
+            country="jp",
+            output_plugin=OutputPlugins.RP2_FULL_REPORT,
+            generation_language="en",
+        )
 
     def test_test_data4_tax_report_jp(self) -> None:
-        self._compare(output_dir=self.output_dir, test_name="test_data4", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, generation_language="en")
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data4",
+            method="fifo",
+            country="jp",            
+            output_plugin=OutputPlugins.TAX_REPORT_JP,
+            generation_language="en",
+        )
 
     def test_test_many_year_data_rp2_full_report(self) -> None:
         self._compare(
-            output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, generation_language="en"
+            output_dir=self.output_dir,
+            test_name="test_many_year_data",
+            method="fifo",
+            country="jp",
+            output_plugin=OutputPlugins.RP2_FULL_REPORT,
+            generation_language="en",
         )
 
     def test_test_many_year_data_tax_report_jp(self) -> None:
         self._compare(
-            output_dir=self.output_dir, test_name="test_many_year_data", method="fifo", output_plugin=OutputPlugins.TAX_REPORT_JP, generation_language="en"
+            output_dir=self.output_dir,
+            test_name="test_many_year_data",
+            method="fifo",
+            country="jp",
+            output_plugin=OutputPlugins.TAX_REPORT_JP,
+            generation_language="en",
         )
-
 
 if __name__ == "__main__":
     unittest.main()

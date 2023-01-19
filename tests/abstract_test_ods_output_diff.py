@@ -78,7 +78,7 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
             "-o",
             str(output_dir),
             "-p",
-            f"{test_name}_{f'{generation_language}_' if generation_language else ''}{time_interval}",
+            f"{test_name}_{f'{country}_' if country != 'us' else ''}{f'{generation_language}_' if generation_language else ''}{time_interval}",
         ]
         if method != "mixed":
             arguments.extend(["-m", method])
@@ -106,12 +106,13 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
         from_date: date = MIN_DATE,
         to_date: date = MAX_DATE,
         generation_language: Optional[str] = None,
+        country: str = "us",
     ) -> None:
         time_interval: str = self.__get_time_interval(from_date, to_date)
         diff: str
 
         output_file_name: Path = Path(
-            f"{test_name}_{f'{generation_language}_' if generation_language else ''}{time_interval}{method}_{output_plugin.value}.ods"
+            f"{test_name}_{f'{country}_' if country != 'us' else ''}{f'{generation_language}_' if generation_language else ''}{time_interval}{method}_{output_plugin.value}.ods"
         )
         full_output_file_name: Path = output_dir / output_file_name
         full_golden_file_name: Path = GOLDEN_PATH / output_file_name

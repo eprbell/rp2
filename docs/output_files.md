@@ -66,7 +66,7 @@ Here follows an example of the Capital Gains sheet:
 
 And an example of the Interest sheet:
 
-![tax report us output interest](images/tax_report_us_output_interest.png)(
+![tax report us output interest](images/tax_report_us_output_interest.png)
 
 ## NTA-friendly Report (Tax Report Japan Ouput)
 The tax_report_jp.ods output file contains a legend sheet, a summary sheet for every year, and a calculation sheet per asset and year.
