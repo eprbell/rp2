@@ -15,7 +15,7 @@
 import unittest
 from typing import Dict, List
 
-from rp2_test_output import RP2_TEST_OUTPUT  # pylint: disable=wrong-import-order
+from rp2_test_output import RP2_TEST_OUTPUT
 
 from rp2.configuration import Configuration
 from rp2.gain_loss import GainLoss

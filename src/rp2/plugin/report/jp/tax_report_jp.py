@@ -41,12 +41,7 @@ from rp2.transaction_set import TransactionSet
 LOGGER: logging.Logger = create_logger("tax_report_jp")
 
 
-class TotalAmounts(NamedTuple):
-    crypto_amount: RP2Decimal
-    yen_amount: RP2Decimal
-
-
-class TransactionRow(NamedTuple):
+class _TransactionRow(NamedTuple):
     transaction_type: str
     transaction_month: int
     transaction_day: int
@@ -60,12 +55,12 @@ class TransactionRow(NamedTuple):
     donated_amount_in_yen: Optional[RP2Decimal] = None
 
 
-class SheetNames(Enum):
+class _SheetNames(Enum):
     ASSET: str = "Asset"
     SUMMARY: str = "Summary"
 
 
-_TEMPLATE_SHEETS_TO_KEEP: Set[str] = {f"__{item.value}" for item in SheetNames}
+_TEMPLATE_SHEETS_TO_KEEP: Set[str] = {f"__{item.value}" for item in _SheetNames}
 _INCOME_TRANSACTION_TYPES: Dict[TransactionType, None] = {
     TransactionType.AIRDROP: None,
     TransactionType.HARDFORK: None,
@@ -212,7 +207,7 @@ class Generator(AbstractODSGenerator):
             # Net Income Amt
             self._fill_cell(summary_sheet, self.__year_row_offset[year] + 2, 6, f"=SUM(G8:G{self.__year_row_offset[year] + 2})", apply_style=False)
 
-    def __process_in_transaction(self, transaction: InTransaction) -> TransactionRow:
+    def __process_in_transaction(self, transaction: InTransaction) -> _TransactionRow:
 
         purchase_amount_in_yen: RP2Decimal = transaction.crypto_in * transaction.spot_price
 
@@ -235,7 +230,7 @@ class Generator(AbstractODSGenerator):
         if transaction.transaction_type == TransactionType.GIFT:
             gift = purchase_amount_in_yen
 
-        return TransactionRow(
+        return _TransactionRow(
             transaction_type=transaction.transaction_type.value.upper(),
             purchase_crypto_amount=transaction.crypto_in,
             purchase_amount_in_yen=purchase_amount_in_yen,
@@ -248,7 +243,7 @@ class Generator(AbstractODSGenerator):
             gift=gift,
         )
 
-    def __process_intra_transaction(self, transaction: IntraTransaction) -> TransactionRow:
+    def __process_intra_transaction(self, transaction: IntraTransaction) -> _TransactionRow:
 
         transaction_fee_in_crypto: Optional[RP2Decimal] = None
         transaction_fee_in_yen: Optional[RP2Decimal] = None
@@ -256,7 +251,7 @@ class Generator(AbstractODSGenerator):
         transaction_fee_in_crypto = transaction.crypto_sent - transaction.crypto_received
         transaction_fee_in_yen = transaction_fee_in_crypto * transaction.spot_price
 
-        return TransactionRow(
+        return _TransactionRow(
             transaction_type=TransactionType.FEE.value.upper(),
             transaction_month=transaction.timestamp.month,
             transaction_day=transaction.timestamp.day,
@@ -267,7 +262,7 @@ class Generator(AbstractODSGenerator):
             gift=ZERO,
         )
 
-    def __process_out_transaction(self, transaction: OutTransaction) -> TransactionRow:
+    def __process_out_transaction(self, transaction: OutTransaction) -> _TransactionRow:
 
         # Find the fee in yen
         fee_in_yen: RP2Decimal = ZERO
@@ -285,7 +280,7 @@ class Generator(AbstractODSGenerator):
         else:
             sales_amount_in_yen = transaction.crypto_out_no_fee * transaction.spot_price
 
-        return TransactionRow(
+        return _TransactionRow(
             transaction_type=transaction.transaction_type.value.upper(),
             transaction_month=transaction.timestamp.month,
             transaction_day=transaction.timestamp.day,
@@ -307,7 +302,7 @@ class Generator(AbstractODSGenerator):
         total_donations: RP2Decimal = ZERO
         total_gifts: RP2Decimal = ZERO
         formatted_donation_amount: Optional[str] = None
-        transaction_row: TransactionRow
+        transaction_row: _TransactionRow
 
         for entry in transaction_list:
 

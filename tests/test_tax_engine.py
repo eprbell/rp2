@@ -15,7 +15,7 @@
 import unittest
 
 from prezzemolo.avl_tree import AVLTree
-from rp2_test_output import RP2_TEST_OUTPUT  # pylint: disable=wrong-import-order
+from rp2_test_output import RP2_TEST_OUTPUT
 
 from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.accounting_engine import AccountingEngine
