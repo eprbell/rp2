@@ -719,4 +719,3 @@ msgstr "__test_{} value of the transaction without fees"
 
 #~ msgid "US dollar value of the fees"
 #~ msgstr "__test_US dollar value of the fees"
-

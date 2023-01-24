@@ -14,8 +14,12 @@
 
 from typing import Optional
 
-from rp2.abstract_accounting_method import AbstractAccountingMethod
-from rp2.abstract_accounting_method import AcquiredLotCandidates, AcquiredLotCandidatesOrder, AcquiredLotAndAmount
+from rp2.abstract_accounting_method import (
+    AbstractAccountingMethod,
+    AcquiredLotAndAmount,
+    AcquiredLotCandidates,
+    AcquiredLotCandidatesOrder,
+)
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal

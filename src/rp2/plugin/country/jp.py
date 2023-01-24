@@ -44,6 +44,7 @@ class JP(AbstractCountry):
         return {
             "open_positions",
             "rp2_full_report",
+            "jp.tax_report_jp",
         }
 
     # Default language to use at report generation if the user doesn't specify it on the command line (in ISO 639-1 format)

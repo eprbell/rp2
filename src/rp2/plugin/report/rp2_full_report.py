@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=too-many-lines
+
 import logging
 from datetime import date
 from pathlib import Path
@@ -442,7 +444,7 @@ class Generator(AbstractODSGenerator):
 
         self._setup_text_data(country)
 
-        template_path: str = self._get_template_path("rp2_full_report", None, generation_language)
+        template_path: str = self._get_template_path("rp2_full_report", country, generation_language)
 
         output_file: Any
         output_file = self._initialize_output_file(
@@ -714,8 +716,22 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 3, capital_gains_type, visual_style="bold" + border_suffix, data_style="default")
             self._fill_cell(sheet, row_index, 4, yearly_gain_loss.transaction_type.value.upper(), visual_style="bold" + border_suffix, data_style="default")
             self._fill_cell(sheet, row_index, 5, yearly_gain_loss.crypto_amount, visual_style="transparent" + border_suffix, data_style="crypto")
-            self._fill_cell(sheet, row_index, 6, yearly_gain_loss.fiat_amount, visual_style="taxable_event" + border_suffix, data_style="fiat")
-            self._fill_cell(sheet, row_index, 7, yearly_gain_loss.fiat_cost_basis, visual_style="acquired_lot" + border_suffix, data_style="fiat")
+            self._fill_cell(
+                sheet,
+                row_index,
+                6,
+                yearly_gain_loss.fiat_amount,
+                visual_style="taxable_event" + border_suffix,
+                data_style="fiat",
+            )
+            self._fill_cell(
+                sheet,
+                row_index,
+                7,
+                yearly_gain_loss.fiat_cost_basis,
+                visual_style="acquired_lot" + border_suffix,
+                data_style="fiat",
+            )
             row_index += 1
 
         return row_index
@@ -977,7 +993,12 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 0, self.__get_hyperlinked_summary_value(asset, year, year), visual_style=visual_style)
             self._fill_cell(sheet, row_index, 1, self.__get_hyperlinked_summary_value(asset, asset, year), visual_style=visual_style)
             self._fill_cell(
-                sheet, row_index, 2, self.__get_hyperlinked_summary_value(asset, gain_loss.fiat_gain_loss, year), visual_style=visual_style, data_style="fiat"
+                sheet,
+                row_index,
+                2,
+                self.__get_hyperlinked_summary_value(asset, gain_loss.fiat_gain_loss, year),
+                visual_style=visual_style,
+                data_style="fiat",
             )
             self._fill_cell(sheet, row_index, 3, self.__get_hyperlinked_summary_value(asset, capital_gains_type, year), visual_style=visual_style)
             self._fill_cell(
@@ -987,10 +1008,20 @@ class Generator(AbstractODSGenerator):
                 sheet, row_index, 5, self.__get_hyperlinked_summary_value(asset, gain_loss.crypto_amount, year), visual_style=visual_style, data_style="crypto"
             )
             self._fill_cell(
-                sheet, row_index, 6, self.__get_hyperlinked_summary_value(asset, gain_loss.fiat_amount, year), visual_style=visual_style, data_style="fiat"
+                sheet,
+                row_index,
+                6,
+                self.__get_hyperlinked_summary_value(asset, gain_loss.fiat_amount, year),
+                visual_style=visual_style,
+                data_style="fiat",
             )
             self._fill_cell(
-                sheet, row_index, 7, self.__get_hyperlinked_summary_value(asset, gain_loss.fiat_cost_basis, year), visual_style=visual_style, data_style="fiat"
+                sheet,
+                row_index,
+                7,
+                self.__get_hyperlinked_summary_value(asset, gain_loss.fiat_cost_basis, year),
+                visual_style=visual_style,
+                data_style="fiat",
             )
             row_index += 1
 

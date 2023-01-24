@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from configparser import ConfigParser, SectionProxy
-from enum import Enum
 import json
+from configparser import ConfigParser, SectionProxy
 from datetime import date, datetime
+from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Set
 

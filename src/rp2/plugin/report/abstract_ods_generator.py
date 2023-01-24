@@ -101,7 +101,8 @@ class AbstractODSGenerator(AbstractReportGenerator):
                 cls._fill_cell(legend_sheet, index + 2, 1, to_date if to_date != MAX_DATE else "non-specified", visual_style="transparent")
                 break
         if not method_cell_found:
-            raise Exception("Internal error: ODS template has no 'Accounting Method' cell in column 0 of Legend sheet")
+            raise Exception(f"Internal error: ODS template has no '{_('Accounting Method')}' cell in column 0 of '{_('Legend')}'' sheet")
+
         legend_sheet.name = _("Legend")
 
         # Remove sheets that were marked for removal
@@ -158,7 +159,14 @@ class AbstractODSGenerator(AbstractReportGenerator):
 
     @classmethod
     def _fill_cell(
-        cls, sheet: Any, row_index: int, column_index: int, value: Any, visual_style: str = "transparent", data_style: str = "default", apply_style: bool = True
+        cls,
+        sheet: Any,
+        row_index: int,
+        column_index: int,
+        value: Any,
+        visual_style: str = "transparent",
+        data_style: str = "default",
+        apply_style: bool = True,
     ) -> None:
 
         Configuration.type_check_string("visual_style", visual_style)

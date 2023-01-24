@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from configparser import ConfigParser
 import os
 import unittest
+from configparser import ConfigParser
 from datetime import datetime
 from tempfile import NamedTemporaryFile
 from typing import Optional

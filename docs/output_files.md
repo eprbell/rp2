@@ -19,6 +19,7 @@
 * **[Transparent Computation (RP2 Full Output Report)](#transparent-computation-rp2-full-report-output)**
   * [Hyperlinks](#hyperlinks)
 * **[Advisor-Friendly Report (Tax Report US Output)](#advisor-friendly-report-tax-report-us-output)**
+* **[NTA-Friendly Report (Tax Report Japan Output)](#nta-friendly-report-tax-report-japan-output)**
 * **[Unrealized Gains (Open Positions Report Output)](#unrealized-gains-open-positions-report-output)**
 
 ## Introduction
@@ -57,7 +58,7 @@ The tax_report_us.ods output file contains a legend sheet and a sheet per taxabl
 
 These sheets are in the format of form 8949 and are meant for tax preparers, who can use it to fill the appropriate forms. Every line corresponds to a taxable event and describes it. The left part (with white header) mimics form 8949: cost basis, capital gains, proceeds, etc. The right part (with gray header) contains additional information that can be used to identify the transactions in the user's records or in the [rp2_full_report output](#transparent-computation-rp2-full-report-output): full timestamp of date sold, capital gains type (long or short), lot fraction information, transaction type, unique_id, etc. In this sheet blue refers to taxable events and purple to in-transactions (purchased, earned, etc.).
 
-Each sheet has a [specific tax treatment](https://github.com/eprbell/rp2/tree/main/docs/user_faq.md#which-crypto-tax-forms-to-file).
+Each sheet has a [specific tax treatment](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#which-crypto-tax-forms-to-file).
 
 Here follows an example of the Capital Gains sheet:
 
@@ -66,6 +67,13 @@ Here follows an example of the Capital Gains sheet:
 And an example of the Interest sheet:
 
 ![tax report us output interest](images/tax_report_us_output_interest.png)
+
+## NTA-friendly Report (Tax Report Japan Ouput)
+The tax_report_jp.ods output file contains a legend sheet, a summary sheet for every year, and a calculation sheet per asset and year.
+
+The NTA (National Tax Agency) provides an excel spreadsheet for calculating the total average of each crypto asset per year. This report generates a similar report and can be optionally submitted with an individual's taxes or provided to the NTA if requested.
+
+The summary sheet contains the total for the tax year. This is what is normally reported as "miscellaneous income" (雑所得). However, it may be reported as business income in certain circumstances. Please do your own research.
 
 ## Unrealized Gains (Open Positions Report Output)
 The open_positions_us.ods output file is an ODS-format spreadsheet designed to provide information on assets with non-zero crypto balances including gains and losses.

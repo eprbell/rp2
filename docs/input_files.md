@@ -110,7 +110,7 @@ The config file is structured as described below. Note that:
 * the `exchanges` field of the `general` section contains a comma-separated list of exchange or wallet identifiers;
 * the `holders` field of the `general` section typically contains only one name, unless multiple people are filing taxes jointly (in which case a comma-separated list is used);
 * the `generators` filed of the `general` section is optional and contains a comma-separated list of names of output generator plugins to use at generation time. If the section is not specified the default plugin set is used;
-* the `accounting_methods` section is optional and contains information on which accounting methods to use on any given year (see an [example](../config/test_data_multi_method.ini)).
+<!--- * the `accounting_methods` section is optional and contains information on which accounting methods to use on any given year (see an [example](../config/test_data_multi_method.ini)). --->
 * *`<...>`* must be substituted with user-provided values (e.g. *`<column_number>`* must be substituted with 0 for column A in the input spreadsheet, 1 for B, etc);
 <pre>
 [in_header]
@@ -159,8 +159,8 @@ exchanges = <em>&lt;"exchange_or_wallet_1_in_quotes"&gt;</em>, ...&#x1F537; <em>
 holders = <em>&lt;"holder_1_in_quotes"&gt;</em>, ...&#x1F537; <em>&lt;"holder_n_in_quotes"&gt;</em>&#x1F537;
 generators&#x1F537; = <em>&lt;"generator_1_in_quotes"&gt;</em>, ...&#x1F537; <em>&lt;"generator_n_in_quotes"&gt;</em>&#x1F537;
 
-[accounting_methods]&#x1F537;
+<!--- [accounting_methods]&#x1F537;
 <em>&lt;"from_year_1"&gt;</em> = <em>&lt;"accounting_method_1"&gt;</em>
 ...&#x1F537;
 <em>&lt;"from_year_n"&gt;</em> = <em>&lt;"accounting_method_n"&gt;</em>&#x1F537;
-</pre>
+</pre> --->

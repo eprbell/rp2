@@ -16,7 +16,12 @@ from typing import Iterable, Iterator, Optional, cast
 
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
-from rp2.accounting_engine import AccountingEngine, AcquiredLotsExhaustedException, TaxableEventAndAcquiredLot, TaxableEventsExhaustedException
+from rp2.accounting_engine import (
+    AccountingEngine,
+    AcquiredLotsExhaustedException,
+    TaxableEventAndAcquiredLot,
+    TaxableEventsExhaustedException,
+)
 from rp2.computed_data import ComputedData
 from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.gain_loss import GainLoss

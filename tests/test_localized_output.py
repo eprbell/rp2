@@ -41,10 +41,24 @@ class TestLocalizedOutput(AbstractTestODSOutputDiff):  # pylint: disable=too-man
         self.maxDiff = None  # pylint: disable=invalid-name
 
     def test_test_data_rp2_full_report(self) -> None:
-        self._compare(output_dir=self.output_dir, test_name="test_data", method="fifo", output_plugin=OutputPlugins.RP2_FULL_REPORT, generation_language="kl")
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data",
+            method="fifo",
+            output_plugin=OutputPlugins.RP2_FULL_REPORT,
+            generation_language="kl",
+            country="jp",
+        )
 
     def test_test_data_open_positions(self) -> None:
-        self._compare(output_dir=self.output_dir, test_name="test_data", method="fifo", output_plugin=OutputPlugins.OPEN_POSITIONS, generation_language="kl")
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data",
+            method="fifo",
+            output_plugin=OutputPlugins.OPEN_POSITIONS,
+            generation_language="kl",
+            country="jp",
+        )
 
 
 if __name__ == "__main__":
