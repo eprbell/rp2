@@ -14,6 +14,11 @@
 
 # RP2 Change Log
 
+## 1.4.0
+* added support for Japan
+* temporarily disable LIFO and HIFO (see https://github.com/eprbell/rp2/issues/79)
+* documentation improvements
+
 ## 1.3.1
 * fixed #77: accounting engine AVLTree keys didn't normalize timezones, which caused a rare but obscure bug in certain cases
 * added debug log for progress of tax engine during lot accounting. This should make it much easier to debug certain user data errors, such as "Total in-transaction crypto value < total taxable crypto value"
