@@ -14,6 +14,9 @@
 
 # RP2 Change Log
 
+## 1.4.1
+* added new RP2RuntimeError to handle non-recoverable problems without using Exception
+
 ## 1.4.0
 * added support for Japan
 * temporarily disable LIFO and HIFO (see https://github.com/eprbell/rp2/issues/79)
