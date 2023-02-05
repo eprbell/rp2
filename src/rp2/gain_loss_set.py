@@ -24,7 +24,7 @@ from rp2.gain_loss import GainLoss
 from rp2.in_transaction import InTransaction
 from rp2.logger import LOGGER
 from rp2.rp2_decimal import ZERO, RP2Decimal
-from rp2.rp2_error import RP2TypeError, RP2ValueError
+from rp2.rp2_error import RP2RuntimeError, RP2TypeError, RP2ValueError
 
 
 class GainLossSet(AbstractEntrySet):
@@ -264,7 +264,7 @@ class GainLossSet(AbstractEntrySet):
             entry_string = repr(entry)
             # Remove trailing ')' to add set-specific information like parent
             if entry_string[-1] != ")":
-                raise Exception("Internal error: repr() of transaction doesn't end with ')'")
+                raise RP2RuntimeError("Internal error: repr() of transaction doesn't end with ')'")
             output.append(entry_string[:-1])
             parent = self.get_parent(entry)
             output.append(

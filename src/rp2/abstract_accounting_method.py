@@ -19,6 +19,7 @@ from typing import Dict, List, NamedTuple, Optional
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
+from rp2.rp2_error import RP2RuntimeError
 
 
 class AcquiredLotAndAmount(NamedTuple):
@@ -49,7 +50,7 @@ class AcquiredLotCandidates:
 
     def get_partial_amount(self, acquired_lot: InTransaction) -> RP2Decimal:
         if not self.has_partial_amount(acquired_lot):
-            raise Exception(f"Internal error: acquired lot has no partial amount: {acquired_lot}")
+            raise RP2RuntimeError(f"Internal error: acquired lot has no partial amount: {acquired_lot}")
         return self.__acquired_lot_2_partial_amount[acquired_lot]
 
     def set_partial_amount(self, acquired_lot: InTransaction, amount: RP2Decimal) -> None:

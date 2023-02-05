@@ -21,13 +21,10 @@ from typing import Any, Dict, List, NamedTuple, Optional, Set, cast
 
 from rp2.abstract_country import AbstractCountry
 from rp2.abstract_entry import AbstractEntry
-from rp2.abstract_entry_set import AbstractEntrySet
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.computed_data import ComputedData
 from rp2.configuration import MAX_DATE, MIN_DATE
 from rp2.entry_types import TransactionType
-from rp2.gain_loss import GainLoss
-from rp2.gain_loss_set import GainLossSet
 from rp2.in_transaction import InTransaction
 from rp2.intra_transaction import IntraTransaction
 from rp2.localization import _
@@ -35,7 +32,7 @@ from rp2.logger import create_logger
 from rp2.out_transaction import OutTransaction
 from rp2.plugin.report.abstract_ods_generator import AbstractODSGenerator
 from rp2.rp2_decimal import ZERO, RP2Decimal
-from rp2.rp2_error import RP2TypeError
+from rp2.rp2_error import RP2RuntimeError, RP2TypeError
 from rp2.transaction_set import TransactionSet
 
 LOGGER: logging.Logger = create_logger("tax_report_jp")
@@ -103,7 +100,7 @@ class Generator(AbstractODSGenerator):
     ) -> None:
 
         if from_date != MIN_DATE and to_date != MAX_DATE:
-            raise Exception("To and From Dates can not be specified for the JP tax report.")
+            raise RP2RuntimeError("To and From Dates can not be specified for the JP tax report.")
 
         if not isinstance(asset_to_computed_data, Dict):
             raise RP2TypeError(f"Parameter 'asset_to_computed_data' has non-Dict value {asset_to_computed_data}")
@@ -320,7 +317,7 @@ class Generator(AbstractODSGenerator):
                 transaction_row = self.__process_intra_transaction(entry)
 
             else:
-                raise Exception("Transaction is not InTransaction or OutTransaction.")
+                raise RP2RuntimeError("Transaction is not InTransaction or OutTransaction.")
 
             if transaction_row.purchase_crypto_amount is None and transaction_row.sales_crypto_amount is None:
                 continue

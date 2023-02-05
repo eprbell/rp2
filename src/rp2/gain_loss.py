@@ -20,7 +20,7 @@ from rp2.abstract_transaction import AbstractTransaction
 from rp2.configuration import Configuration
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
-from rp2.rp2_error import RP2TypeError, RP2ValueError
+from rp2.rp2_error import RP2RuntimeError, RP2TypeError, RP2ValueError
 
 
 class GainLoss(AbstractEntry):
@@ -174,7 +174,7 @@ class GainLoss(AbstractEntry):
         if not self.acquired_lot:
             # Earn-typed taxable events don't have a acquired_lot
             if not self.taxable_event.transaction_type.is_earn_type():
-                raise Exception("Internal error: acquired lot is None but taxable event is not earn-typed")
+                raise RP2RuntimeError("Internal error: acquired lot is None but taxable event is not earn-typed")
             return ZERO
         return self.crypto_amount / self.acquired_lot.crypto_balance_change
 
@@ -183,7 +183,7 @@ class GainLoss(AbstractEntry):
         if not self.acquired_lot:
             # Earn-typed taxable events don't have a acquired_lot and their cost basis is 0
             if not self.taxable_event.transaction_type.is_earn_type():
-                raise Exception("Internal error: acquired lot is None but taxable event is not earn-typed")
+                raise RP2RuntimeError("Internal error: acquired lot is None but taxable event is not earn-typed")
             return ZERO
         # The cost basis is fiat_in + fee (as explained in https://www.irs.gov/publications/p544 and
         # https://taxbit.com/cryptocurrency-tax-guide).
@@ -199,6 +199,6 @@ class GainLoss(AbstractEntry):
         if not self.acquired_lot:
             # Earn-typed taxable events don't have a acquired lot and are always considered short term capital gains
             if not self.taxable_event.transaction_type.is_earn_type():
-                raise Exception("Internal error: acquired lot is None but taxable event is not earn-typed")
+                raise RP2RuntimeError("Internal error: acquired lot is None but taxable event is not earn-typed")
             return False
         return (self.taxable_event.timestamp - self.acquired_lot.timestamp).days >= self.configuration.country.get_long_term_capital_gain_period()

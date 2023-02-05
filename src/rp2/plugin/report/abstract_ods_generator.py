@@ -28,7 +28,7 @@ from rp2.in_transaction import InTransaction
 from rp2.localization import _
 from rp2.out_transaction import OutTransaction
 from rp2.rp2_decimal import RP2Decimal
-from rp2.rp2_error import RP2TypeError
+from rp2.rp2_error import RP2RuntimeError, RP2TypeError
 
 
 class AbstractODSGenerator(AbstractReportGenerator):
@@ -69,7 +69,7 @@ class AbstractODSGenerator(AbstractReportGenerator):
         for sheet_name in output_file.sheets.names():
             if sheet_name in template_sheets_to_keep_with_legend:
                 if not sheet_name.startswith("__"):
-                    raise Exception(f"Internal error: template sheet '{sheet_name}' doesn't start with '__'")
+                    raise RP2RuntimeError(f"Internal error: template sheet '{sheet_name}' doesn't start with '__'")
                 # Template sheets' names start with "__": remove leading "__" from name of sheet we want to keep
                 output_file.sheets[index].name = sheet_name[2:]
             elif sheet_name.startswith("__"):
@@ -101,7 +101,7 @@ class AbstractODSGenerator(AbstractReportGenerator):
                 cls._fill_cell(legend_sheet, index + 2, 1, to_date if to_date != MAX_DATE else "non-specified", visual_style="transparent")
                 break
         if not method_cell_found:
-            raise Exception(f"Internal error: ODS template has no '{_('Accounting Method')}' cell in column 0 of '{_('Legend')}'' sheet")
+            raise RP2RuntimeError(f"Internal error: ODS template has no '{_('Accounting Method')}' cell in column 0 of '{_('Legend')}'' sheet")
 
         legend_sheet.name = _("Legend")
 
@@ -119,7 +119,7 @@ class AbstractODSGenerator(AbstractReportGenerator):
         if ods_path.exists():
             return str(ods_path)
         if not country:
-            raise Exception(f"Internal error: template {ods_path} doesn't exist")
+            raise RP2RuntimeError(f"Internal error: template {ods_path} doesn't exist")
 
         # Look for a link (a .txt file containing the path to the .ods file)
         txt_path = Path(f"{base_path}.txt")
@@ -128,13 +128,13 @@ class AbstractODSGenerator(AbstractReportGenerator):
             with open(txt_path, encoding="utf-8") as template_link:
                 contents = template_link.read().strip()
                 if not contents or not contents.endswith(".ods"):
-                    raise Exception(f"Internal error: template link {txt_path} doesn't contain a path ending with .ods: {contents}")
+                    raise RP2RuntimeError(f"Internal error: template link {txt_path} doesn't contain a path ending with .ods: {contents}")
                 new_ods_path = new_ods_path / Path(f"data/{contents}")
                 if new_ods_path.exists():
                     return str(new_ods_path)
-            raise Exception(f"Internal error: template link {txt_path} points to a path that doesn't exist: {new_ods_path}")
+            raise RP2RuntimeError(f"Internal error: template link {txt_path} points to a path that doesn't exist: {new_ods_path}")
 
-        raise Exception(f"Language {generation_language} not supported for country {country.country_iso_code}: template {ods_path}/.txt doesn't exist")
+        raise RP2RuntimeError(f"Language {generation_language} not supported for country {country.country_iso_code}: template {ods_path}/.txt doesn't exist")
 
     def generate(
         self,

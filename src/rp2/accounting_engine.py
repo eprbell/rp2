@@ -26,7 +26,7 @@ from rp2.abstract_accounting_method import (
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
-from rp2.rp2_error import RP2TypeError
+from rp2.rp2_error import RP2RuntimeError, RP2TypeError
 
 
 class TaxableEventAndAcquiredLot(NamedTuple):
@@ -86,7 +86,7 @@ class AccountingEngine:
     def __init__(self, years_2_methods: AVLTree[int, AbstractAccountingMethod]) -> None:
         self.__years_2_methods: AVLTree[int, AbstractAccountingMethod] = years_2_methods
         if not self.__years_2_methods:
-            raise Exception("Internal error: no accounting method defined")
+            raise RP2RuntimeError("Internal error: no accounting method defined")
 
     # Iterators yield transactions in ascending chronological order
     def initialize(
@@ -113,7 +113,7 @@ class AccountingEngine:
             pass
 
         if not self.__acquired_lot_avl.root:
-            raise Exception("Internal error: AVL tree has no root node")
+            raise RP2RuntimeError("Internal error: AVL tree has no root node")
 
     # AVL tree node keys have this format: <timestamp>_<internal_id>. The internal_id part is needed to disambiguate transactions
     # that have the same timestamp. Timestamp is in format "YYYYmmddHHMMSS.ffffff" and internal_id is padded right in a string of fixed
@@ -133,9 +133,9 @@ class AccountingEngine:
     def _get_accounting_method(self, year: int) -> AbstractAccountingMethod:
         method = self.__years_2_methods.find_max_value_less_than(year)
         if method is None:
-            raise Exception(f"Internal error: no accounting method assigned for year {year}")
+            raise RP2RuntimeError(f"Internal error: no accounting method assigned for year {year}")
         if not isinstance(method, AbstractAccountingMethod):
-            raise Exception(f"Internal error: accounting method assigned for year {year} is not of type AbstractAccountingMethod: {method}")
+            raise RP2RuntimeError(f"Internal error: accounting method assigned for year {year} is not of type AbstractAccountingMethod: {method}")
         return method
 
     def _set_partial_amount(self, acquired_lot: InTransaction, amount: RP2Decimal) -> None:
@@ -188,7 +188,7 @@ class AccountingEngine:
         )
         if avl_result is not None:
             if avl_result.acquired_lot != self.__acquired_lot_list[avl_result.index]:
-                raise Exception("Internal error: acquired_lot incongruence in accounting logic")
+                raise RP2RuntimeError("Internal error: acquired_lot incongruence in accounting logic")
             method = self._get_accounting_method(taxable_event.timestamp.year)
             lot_candidates: AcquiredLotCandidates = AcquiredLotCandidates(
                 method, self.__acquired_lot_list, self.__acquired_lot_2_partial_amount, avl_result.index
