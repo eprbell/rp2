@@ -30,7 +30,7 @@ from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData
 from rp2.logger import LOGGER
 from rp2.rp2_decimal import ZERO, RP2Decimal
-from rp2.rp2_error import RP2ValueError
+from rp2.rp2_error import RP2RuntimeError, RP2ValueError
 from rp2.transaction_set import TransactionSet
 
 
@@ -122,7 +122,7 @@ def _create_unfiltered_gain_and_loss_set(
             AbstractTransaction.type_check("taxable_event", taxable_event)
             if acquired_lot is None:
                 # There must always be at least one acquired_lot
-                raise Exception("Parameter 'acquired_lot' is None")
+                raise RP2RuntimeError("Parameter 'acquired_lot' is None")
             InTransaction.type_check("acquired_lot", acquired_lot)
             Configuration.type_check_positive_decimal("taxable_event_amount", taxable_event_amount)
             Configuration.type_check_positive_decimal("acquired_lot_amount", acquired_lot_amount)

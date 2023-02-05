@@ -23,6 +23,8 @@ import ezodf
 from abstract_test_ods_output_diff import AbstractTestODSOutputDiff, OutputPlugins
 from dateutil.tz import gettz
 
+from rp2.rp2_error import RP2RuntimeError
+
 ROOT_PATH: Path = Path(os.path.dirname(__file__)).parent.absolute()
 
 
@@ -58,7 +60,7 @@ class TestLargeInput(AbstractTestODSOutputDiff):
         if not output_dir.exists():
             output_dir.mkdir(parents=True)
         if not output_dir.is_dir():
-            raise Exception(f"output_dir '{str(output_dir)}' exists but it's not a directory")
+            raise RP2RuntimeError(f"output_dir '{str(output_dir)}' exists but it's not a directory")
 
         output_file: Any = ezodf.newdoc("ods", str(output_file_path), template=None)
         row_index: int = 0

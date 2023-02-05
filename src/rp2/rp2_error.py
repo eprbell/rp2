@@ -33,6 +33,10 @@ class RP2Error(Exception):
         return self.__internal_id
 
 
+class RP2RuntimeError(RP2Error):
+    pass
+
+
 class RP2TypeError(RP2Error):
     pass
 

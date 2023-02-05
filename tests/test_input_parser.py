@@ -26,7 +26,7 @@ from rp2.ods_parser import open_ods, parse_ods
 from rp2.out_transaction import OutTransaction
 from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
-from rp2.rp2_error import RP2Error, RP2TypeError, RP2ValueError
+from rp2.rp2_error import RP2Error, RP2RuntimeError, RP2TypeError, RP2ValueError
 from rp2.transaction_set import TransactionSet
 
 
@@ -129,7 +129,7 @@ class TestInputParser(unittest.TestCase):
             is_taxable_values,
         ):
             if not in_transaction_set or not transaction:  # Unwrap the Optional types to keep mypy happy
-                raise Exception("Internal error: in_transaction_set or transaction are None")
+                raise RP2RuntimeError("Internal error: in_transaction_set or transaction are None")
             self.assertEqual(in_transaction_set.get_parent(transaction), previous_transaction)
             self.assertEqual(transaction.internal_id, internal_id)
             self.assertEqual(transaction.timestamp, parse(timestamp))
@@ -201,7 +201,7 @@ class TestInputParser(unittest.TestCase):
             is_taxable_values,
         ):
             if not out_transaction_set or not transaction:  # Unwrap the Optional types to keep mypy happy
-                raise Exception("Internal error: in_transaction_set or transaction are None")
+                raise RP2RuntimeError("Internal error: in_transaction_set or transaction are None")
             self.assertEqual(out_transaction_set.get_parent(transaction), previous_transaction)
             self.assertEqual(transaction.internal_id, internal_id)
             self.assertEqual(transaction.timestamp, parse(timestamp))
@@ -270,7 +270,7 @@ class TestInputParser(unittest.TestCase):
             is_taxable_values,
         ):
             if not intra_transaction_set or not transaction:  # Unwrap the Optional types to keep mypy happy
-                raise Exception("Internal error: intra_transaction_set or transaction are None")
+                raise RP2RuntimeError("Internal error: intra_transaction_set or transaction are None")
             self.assertEqual(intra_transaction_set.get_parent(transaction), previous_transaction)
             self.assertEqual(transaction.internal_id, internal_id)
             self.assertEqual(transaction.timestamp, parse(timestamp))
