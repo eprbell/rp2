@@ -638,8 +638,8 @@ class Generator(AbstractODSGenerator):
                 sheet,
                 row_index,
                 11,
-                transaction.crypto_out_no_fee * transaction.spot_price,
-                visual_style=highlighted_style if transaction.crypto_out_no_fee * transaction.spot_price > ZERO else visual_style,
+                transaction.fiat_out_no_fee,
+                visual_style=highlighted_style if transaction.fiat_out_no_fee > ZERO else visual_style,
                 data_style="fiat",
             )
             self._fill_cell(
