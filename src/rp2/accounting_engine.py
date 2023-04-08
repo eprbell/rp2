@@ -64,7 +64,6 @@ class AcquiredLotsExhaustedException(_LotExhaustedException):
 
 
 class AccountingEngine:
-
     __taxable_event_iterator: Iterator[AbstractTransaction]
     __acquired_lot_list: List[InTransaction]
     __acquired_lot_avl: AVLTree[str, _AcquiredLotAndIndex]

@@ -31,7 +31,6 @@ class GainLoss(AbstractEntry):
         taxable_event: AbstractTransaction,
         acquired_lot: Optional[InTransaction],
     ) -> None:
-
         self.__taxable_event: AbstractTransaction = cast(AbstractTransaction, AbstractTransaction.type_check("taxable_event", taxable_event))
         if not taxable_event.is_taxable():
             raise RP2ValueError(f"Parameter 'taxable_event' of class {taxable_event.__class__.__name__} is not taxable: {taxable_event}")

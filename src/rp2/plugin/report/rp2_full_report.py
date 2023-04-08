@@ -61,7 +61,6 @@ _ZERO: RP2Decimal = RP2Decimal(0)
 
 
 class Generator(AbstractODSGenerator):
-
     MIN_ROWS: int = 40
     MAX_COLUMNS: int = 40
     OUTPUT_FILE: str = "rp2_full_report.ods"
@@ -89,7 +88,6 @@ class Generator(AbstractODSGenerator):
 
     # pylint: disable=line-too-long
     def _setup_text_data(self, country: AbstractCountry) -> None:
-
         currency_code: str = country.currency_iso_code.upper()
 
         self.__legend: List[List[str]] = [
@@ -438,7 +436,6 @@ class Generator(AbstractODSGenerator):
         to_date: date,
         generation_language: str,
     ) -> None:
-
         if not isinstance(asset_to_computed_data, Dict):
             raise RP2TypeError(f"Parameter 'asset_to_computed_data' has non-Dict value {asset_to_computed_data}")
 
@@ -756,7 +753,7 @@ class Generator(AbstractODSGenerator):
 
         holder: str
         border_drawn: bool = False
-        for (holder, value) in sorted(totals.items()):
+        for holder, value in sorted(totals.items()):
             border_suffix: str = ""
             if not border_drawn:
                 border_suffix = "_border"
@@ -801,7 +798,6 @@ class Generator(AbstractODSGenerator):
         return self.__in_out_sheet_transaction_2_row[transaction]
 
     def __generate_gain_loss_detail(self, sheet: Any, asset: str, computed_data: ComputedData, row_index: int) -> int:
-
         row_index = self._fill_header(
             _("Gain / Loss Detail"), self.__gain_loss_detail_header_names_row_1, self.__gain_loss_detail_header_names_row_2, sheet, row_index, 0
         )

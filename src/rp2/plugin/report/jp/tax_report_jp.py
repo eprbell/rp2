@@ -70,7 +70,6 @@ _INCOME_TRANSACTION_TYPES: Dict[TransactionType, None] = {
 
 
 class Generator(AbstractODSGenerator):
-
     MIN_ROWS: int = 20
     MAX_COLUMNS: int = 20
     OUTPUT_FILE: str = "tax_report_jp.ods"
@@ -82,7 +81,6 @@ class Generator(AbstractODSGenerator):
     TRANSFER: str = "Transfer"
 
     def __init__(self) -> None:
-
         super().__init__()
         self.__year_row_offset: Dict[int, int] = {}
         self.__number_of_summaries: int = 0
@@ -98,7 +96,6 @@ class Generator(AbstractODSGenerator):
         to_date: date,
         generation_language: str,
     ) -> None:
-
         if from_date != MIN_DATE and to_date != MAX_DATE:
             raise RP2RuntimeError("To and From Dates can not be specified for the JP tax report.")
 
@@ -205,7 +202,6 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(summary_sheet, self.__year_row_offset[year] + 2, 6, f"=SUM(G8:G{self.__year_row_offset[year] + 2})", apply_style=False)
 
     def __process_in_transaction(self, transaction: InTransaction) -> _TransactionRow:
-
         purchase_amount_in_yen: RP2Decimal = transaction.crypto_in * transaction.spot_price
 
         # Find the fee in yen
@@ -241,7 +237,6 @@ class Generator(AbstractODSGenerator):
         )
 
     def __process_intra_transaction(self, transaction: IntraTransaction) -> _TransactionRow:
-
         transaction_fee_in_crypto: Optional[RP2Decimal] = None
         transaction_fee_in_yen: Optional[RP2Decimal] = None
 
@@ -260,7 +255,6 @@ class Generator(AbstractODSGenerator):
         )
 
     def __process_out_transaction(self, transaction: OutTransaction) -> _TransactionRow:
-
         # Find the fee in yen
         fee_in_yen: RP2Decimal = ZERO
         if RP2Decimal(transaction.crypto_fee) > ZERO:
@@ -289,7 +283,6 @@ class Generator(AbstractODSGenerator):
         )
 
     def __generate_asset_year(self, asset: str, year: int, transaction_list: List[AbstractTransaction], output_file: Any, previous_year_row_offset: int) -> int:
-
         asset_year_sheet: Any = output_file.sheets[self.ASSET_TEMPLATE_SHEET].copy(newname=self.get_tax_sheet_name(asset, year))
         output_file.sheets += asset_year_sheet
 
@@ -302,7 +295,6 @@ class Generator(AbstractODSGenerator):
         transaction_row: _TransactionRow
 
         for entry in transaction_list:
-
             if isinstance(entry, InTransaction):
                 transaction_row = self.__process_in_transaction(entry)
                 total_gifts += transaction_row.gift

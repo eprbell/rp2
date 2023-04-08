@@ -29,7 +29,6 @@ ROOT_PATH: Path = Path(os.path.dirname(__file__)).parent.absolute()
 
 
 class TestLargeInput(AbstractTestODSOutputDiff):
-
     output_dir: Path
 
     @classmethod
@@ -49,7 +48,6 @@ class TestLargeInput(AbstractTestODSOutputDiff):
 
     @staticmethod
     def _fill_row(sheet: Any, row_index: int, row: List[Any]) -> int:
-
         for col_index, element in enumerate(row):
             sheet[row_index, col_index].set_value(element)
         return row_index + 1

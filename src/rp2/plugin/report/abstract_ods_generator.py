@@ -46,7 +46,6 @@ class AbstractODSGenerator(AbstractReportGenerator):
         from_date: date,
         to_date: date,
     ) -> Any:
-
         Configuration.type_check_string("output_dir_path", output_dir_path)
         Configuration.type_check_string("output_file_prefix", output_file_prefix)
         Configuration.type_check_string("output_file_name", output_file_name)
@@ -168,7 +167,6 @@ class AbstractODSGenerator(AbstractReportGenerator):
         data_style: str = "default",
         apply_style: bool = True,
     ) -> None:
-
         Configuration.type_check_string("visual_style", visual_style)
         Configuration.type_check_string("data_style", data_style)
 
@@ -191,7 +189,6 @@ class AbstractODSGenerator(AbstractReportGenerator):
     def _fill_header(
         self, title: str, header_row_1: List[str], header_row_2: List[str], sheet: Any, row_index: int, column_index: int, apply_style: bool = True
     ) -> int:
-
         Configuration.type_check_string("title", title)
         if not isinstance(header_row_1, List):
             raise RP2TypeError("Parameter 'header_row_1' is not a List")

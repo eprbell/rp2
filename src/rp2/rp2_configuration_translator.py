@@ -84,7 +84,6 @@ def rp2_configuration_translator() -> None:
 
 
 def _setup_argument_parser() -> ArgumentParser:
-
     parser: ArgumentParser = ArgumentParser(
         description=("Convert a JSON-format RP2 configuration file to INI format"),
         formatter_class=RawTextHelpFormatter,

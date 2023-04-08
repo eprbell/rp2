@@ -68,7 +68,6 @@ def _parse_cell_value(cell: Any) -> Any:
 
 
 def ods_diff(file1_path: Path, file2_path: Path, generate_ascii_representation: bool) -> str:  # pylint: disable=too-many-branches
-
     if not file1_path.exists():
         return f"Error: {file1_path} does not exist"
     if not file2_path.exists():
@@ -124,7 +123,6 @@ def ods_diff(file1_path: Path, file2_path: Path, generate_ascii_representation: 
 
 
 def main() -> None:
-
     parser: ArgumentParser = ArgumentParser(description="Generate yearly capital gain/loss report and account balances for crypto holdings.")
     parser.add_argument(
         "-a",

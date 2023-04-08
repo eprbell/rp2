@@ -45,7 +45,6 @@ def open_ods(configuration: Configuration, input_file_path: str) -> Any:
 
 
 def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) -> InputData:  # pylint: disable=too-many-branches
-
     Configuration.type_check("configuration", configuration)
     configuration.type_check_asset("asset", asset)
 
@@ -164,7 +163,6 @@ def _create_and_process_transaction(
     unfiltered_transaction_sets: Dict[EntrySetType, TransactionSet],
     artificial_transaction_list: List[AbstractTransaction],
 ) -> None:
-
     transaction: AbstractTransaction = _create_transaction(configuration, current_table_type, internal_id, row_values)
 
     if isinstance(transaction, InTransaction) and transaction.is_crypto_fee_defined:

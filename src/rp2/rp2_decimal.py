@@ -24,7 +24,6 @@ FIAT_DECIMAL_MASK: Decimal = Decimal("1." + "0" * int(FIAT_DECIMALS))
 
 
 class RP2Decimal(Decimal):
-
     # RP2Decimal initialization code. In Python there is no static constructor: the closest alternative is to add static initialization code
     # directly inside the class. Use arbitrarily high precision (quintillion + CRYPTO_DECIMALS digits)
     getcontext().prec = CRYPTO_DECIMALS + 18

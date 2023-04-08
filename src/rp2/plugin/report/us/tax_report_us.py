@@ -69,7 +69,6 @@ _TYPE_TO_SHEET: Dict[TransactionType, str] = {
 
 
 class Generator(AbstractODSGenerator):
-
     MIN_ROWS: int = 20
     MAX_COLUMNS: int = 20
     OUTPUT_FILE: str = "tax_report_us.ods"
@@ -87,7 +86,6 @@ class Generator(AbstractODSGenerator):
         to_date: date,
         generation_language: str,
     ) -> None:
-
         row_indexes: Dict[str, int] = {sheet_name.value: self.HEADER_ROWS for sheet_name in SheetNames}
 
         if not isinstance(asset_to_computed_data, Dict):
@@ -134,7 +132,6 @@ class Generator(AbstractODSGenerator):
         LOGGER.info("Plugin '%s' output: %s", __name__, Path(output_file.docname).resolve())
 
     def __generate(self, output_file: Any, asset: str, gain_loss_set: GainLossSet, row_indexes: Dict[str, int]) -> None:
-
         sheet: Any
         for sheet in output_file.sheets:
             if sheet.name == "Legend":

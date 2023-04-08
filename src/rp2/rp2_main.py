@@ -249,7 +249,6 @@ def _validate_accounting_methods(country: AbstractCountry) -> List[str]:
 
 
 def _setup_argument_parser(country: AbstractCountry) -> ArgumentParser:
-
     accounting_methods = _validate_accounting_methods(country)
 
     parser: ArgumentParser = ArgumentParser(

@@ -54,7 +54,6 @@ class TestInputParser(unittest.TestCase):
         self._verify_good_sheet("B4", out_empty=False, intra_empty=False)
 
     def _verify_good_sheet(self, sheet_name: str, out_empty: bool, intra_empty: bool) -> None:
-
         asset = sheet_name
         input_file_handle: object = open_ods(configuration=self._good_input_configuration, input_file_path="./input/test_data.ods")
         input_data: InputData = parse_ods(self._good_input_configuration, asset, input_file_handle)
@@ -286,7 +285,6 @@ class TestInputParser(unittest.TestCase):
         self.assertEqual(count, 4)
 
     def test_bad_input(self) -> None:
-
         sheets_to_expected_messages: Dict[str, ErrorAndMessage] = {
             "B1": ErrorAndMessage(RP2ValueError, "IN table not found"),
             "B2": ErrorAndMessage(RP2ValueError, 'Found an invalid cell "foo" while looking for a table-begin token'),

@@ -41,7 +41,6 @@ _REPORT_INPUT_VALUE_STRING: str = "See Input tab"
 
 
 class Generator(AbstractODSGenerator):
-
     OUTPUT_FILE: str = "open_positions.ods"
     HEADER_ROWS = 3
 
@@ -55,7 +54,6 @@ class Generator(AbstractODSGenerator):
 
     # pylint: disable=line-too-long
     def _setup_text_data(self, country: AbstractCountry) -> None:
-
         currency_code: str = country.currency_iso_code.upper()
 
         self.__legend: List[List[str]] = [
@@ -174,7 +172,6 @@ class Generator(AbstractODSGenerator):
         to_date: date,
         generation_language: str,
     ) -> None:
-
         # pylint: disable=too-many-branches
 
         if not isinstance(asset_to_computed_data, Dict):
@@ -255,9 +252,7 @@ class Generator(AbstractODSGenerator):
 
             # process balance set data for the asset to collect holder and crypto balance data.
             for balance_set in computed_data.balance_set:
-
                 if balance_set.final_balance > ZERO:
-
                     if balance_set.holder not in holders:
                         holders.append(balance_set.holder)
 
@@ -276,7 +271,6 @@ class Generator(AbstractODSGenerator):
 
         # Now looping through the assets to do the reporting.
         for asset, asset_cost_basis in asset_cost_bases.items():
-
             total_crypto_balance = ZERO
             for crypto_balance in asset_crypto_balance_holder[asset].values():
                 total_crypto_balance += crypto_balance
@@ -326,7 +320,6 @@ class Generator(AbstractODSGenerator):
 
             # Generate the Asset/Exchange table which will calc vals that will feed the asset table.
             for holder, exchanges in asset_crypto_balance_holder_exchange[asset].items():
-
                 for exchange, crypto_exchange_balance in exchanges.items():
                     exchange_cost_basis: RP2Decimal = crypto_exchange_balance * unit_cost_basis
 

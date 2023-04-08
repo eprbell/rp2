@@ -32,7 +32,6 @@ class AbstractCountry:
         country_iso_code: str,  # ISO 3166-1 alpha-2
         currency_iso_code: str,  # ISO 4217
     ) -> None:
-
         if not isinstance(country_iso_code, str):
             raise RP2TypeError(f"Parameter 'country_iso_code' has non-string value {repr(country_iso_code)}")
         if not isinstance(currency_iso_code, str):

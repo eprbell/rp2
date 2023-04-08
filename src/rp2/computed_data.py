@@ -169,7 +169,7 @@ class ComputedData:
         fiat_taxable_amount_total: RP2Decimal = ZERO
         cost_basis_total: RP2Decimal = ZERO
         gain_loss_total: RP2Decimal = ZERO
-        for (key, value) in summaries.items():
+        for key, value in summaries.items():
             yearly_gain_loss: YearlyGainLoss = YearlyGainLoss(
                 year=key.year,
                 asset=key.asset,

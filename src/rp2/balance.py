@@ -101,7 +101,6 @@ class BalanceSet:
         input_data: InputData,
         to_date: date,
     ) -> None:
-
         Configuration.type_check("configuration", configuration)
         self.__input_data = InputData.type_check("input_data", input_data)
 

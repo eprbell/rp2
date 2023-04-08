@@ -24,7 +24,6 @@ ROOT_PATH: Path = Path(os.path.dirname(__file__)).parent.absolute()
 
 
 class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-public-methods
-
     output_dir: Path
 
     @classmethod
