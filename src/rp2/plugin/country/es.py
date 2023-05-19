@@ -40,7 +40,7 @@ class ES(AbstractCountry):
     # Default set of generators to use if the user doesn't specify them on the command line
     def get_report_generators(self) -> Set[str]:
         return {
-            "open_positions",
+            "es.open_positions",
             "rp2_full_report",
             "es.tax_report_es",
         }
