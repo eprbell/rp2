@@ -23,9 +23,10 @@
 * **[Unrealized Gains (Open Positions Report Output)](#unrealized-gains-open-positions-report-output)**
 
 ## Introduction
-RP2 generates output files by running the report plugins. It comes with two builtin plugins for US taxes:
-* *rp2_full_report*: a comprehensive report containing full transaction history with hyperlinks, long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. See [crypto_example_fifo_rp2_full_report.ods](../input/golden/crypto_example_fifo_rp2_full_report.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down in this document.
+RP2 generates output files by running the report plugins. It comes with one builtin plugin for US taxes and two generic plugins for any country :
 * *tax_report_us*: a US-specific report that can be used to fill form 8949, etc. See [crypto_example_fifo_tax_report_us.ods](../input/golden/crypto_example_fifo_tax_report_us.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down in this document.
+* *rp2_full_report*: a comprehensive report (valid for any country) containing full transaction history with hyperlinks, long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. See [crypto_example_fifo_rp2_full_report.ods](../input/golden/crypto_example_fifo_rp2_full_report.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down in this document.
+* *open_positions*: a report (valid for any country) on assets with non-zero crypto balance: unrealized gains / losses, portfolio weighting, and more.
 
 After running RP2, the output files can be found in the `output` directory or in the directory specified with the -o command line option.
 
@@ -76,7 +77,7 @@ The NTA (National Tax Agency) provides an excel spreadsheet for calculating the 
 The summary sheet contains the total for the tax year. This is what is normally reported as "miscellaneous income" (雑所得). However, it may be reported as business income in certain circumstances. Please do your own research.
 
 ## Unrealized Gains (Open Positions Report Output)
-The open_positions_us.ods output file is an ODS-format spreadsheet designed to provide information on assets with non-zero crypto balances including gains and losses.
+The open_positions.ods output file is an ODS-format spreadsheet designed to provide information on assets with non-zero crypto balances including gains and losses.
 
 The report contains:
 * a Legend sheet containing the accounting method and the meaning of each column and keyword
