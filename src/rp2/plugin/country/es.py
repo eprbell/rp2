@@ -34,7 +34,6 @@ class ES(AbstractCountry):
 
     # Set of accounting methods accepted in the country
     def get_accounting_methods(self) -> Set[str]:
-        # Temporarily removed lifo and hifo due to https://github.com/eprbell/rp2/issues/79
         return {"fifo"}
 
     # Default set of generators to use if the user doesn't specify them on the command line
@@ -42,7 +41,6 @@ class ES(AbstractCountry):
         return {
             "es.open_positions",
             "rp2_full_report",
-            "es.tax_report_es",
         }
 
     # Default language to use at report generation if the user doesn't specify it on the command line (in ISO 639-1 format)
