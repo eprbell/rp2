@@ -57,7 +57,7 @@ Another unique advantage of RP2 is [transparent computation](https://github.com/
 * verify step-by-step how RP2 reaches the final result;
 * track down every lot fraction and its accounting details, in case of an audit.
 
-RP2 currently supports the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) accounting method for US and ES taxes and the Total Average Method for Japanese taxes.
+RP2 currently supports the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) accounting method for US and Spanish taxes and the Total Average Method for Japanese taxes.
 
 RP2 reads a configuration file and an input spreadsheet containing crypto transactions. These [input files](https://github.com/eprbell/rp2/blob/main/docs/input_files.md) can be generated either manually or automatically using [DaLI](https://github.com/eprbell/dali-rp2), a RP2 data loader and input generator (which is also privacy-focused, free, non-commercial, open-source and community-driven). After parsing the input, RP2 uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates [output files](https://github.com/eprbell/rp2/blob/main/docs/output_files.md).
 
