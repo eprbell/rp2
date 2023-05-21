@@ -68,7 +68,7 @@ And an example of the Interest sheet:
 
 ![tax report us output interest](images/tax_report_us_output_interest.png)
 
-## NTA-friendly Report (Tax Report Japan Ouput)
+## NTA-friendly Report (Tax Report Japan Output)
 The tax_report_jp.ods output file contains a legend sheet, a summary sheet for every year, and a calculation sheet per asset and year.
 
 The NTA (National Tax Agency) provides an excel spreadsheet for calculating the total average of each crypto asset per year. This report generates a similar report and can be optionally submitted with an individual's taxes or provided to the NTA if requested.

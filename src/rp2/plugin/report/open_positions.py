@@ -179,7 +179,7 @@ class Generator(AbstractODSGenerator):
 
         self._setup_text_data(country)
 
-        template_path: str = self._get_template_path("open_positions", None, generation_language)
+        template_path: str = self._get_template_path("open_positions", country, generation_language)
 
         output_file: Any
         output_file = self._initialize_output_file(
