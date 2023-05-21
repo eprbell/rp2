@@ -85,7 +85,7 @@ In some cases exchange reports miss spot price information. In such situations y
 The user adds the tokens to the `assets` field of the [config file](input_files.md#the-config-file): RP2 accepts as valid all the tokens present in this field. See also the question on [writing a config file from scratch](#can-i-avoid-writing-a-config-file-from-scratch).
 
 ### What Accounting Methods Are Supported?
-Currently only the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) accounting method is supported for US and Spanish taxes. Only the Total Average Method is supported for Japanese taxes. 
+Currently only the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) accounting method is supported for US and Spanish taxes. Only the Total Average Method is supported for Japanese taxes.
 
 ### Can I Change Accounting Method?
 No, currently RP2 only supports FIFO for US taxes and the Total Average Method for JP taxes.

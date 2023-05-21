@@ -105,5 +105,6 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             generation_language="es",
         )
 
+
 if __name__ == "__main__":
     unittest.main()

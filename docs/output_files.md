@@ -24,7 +24,7 @@
 
 ## Introduction
 RP2 generates output files by running the report plugins:
-* *tax_report_\** (US and Japan only). This is a tax-advisor-friendly report that can be given to a tax professional (not necessarily one that specializes in crypto). 
+* *tax_report_\** (US and Japan only). This is a tax-advisor-friendly report that can be given to a tax professional (not necessarily one that specializes in crypto).
 * *rp2_full_report* (all countries): a comprehensive report containing full transaction history with hyperlinks, long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. This report can be useful in case of audit because it contains the complete history of coin movements and fractioning. See [crypto_example_fifo_rp2_full_report.ods](../input/golden/crypto_example_fifo_rp2_full_report.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down in this document.
 * *open_positions* (all countries): a report on assets with non-zero crypto balance: unrealized gains / losses, portfolio weighting, and more.
 
