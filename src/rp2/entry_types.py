@@ -13,9 +13,10 @@
 # limitations under the License.
 
 from enum import Enum
-from typing import Optional, Set
+from typing import Optional, Set, Dict
 
 from rp2.configuration import Configuration
+from rp2.localization import _
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
@@ -55,6 +56,8 @@ class TransactionType(Enum):
     def is_earn_type(self) -> bool:
         return self in _transaction_type_earn_values
 
+    def get_translation(self) -> str:
+        return _transaction_type_values_to_translation[self]
 
 _transaction_type_values: Set[str] = {item.value for item in TransactionType}
 _transaction_type_earn_values: Set[TransactionType] = {
@@ -66,7 +69,21 @@ _transaction_type_earn_values: Set[TransactionType] = {
     TransactionType.STAKING,
     TransactionType.WAGES,
 }
-
+_transaction_type_values_to_translation: Dict[TransactionType, str] = {
+    TransactionType.AIRDROP: _("airdrop"),
+    TransactionType.BUY: _("buy"),
+    TransactionType.DONATE: _("donate"),
+    TransactionType.FEE: _("fee"),
+    TransactionType.GIFT: _("gift"),
+    TransactionType.HARDFORK: _("hardfork"),
+    TransactionType.INCOME: _("income"),
+    TransactionType.INTEREST: _("interest"),
+    TransactionType.MINING: _("mining"),
+    TransactionType.MOVE: _("move"),
+    TransactionType.SELL: _("sell"),
+    TransactionType.STAKING: _("staking"),
+    TransactionType.WAGES: _("wages"),
+}
 
 class EntrySetType(Enum):
     IN: str = "in"

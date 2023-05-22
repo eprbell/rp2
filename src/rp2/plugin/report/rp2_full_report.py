@@ -586,7 +586,7 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 2, transaction.asset, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 3, transaction.exchange, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 4, transaction.holder, visual_style=visual_style)
-            self._fill_cell(sheet, row_index, 5, transaction.transaction_type.value.upper(), visual_style=visual_style)
+            self._fill_cell(sheet, row_index, 5, transaction.transaction_type.get_translation().upper(), visual_style=visual_style)
             self._fill_cell(sheet, row_index, 6, transaction.spot_price, data_style="fiat", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 7, transaction.crypto_in, data_style="crypto", visual_style=visual_style)
             self._fill_cell(sheet, row_index, 8, computed_data.get_crypto_in_running_sum(transaction), data_style="crypto", visual_style=visual_style)
@@ -625,7 +625,7 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 2, transaction.asset, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 3, transaction.exchange, visual_style=visual_style)
             self._fill_cell(sheet, row_index, 4, transaction.holder, visual_style=visual_style)
-            self._fill_cell(sheet, row_index, 5, transaction.transaction_type.value.upper(), visual_style=visual_style)
+            self._fill_cell(sheet, row_index, 5, transaction.transaction_type.get_translation().upper(), visual_style=visual_style)
             self._fill_cell(sheet, row_index, 6, transaction.spot_price, visual_style=visual_style, data_style="fiat")
             self._fill_cell(sheet, row_index, 7, transaction.crypto_out_no_fee, visual_style=visual_style, data_style="crypto")
             self._fill_cell(sheet, row_index, 8, transaction.crypto_fee, visual_style=visual_style, data_style="crypto")
@@ -711,7 +711,7 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 1, yearly_gain_loss.asset, visual_style="transparent" + border_suffix, data_style="default")
             self._fill_cell(sheet, row_index, 2, yearly_gain_loss.fiat_gain_loss, visual_style="bold" + border_suffix, data_style="fiat")
             self._fill_cell(sheet, row_index, 3, capital_gains_type, visual_style="bold" + border_suffix, data_style="default")
-            self._fill_cell(sheet, row_index, 4, yearly_gain_loss.transaction_type.value.upper(), visual_style="bold" + border_suffix, data_style="default")
+            self._fill_cell(sheet, row_index, 4, yearly_gain_loss.transaction_type.get_translation().upper(), visual_style="bold" + border_suffix, data_style="default")
             self._fill_cell(sheet, row_index, 5, yearly_gain_loss.crypto_amount, visual_style="transparent" + border_suffix, data_style="crypto")
             self._fill_cell(
                 sheet,
@@ -824,7 +824,7 @@ class Generator(AbstractODSGenerator):
             current_taxable_event_fraction: int = gain_loss_set.get_taxable_event_fraction(gain_loss) + 1
             total_taxable_event_fractions: int = gain_loss_set.get_taxable_event_number_of_fractions(gain_loss.taxable_event)
             transaction_type: str = (
-                f"{self._get_table_type_from_transaction(gain_loss.taxable_event)} / " f"{gain_loss.taxable_event.transaction_type.value.upper()}"
+                f"{self._get_table_type_from_transaction(gain_loss.taxable_event)} / " f"{gain_loss.taxable_event.transaction_type.get_translation().upper()}"
             )
             taxable_event_note: str = (
                 f"{current_taxable_event_fraction}/"
@@ -998,7 +998,7 @@ class Generator(AbstractODSGenerator):
             )
             self._fill_cell(sheet, row_index, 3, self.__get_hyperlinked_summary_value(asset, capital_gains_type, year), visual_style=visual_style)
             self._fill_cell(
-                sheet, row_index, 4, self.__get_hyperlinked_summary_value(asset, gain_loss.transaction_type.value.upper(), year), visual_style=visual_style
+                sheet, row_index, 4, self.__get_hyperlinked_summary_value(asset, gain_loss.transaction_type.get_translation().upper(), year), visual_style=visual_style
             )
             self._fill_cell(
                 sheet, row_index, 5, self.__get_hyperlinked_summary_value(asset, gain_loss.crypto_amount, year), visual_style=visual_style, data_style="crypto"
