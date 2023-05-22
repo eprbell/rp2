@@ -7,8 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rp2 1.4.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-05-10 14:57+0200\n"
-"POT-Creation-Date: 2023-05-10 14:57+0200\n"
+"POT-Creation-Date: 2023-05-22 14:31+0200\n"
 "PO-Revision-Date: 2023-04-27 20:23+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -572,7 +571,7 @@ msgid "Type of the transaction (BUY, GIFT, INTEREST, STAKING, etc.)"
 msgstr "Tipo de transacción (COMPRA, REGALO, INTERÉS, STAKING, etc.)"
 
 msgid "Type of the transaction (DONATE, GIFT, SELL, etc.)"
-msgstr "Tipo de transacción (DONAR, REGALAR, VENDER, etc.)"
+msgstr "Tipo de transacción (DONACION, REGALO, VENTA, etc.)"
 
 msgid "USD"
 msgstr "USD"
@@ -630,6 +629,46 @@ msgstr "Resumen de ganancia / pérdida anual"
 
 msgid "Yellow"
 msgstr "Amarillo"
+
+msgid "airdrop"
+msgstr ""
+
+msgid "buy"
+msgstr "compra"
+
+msgid "donate"
+msgstr "donación"
+
+msgid "fee"
+msgstr "comisión"
+
+msgid "gift"
+msgstr "regalo"
+
+msgid "hardfork"
+msgstr "bifurcación dura"
+
+msgid "income"
+msgstr "impuesto"
+
+#, fuzzy
+msgid "interest"
+msgstr "interes"
+
+msgid "mining"
+msgstr ""
+
+msgid "move"
+msgstr "movimiento"
+
+msgid "sell"
+msgstr "venta"
+
+msgid "staking"
+msgstr ""
+
+msgid "wages"
+msgstr "salarios"
 
 msgid "{}"
 msgstr "{}"
@@ -715,6 +754,5 @@ msgstr "{} valor de la transacción sin comisiónes"
 msgid "{}_Summary"
 msgstr "{}_Resumen"
 
-#, fuzzy
 msgid "{}_{}"
 msgstr "{}_{}"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rp2 1.4.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-05-10 14:57+0200\n"
+"POT-Creation-Date: 2023-05-22 14:31+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -629,6 +629,45 @@ msgstr ""
 msgid "Yellow"
 msgstr ""
 
+msgid "airdrop"
+msgstr ""
+
+msgid "buy"
+msgstr ""
+
+msgid "donate"
+msgstr ""
+
+msgid "fee"
+msgstr ""
+
+msgid "gift"
+msgstr ""
+
+msgid "hardfork"
+msgstr ""
+
+msgid "income"
+msgstr ""
+
+msgid "interest"
+msgstr ""
+
+msgid "mining"
+msgstr ""
+
+msgid "move"
+msgstr ""
+
+msgid "sell"
+msgstr ""
+
+msgid "staking"
+msgstr ""
+
+msgid "wages"
+msgstr ""
+
 msgid "{}"
 msgstr ""
 
@@ -715,3 +754,4 @@ msgstr ""
 
 msgid "{}_{}"
 msgstr ""
+
