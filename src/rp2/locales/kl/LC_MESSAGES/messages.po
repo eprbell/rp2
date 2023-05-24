@@ -631,46 +631,43 @@ msgid "Yellow"
 msgstr "__test_Yellow"
 
 msgid "airdrop"
-msgstr ""
+msgstr "__test_airdrop"
 
 msgid "buy"
-msgstr ""
+msgstr "__test_buy"
 
 msgid "donate"
-msgstr ""
+msgstr "__test_donate"
 
-#, fuzzy
 msgid "fee"
-msgstr "__test_{} Fee"
+msgstr "__test_fee"
 
 msgid "gift"
-msgstr ""
+msgstr "__test_gift"
 
 msgid "hardfork"
-msgstr ""
+msgstr "__test_hardfork"
 
 msgid "income"
-msgstr ""
+msgstr "__test_income"
 
-#, fuzzy
 msgid "interest"
-msgstr "__test_Notes"
+msgstr "__test_interest"
 
 msgid "mining"
-msgstr ""
+msgstr "__test_mining"
 
 msgid "move"
-msgstr ""
+msgstr "__test_move"
 
-#, fuzzy
 msgid "sell"
-msgstr "__test_Yellow"
+msgstr "__test_sell"
 
 msgid "staking"
-msgstr ""
+msgstr "__test_staking"
 
 msgid "wages"
-msgstr ""
+msgstr "__test_wages"
 
 msgid "{}"
 msgstr "__test_{}"
@@ -753,12 +750,11 @@ msgstr "__test_{} value of the transaction with fees"
 msgid "{} value of the transaction without fees"
 msgstr "__test_{} value of the transaction without fees"
 
-#, fuzzy
 msgid "{}_Summary"
-msgstr "__test_Summary"
+msgstr "__test_{}_Summary"
 
 msgid "{}_{}"
-msgstr ""
+msgstr "__test_{}_{}"
 
 #~ msgid "Asset - Exchange"
 #~ msgstr "__test_Asset - Exchange"
