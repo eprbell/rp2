@@ -651,12 +651,11 @@ msgstr "bifurcación dura"
 msgid "income"
 msgstr "impuesto"
 
-#, fuzzy
 msgid "interest"
 msgstr "interes"
 
 msgid "mining"
-msgstr ""
+msgstr "minado"
 
 msgid "move"
 msgstr "movimiento"
