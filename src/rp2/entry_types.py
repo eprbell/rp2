@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from enum import Enum
-from typing import Optional, Set, Dict
+from typing import Dict, Optional, Set
 
 from rp2.configuration import Configuration
 from rp2.localization import _
@@ -59,6 +59,7 @@ class TransactionType(Enum):
     def get_translation(self) -> str:
         return _transaction_type_values_to_translation[self]
 
+
 _transaction_type_values: Set[str] = {item.value for item in TransactionType}
 _transaction_type_earn_values: Set[TransactionType] = {
     TransactionType.AIRDROP,
@@ -84,6 +85,7 @@ _transaction_type_values_to_translation: Dict[TransactionType, str] = {
     TransactionType.STAKING: _("staking"),
     TransactionType.WAGES: _("wages"),
 }
+
 
 class EntrySetType(Enum):
     IN: str = "in"
