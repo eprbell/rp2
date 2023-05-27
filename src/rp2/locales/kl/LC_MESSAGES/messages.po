@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rp2 1.0.6\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-08-17 00:13-0700\n"
+"POT-Creation-Date: 2023-05-22 14:31+0200\n"
 "PO-Revision-Date: 2022-08-10 19:04-0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: kl\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.12.1\n"
 
 msgid "<Crypto> In-Out"
 msgstr "__test_<Crypto> In-Out"
@@ -630,6 +630,45 @@ msgstr "__test_Yearly Gain / Loss Summary"
 msgid "Yellow"
 msgstr "__test_Yellow"
 
+msgid "airdrop"
+msgstr "__test_airdrop"
+
+msgid "buy"
+msgstr "__test_buy"
+
+msgid "donate"
+msgstr "__test_donate"
+
+msgid "fee"
+msgstr "__test_fee"
+
+msgid "gift"
+msgstr "__test_gift"
+
+msgid "hardfork"
+msgstr "__test_hardfork"
+
+msgid "income"
+msgstr "__test_income"
+
+msgid "interest"
+msgstr "__test_interest"
+
+msgid "mining"
+msgstr "__test_mining"
+
+msgid "move"
+msgstr "__test_move"
+
+msgid "sell"
+msgstr "__test_sell"
+
+msgid "staking"
+msgstr "__test_staking"
+
+msgid "wages"
+msgstr "__test_wages"
+
 msgid "{}"
 msgstr "__test_{}"
 
@@ -710,6 +749,12 @@ msgstr "__test_{} value of the transaction with fees"
 
 msgid "{} value of the transaction without fees"
 msgstr "__test_{} value of the transaction without fees"
+
+msgid "{}_Summary"
+msgstr "__test_{}_Summary"
+
+msgid "{}_{}"
+msgstr "__test_{}_{}"
 
 #~ msgid "Asset - Exchange"
 #~ msgstr "__test_Asset - Exchange"

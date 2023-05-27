@@ -46,7 +46,7 @@ Privacy-focused, free, powerful crypto tax calculator
 * **[Change Log](https://github.com/eprbell/rp2/blob/main/README.md#change-log)**
 
 ## Introduction
-[RP2](https://github.com/eprbell/rp2) is a privacy-focused, free, non-commercial, open-source, community-driven cryptocurrency tax calculator for multiple countries (currently US and Japan are supported). Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This task could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
+[RP2](https://github.com/eprbell/rp2) is a privacy-focused, free, non-commercial, open-source, community-driven cryptocurrency tax calculator for multiple countries (currently US, Japan and Spain are supported). Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This task could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
 * it manages the complexity related to coin flows and tax calculation and it generates [reports that accountants can understand](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#advisor-friendly-report-tax-report-us-output) (in the format of form 8949, for the US case), even if they are not cryptocurrency experts;
 * it prioritizes user privacy by storing crypto transactions and tax results on the user's computer and not sending them anywhere else;
 * it's 100% free, open-source and non-commercial.
@@ -57,7 +57,7 @@ Another unique advantage of RP2 is [transparent computation](https://github.com/
 * verify step-by-step how RP2 reaches the final result;
 * track down every lot fraction and its accounting details, in case of an audit.
 
-RP2 currently supports the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) accounting method for US taxes and the Total Average Method for Japanese taxes.
+RP2 currently supports the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) accounting method for US and Spanish taxes and the Total Average Method for Japanese taxes.
 
 RP2 reads a configuration file and an input spreadsheet containing crypto transactions. These [input files](https://github.com/eprbell/rp2/blob/main/docs/input_files.md) can be generated either manually or automatically using [DaLI](https://github.com/eprbell/dali-rp2), a RP2 data loader and input generator (which is also privacy-focused, free, non-commercial, open-source and community-driven). After parsing the input, RP2 uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates [output files](https://github.com/eprbell/rp2/blob/main/docs/output_files.md).
 

@@ -23,9 +23,10 @@
 * **[Unrealized Gains (Open Positions Report Output)](#unrealized-gains-open-positions-report-output)**
 
 ## Introduction
-RP2 generates output files by running the report plugins. It comes with two builtin plugins for US taxes:
-* *rp2_full_report*: a comprehensive report containing full transaction history with hyperlinks, long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. See [crypto_example_fifo_rp2_full_report.ods](../input/golden/crypto_example_fifo_rp2_full_report.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down in this document.
-* *tax_report_us*: a US-specific report that can be used to fill form 8949, etc. See [crypto_example_fifo_tax_report_us.ods](../input/golden/crypto_example_fifo_tax_report_us.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down in this document.
+RP2 generates output files by running the report plugins:
+* *tax_report_\** (US and Japan only). This is a tax-advisor-friendly report that can be given to a tax professional (not necessarily one that specializes in crypto).
+* *rp2_full_report* (all countries): a comprehensive report containing full transaction history with hyperlinks, long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. This report can be useful in case of audit because it contains the complete history of coin movements and fractioning. See [crypto_example_fifo_rp2_full_report.ods](../input/golden/crypto_example_fifo_rp2_full_report.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down in this document.
+* *open_positions* (all countries): a report on assets with non-zero crypto balance: unrealized gains / losses, portfolio weighting, and more.
 
 After running RP2, the output files can be found in the `output` directory or in the directory specified with the -o command line option.
 
@@ -43,6 +44,8 @@ The RP2 Full Report contains hyperlinks to facilitate navigation: in LibreOffice
   * summary lines in the Summary sheet are now hyperlinked to the first line of the given year in the *cryptocurrency* Tax sheet.
 
 ## Advisor-Friendly Report (Tax Report US Output)
+This report can be used to fill form 8949, etc: see [crypto_example_fifo_tax_report_us.ods](../input/golden/crypto_example_fifo_tax_report_us.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down.
+
 The tax_report_us.ods output file contains a legend sheet and a sheet per taxable event type (if there are no taxable events for a given event type, its respective sheet is not generated):
 * Airdrops;
 * Capital Gains (triggered by cryptocurrency sales);
@@ -76,7 +79,7 @@ The NTA (National Tax Agency) provides an excel spreadsheet for calculating the 
 The summary sheet contains the total for the tax year. This is what is normally reported as "miscellaneous income" (雑所得). However, it may be reported as business income in certain circumstances. Please do your own research.
 
 ## Unrealized Gains (Open Positions Report Output)
-The open_positions_us.ods output file is an ODS-format spreadsheet designed to provide information on assets with non-zero crypto balances including gains and losses.
+The open_positions_\*.ods output file is an ODS-format spreadsheet designed to provide information on assets with non-zero crypto balances including gains and losses.
 
 The report contains:
 * a Legend sheet containing the accounting method and the meaning of each column and keyword
