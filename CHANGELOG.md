@@ -14,6 +14,9 @@
 
 # RP2 Change Log
 
+## 1.5.0
+* added support for Spain (see #97)
+
 ## 1.4.2
 * fixed small bug in rp2_full_report generator: OUT transactions had slightly incorrect fiat_out field. The displayed value was fiat_out_no_fee - fiat fee, instead of fiat_out_no_fee. This bug didn't affect actual tax computation or the tax_report output: it only affected the fiat_out field in the OUT table of rp2_full_report.
 
