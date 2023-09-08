@@ -176,7 +176,7 @@ Selling, swapping, donating, mining, staking, earning cryptocurrency are some co
 <!-- markdown-link-check-enable-->
 
 ### Can I Avoid Paying Crypto Taxes?
-No. The IRS has made it clear that [crypto taxes must be paid](https://www.irs.gov/newsroom/irs-reminds-taxpayers-to-report-virtual-currency-transactions).
+No. The IRS has made it clear that [crypto taxes must be paid](https://www.irs.gov/newsroom/irs-reminds-taxpayers-to-report-virtual-currency-transactions). Various tax agencies in other jurisdictions have made similar statements.
 
 ### Which Resources Can I Use to Learn About Crypto Taxes?
 A good starting point is the [Cryptocurrency Tax FAQ](https://www.reddit.com/r/CryptoTax/comments/re6jal/cryptocurrency_tax_faq/) on Reddit. Also read the question on [which tax forms to file](#which-crypto-tax-forms-to-file) and consult with your tax professional.
