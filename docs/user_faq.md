@@ -88,7 +88,7 @@ The user adds the tokens to the `assets` field of the [config file](input_files.
 Currently only the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) accounting method is supported for US and Spanish taxes. Only the Total Average Method is supported for Japanese taxes.
 
 ### Can I Change Accounting Method?
-No, currently RP2 only supports FIFO for US taxes and the Total Average Method for JP taxes.
+No, currently RP2 only supports FIFO for US and Spanish taxes and the Total Average Method for Japanese taxes.
 
 ### What Countries Are Supported?
 Currently the US, Japan and Spain are supported, but more countries are being added. As new countries are added this FAQ will be updated.
