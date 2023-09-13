@@ -82,7 +82,10 @@ virtualenv -p python3 .venv
 .venv/bin/pip3 install -e '.[dev]'
 ```
 ### Setup on Windows 10
-First make sure [Python](https://python.org) 3.7 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following commands:
+First make sure [Python](https://python.org) 3.7 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH").
+
+#### Python virtual environment
+To setup RP2 in a python virtual environment, enter the following commands:
 ```
 python -m pip install virtualenv
 ```
@@ -94,6 +97,17 @@ virtualenv -p python .venv
 .venv\Scripts\activate.ps1
 python -m pip install -e ".[dev]"
 ```
+
+#### Conda virtual environment
+To setup RP2 in a conda environment, enter the following commands:
+```
+cd <rp2_directory>
+conda create -n <env_name>
+conda activate <env_name>
+conda install pip
+pip install -r requirements.txt
+```
+
 ### Setup on Other Unix-like Systems
 * install python 3.7 or greater
 * install pip3
