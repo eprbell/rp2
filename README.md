@@ -140,7 +140,11 @@ pip install rp2
 ### Installation on Other Unix-like Systems
 * install python 3.7 or greater
 * install pip3
-* `pip install rp2`
+
+Then install RP2:
+```
+pip install rp2
+```
 
 ## Running
 RP2 requires two files as input:
