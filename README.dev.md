@@ -94,13 +94,19 @@ virtualenv -p python .venv
 .venv\Scripts\activate.ps1
 python -m pip install -e ".[dev]"
 ```
+
+If `activate.ps1` cannot be loaded because running scripts is disabled on the system, run `activate.bat` instead or change the PowerShell execution policy `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`.
 ### Setup on Other Unix-like Systems
 * install python 3.7 or greater
 * install pip3
 * install virtualenv
-* cd _<rp2_directory>_
-* `virtualenv -p python3 .venv`
-* `.venv/bin/pip3 install -e '.[dev]'`
+
+Then install RP2 Python package requirements:
+```
+cd <rp2_directory>
+virtualenv -p python3 .venv
+.venv/bin/pip3 install -e '.[dev]'
+```
 
 ## Source Code
 The RP2 source tree is organized as follows:
