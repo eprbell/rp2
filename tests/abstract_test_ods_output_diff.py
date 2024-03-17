@@ -66,6 +66,7 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
         input_path: Path = INPUT_PATH,
         from_date: date = MIN_DATE,
         to_date: date = MAX_DATE,
+        allow_negative_balances: bool = False,
         generation_language: Optional[str] = None,
         country: str = "us",
     ) -> None:
@@ -87,6 +88,8 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
             arguments.extend(["-f", str(from_date)])
         if to_date:
             arguments.extend(["-t", str(to_date)])
+        if allow_negative_balances:
+            arguments.extend(["-n"])
         arguments.extend(
             [
                 str(CONFIG_PATH / Path(f"{config}.ini")),

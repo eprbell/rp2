@@ -32,14 +32,28 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
         shutil.rmtree(cls.output_dir, ignore_errors=True)
 
         AbstractTestODSOutputDiff._generate(
-            cls.output_dir, test_name="crypto_example", config="crypto_example", method="fifo", country="jp", generation_language="en"
+            cls.output_dir,
+            test_name="crypto_example",
+            config="crypto_example",
+            method="fifo",
+            country="jp",
+            generation_language="en",
+            allow_negative_balances=True,
         )
         AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data", config="test_data", method="fifo", country="jp", generation_language="en")
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data2", config="test_data", method="fifo", country="jp", generation_language="en")
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir, test_name="test_data2", config="test_data", method="fifo", country="jp", generation_language="en", allow_negative_balances=True
+        )
         AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data3", config="test_data", method="fifo", country="jp", generation_language="en")
         AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data4", config="test_data4", method="fifo", country="jp", generation_language="en")
         AbstractTestODSOutputDiff._generate(
-            cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", country="jp", generation_language="en"
+            cls.output_dir,
+            test_name="test_many_year_data",
+            config="test_data",
+            method="fifo",
+            country="jp",
+            generation_language="en",
+            allow_negative_balances=True,
         )
 
     def setUp(self) -> None:

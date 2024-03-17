@@ -128,6 +128,7 @@ class Configuration:  # pylint: disable=too-many-public-methods
         country: AbstractCountry,
         from_date: date = MIN_DATE,
         to_date: date = MAX_DATE,
+        allow_negative_balances: bool = False,
     ) -> None:
         self.__configuration_path: str = self.type_check_string("configuration_path", configuration_path)
         self.__country = AbstractCountry.type_check("country", country)
@@ -137,9 +138,9 @@ class Configuration:  # pylint: disable=too-many-public-methods
         if not isinstance(to_date, date):
             raise RP2TypeError("Parameter 'to_date' is not of type date")
         self.__to_date: date = to_date
-
         if self.__from_date > self.__to_date:
             raise RP2ValueError("Parameter from_date cannot be greater than to_date")
+        self.__allow_negative_balances = self.type_check_bool("allow_negative_balances", allow_negative_balances)
 
         self.__in_header: Dict[str, int] = {}
         self.__out_header: Dict[str, int] = {}
@@ -314,6 +315,10 @@ class Configuration:  # pylint: disable=too-many-public-methods
     @property
     def to_date(self) -> date:
         return self.__to_date
+
+    @property
+    def allow_negative_balances(self) -> bool:
+        return self.__allow_negative_balances
 
     @property
     def assets(self) -> Set[str]:

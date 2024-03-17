@@ -77,6 +77,7 @@ def _rp2_main_internal(country: AbstractCountry) -> None:  # pylint: disable=too
             country=country,
             from_date=args.from_date,
             to_date=args.to_date,
+            allow_negative_balances=args.allow_negative_balances,
         )
         LOGGER.debug("Configuration object: %s", configuration)
 
@@ -303,6 +304,12 @@ def _setup_argument_parser(country: AbstractCountry) -> ArgumentParser:
         help=f"accounting method (default: '%(default)s'). Supported values: {', '.join(accounting_methods)}",
         metavar="METHOD",
         type=str,
+    )
+    parser.add_argument(
+        "-n",
+        "--allow_negative_balances",
+        action="store_true",
+        help="allow exchange balances to be negative (default: '%(default)s').",
     )
     parser.add_argument(
         "-o",

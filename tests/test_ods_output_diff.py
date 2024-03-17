@@ -33,40 +33,90 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
         shutil.rmtree(cls.output_dir, ignore_errors=True)
 
         for method in AbstractTestODSOutputDiff.METHODS:
-            AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="crypto_example", config="crypto_example", method=method)
+            AbstractTestODSOutputDiff._generate(
+                cls.output_dir, test_name="crypto_example", config="crypto_example", method=method, allow_negative_balances=True
+            )
             AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data", config="test_data", method=method)
-            AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data2", config="test_data", method=method)
+            AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data2", config="test_data", method=method, allow_negative_balances=True)
             AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data3", config="test_data", method=method)
             AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data4", config="test_data4", method=method)
-            AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_hifo", config="test_data", method=method)
-            AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_hifo2", config="test_data", method=method)
-            AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_many_year_data", config="test_data", method=method)
+            AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_hifo", config="test_data", method=method, allow_negative_balances=True)
+            AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_hifo2", config="test_data", method=method, allow_negative_balances=True)
             AbstractTestODSOutputDiff._generate(
-                cls.output_dir, test_name="test_data3", config="test_data", method=method, from_date=date(2019, 12, 1), to_date=date(2020, 4, 1)
+                cls.output_dir, test_name="test_many_year_data", config="test_data", method=method, allow_negative_balances=True
+            )
+            AbstractTestODSOutputDiff._generate(
+                cls.output_dir,
+                test_name="test_data3",
+                config="test_data",
+                method=method,
+                from_date=date(2019, 12, 1),
+                to_date=date(2020, 4, 1),
+                allow_negative_balances=True,
             )
 
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", to_date=date(2016, 12, 31))
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", to_date=date(2017, 12, 31))
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", to_date=date(2018, 12, 31))
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", to_date=date(2019, 12, 31))
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", to_date=date(2020, 12, 31))
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", to_date=date(2016, 12, 31), allow_negative_balances=True
+        )
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", to_date=date(2017, 12, 31), allow_negative_balances=True
+        )
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", to_date=date(2018, 12, 31), allow_negative_balances=True
+        )
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", to_date=date(2019, 12, 31), allow_negative_balances=True
+        )
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", to_date=date(2020, 12, 31), allow_negative_balances=True
+        )
 
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", from_date=date(2017, 1, 1))
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", from_date=date(2018, 1, 1))
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", from_date=date(2019, 1, 1))
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", from_date=date(2020, 1, 1))
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", from_date=date(2021, 1, 1))
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", from_date=date(2017, 1, 1), allow_negative_balances=True
+        )
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", from_date=date(2018, 1, 1), allow_negative_balances=True
+        )
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", from_date=date(2019, 1, 1), allow_negative_balances=True
+        )
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", from_date=date(2020, 1, 1), allow_negative_balances=True
+        )
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", from_date=date(2021, 1, 1), allow_negative_balances=True
+        )
 
         AbstractTestODSOutputDiff._generate(
-            cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", from_date=date(2017, 1, 1), to_date=date(2019, 12, 31)
+            cls.output_dir,
+            test_name="test_many_year_data",
+            config="test_data",
+            method="fifo",
+            from_date=date(2017, 1, 1),
+            to_date=date(2019, 12, 31),
+            allow_negative_balances=True,
         )
         AbstractTestODSOutputDiff._generate(
-            cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", from_date=date(2018, 1, 1), to_date=date(2019, 12, 31)
+            cls.output_dir,
+            test_name="test_many_year_data",
+            config="test_data",
+            method="fifo",
+            from_date=date(2018, 1, 1),
+            to_date=date(2019, 12, 31),
+            allow_negative_balances=True,
         )
         AbstractTestODSOutputDiff._generate(
-            cls.output_dir, test_name="test_many_year_data", config="test_data", method="fifo", from_date=date(2019, 1, 1), to_date=date(2019, 12, 31)
+            cls.output_dir,
+            test_name="test_many_year_data",
+            config="test_data",
+            method="fifo",
+            from_date=date(2019, 1, 1),
+            to_date=date(2019, 12, 31),
+            allow_negative_balances=True,
         )
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data_multi_method", config="test_data_multi_method", method="mixed")
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir, test_name="test_data_multi_method", config="test_data_multi_method", method="mixed", allow_negative_balances=True
+        )
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
