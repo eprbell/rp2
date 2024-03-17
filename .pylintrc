@@ -24,4 +24,5 @@ disable=
     R0913, # too-many-arguments
     R0914, # too-many-local-variables
     R0915, # too-many-statements
+ignore-patterns=.*\.pyi$
 max-line-length=160
