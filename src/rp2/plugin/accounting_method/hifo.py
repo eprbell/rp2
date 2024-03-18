@@ -25,7 +25,9 @@ from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 
 
-# HIFO plugin. See https://www.investopedia.com/terms/h/hifo.asp
+# HIFO plugin. See https://www.investopedia.com/terms/h/hifo.asp. This plugin uses universal application, not per-wallet application:
+# this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
+# More on this at https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/
 class AccountingMethod(AbstractAccountingMethod):
     def seek_non_exhausted_acquired_lot(
         self,

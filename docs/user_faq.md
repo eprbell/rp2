@@ -85,13 +85,21 @@ In some cases exchange reports miss spot price information. In such situations y
 The user adds the tokens to the `assets` field of the [config file](input_files.md#the-config-file): RP2 accepts as valid all the tokens present in this field. See also the question on [writing a config file from scratch](#can-i-avoid-writing-a-config-file-from-scratch).
 
 ### What Accounting Methods Are Supported?
-Currently only the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) accounting method is supported for US and Spanish taxes. Only the Total Average Method is supported for Japanese taxes.
+RP2 currently supports the following accounting methods:
+* US: [FIFO](https://www.investopedia.com/terms/f/fifo.asp), [LIFO](https://www.investopedia.com/terms/f/lifo.asp) and [HIFO](https://www.investopedia.com/terms/f/hifo.asp). Note that these methods use universal application (not per-wallet application), as explained here: https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/;
+* Spain: FIFO;
+* Japan: Total Average Method.
 
 ### Can I Change Accounting Method?
-No, currently RP2 only supports FIFO for US and Spanish taxes and the Total Average Method for Japanese taxes.
+Yes, for countries that support more than one accounting method, you can select which one to use via the `-m` command line option.
 
 ### What Countries Are Supported?
-Currently the US, Japan and Spain are supported, but more countries are being added. As new countries are added this FAQ will be updated.
+Currently the following countries are supported:
+* US;
+* Japan;
+* Spain.
+
+However more countries are being added. As new countries are added this FAQ will be updated.
 
 ### How to Switch from Another Tax Software to RP2?
 In other words, how does RP2 handle transactions that were managed by other software in previous years? In this case the user can just leave out from the RP2 input spreadsheet the transactions/lots that were already sold in previous years.

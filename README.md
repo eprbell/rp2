@@ -57,7 +57,10 @@ Another unique advantage of RP2 is [transparent computation](https://github.com/
 * verify step-by-step how RP2 reaches the final result;
 * track down every lot fraction and its accounting details, in case of an audit.
 
-RP2 currently supports the [FIFO](https://www.investopedia.com/terms/f/fifo.asp) accounting method for US and Spanish taxes and the Total Average Method for Japanese taxes.
+RP2 currently supports the following accounting methods:
+* US: [FIFO](https://www.investopedia.com/terms/f/fifo.asp), [LIFO](https://www.investopedia.com/terms/f/lifo.asp) and [HIFO](https://www.investopedia.com/terms/f/hifo.asp). Note that these methods use universal application (not per-wallet application), as explained here: https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/;
+* Spain: FIFO;
+* Japan: Total Average Method.
 
 RP2 reads a configuration file and an input spreadsheet containing crypto transactions. These [input files](https://github.com/eprbell/rp2/blob/main/docs/input_files.md) can be generated either manually or automatically using [DaLI](https://github.com/eprbell/dali-rp2), a RP2 data loader and input generator (which is also privacy-focused, free, non-commercial, open-source and community-driven). After parsing the input, RP2 uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates [output files](https://github.com/eprbell/rp2/blob/main/docs/output_files.md).
 
@@ -76,9 +79,9 @@ RP2 has extensive [unit test](https://github.com/eprbell/rp2/tree/main/tests/) c
 ### How RP2 Operates
 RP2 has been designed to have expressive primitives that can be used as building blocks for most tax scenarios: complex tax events can be described with patterns, built on top of these primitives (see the [FAQ list](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#tax-scenarios) for examples).
 
-RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Currency Guidance](https://www.irs.gov/newsroom/irs-reminds-taxpayers-to-report-virtual-currency-transactions).
+For the US case, RP2 treats virtual currency as property for tax purposes, as per [IRS Virtual Currency Guidance](https://www.irs.gov/newsroom/irs-reminds-taxpayers-to-report-virtual-currency-transactions).
 
-RP2 supports the FIFO accounting method: however, in and out lots typically don't have matching amounts, so RP2 fractions them, maps in/out lot fractions and computes the resulting cost basis and capital gains for each lot fraction.
+RP2 supports various accounting methods (e.g. FIFO, LIFO, HIFO): however, in and out lots typically don't have matching amounts, so RP2 fractions them, maps in/out lot fractions and computes the resulting cost basis and capital gains for each lot fraction.
 
 RP2 groups lot fractions into the following taxable event categories, each of which has a [specific tax treatment](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#which-crypto-tax-forms-to-file):
 * [AIRDROP](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-handle-airdrops): gains from airdrops;
@@ -170,11 +173,11 @@ The RP2 executable is country-dependent: `rp2_<country_code>`, where country cod
 To generate US tax output for the example files open a terminal window (or PowerShell if on Windows) and enter the following commands:
   ```
   cd <download_directory>
-  rp2_us -o output -p crypto_example_ crypto_example.ini crypto_example.ods
+  rp2_us -m fifo -o output -p crypto_example_ crypto_example.ini crypto_example.ods
   ```
 Results are generated in the `output` directory and logs are stored in the `log` directory.
 
-<!--- The `-m` option is particularly important, because is selects the accounting method: `rp2_us` supports FIFO, LIFO and HIFO (if `-m` is not specified it defaults to FIFO). --->
+The `-m` option is particularly important, because is selects the accounting method: `rp2_us` supports FIFO, LIFO and HIFO (if `-m` is not specified it defaults to FIFO).
 
 To print full command usage information for the `rp2_us` command:
   ```
