@@ -58,7 +58,7 @@ Another unique advantage of RP2 is [transparent computation](https://github.com/
 * track down every lot fraction and its accounting details, in case of an audit.
 
 RP2 currently supports the following accounting methods:
-* US: [FIFO](https://www.investopedia.com/terms/f/fifo.asp), [LIFO](https://www.investopedia.com/terms/f/lifo.asp) and [HIFO](https://www.investopedia.com/terms/f/hifo.asp). Note that these methods use universal application (not per-wallet application), as explained here: https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/;
+* US: [FIFO](https://www.investopedia.com/terms/f/fifo.asp), [LIFO](https://www.investopedia.com/terms/f/lifo.asp) and [HIFO](https://www.investopedia.com/terms/f/hifo.asp). Note that these methods use universal application (not per-wallet application), as explained [here](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/);
 * Spain: FIFO;
 * Japan: Total Average Method.
 
