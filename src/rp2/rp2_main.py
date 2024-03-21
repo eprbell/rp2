@@ -68,6 +68,13 @@ def _rp2_main_internal(country: AbstractCountry) -> None:  # pylint: disable=too
 
     _setup_paths(parser=parser, configuration_file=args.configuration_file, input_file=args.input_file, output_dir=args.output_dir)
 
+    # On certain platforms the mpdecimal system library is missing (see details at: https://github.com/eprbell/rp2/issues/25).
+    try:
+        import _decimal as _  # pylint: disable=import-outside-toplevel
+    except ImportError:
+        LOGGER.error("The `mpdecimal` library is a required system dependency for RP2, but Python was not able to locate it.")
+        sys.exit(1)
+
     try:
         LOGGER.info("Country: %s", country.country_iso_code)
         LOGGER.info("Generation Language: %s", args.generation_language)
