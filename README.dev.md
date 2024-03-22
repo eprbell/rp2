@@ -325,7 +325,7 @@ RP2 has built-in support for the US but it also has infrastructure to support ot
 * in the constructor invoke the superclass constructor passing in country code and currency code;
 * add the `get_long_term_capital_gain_period()` method with the appropriate value. If there is no long-term capital gains, return `sys.maxsize`;
 * `get_default_accounting_method()` method returning accounting method to use if the user doesn't specify one on the command line (e.g. for the US case it's `"fifo"`);
-* `get_accounting_methods()` method returning a set of accounting methods that are accepted in the country (e.g. `{"fifo"}`);
+* `get_accounting_methods()` method returning a set of accounting methods that are accepted in the country (e.g. `{"fifo", "lifo", "hifo"}`);
 * `get_report_generators()`: method returning a set of report generators to use if the user doesn't specify them on the command line;
 * `get_default_generation_language()`: method returning the default language (in [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format) to use at report generation if the user doesn't specify it on the command line;
 * `rp2_entry()` global function calling `rp2_main()` and passing it an instance of the new country class (in fact technically subclasses of `AbstractCountry` are entry points, not plugins).
