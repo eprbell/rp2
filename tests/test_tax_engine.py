@@ -123,12 +123,29 @@ class TestTaxEngine(unittest.TestCase):
             )
         )
 
-        with self.assertRaisesRegex(RP2ValueError, "Total in-transaction crypto value < total taxable crypto value"):
+        with self.assertRaises(RP2ValueError) as value_error:
             compute_tax(
                 self._good_input_configuration,
                 self._accounting_engine,
                 input_data,
             )
+        self.assertEqual(
+            str(value_error.exception),
+            """Total in-transaction crypto value (4.98000000000) - total taxable crypto value (21.2) went negative (-16.22000000000) on the following event: \
+OutTransaction:
+  id=38
+  timestamp=2020-06-01 03:59:59.000000 -0400
+  asset=B4
+  exchange=Coinbase Pro
+  holder=Bob
+  transaction_type=TransactionType.SELL
+  spot_price=900.9000
+  crypto_out_no_fee=20.20000000
+  crypto_fee=1.00000000
+  unique_id=
+  is_taxable=True
+  fiat_taxable_amount=18198.1800""",
+        )
 
 
 if __name__ == "__main__":
