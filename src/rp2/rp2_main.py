@@ -42,7 +42,7 @@ from rp2.logger import LOG_FILE, LOGGER
 from rp2.ods_parser import open_ods, parse_ods
 from rp2.tax_engine import compute_tax
 
-_VERSION: str = "1.5.0"
+_VERSION: str = "1.5.1"
 
 _ACCOUNTING_METHOD_PACKAGE = "rp2.plugin.accounting_method"
 
