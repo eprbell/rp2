@@ -14,6 +14,13 @@
 
 # RP2 Change Log
 
+## 1.5.1
+* re-enabled LIFO and HIFO accounting methods (see discussion at #79)
+* added Python 3.11 to test matrix (#107)
+* on certain Linux distribution the mpdecimal library is missing, which causes runtime errors. This is now detected and reported to the users (#108)
+* added -n CLI option to allow negative balances on exchanges (#106)
+* multiple small documentation improvements
+
 ## 1.5.0
 * added support for Spain (see #97)
 
