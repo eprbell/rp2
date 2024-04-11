@@ -28,7 +28,6 @@ from rp2.out_transaction import OutTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
-
 CRYPTO_BALANCE_DECIMAL_MASK: Decimal = Decimal("1." + "0" * 10)
 
 
@@ -146,7 +145,7 @@ class BalanceSet:
             ):
                 raise RP2ValueError(
                     f'{intra_transaction.asset} balance of account "{from_account.exchange}" (holder "{from_account.holder}") went negative '
-                    f'({final_balances[from_account]}) on the following transaction: {intra_transaction}'
+                    f"({final_balances[from_account]}) on the following transaction: {intra_transaction}"
                 )
 
         # Balances for sold and gifted currency
@@ -164,7 +163,7 @@ class BalanceSet:
             ):
                 raise RP2ValueError(
                     f'{out_transaction.asset} balance of account "{from_account.exchange}" (holder "{from_account.holder}") went negative '
-                    f'({final_balances[from_account]}) on the following transaction: {out_transaction}'
+                    f"({final_balances[from_account]}) on the following transaction: {out_transaction}"
                 )
 
         for account, final_balance in final_balances.items():

@@ -204,9 +204,11 @@ class GainLossSet(AbstractEntrySet):
                 LOGGER.debug(
                     "%s (%d - %d): taxable event housekeeping",
                     last_gain_loss_with_acquired_lot.internal_id,
-                    current_acquired_lot_fraction[last_gain_loss_with_acquired_lot.acquired_lot]
-                    if last_gain_loss_with_acquired_lot.acquired_lot in current_acquired_lot_fraction
-                    else 0,
+                    (
+                        current_acquired_lot_fraction[last_gain_loss_with_acquired_lot.acquired_lot]
+                        if last_gain_loss_with_acquired_lot.acquired_lot in current_acquired_lot_fraction
+                        else 0
+                    ),
                     current_taxable_event_fraction,
                 )
 
