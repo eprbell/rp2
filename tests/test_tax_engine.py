@@ -131,8 +131,7 @@ class TestTaxEngine(unittest.TestCase):
             )
         self.assertEqual(
             str(value_error.exception),
-            """Total in-transaction crypto value (4.98000000000) - total taxable crypto value (21.2) went negative (-16.22000000000) on the following event: \
-OutTransaction:
+            """Taxable out-transaction crypto value > acquired in-transaction crypto value by -16.22000000000 for OutTransaction:
   id=38
   timestamp=2020-06-01 03:59:59.000000 -0400
   asset=B4
@@ -144,7 +143,9 @@ OutTransaction:
   crypto_fee=1.00000000
   unique_id=
   is_taxable=True
-  fiat_taxable_amount=18198.1800""",
+  fiat_taxable_amount=18198.1800
+For more information, see Some Section in the User FAQ: \
+https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#somenewsection""",
         )
 
 
