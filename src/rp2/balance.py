@@ -13,9 +13,9 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
-from typing import Callable, Dict, List, Optional, cast
+from typing import Callable, Dict, List, Optional, Union, cast
 
 from prezzemolo.utility import to_string
 
@@ -118,11 +118,14 @@ class BalanceSet:
         from_account: Account
         to_account: Account
 
+        in_transactions: List[InTransaction] = cast(List[InTransaction], list(self.__input_data.unfiltered_in_transaction_set))
+        intra_transactions: List[IntraTransaction] = cast(List[IntraTransaction], list(self.__input_data.unfiltered_intra_transaction_set))
+        out_transactions: List[OutTransaction] = cast(List[OutTransaction], list(self.__input_data.unfiltered_out_transaction_set))
+
+        transactions: List[Union[InTransaction, IntraTransaction, OutTransaction]] = in_transactions + intra_transactions + out_transactions
         transactions = sorted(
-            list(self.__input_data.unfiltered_in_transaction_set)
-            + list(self.__input_data.unfiltered_intra_transaction_set)
-            + list(self.__input_data.unfiltered_out_transaction_set),
-            key=lambda x: x.timestamp,
+            transactions,
+            key=_transaction_time_sort_key,
         )
 
         # Balances for bought and earned currency
@@ -130,14 +133,14 @@ class BalanceSet:
             if transaction.timestamp.date() > to_date:
                 break
             if isinstance(transaction, InTransaction):
-                in_transaction: InTransaction = cast(InTransaction, transaction)
+                in_transaction: InTransaction = transaction
                 to_account = Account(in_transaction.exchange, in_transaction.holder)
                 acquired_balances[to_account] = acquired_balances.get(to_account, ZERO) + in_transaction.crypto_in
                 final_balances[to_account] = final_balances.get(to_account, ZERO) + in_transaction.crypto_in
 
             # Balances for currency that is moved across accounts
             if isinstance(transaction, IntraTransaction):
-                intra_transaction: IntraTransaction = cast(IntraTransaction, transaction)
+                intra_transaction: IntraTransaction = transaction
                 from_account = Account(intra_transaction.from_exchange, intra_transaction.from_holder)
                 to_account = Account(intra_transaction.to_exchange, intra_transaction.to_holder)
                 sent_balances[from_account] = sent_balances.get(from_account, ZERO) + intra_transaction.crypto_sent
@@ -156,7 +159,7 @@ class BalanceSet:
 
             # Balances for sold and gifted currency
             if isinstance(transaction, OutTransaction):
-                out_transaction: OutTransaction = cast(OutTransaction, transaction)
+                out_transaction: OutTransaction = transaction
                 from_account = Account(out_transaction.exchange, out_transaction.holder)
                 sent_balances[from_account] = sent_balances.get(from_account, ZERO) + out_transaction.crypto_out_no_fee + out_transaction.crypto_fee
                 final_balances[from_account] = final_balances.get(from_account, ZERO) - out_transaction.crypto_out_no_fee - out_transaction.crypto_fee
@@ -239,3 +242,7 @@ class BalanceSetIterator:
 
 def _balance_sort_key(balance: Balance) -> str:
     return f"{balance.exchange}_{balance.holder}"
+
+
+def _transaction_time_sort_key(transaction: Union[InTransaction, IntraTransaction, OutTransaction]) -> datetime:
+    return transaction.timestamp
