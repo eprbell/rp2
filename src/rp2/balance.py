@@ -28,7 +28,6 @@ from rp2.out_transaction import OutTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
-
 CRYPTO_BALANCE_DECIMAL_MASK: Decimal = Decimal("1." + "0" * 10)
 
 
@@ -119,53 +118,57 @@ class BalanceSet:
         from_account: Account
         to_account: Account
 
+        transactions = sorted(
+            list(self.__input_data.unfiltered_in_transaction_set)
+            + list(self.__input_data.unfiltered_intra_transaction_set)
+            + list(self.__input_data.unfiltered_out_transaction_set),
+            key=lambda x: x.timestamp,
+        )
+
         # Balances for bought and earned currency
-        for transaction in self.__input_data.unfiltered_in_transaction_set:
+        for transaction in transactions:
             if transaction.timestamp.date() > to_date:
                 break
-            in_transaction: InTransaction = cast(InTransaction, transaction)
-            to_account = Account(in_transaction.exchange, in_transaction.holder)
-            acquired_balances[to_account] = acquired_balances.get(to_account, ZERO) + in_transaction.crypto_in
-            final_balances[to_account] = final_balances.get(to_account, ZERO) + in_transaction.crypto_in
+            if isinstance(transaction, InTransaction):
+                in_transaction: InTransaction = cast(InTransaction, transaction)
+                to_account = Account(in_transaction.exchange, in_transaction.holder)
+                acquired_balances[to_account] = acquired_balances.get(to_account, ZERO) + in_transaction.crypto_in
+                final_balances[to_account] = final_balances.get(to_account, ZERO) + in_transaction.crypto_in
 
-        # Balances for currency that is moved across accounts
-        for transaction in self.__input_data.unfiltered_intra_transaction_set:
-            if transaction.timestamp.date() > to_date:
-                break
-            intra_transaction: IntraTransaction = cast(IntraTransaction, transaction)
-            from_account = Account(intra_transaction.from_exchange, intra_transaction.from_holder)
-            to_account = Account(intra_transaction.to_exchange, intra_transaction.to_holder)
-            sent_balances[from_account] = sent_balances.get(from_account, ZERO) + intra_transaction.crypto_sent
-            received_balances[to_account] = received_balances.get(to_account, ZERO) + intra_transaction.crypto_received
-            final_balances[from_account] = final_balances.get(from_account, ZERO) - intra_transaction.crypto_sent
-            final_balances[to_account] = final_balances.get(to_account, ZERO) + intra_transaction.crypto_received
-            if (
-                not RP2Decimal.is_equal_within_precision(final_balances[from_account], ZERO, CRYPTO_BALANCE_DECIMAL_MASK)
-                and final_balances[from_account] < ZERO
-                and not configuration.allow_negative_balances
-            ):
-                raise RP2ValueError(
-                    f'{intra_transaction.asset} balance of account "{from_account.exchange}" (holder "{from_account.holder}") went negative '
-                    f'({final_balances[from_account]}) on the following transaction: {intra_transaction}'
-                )
+            # Balances for currency that is moved across accounts
+            if isinstance(transaction, IntraTransaction):
+                intra_transaction: IntraTransaction = cast(IntraTransaction, transaction)
+                from_account = Account(intra_transaction.from_exchange, intra_transaction.from_holder)
+                to_account = Account(intra_transaction.to_exchange, intra_transaction.to_holder)
+                sent_balances[from_account] = sent_balances.get(from_account, ZERO) + intra_transaction.crypto_sent
+                received_balances[to_account] = received_balances.get(to_account, ZERO) + intra_transaction.crypto_received
+                final_balances[from_account] = final_balances.get(from_account, ZERO) - intra_transaction.crypto_sent
+                final_balances[to_account] = final_balances.get(to_account, ZERO) + intra_transaction.crypto_received
+                if (
+                    not RP2Decimal.is_equal_within_precision(final_balances[from_account], ZERO, CRYPTO_BALANCE_DECIMAL_MASK)
+                    and final_balances[from_account] < ZERO
+                    and not configuration.allow_negative_balances
+                ):
+                    raise RP2ValueError(
+                        f'{intra_transaction.asset} balance of account "{from_account.exchange}" (holder "{from_account.holder}") went negative '
+                        f"({final_balances[from_account]}) on the following transaction: {intra_transaction}"
+                    )
 
-        # Balances for sold and gifted currency
-        for transaction in self.__input_data.unfiltered_out_transaction_set:
-            if transaction.timestamp.date() > to_date:
-                break
-            out_transaction: OutTransaction = cast(OutTransaction, transaction)
-            from_account = Account(out_transaction.exchange, out_transaction.holder)
-            sent_balances[from_account] = sent_balances.get(from_account, ZERO) + out_transaction.crypto_out_no_fee + out_transaction.crypto_fee
-            final_balances[from_account] = final_balances.get(from_account, ZERO) - out_transaction.crypto_out_no_fee - out_transaction.crypto_fee
-            if (
-                not RP2Decimal.is_equal_within_precision(final_balances[from_account], ZERO, CRYPTO_BALANCE_DECIMAL_MASK)
-                and final_balances[from_account] < ZERO
-                and not configuration.allow_negative_balances
-            ):
-                raise RP2ValueError(
-                    f'{out_transaction.asset} balance of account "{from_account.exchange}" (holder "{from_account.holder}") went negative '
-                    f'({final_balances[from_account]}) on the following transaction: {out_transaction}'
-                )
+            # Balances for sold and gifted currency
+            if isinstance(transaction, OutTransaction):
+                out_transaction: OutTransaction = cast(OutTransaction, transaction)
+                from_account = Account(out_transaction.exchange, out_transaction.holder)
+                sent_balances[from_account] = sent_balances.get(from_account, ZERO) + out_transaction.crypto_out_no_fee + out_transaction.crypto_fee
+                final_balances[from_account] = final_balances.get(from_account, ZERO) - out_transaction.crypto_out_no_fee - out_transaction.crypto_fee
+                if (
+                    not RP2Decimal.is_equal_within_precision(final_balances[from_account], ZERO, CRYPTO_BALANCE_DECIMAL_MASK)
+                    and final_balances[from_account] < ZERO
+                    and not configuration.allow_negative_balances
+                ):
+                    raise RP2ValueError(
+                        f'{out_transaction.asset} balance of account "{from_account.exchange}" (holder "{from_account.holder}") went negative '
+                        f"({final_balances[from_account]}) on the following transaction: {out_transaction}"
+                    )
 
         for account, final_balance in final_balances.items():
             balance = Balance(
