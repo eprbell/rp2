@@ -25,7 +25,7 @@ from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 
 
-# FIFO plugin. See https://www.investopedia.com/terms/l/fifo.asp. This plugin uses universal application, not per-wallet application:
+# FIFO (First In, First Out) plugin. See https://www.investopedia.com/terms/l/fifo.asp. This plugin uses universal application, not per-wallet application:
 # this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
 # More on this at https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/
 class AccountingMethod(AbstractAccountingMethod):
@@ -38,8 +38,8 @@ class AccountingMethod(AbstractAccountingMethod):
         selected_acquired_lot_amount: RP2Decimal = ZERO
         selected_acquired_lot: Optional[InTransaction] = None
         acquired_lot: InTransaction
-        # This loop causes O(m*n) complexity, where m is the number of acquired lots and n in the number of taxable events. The taxable
-        # event loop is in the caller. Non-trivial optimizations are possible using different data structures but they need to be researched.
+        # This loop avoids O(m*n) complexity by keeping track of the index of the most recently exhausted lot.
+        # As FIFO ensures no non-exhausted lots can exist to the left of this index, this approach is O(n).
         for acquired_lot in lot_candidates:
             acquired_lot_amount: RP2Decimal = ZERO
 
@@ -48,7 +48,8 @@ class AccountingMethod(AbstractAccountingMethod):
             elif lot_candidates.get_partial_amount(acquired_lot) > ZERO:
                 acquired_lot_amount = lot_candidates.get_partial_amount(acquired_lot)
             else:
-                # The acquired lot has zero partial amount
+                # The acquired lot has zero partial amount, so we can advance our start offset
+                lot_candidates.set_from_index(lot_candidates.from_index + 1)
                 continue
 
             selected_acquired_lot_amount = acquired_lot_amount
