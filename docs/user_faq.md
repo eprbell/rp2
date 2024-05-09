@@ -79,7 +79,7 @@ RP2 supports [transparent computation](output_files.md#transparent-computation-r
 Timestamp format is [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) (see [examples](https://en.wikipedia.org/wiki/ISO_8601#Combined_date_and_time_representations) of timestamps in this format). Note that RP2 requires full timestamps, including date, time and timezone.
 
 ### What if I Don't Have the Spot Price for Some Transactions?
-In some cases exchange reports miss spot price information. In such situations you can retrieve historical price data from [Yahoo](https://finance.yahoo.com/quote/BTC-USD/history/), [CoinMarketCap](https://coinmarketcap.com/currencies/bitcoin/historical-data/) and others.
+In some cases exchange reports miss spot price information. In such situations you can retrieve historical price data from <!-- markdown-link-check-disable -->[Yahoo](https://finance.yahoo.com/quote/BTC-USD/history/)<!-- markdown-link-check-enable -->, [CoinMarketCap](https://coinmarketcap.com/currencies/bitcoin/historical-data/) and others.
 
 ### What Tokens Does RP2 Support?
 The user adds the tokens to the `assets` field of the [config file](input_files.md#the-config-file): RP2 accepts as valid all the tokens present in this field. See also the question on [writing a config file from scratch](#can-i-avoid-writing-a-config-file-from-scratch).
