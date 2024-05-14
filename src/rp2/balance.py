@@ -15,10 +15,11 @@
 from dataclasses import dataclass
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Callable, Dict, List, Optional, Union, cast
+from typing import Callable, Dict, List, Optional
 
 from prezzemolo.utility import to_string
 
+from rp2.abstract_entry import AbstractEntry
 from rp2.configuration import Configuration
 from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData
@@ -118,11 +119,11 @@ class BalanceSet:
         from_account: Account
         to_account: Account
 
-        in_transactions: List[InTransaction] = cast(List[InTransaction], list(self.__input_data.unfiltered_in_transaction_set))
-        intra_transactions: List[IntraTransaction] = cast(List[IntraTransaction], list(self.__input_data.unfiltered_intra_transaction_set))
-        out_transactions: List[OutTransaction] = cast(List[OutTransaction], list(self.__input_data.unfiltered_out_transaction_set))
+        in_transactions = list(self.__input_data.unfiltered_in_transaction_set)
+        intra_transactions = list(self.__input_data.unfiltered_intra_transaction_set)
+        out_transactions = list(self.__input_data.unfiltered_out_transaction_set)
 
-        transactions: List[Union[InTransaction, IntraTransaction, OutTransaction]] = in_transactions + intra_transactions + out_transactions
+        transactions = in_transactions + intra_transactions + out_transactions
         transactions = sorted(
             transactions,
             key=_transaction_time_sort_key,
@@ -244,5 +245,5 @@ def _balance_sort_key(balance: Balance) -> str:
     return f"{balance.exchange}_{balance.holder}"
 
 
-def _transaction_time_sort_key(transaction: Union[InTransaction, IntraTransaction, OutTransaction]) -> datetime:
+def _transaction_time_sort_key(transaction: AbstractEntry) -> datetime:
     return transaction.timestamp
