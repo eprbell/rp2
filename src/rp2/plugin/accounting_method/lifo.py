@@ -25,7 +25,7 @@ from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 
 
-# LIFO plugin. See https://www.investopedia.com/terms/l/lifo.asp. This plugin uses universal application, not per-wallet application:
+# Last In, First Out (LIFO) plugin. See https://www.investopedia.com/terms/l/lifo.asp. This plugin uses universal application, not per-wallet application:
 # this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
 # More on this at https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/
 # Note that under LIFO the date acquired must still be before or on the date sold: for details see
@@ -59,8 +59,15 @@ class AccountingMethod(AbstractAccountingMethod):
 
         if selected_acquired_lot_amount > ZERO and selected_acquired_lot:
             lot_candidates.clear_partial_amount(selected_acquired_lot)
+            lot_candidates.add_selected_lot_to_heap(selected_acquired_lot)
             return AcquiredLotAndAmount(acquired_lot=selected_acquired_lot, amount=selected_acquired_lot_amount)
         return None
 
     def lot_candidates_order(self) -> AcquiredLotCandidatesOrder:
         return AcquiredLotCandidatesOrder.NEWER_TO_OLDER
+
+    def heap_key(self, lot: InTransaction) -> float:
+        return -lot.timestamp.timestamp()
+
+    def use_heap(self) -> bool:
+        return True

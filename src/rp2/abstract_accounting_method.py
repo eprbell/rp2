@@ -14,7 +14,8 @@
 
 
 from enum import Enum
-from typing import Dict, List, NamedTuple, Optional
+from heapq import heappop, heappush
+from typing import Dict, List, NamedTuple, Optional, Tuple, Union
 
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
@@ -41,11 +42,17 @@ class AcquiredLotCandidates:
     ) -> None:
         self.__accounting_method: AbstractAccountingMethod = accounting_method
         self.__acquired_lot_list = acquired_lot_list
+        self.__acquired_lot_heap: List[Tuple[Union[float, RP2Decimal], InTransaction]] = []
         self.__acquired_lot_2_partial_amount = acquired_lot_2_partial_amount
         self.__to_index = 0
         self.__from_index = 0
 
     def set_to_index(self, to_index: int) -> None:
+        # Control how far to advance the iterator, caller is responsible for updating
+        if self.__accounting_method.use_heap():
+            for i in range(self.__to_index, to_index + 1):
+                lot = self.__acquired_lot_list[i]
+                self.add_selected_lot_to_heap(lot)
         self.__to_index = to_index
 
     def set_from_index(self, from_index: int) -> None:
@@ -69,8 +76,15 @@ class AcquiredLotCandidates:
     def clear_partial_amount(self, acquired_lot: InTransaction) -> None:
         self.set_partial_amount(acquired_lot, ZERO)
 
-    def __iter__(self) -> "AccountingMethodIterator":
-        return AccountingMethodIterator(self.__acquired_lot_list, self.__from_index, self.__to_index, self.__accounting_method.lot_candidates_order())
+    def add_selected_lot_to_heap(self, lot: InTransaction) -> None:
+        heap_item = (self.__accounting_method.heap_key(lot), lot)
+        heappush(self.__acquired_lot_heap, heap_item)
+
+    def __iter__(self) -> Union["AccountingMethodIterator", "HeapAccountingMethodIterator"]:
+        if self.__accounting_method.use_heap():  # pylint: disable=no-else-return
+            return HeapAccountingMethodIterator(self.__acquired_lot_heap)
+        else:
+            return AccountingMethodIterator(self.__acquired_lot_list, self.__from_index, self.__to_index, self.__accounting_method.lot_candidates_order())
 
 
 class AccountingMethodIterator:
@@ -96,6 +110,17 @@ class AccountingMethodIterator:
         raise StopIteration(self)
 
 
+class HeapAccountingMethodIterator:
+    def __init__(self, acquired_lot_heap: List[Tuple[Union[float, RP2Decimal], InTransaction]]) -> None:
+        self.__acquired_lot_heap = acquired_lot_heap
+
+    def __next__(self) -> InTransaction:
+        while len(self.__acquired_lot_heap) > 0:
+            _, result = heappop(self.__acquired_lot_heap)
+            return result
+        raise StopIteration(self)
+
+
 class AbstractAccountingMethod:
     def seek_non_exhausted_acquired_lot(
         self,
@@ -114,3 +139,9 @@ class AbstractAccountingMethod:
 
     def __repr__(self) -> str:
         return self.name
+
+    def heap_key(self, lot: InTransaction) -> Union[RP2Decimal, float]:
+        raise NotImplementedError("Abstract function")
+
+    def use_heap(self) -> bool:
+        raise NotImplementedError("Abstract function")

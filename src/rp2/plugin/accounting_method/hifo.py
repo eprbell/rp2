@@ -51,14 +51,22 @@ class AccountingMethod(AbstractAccountingMethod):
                 # The acquired lot has zero partial amount
                 continue
 
-            if selected_acquired_lot is None or selected_acquired_lot.spot_price < acquired_lot.spot_price:
+            if acquired_lot_amount > ZERO:
                 selected_acquired_lot_amount = acquired_lot_amount
                 selected_acquired_lot = acquired_lot
+                break
 
         if selected_acquired_lot_amount > ZERO and selected_acquired_lot:
             lot_candidates.clear_partial_amount(selected_acquired_lot)
+            lot_candidates.add_selected_lot_to_heap(selected_acquired_lot)
             return AcquiredLotAndAmount(acquired_lot=selected_acquired_lot, amount=selected_acquired_lot_amount)
         return None
 
     def lot_candidates_order(self) -> AcquiredLotCandidatesOrder:
         return AcquiredLotCandidatesOrder.OLDER_TO_NEWER
+
+    def heap_key(self, lot: InTransaction) -> RP2Decimal:
+        return -lot.spot_price
+
+    def use_heap(self) -> bool:
+        return True

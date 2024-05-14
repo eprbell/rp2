@@ -206,3 +206,6 @@ class InTransaction(AbstractTransaction):
 
     def is_taxable(self) -> bool:
         return self.transaction_type.is_earn_type()
+
+    def __lt__(self, other: "InTransaction") -> bool:
+        return self.timestamp < other.timestamp

@@ -63,3 +63,9 @@ class AccountingMethod(AbstractAccountingMethod):
 
     def lot_candidates_order(self) -> AcquiredLotCandidatesOrder:
         return AcquiredLotCandidatesOrder.OLDER_TO_NEWER
+
+    def heap_key(self, lot: InTransaction) -> RP2Decimal:
+        raise ValueError()
+
+    def use_heap(self) -> bool:
+        return False
