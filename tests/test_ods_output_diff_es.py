@@ -39,11 +39,15 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             generation_language="es",
             allow_negative_balances=True,
         )
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data", config="test_data", method="fifo", country="es", generation_language="es")
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir, test_name="test_data", config="test_data", method="fifo", country="es", generation_language="es", allow_negative_balances=True
+        )
         AbstractTestODSOutputDiff._generate(
             cls.output_dir, test_name="test_data2", config="test_data", method="fifo", country="es", generation_language="es", allow_negative_balances=True
         )
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data3", config="test_data", method="fifo", country="es", generation_language="es")
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir, test_name="test_data3", config="test_data", method="fifo", country="es", generation_language="es", allow_negative_balances=True
+        )
         AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data4", config="test_data4", method="fifo", country="es", generation_language="es")
         AbstractTestODSOutputDiff._generate(
             cls.output_dir,
