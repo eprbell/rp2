@@ -51,7 +51,7 @@ RP2 is released under the terms of Apache License Version 2.0. For more informat
 The latest RP2 source can be downloaded at: <https://github.com/eprbell/rp2>
 
 ## Setup
-RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.7.0 or greater. Virtualenv is recommended for RP2 development.
+RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.8.0 or greater. Virtualenv is recommended for RP2 development.
 
 ### Setup on Ubuntu Linux
 First make sure Python, pip and virtualenv are installed. If not, open a terminal window and enter the following commands:
@@ -82,7 +82,7 @@ virtualenv -p python3 .venv
 .venv/bin/pip3 install -e '.[dev]'
 ```
 ### Setup on Windows 10
-First make sure [Python](https://python.org) 3.7 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following commands:
+First make sure [Python](https://python.org) 3.8 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following commands:
 ```
 python -m pip install virtualenv
 ```
@@ -97,7 +97,7 @@ python -m pip install -e ".[dev]"
 
 If `activate.ps1` cannot be loaded because running scripts is disabled on the system, run `activate.bat` instead or change the PowerShell execution policy `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`.
 ### Setup on Other Unix-like Systems
-* install python 3.7 or greater
+* install python 3.8 or greater
 * install pip3
 * install virtualenv
 

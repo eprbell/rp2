@@ -110,7 +110,7 @@ RP2 is released under the terms of Apache License Version 2.0. For more informat
 The latest version of RP2 can be downloaded at: <https://pypi.org/project/rp2/>
 
 ## Installation
-RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.7.0 or greater.
+RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.8.0 or greater.
 
 ### Installation on Ubuntu Linux
 Open a terminal window and enter the following commands:
@@ -135,13 +135,13 @@ Then install RP2:
 pip install rp2
 ```
 ### Installation on Windows 10
-First make sure [Python](https://python.org) 3.7 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following:
+First make sure [Python](https://python.org) 3.8 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following:
 ```
 pip install rp2
 ```
 
 ### Installation on Other Unix-like Systems
-* install python 3.7 or greater
+* install python 3.8 or greater
 * install pip3
 
 Then install RP2:
