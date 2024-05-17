@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from datetime import date
-from typing import cast
 
 from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.entry_types import EntrySetType
@@ -53,15 +52,9 @@ class InputData:
         if not isinstance(to_date, date):
             raise RP2TypeError("Parameter 'to_date' is not of type date")
 
-        self.__filtered_in_transaction_set: TransactionSet = cast(
-            TransactionSet, self.__unfiltered_in_transaction_set.duplicate(from_date=from_date, to_date=to_date)
-        )
-        self.__filtered_out_transaction_set: TransactionSet = cast(
-            TransactionSet, self.__unfiltered_out_transaction_set.duplicate(from_date=from_date, to_date=to_date)
-        )
-        self.__filtered_intra_transaction_set: TransactionSet = cast(
-            TransactionSet, self.__unfiltered_intra_transaction_set.duplicate(from_date=from_date, to_date=to_date)
-        )
+        self.__filtered_in_transaction_set: TransactionSet = self.__unfiltered_in_transaction_set.duplicate(from_date=from_date, to_date=to_date)
+        self.__filtered_out_transaction_set: TransactionSet = self.__unfiltered_out_transaction_set.duplicate(from_date=from_date, to_date=to_date)
+        self.__filtered_intra_transaction_set: TransactionSet = self.__unfiltered_intra_transaction_set.duplicate(from_date=from_date, to_date=to_date)
 
     @property
     def asset(self) -> str:

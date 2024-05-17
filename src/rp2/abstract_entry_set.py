@@ -14,7 +14,7 @@
 
 from copy import copy
 from datetime import date, datetime
-from typing import Dict, List, Optional, Set
+from typing import Dict, Iterable, Iterator, List, Optional, Set, TypeVar
 
 from rp2.abstract_entry import AbstractEntry
 from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
@@ -24,8 +24,10 @@ from rp2.intra_transaction import IntraTransaction
 from rp2.out_transaction import OutTransaction
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
+AbstractEntrySetSubclass = TypeVar("AbstractEntrySetSubclass", bound="AbstractEntrySet")
 
-class AbstractEntrySet:
+
+class AbstractEntrySet(Iterable[AbstractEntry]):
     def __init__(
         self,
         configuration: Configuration,
@@ -49,9 +51,9 @@ class AbstractEntrySet:
         self._entry_to_parent: Dict[AbstractEntry, Optional[AbstractEntry]] = {}
         self.__is_sorted: bool = False
 
-    def duplicate(self, from_date: date = MIN_DATE, to_date: date = MAX_DATE) -> "AbstractEntrySet":
+    def duplicate(self: AbstractEntrySetSubclass, from_date: date = MIN_DATE, to_date: date = MAX_DATE) -> AbstractEntrySetSubclass:
         # pylint: disable=protected-access
-        result: AbstractEntrySet = copy(self)
+        result: AbstractEntrySetSubclass = copy(self)
         result._from_date = from_date
         result._to_date = to_date
         # Force sort to recompute fields that are affected by time filter
@@ -167,7 +169,7 @@ class AbstractEntrySet:
         return EntrySetIterator(self)
 
 
-class EntrySetIterator:
+class EntrySetIterator(Iterator[AbstractEntry]):
     def __init__(self, entry_set: AbstractEntrySet) -> None:
         self.__entry_set: AbstractEntrySet = entry_set
         self.__entry_set_size: int = self.__entry_set.count
