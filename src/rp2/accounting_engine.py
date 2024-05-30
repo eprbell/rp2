@@ -209,7 +209,7 @@ class AccountingEngine:
             lot_candidates: Optional[AcquiredLotCandidates] = self.__years_2_lot_candidates.find_max_value_less_than(taxable_event.timestamp.year)
 
             if lot_candidates:
-                lot_candidates.set_up_to_index(acquired_lot_and_index.index)
+                lot_candidates.set_to_index(acquired_lot_and_index.index)
                 acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = method.seek_non_exhausted_acquired_lot(
                     lot_candidates, taxable_event, new_taxable_event_amount
                 )

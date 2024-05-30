@@ -42,11 +42,11 @@ class AcquiredLotCandidates:
         self.__accounting_method: AbstractAccountingMethod = accounting_method
         self.__acquired_lot_list = acquired_lot_list
         self.__acquired_lot_2_partial_amount = acquired_lot_2_partial_amount
-        self.__up_to_index = 0
+        self.__to_index = 0
         self.__from_index = 0
 
-    def set_up_to_index(self, up_to_index: int) -> None:
-        self.__up_to_index = up_to_index
+    def set_to_index(self, to_index: int) -> None:
+        self.__to_index = to_index
 
     def set_from_index(self, from_index: int) -> None:
         self.__from_index = from_index
@@ -70,14 +70,14 @@ class AcquiredLotCandidates:
         self.set_partial_amount(acquired_lot, ZERO)
 
     def __iter__(self) -> "AccountingMethodIterator":
-        return AccountingMethodIterator(self.__acquired_lot_list, self.__from_index, self.__up_to_index, self.__accounting_method.lot_candidates_order())
+        return AccountingMethodIterator(self.__acquired_lot_list, self.__from_index, self.__to_index, self.__accounting_method.lot_candidates_order())
 
 
 class AccountingMethodIterator:
-    def __init__(self, acquired_lot_list: List[InTransaction], from_index: int, up_to_index: int, order_type: AcquiredLotCandidatesOrder) -> None:
+    def __init__(self, acquired_lot_list: List[InTransaction], from_index: int, to_index: int, order_type: AcquiredLotCandidatesOrder) -> None:
         self.__acquired_lot_list = acquired_lot_list
-        self.__start_index = from_index if order_type == AcquiredLotCandidatesOrder.OLDER_TO_NEWER else up_to_index
-        self.__end_index = up_to_index if order_type == AcquiredLotCandidatesOrder.OLDER_TO_NEWER else from_index
+        self.__start_index = from_index if order_type == AcquiredLotCandidatesOrder.OLDER_TO_NEWER else to_index
+        self.__end_index = to_index if order_type == AcquiredLotCandidatesOrder.OLDER_TO_NEWER else from_index
         self.__step = 1 if order_type == AcquiredLotCandidatesOrder.OLDER_TO_NEWER else -1
         self.__index = self.__start_index
         self.__order_type = order_type
