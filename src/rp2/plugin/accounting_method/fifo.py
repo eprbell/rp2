@@ -38,7 +38,7 @@ class AccountingMethod(AbstractAccountingMethod):
         selected_acquired_lot_amount: RP2Decimal = ZERO
         selected_acquired_lot: Optional[InTransaction] = None
         acquired_lot: InTransaction
-        # This loop avoids O(m*n) complexity by keeping track of the index of the most recently exhausted lot.
+        # The FIFO plugin features linear complexity by setting lot_candidates from_index to the first non-exhausted lot (to_index is set in the caller).
         # As FIFO ensures no non-exhausted lots can exist to the left of this index, this approach is O(n).
         for acquired_lot in lot_candidates:
             acquired_lot_amount: RP2Decimal = ZERO
