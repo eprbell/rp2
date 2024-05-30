@@ -199,17 +199,17 @@ class AccountingEngine:
         acquired_lot_amount: RP2Decimal,
     ) -> TaxableEventAndAcquiredLot:
         new_taxable_event_amount: RP2Decimal = taxable_event_amount - acquired_lot_amount
-        avl_result: Optional[_AcquiredLotAndIndex] = self.__acquired_lot_avl.find_max_value_less_than(
+        acquired_lot_and_index: Optional[_AcquiredLotAndIndex] = self.__acquired_lot_avl.find_max_value_less_than(
             self._get_avl_node_key_with_max_disambiguator(taxable_event.timestamp)
         )
-        if avl_result is not None:
-            if avl_result.acquired_lot != self.__acquired_lot_list[avl_result.index]:
+        if acquired_lot_and_index is not None:
+            if acquired_lot_and_index.acquired_lot != self.__acquired_lot_list[acquired_lot_and_index.index]:
                 raise RP2RuntimeError("Internal error: acquired_lot incongruence in accounting logic")
             method = self._get_accounting_method(taxable_event.timestamp.year)
             lot_candidates: Optional[AcquiredLotCandidates] = self.__years_2_lot_candidates.find_max_value_less_than(taxable_event.timestamp.year)
 
             if lot_candidates:
-                lot_candidates.set_up_to_index(avl_result.index)
+                lot_candidates.set_up_to_index(acquired_lot_and_index.index)
                 acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = method.seek_non_exhausted_acquired_lot(
                     lot_candidates, taxable_event, new_taxable_event_amount
                 )
