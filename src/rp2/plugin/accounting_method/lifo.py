@@ -19,6 +19,7 @@ from rp2.abstract_accounting_method import (
     AcquiredLotAndAmount,
     AcquiredLotCandidates,
     AcquiredLotCandidatesOrder,
+    HeapAccountingMethodIterator,
 )
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
@@ -71,3 +72,6 @@ class AccountingMethod(AbstractAccountingMethod):
 
     def use_heap(self) -> bool:
         return True
+
+    def _get_accounting_method_iterator(self, lot_candidates: AcquiredLotCandidates) -> HeapAccountingMethodIterator:
+        return HeapAccountingMethodIterator(lot_candidates.acquired_lot_heap)

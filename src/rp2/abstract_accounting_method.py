@@ -23,6 +23,11 @@ from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2RuntimeError
 
 
+class AbstractAccountingMethodIterator:
+    def __next__(self) -> InTransaction:
+        raise NotImplementedError("abstract function")
+
+
 class AcquiredLotAndAmount(NamedTuple):
     acquired_lot: InTransaction
     amount: RP2Decimal
@@ -92,14 +97,11 @@ class AcquiredLotCandidates:
         heap_item = (self.__accounting_method.heap_key(lot), lot)
         heappush(self.__acquired_lot_heap, heap_item)
 
-    def __iter__(self) -> Union["AccountingMethodIterator", "HeapAccountingMethodIterator"]:
-        if self.__accounting_method.use_heap():  # pylint: disable=no-else-return
-            return HeapAccountingMethodIterator(self.__acquired_lot_heap)
-        else:
-            return AccountingMethodIterator(self.__acquired_lot_list, self.__from_index, self.__to_index, self.__accounting_method.lot_candidates_order())
+    def __iter__(self) -> AbstractAccountingMethodIterator:
+        return self.__accounting_method._get_accounting_method_iterator(self)
 
 
-class AccountingMethodIterator:
+class ListAccountingMethodIterator(AbstractAccountingMethodIterator):
     def __init__(self, acquired_lot_list: List[InTransaction], from_index: int, to_index: int, order_type: AcquiredLotCandidatesOrder) -> None:
         self.__acquired_lot_list = acquired_lot_list
         self.__start_index = from_index if order_type == AcquiredLotCandidatesOrder.OLDER_TO_NEWER else to_index
@@ -122,7 +124,7 @@ class AccountingMethodIterator:
         raise StopIteration(self)
 
 
-class HeapAccountingMethodIterator:
+class HeapAccountingMethodIterator(AbstractAccountingMethodIterator):
     def __init__(self, acquired_lot_heap: List[Tuple[Union[float, RP2Decimal], InTransaction]]) -> None:
         self.__acquired_lot_heap = acquired_lot_heap
 
@@ -156,4 +158,7 @@ class AbstractAccountingMethod:
         raise NotImplementedError("Abstract function")
 
     def use_heap(self) -> bool:
+        raise NotImplementedError("Abstract function")
+
+    def _get_accounting_method_iterator(self, lot_candidates: AcquiredLotCandidates) -> AbstractAccountingMethodIterator:
         raise NotImplementedError("Abstract function")
