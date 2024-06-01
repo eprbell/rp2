@@ -87,6 +87,10 @@ class AbstractTransaction(AbstractEntry):
         return str(self.__internal_id)
 
     @property
+    def internal_id_int(self) -> int:
+        return self.__internal_id
+
+    @property
     def timestamp(self) -> datetime:
         return self.__timestamp
 

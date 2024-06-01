@@ -62,6 +62,18 @@ class AcquiredLotCandidates:
     def from_index(self) -> int:
         return self.__from_index
 
+    @property
+    def to_index(self) -> int:
+        return self.__to_index
+
+    @property
+    def acquired_lot_heap(self) -> List[Tuple[Union[float, RP2Decimal], InTransaction]]:
+        return self.__acquired_lot_heap
+
+    @property
+    def acquired_lot_list(self) -> List[InTransaction]:
+        return self.__acquired_lot_list
+
     def has_partial_amount(self, acquired_lot: InTransaction) -> bool:
         return acquired_lot in self.__acquired_lot_2_partial_amount
 
