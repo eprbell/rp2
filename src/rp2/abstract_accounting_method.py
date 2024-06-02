@@ -15,7 +15,7 @@
 
 from enum import Enum
 from heapq import heappop, heappush
-from typing import Dict, List, NamedTuple, Optional, Tuple, Union
+from typing import Dict, List, NamedTuple, Optional, Tuple
 
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
@@ -38,6 +38,12 @@ class AcquiredLotCandidatesOrder(Enum):
     NEWER_TO_OLDER: str = "newer_to_older"
 
 
+class AcquiredLotHeapSortKey(NamedTuple):
+    spot_price: RP2Decimal
+    timestamp: float
+    internal_id_int: int
+
+
 class AcquiredLotCandidates:
     def __init__(
         self,
@@ -47,7 +53,7 @@ class AcquiredLotCandidates:
     ) -> None:
         self.__accounting_method: AbstractAccountingMethod = accounting_method
         self.__acquired_lot_list = acquired_lot_list
-        self.__acquired_lot_heap: List[Tuple[Union[float, RP2Decimal], InTransaction]] = []
+        self.__acquired_lot_heap: List[Tuple[AcquiredLotHeapSortKey, InTransaction]] = []
         self.__acquired_lot_2_partial_amount = acquired_lot_2_partial_amount
         self.__to_index = 0
         self.__from_index = 0
@@ -72,7 +78,7 @@ class AcquiredLotCandidates:
         return self.__to_index
 
     @property
-    def acquired_lot_heap(self) -> List[Tuple[Union[float, RP2Decimal], InTransaction]]:
+    def acquired_lot_heap(self) -> List[Tuple[AcquiredLotHeapSortKey, InTransaction]]:
         return self.__acquired_lot_heap
 
     @property
@@ -125,7 +131,7 @@ class ListAccountingMethodIterator(AbstractAccountingMethodIterator):
 
 
 class HeapAccountingMethodIterator(AbstractAccountingMethodIterator):
-    def __init__(self, acquired_lot_heap: List[Tuple[Union[float, RP2Decimal], InTransaction]]) -> None:
+    def __init__(self, acquired_lot_heap: List[Tuple[AcquiredLotHeapSortKey, InTransaction]]) -> None:
         self.__acquired_lot_heap = acquired_lot_heap
 
     def __next__(self) -> InTransaction:
@@ -154,7 +160,7 @@ class AbstractAccountingMethod:
     def __repr__(self) -> str:
         return self.name
 
-    def heap_key(self, lot: InTransaction) -> Union[RP2Decimal, float]:
+    def heap_key(self, lot: InTransaction) -> AcquiredLotHeapSortKey:
         raise NotImplementedError("Abstract function")
 
     def use_heap(self) -> bool:
