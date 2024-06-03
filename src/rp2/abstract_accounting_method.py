@@ -44,30 +44,25 @@ class AcquiredLotHeapSortKey(NamedTuple):
     internal_id_int: int
 
 
-class AcquiredLotCandidates:
+class AbstractAcquiredLotCandidates:
     def __init__(
         self,
         accounting_method: "AbstractAccountingMethod",
         acquired_lot_list: List[InTransaction],
         acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal],
     ) -> None:
-        self.__accounting_method: AbstractAccountingMethod = accounting_method
+        self._accounting_method: AbstractAccountingMethod = accounting_method
         self.__acquired_lot_list = acquired_lot_list
         self.__acquired_lot_heap: List[Tuple[AcquiredLotHeapSortKey, InTransaction]] = []
         self.__acquired_lot_2_partial_amount = acquired_lot_2_partial_amount
-        self.__to_index = 0
+        self._to_index = 0
         self.__from_index = 0
-
-    def set_to_index(self, to_index: int) -> None:
-        # Control how far to advance the iterator, caller is responsible for updating
-        if self.__accounting_method.use_heap():
-            for i in range(self.__to_index, to_index + 1):
-                lot = self.__acquired_lot_list[i]
-                self.add_selected_lot_to_heap(lot)
-        self.__to_index = to_index
 
     def set_from_index(self, from_index: int) -> None:
         self.__from_index = from_index
+
+    def set_to_index(self, to_index: int) -> None:
+        raise NotImplementedError("abstract")
 
     @property
     def from_index(self) -> int:
@@ -75,7 +70,7 @@ class AcquiredLotCandidates:
 
     @property
     def to_index(self) -> int:
-        return self.__to_index
+        return self._to_index
 
     @property
     def acquired_lot_heap(self) -> List[Tuple[AcquiredLotHeapSortKey, InTransaction]]:
@@ -99,12 +94,8 @@ class AcquiredLotCandidates:
     def clear_partial_amount(self, acquired_lot: InTransaction) -> None:
         self.set_partial_amount(acquired_lot, ZERO)
 
-    def add_selected_lot_to_heap(self, lot: InTransaction) -> None:
-        heap_item = (self.__accounting_method.heap_key(lot), lot)
-        heappush(self.__acquired_lot_heap, heap_item)
-
     def __iter__(self) -> AbstractAccountingMethodIterator:
-        return self.__accounting_method._get_accounting_method_iterator(self)
+        return self._accounting_method._get_accounting_method_iterator(self)
 
 
 class ListAccountingMethodIterator(AbstractAccountingMethodIterator):
@@ -141,10 +132,31 @@ class HeapAccountingMethodIterator(AbstractAccountingMethodIterator):
         raise StopIteration(self)
 
 
+class ListAcquiredLotCandidates(AbstractAcquiredLotCandidates):
+    def set_to_index(self, to_index: int) -> None:
+        self._to_index = to_index  # pylint: disable=unused-private-member
+
+
+class HeapAcquiredLotCandidates(AbstractAcquiredLotCandidates):
+    _accounting_method: "AbstractHeapAccountingMethod"
+
+    def set_to_index(self, to_index: int) -> None:
+        # Control how far to advance the iterator, caller is responsible for updating
+        for i in range(self.to_index, to_index + 1):
+            lot = self.acquired_lot_list[i]
+            self._accounting_method.add_selected_lot_to_heap(self.acquired_lot_heap, lot)
+        self._to_index = to_index
+
+
 class AbstractAccountingMethod:
+    def get_lot_candidates(
+        self, acquired_lot_list: List[InTransaction], acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal]
+    ) -> AbstractAcquiredLotCandidates:
+        raise NotImplementedError("abstract")
+
     def seek_non_exhausted_acquired_lot(
         self,
-        lot_candidates: AcquiredLotCandidates,
+        lot_candidates: AbstractAcquiredLotCandidates,
         taxable_event: Optional[AbstractTransaction],
         taxable_event_amount: RP2Decimal,
     ) -> Optional[AcquiredLotAndAmount]:
@@ -160,11 +172,35 @@ class AbstractAccountingMethod:
     def __repr__(self) -> str:
         return self.name
 
+    def _get_accounting_method_iterator(self, lot_candidates: AbstractAcquiredLotCandidates) -> AbstractAccountingMethodIterator:
+        raise NotImplementedError("Abstract function")
+
+
+class AbstractListAccountingMethod(AbstractAccountingMethod):
+    def get_lot_candidates(
+        self, acquired_lot_list: List[InTransaction], acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal]
+    ) -> ListAcquiredLotCandidates:
+        return ListAcquiredLotCandidates(self, acquired_lot_list, acquired_lot_2_partial_amount)
+
+    def lot_candidates_order(self) -> AcquiredLotCandidatesOrder:
+        raise NotImplementedError("Abstract function")
+
+    def _get_accounting_method_iterator(self, lot_candidates: AbstractAcquiredLotCandidates) -> ListAccountingMethodIterator:
+        return ListAccountingMethodIterator(lot_candidates.acquired_lot_list, lot_candidates.from_index, lot_candidates.to_index, self.lot_candidates_order())
+
+
+class AbstractHeapAccountingMethod(AbstractAccountingMethod):
+    def get_lot_candidates(
+        self, acquired_lot_list: List[InTransaction], acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal]
+    ) -> HeapAcquiredLotCandidates:
+        return HeapAcquiredLotCandidates(self, acquired_lot_list, acquired_lot_2_partial_amount)
+
+    def add_selected_lot_to_heap(self, heap: List[Tuple[AcquiredLotHeapSortKey, InTransaction]], lot: InTransaction) -> None:
+        heap_item = (self.heap_key(lot), lot)
+        heappush(heap, heap_item)
+
     def heap_key(self, lot: InTransaction) -> AcquiredLotHeapSortKey:
         raise NotImplementedError("Abstract function")
 
-    def use_heap(self) -> bool:
-        raise NotImplementedError("Abstract function")
-
-    def _get_accounting_method_iterator(self, lot_candidates: AcquiredLotCandidates) -> AbstractAccountingMethodIterator:
-        raise NotImplementedError("Abstract function")
+    def _get_accounting_method_iterator(self, lot_candidates: AbstractAcquiredLotCandidates) -> HeapAccountingMethodIterator:
+        return HeapAccountingMethodIterator(lot_candidates.acquired_lot_heap)

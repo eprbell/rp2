@@ -15,12 +15,11 @@
 from typing import Optional
 
 from rp2.abstract_accounting_method import (
-    AbstractAccountingMethod,
+    AbstractAcquiredLotCandidates,
+    AbstractHeapAccountingMethod,
     AcquiredLotAndAmount,
-    AcquiredLotCandidates,
     AcquiredLotCandidatesOrder,
     AcquiredLotHeapSortKey,
-    HeapAccountingMethodIterator,
 )
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
@@ -30,10 +29,10 @@ from rp2.rp2_decimal import ZERO, RP2Decimal
 # HIFO plugin. See https://www.investopedia.com/terms/h/hifo.asp. This plugin uses universal application, not per-wallet application:
 # this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
 # More on this at https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/
-class AccountingMethod(AbstractAccountingMethod):
+class AccountingMethod(AbstractHeapAccountingMethod):
     def seek_non_exhausted_acquired_lot(
         self,
-        lot_candidates: AcquiredLotCandidates,
+        lot_candidates: AbstractAcquiredLotCandidates,
         taxable_event: Optional[AbstractTransaction],
         taxable_event_amount: RP2Decimal,
     ) -> Optional[AcquiredLotAndAmount]:
@@ -61,7 +60,7 @@ class AccountingMethod(AbstractAccountingMethod):
         if selected_acquired_lot_amount > ZERO and selected_acquired_lot:
             lot_candidates.clear_partial_amount(selected_acquired_lot)
             if selected_acquired_lot_amount > taxable_event_amount:
-                lot_candidates.add_selected_lot_to_heap(selected_acquired_lot)
+                self.add_selected_lot_to_heap(lot_candidates.acquired_lot_heap, selected_acquired_lot)
             return AcquiredLotAndAmount(acquired_lot=selected_acquired_lot, amount=selected_acquired_lot_amount)
         return None
 
@@ -70,9 +69,3 @@ class AccountingMethod(AbstractAccountingMethod):
 
     def heap_key(self, lot: InTransaction) -> AcquiredLotHeapSortKey:
         return AcquiredLotHeapSortKey(-lot.spot_price, lot.timestamp.timestamp(), lot.internal_id_int)
-
-    def use_heap(self) -> bool:
-        return True
-
-    def _get_accounting_method_iterator(self, lot_candidates: AcquiredLotCandidates) -> HeapAccountingMethodIterator:
-        return HeapAccountingMethodIterator(lot_candidates.acquired_lot_heap)
