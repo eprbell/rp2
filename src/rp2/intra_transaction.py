@@ -34,7 +34,7 @@ class IntraTransaction(AbstractTransaction):
         spot_price: Optional[RP2Decimal],
         crypto_sent: RP2Decimal,
         crypto_received: RP2Decimal,
-        internal_id: Optional[int] = None,
+        row: Optional[int] = None,
         unique_id: Optional[str] = None,
         notes: Optional[str] = None,
     ) -> None:
@@ -52,7 +52,7 @@ class IntraTransaction(AbstractTransaction):
                 raise RP2ValueError(
                     f"crypto_fee is non-zero ({self.__crypto_fee}) but spot_price is empty or zero: {timestamp} {asset} {crypto_sent} {unique_id} "
                 )
-        super().__init__(configuration, timestamp, asset, "MOVE", spot_price, internal_id, unique_id, notes)
+        super().__init__(configuration, timestamp, asset, "MOVE", spot_price, row, unique_id, notes)
 
         self.__from_exchange: str = configuration.type_check_exchange("from_exchange", from_exchange)
         self.__from_holder: str = configuration.type_check_holder("from_holder", from_holder)

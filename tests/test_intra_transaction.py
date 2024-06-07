@@ -48,12 +48,13 @@ class TestIntraTransaction(unittest.TestCase):
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
             RP2Decimal("1.9998"),
-            internal_id=19,
+            row=19,
         )
 
         IntraTransaction.type_check("my_instance", intra_transaction)
         self.assertTrue(intra_transaction.is_taxable())
         self.assertEqual(RP2Decimal("0.4"), intra_transaction.fiat_taxable_amount)
+        self.assertEqual(19, intra_transaction.row)
         self.assertEqual("19", intra_transaction.internal_id)
         self.assertEqual(2021, intra_transaction.timestamp.year)
         self.assertEqual(1, intra_transaction.timestamp.month)
@@ -156,7 +157,7 @@ class TestIntraTransaction(unittest.TestCase):
             RP2Decimal("100.0"),
             RP2Decimal("30"),
             RP2Decimal("30"),
-            internal_id=19,
+            row=19,
         )
         self.assertFalse(intra_transaction.is_taxable())
         self.assertEqual(RP2Decimal("0"), intra_transaction.fiat_taxable_amount)
@@ -200,7 +201,7 @@ class TestIntraTransaction(unittest.TestCase):
             RP2Decimal("100.0"),
             RP2Decimal("30"),
             RP2Decimal("30"),
-            internal_id=19,
+            row=19,
         )
         intra_transaction2: IntraTransaction = IntraTransaction(
             self._configuration,
@@ -213,7 +214,7 @@ class TestIntraTransaction(unittest.TestCase):
             RP2Decimal("100.0"),
             RP2Decimal("30"),
             RP2Decimal("30"),
-            internal_id=19,
+            row=19,
         )
         intra_transaction3: IntraTransaction = IntraTransaction(
             self._configuration,
@@ -226,7 +227,7 @@ class TestIntraTransaction(unittest.TestCase):
             RP2Decimal("100.0"),
             RP2Decimal("30"),
             RP2Decimal("30"),
-            internal_id=11,
+            row=11,
         )
         self.assertEqual(intra_transaction, intra_transaction)
         self.assertEqual(intra_transaction, intra_transaction2)
@@ -248,7 +249,7 @@ class TestIntraTransaction(unittest.TestCase):
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
             RP2Decimal("1.9998"),
-            internal_id=19,
+            row=19,
         )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'indent' has non-integer value"):
             intra_transaction.to_string(None, repr_format=False, extra_data=["foobar", "qwerty"])  # type: ignore
@@ -277,7 +278,7 @@ class TestIntraTransaction(unittest.TestCase):
                     RP2Decimal("10000"),
                     RP2Decimal("1"),
                     fiat_fee=RP2Decimal("0"),
-                    internal_id=45,
+                    row=45,
                 ),
             )
 
@@ -294,7 +295,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
             # Bad configuration
@@ -309,10 +310,10 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'internal_id' has non-integer value .*"):
-            # Bad internal_id
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'row' has non-integer value .*"):
+            # Bad row
             IntraTransaction(
                 self._configuration,
                 "2021-01-02T08:42:43.882Z",
@@ -324,7 +325,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=(1, 2, 3),  # type: ignore
+                row=(1, 2, 3),  # type: ignore
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'timestamp' has non-string value .*"):
             # Bad timestamp
@@ -339,7 +340,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'timestamp' value has no timezone info: .*"):
             # Bad timestamp
@@ -354,7 +355,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'asset' value is not known: .*"):
             # Bad asset
@@ -369,7 +370,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'asset' has non-string value .*"):
             # Bad asset
@@ -384,7 +385,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'from_exchange' value is not known: .*"):
             # Bad from exchange
@@ -399,7 +400,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_exchange' has non-string value .*"):
             # Bad from exchange
@@ -414,7 +415,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'from_holder' value is not known: .*"):
             # Bad from holder
@@ -429,7 +430,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'from_holder' has non-string value .*"):
             # Bad from holder
@@ -444,7 +445,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'to_exchange' value is not known: .*"):
             # Bad to exchange
@@ -459,7 +460,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'to_exchange' has non-string value .*"):
             # Bad to exchange
@@ -474,7 +475,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'to_holder' value is not known: .*"):
             # Bad to holder
@@ -489,7 +490,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'to_holder' has non-string value .*"):
             # Bad to holder
@@ -504,7 +505,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'spot_price' has non-positive value .*"):
             # Bad spot price
@@ -519,7 +520,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("-1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'spot_price' has non-RP2Decimal value .*"):
             # Bad spot price
@@ -534,7 +535,7 @@ class TestIntraTransaction(unittest.TestCase):
                 "1000",  # type: ignore
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_sent' has zero value"):
             # Bad crypto sent
@@ -549,7 +550,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("0"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_sent' has non-positive value .*"):
             # Bad crypto sent
@@ -564,7 +565,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("-2"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_sent' has non-RP2Decimal value .*"):
             # Bad crypto sent
@@ -579,7 +580,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 None,  # type: ignore
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_sent' has non-RP2Decimal value .*"):
             # Bad crypto sent
@@ -594,7 +595,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 "-2.0002",  # type: ignore
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_received' has non-positive value .*"):
             # Bad crypto received
@@ -609,7 +610,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("-2"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_received' has non-RP2Decimal value .*"):
             # Bad crypto received
@@ -624,7 +625,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 None,  # type: ignore
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_received' has non-RP2Decimal value .*"):
             # Bad crypto received
@@ -639,7 +640,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 (1, 2, 3),  # type: ignore
-                internal_id=19,
+                row=19,
             )
 
         with self.assertLogs(level="WARNING") as log:
@@ -655,7 +656,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
             self.assertTrue(re.search(".*IntraTransaction.*: from/to exchanges/holders are the same: sending to self", log.output[0]))
 
@@ -672,7 +673,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("-2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_sent' has zero value"):
             # Crypto sent == 0
@@ -687,7 +688,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("0"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_received' has non-positive value .*"):
             # Crypto received < 0
@@ -702,7 +703,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("-1.9998"),
-                internal_id=19,
+                row=19,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'notes' has non-string value .*"):
             # Bad notes
@@ -717,7 +718,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
                 notes=1111,  # type: ignore
             )
         with self.assertLogs(level="WARNING") as log:
@@ -733,7 +734,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("2.0002"),
                 RP2Decimal("1.9998"),
-                internal_id=19,
+                row=19,
             )
             self.assertTrue(re.search(".*IntraTransaction.*: from/to exchanges/holders are the same: sending to self", log.output[0]))
         with self.assertRaisesRegex(RP2ValueError, ".*IntraTransaction .*, id.*crypto sent < crypto received"):
@@ -749,7 +750,7 @@ class TestIntraTransaction(unittest.TestCase):
                 RP2Decimal("1000.0"),
                 RP2Decimal("1.0002"),
                 RP2Decimal("2.9998"),
-                internal_id=19,
+                row=19,
             )
 
 

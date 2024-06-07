@@ -47,7 +47,7 @@ class TestGainLoss(unittest.TestCase):
             fiat_fee=RP2Decimal("20"),
             fiat_in_no_fee=RP2Decimal("20002"),
             fiat_in_with_fee=RP2Decimal("20022"),
-            internal_id=10,
+            row=10,
         )
         self._in_buy2 = InTransaction(
             self._configuration,
@@ -59,7 +59,7 @@ class TestGainLoss(unittest.TestCase):
             RP2Decimal("10500"),
             RP2Decimal("0.8"),
             fiat_fee=RP2Decimal("10"),
-            internal_id=11,
+            row=11,
         )
         self._in_buy3 = InTransaction(
             self._configuration,
@@ -71,7 +71,7 @@ class TestGainLoss(unittest.TestCase):
             RP2Decimal("1300"),
             RP2Decimal("1.5"),
             fiat_fee=RP2Decimal("20"),
-            internal_id=12,
+            row=12,
         )
         self._in_interest = InTransaction(
             self._configuration,
@@ -83,7 +83,7 @@ class TestGainLoss(unittest.TestCase):
             RP2Decimal("11000"),
             RP2Decimal("0.1"),
             fiat_fee=RP2Decimal("0"),
-            internal_id=14,
+            row=14,
         )
         self._out: OutTransaction = OutTransaction(
             self._configuration,
@@ -95,7 +95,7 @@ class TestGainLoss(unittest.TestCase):
             RP2Decimal("12000"),
             RP2Decimal("0.2"),
             RP2Decimal("0"),
-            internal_id=20,
+            row=20,
         )
         self._intra: IntraTransaction = IntraTransaction(
             self._configuration,
@@ -108,7 +108,7 @@ class TestGainLoss(unittest.TestCase):
             RP2Decimal("12500.0"),
             RP2Decimal("0.4"),
             RP2Decimal("0.39"),
-            internal_id=30,
+            row=30,
         )
 
     def test_good_interest_gain_loss(self) -> None:
@@ -313,7 +313,7 @@ class TestGainLoss(unittest.TestCase):
                 RP2Decimal("1300"),
                 RP2Decimal("1.5"),
                 fiat_fee=RP2Decimal("20"),
-                internal_id=11,
+                row=11,
             )
             GainLoss(self._configuration, RP2Decimal("0.1"), self._out, in_transaction)
 

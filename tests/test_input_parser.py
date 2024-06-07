@@ -95,6 +95,7 @@ class TestInputParser(unittest.TestCase):
         is_taxable_values: List[bool] = [False, True, True, False, False]
 
         count: int = 0
+        row: int
         internal_id: str
         timestamp: str
         transaction_type: TransactionType
@@ -127,9 +128,11 @@ class TestInputParser(unittest.TestCase):
             fiat_balance_changes,
             is_taxable_values,
         ):
+            row = int(internal_id)
             if not in_transaction_set or not transaction:  # Unwrap the Optional types to keep mypy happy
                 raise RP2RuntimeError("Internal error: in_transaction_set or transaction are None")
             self.assertEqual(in_transaction_set.get_parent(transaction), previous_transaction)
+            self.assertEqual(transaction.row, row)
             self.assertEqual(transaction.internal_id, internal_id)
             self.assertEqual(transaction.timestamp, parse(timestamp))
             self.assertEqual(transaction.transaction_type, transaction_type)
@@ -166,6 +169,7 @@ class TestInputParser(unittest.TestCase):
         is_taxable_values: List[bool] = [True, True, True, True, True]
 
         count: int = 0
+        row: int
         internal_id: str
         timestamp: str
         transaction_type: TransactionType
@@ -199,9 +203,11 @@ class TestInputParser(unittest.TestCase):
             fiat_balance_changes,
             is_taxable_values,
         ):
+            row = int(internal_id)
             if not out_transaction_set or not transaction:  # Unwrap the Optional types to keep mypy happy
                 raise RP2RuntimeError("Internal error: in_transaction_set or transaction are None")
             self.assertEqual(out_transaction_set.get_parent(transaction), previous_transaction)
+            self.assertEqual(transaction.row, row)
             self.assertEqual(transaction.internal_id, internal_id)
             self.assertEqual(transaction.timestamp, parse(timestamp))
             self.assertEqual(transaction.transaction_type, transaction_type)
@@ -236,6 +242,7 @@ class TestInputParser(unittest.TestCase):
         is_taxable_values: List[bool] = [True, False, True, True]
 
         count: int = 0
+        row: int
         internal_id: str
         timestamp: str
         transaction_type: TransactionType
@@ -268,9 +275,11 @@ class TestInputParser(unittest.TestCase):
             fiat_balance_changes,
             is_taxable_values,
         ):
+            row = int(internal_id)
             if not intra_transaction_set or not transaction:  # Unwrap the Optional types to keep mypy happy
                 raise RP2RuntimeError("Internal error: intra_transaction_set or transaction are None")
             self.assertEqual(intra_transaction_set.get_parent(transaction), previous_transaction)
+            self.assertEqual(transaction.row, row)
             self.assertEqual(transaction.internal_id, internal_id)
             self.assertEqual(transaction.timestamp, parse(timestamp))
             self.assertEqual(transaction.transaction_type, transaction_type)

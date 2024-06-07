@@ -191,7 +191,7 @@ def _create_and_process_transaction(
                 fiat_in_no_fee=transaction.fiat_in_no_fee,
                 fiat_in_with_fee=transaction.fiat_in_with_fee,
                 fiat_fee=transaction.fiat_fee,
-                internal_id=internal_id,
+                row=internal_id,
                 unique_id=transaction.unique_id,
                 notes=notes,
             )
@@ -207,7 +207,7 @@ def _create_and_process_transaction(
                 spot_price=transaction.spot_price,
                 crypto_out_no_fee=ZERO,
                 crypto_fee=transaction.crypto_fee,
-                internal_id=artificial_internal_id,
+                row=artificial_internal_id,
                 unique_id=transaction.unique_id,
                 notes=(
                     f"Artificial transaction modeling the crypto fee of {transaction.crypto_fee} {transaction.asset} "
@@ -243,7 +243,7 @@ def _process_constructor_argument_pack(
     internal_id: int,
     class_name: str,
 ) -> Dict[str, Any]:
-    argument_pack.update({"configuration": configuration, "internal_id": internal_id})
+    argument_pack.update({"configuration": configuration, "row": internal_id})
     numeric_parameters: List[str] = _get_decimal_constructor_argument_names(class_name)
     for numeric_parameter in numeric_parameters:
         if numeric_parameter in argument_pack:

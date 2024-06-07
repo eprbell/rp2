@@ -68,4 +68,4 @@ class AccountingMethod(AbstractHeapAccountingMethod):
         return AcquiredLotCandidatesOrder.OLDER_TO_NEWER
 
     def heap_key(self, lot: InTransaction) -> AcquiredLotHeapSortKey:
-        return AcquiredLotHeapSortKey(-lot.spot_price, lot.timestamp.timestamp(), lot.internal_id_int)
+        return AcquiredLotHeapSortKey(-lot.spot_price, lot.timestamp.timestamp(), lot.row)

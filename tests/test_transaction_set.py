@@ -64,7 +64,7 @@ class TestTransactionSet(unittest.TestCase):
             fiat_fee=RP2Decimal("20"),
             fiat_in_no_fee=RP2Decimal("3000.2"),
             fiat_in_with_fee=RP2Decimal("3020.2"),
-            internal_id=30,
+            row=30,
         )
         transaction_set.add_entry(transaction3)
 
@@ -80,7 +80,7 @@ class TestTransactionSet(unittest.TestCase):
             fiat_fee=RP2Decimal("0"),
             fiat_in_no_fee=RP2Decimal("2000.2"),
             fiat_in_with_fee=RP2Decimal("2000.2"),
-            internal_id=20,
+            row=20,
         )
         transaction_set.add_entry(transaction2)
 
@@ -106,7 +106,7 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("900.9"),
             RP2Decimal("2.2"),
             RP2Decimal("0"),
-            internal_id=10,
+            row=10,
         )
         transaction_set.add_entry(transaction1)
 
@@ -121,7 +121,7 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
             RP2Decimal("1.9998"),
-            internal_id=50,
+            row=50,
         )
         transaction_set.add_entry(transaction5)
 
@@ -136,14 +136,14 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("100.0"),
             RP2Decimal("30"),
             RP2Decimal("30"),
-            internal_id=40,
+            row=40,
         )
         transaction_set.add_entry(transaction4)
 
         self.assertEqual(transaction_set.entry_set_type, EntrySetType.MIXED)
         self.assertEqual(transaction_set.asset, "B1")
 
-        internal_ids: List[str] = ["10", "20", "30", "40", "50"]
+        rows: List[str] = ["10", "20", "30", "40", "50"]
         transactions: List[AbstractTransaction] = [transaction1, transaction2, transaction3, transaction4, transaction5]
         parents: List[Optional[AbstractTransaction]] = [
             None,
@@ -192,15 +192,17 @@ class TestTransactionSet(unittest.TestCase):
             transaction_set,
             transactions,
             parents,
-            internal_ids,
+            rows,
             timestamps,
             transaction_types,
             fiat_taxable_amounts,
             crypto_balance_changes,
             fiat_balance_changes,
         ):
+            row = int(internal_id)
             self.assertEqual(transaction, expected_transaction)
             self.assertEqual(transaction_set.get_parent(transaction), parent)
+            self.assertEqual(transaction.row, row)
             self.assertEqual(transaction.internal_id, internal_id)
             self.assertEqual(transaction.timestamp, parse(timestamp))
             self.assertEqual(transaction.transaction_type, transaction_type)
@@ -226,7 +228,7 @@ class TestTransactionSet(unittest.TestCase):
             fiat_fee=RP2Decimal("0"),
             fiat_in_with_fee=RP2Decimal("2000.2"),
             fiat_in_no_fee=RP2Decimal("2000.2"),
-            internal_id=20,
+            row=20,
         )
         # Different instance with same contents as in_transaction
         in_transaction2 = InTransaction(
@@ -241,7 +243,7 @@ class TestTransactionSet(unittest.TestCase):
             fiat_fee=RP2Decimal("0"),
             fiat_in_with_fee=RP2Decimal("2000.2"),
             fiat_in_no_fee=RP2Decimal("2000.2"),
-            internal_id=20,
+            row=20,
         )
         out_transaction = OutTransaction(
             self._configuration,
@@ -253,7 +255,7 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("900.9"),
             RP2Decimal("2.2"),
             RP2Decimal("0"),
-            internal_id=10,
+            row=10,
         )
         intra_transaction = IntraTransaction(
             self._configuration,
@@ -266,7 +268,7 @@ class TestTransactionSet(unittest.TestCase):
             RP2Decimal("1000.0"),
             RP2Decimal("2.0002"),
             RP2Decimal("1.9998"),
-            internal_id=50,
+            row=50,
         )
 
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
