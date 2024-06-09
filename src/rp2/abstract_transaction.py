@@ -39,7 +39,7 @@ class AbstractTransaction(AbstractEntry):
         self.__timestamp: datetime = configuration.type_check_timestamp_from_string("timestamp", timestamp)
         self.__transaction_type: TransactionType = TransactionType.type_check_from_string("transaction_type", transaction_type)
         self.__spot_price: RP2Decimal = configuration.type_check_positive_decimal("spot_price", spot_price)
-        # TODO: the fallback case does not semantically match "row", make non-optional  # pylint: disable=fixme
+        # TODO: behavior when row is not provided does not semantically match "row", make non-optional  # pylint: disable=fixme
         self.__row: int = configuration.type_check_internal_id("row", row) if row is not None else id(self)
         self.__internal_id: int = self.__row
         self.__unique_id: str = configuration.type_check_string_or_integer("unique_id", unique_id) if unique_id is not None else ""
