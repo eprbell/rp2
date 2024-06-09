@@ -127,8 +127,8 @@ def _create_unfiltered_gain_and_loss_set(
             Configuration.type_check_positive_decimal("taxable_event_amount", taxable_event_amount)
             Configuration.type_check_positive_decimal("acquired_lot_amount", acquired_lot_amount)
 
-            if taxable_event.transaction_type.is_earn_type():
-                # Handle earn-typed transactions first: they have no acquired-lot
+            if taxable_event.is_earning():
+                # Handle earnings first: they have no acquired-lot
                 gain_loss = GainLoss(configuration, taxable_event_amount, taxable_event, None)
                 LOGGER.debug(
                     "tax_engine: taxable is earn: %s / %s + %s = %s: %s",

@@ -161,3 +161,6 @@ class IntraTransaction(AbstractTransaction):
 
     def is_taxable(self) -> bool:
         return self.fiat_fee > ZERO
+
+    def is_earning(self) -> bool:
+        return False
