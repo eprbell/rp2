@@ -56,10 +56,9 @@ class AccountingMethod(AbstractHeapAccountingMethod):
                 # The acquired lot has zero partial amount
                 continue
 
-            if acquired_lot_amount > ZERO:
-                selected_acquired_lot_amount = acquired_lot_amount
-                selected_acquired_lot = acquired_lot
-                break
+            selected_acquired_lot_amount = acquired_lot_amount
+            selected_acquired_lot = acquired_lot
+            break
 
         if selected_acquired_lot_amount > ZERO and selected_acquired_lot:
             lot_candidates.clear_partial_amount(selected_acquired_lot)
