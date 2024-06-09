@@ -149,7 +149,7 @@ class HeapAcquiredLotCandidates(AbstractAcquiredLotCandidates):
 
 
 class AbstractAccountingMethod:
-    def get_lot_candidates(
+    def create_lot_candidates(
         self, acquired_lot_list: List[InTransaction], acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal]
     ) -> AbstractAcquiredLotCandidates:
         raise NotImplementedError("abstract")
@@ -177,7 +177,7 @@ class AbstractAccountingMethod:
 
 
 class AbstractListAccountingMethod(AbstractAccountingMethod):
-    def get_lot_candidates(
+    def create_lot_candidates(
         self, acquired_lot_list: List[InTransaction], acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal]
     ) -> ListAcquiredLotCandidates:
         return ListAcquiredLotCandidates(self, acquired_lot_list, acquired_lot_2_partial_amount)
@@ -190,7 +190,7 @@ class AbstractListAccountingMethod(AbstractAccountingMethod):
 
 
 class AbstractHeapAccountingMethod(AbstractAccountingMethod):
-    def get_lot_candidates(
+    def create_lot_candidates(
         self, acquired_lot_list: List[InTransaction], acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal]
     ) -> HeapAcquiredLotCandidates:
         return HeapAcquiredLotCandidates(self, acquired_lot_list, acquired_lot_2_partial_amount)

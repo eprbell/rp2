@@ -118,7 +118,9 @@ class AccountingEngine:
         to_visit = []
         node = self.__years_2_methods.root
         while node is not None:
-            self.__years_2_lot_candidates.insert_node(node.key, node.value.get_lot_candidates(self.__acquired_lot_list, self.__acquired_lot_2_partial_amount))
+            self.__years_2_lot_candidates.insert_node(
+                node.key, node.value.create_lot_candidates(self.__acquired_lot_list, self.__acquired_lot_2_partial_amount)
+            )
             if node.left:
                 to_visit.append(node.left)
             if node.right:
