@@ -58,7 +58,7 @@ class TestBalanceSet(unittest.TestCase):
             fiat_fee=RP2Decimal("20"),
             fiat_in_no_fee=RP2Decimal("3000.2"),
             fiat_in_with_fee=RP2Decimal("3020.2"),
-            internal_id=30,
+            row=30,
         )
         in_transaction_set.add_entry(transaction1)
 
@@ -73,7 +73,7 @@ class TestBalanceSet(unittest.TestCase):
             RP2Decimal("4.0000"),
             crypto_fee=RP2Decimal("0.0002"),
             fiat_out_no_fee=RP2Decimal("4000.0"),
-            internal_id=31,
+            row=31,
         )
         out_transaction_set.add_entry(transaction2)
 
@@ -106,7 +106,7 @@ class TestBalanceSet(unittest.TestCase):
             fiat_fee=RP2Decimal("20"),
             fiat_in_no_fee=RP2Decimal("3000.2"),
             fiat_in_with_fee=RP2Decimal("3020.2"),
-            internal_id=30,
+            row=30,
         )
         in_transaction_set.add_entry(transaction1)
 
@@ -121,7 +121,7 @@ class TestBalanceSet(unittest.TestCase):
             RP2Decimal("4.0000"),
             crypto_fee=RP2Decimal("0.0002"),
             fiat_out_no_fee=RP2Decimal("6000.0"),
-            internal_id=31,
+            row=31,
         )
         out_transaction_set.add_entry(transaction2)
 
@@ -137,7 +137,7 @@ class TestBalanceSet(unittest.TestCase):
             fiat_fee=RP2Decimal("20"),
             fiat_in_no_fee=RP2Decimal("3000.2"),
             fiat_in_with_fee=RP2Decimal("3020.2"),
-            internal_id=32,
+            row=32,
         )
         in_transaction_set.add_entry(transaction3)
 
@@ -152,7 +152,7 @@ class TestBalanceSet(unittest.TestCase):
             RP2Decimal("2.0000"),
             crypto_fee=RP2Decimal("0.0002"),
             fiat_out_no_fee=RP2Decimal("2000.0"),
-            internal_id=33,
+            row=33,
         )
         out_transaction_set.add_entry(transaction4)
 

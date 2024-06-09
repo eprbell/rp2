@@ -45,15 +45,21 @@ class InTransaction(AbstractTransaction):
         fiat_in_no_fee: Optional[RP2Decimal] = None,
         fiat_in_with_fee: Optional[RP2Decimal] = None,
         fiat_fee: Optional[RP2Decimal] = None,
-        internal_id: Optional[int] = None,
+        row: Optional[int] = None,
         unique_id: Optional[str] = None,
         notes: Optional[str] = None,
     ) -> None:
-        super().__init__(configuration, timestamp, asset, transaction_type, spot_price, internal_id, unique_id, notes)
+        super().__init__(configuration, timestamp, asset, transaction_type, spot_price, row, unique_id, notes)
 
         self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
         self.__holder: str = configuration.type_check_holder("holder", holder)
-        self.__crypto_in: RP2Decimal = configuration.type_check_positive_decimal("crypto_in", crypto_in, non_zero=True)
+        self.__crypto_in: RP2Decimal
+        if self.transaction_type == TransactionType.STAKING:
+            # Staking income can be negative: in certain cases the protocol can remove from the stash rather than
+            # add to it (e.g. if the node stays offline too long).
+            self.__crypto_in = configuration.type_check_decimal("crypto_in", crypto_in)
+        else:
+            self.__crypto_in = configuration.type_check_positive_decimal("crypto_in", crypto_in, non_zero=True)
         self.__crypto_fee: RP2Decimal = configuration.type_check_positive_decimal("crypto_fee", crypto_fee) if crypto_fee else ZERO
         self.__fiat_fee: RP2Decimal = configuration.type_check_positive_decimal("fiat_fee", fiat_fee) if fiat_fee else ZERO
 

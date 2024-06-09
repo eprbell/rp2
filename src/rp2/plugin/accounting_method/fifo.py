@@ -15,9 +15,9 @@
 from typing import Optional
 
 from rp2.abstract_accounting_method import (
-    AbstractAccountingMethod,
+    AbstractAcquiredLotCandidates,
+    AbstractListAccountingMethod,
     AcquiredLotAndAmount,
-    AcquiredLotCandidates,
     AcquiredLotCandidatesOrder,
 )
 from rp2.abstract_transaction import AbstractTransaction
@@ -28,10 +28,10 @@ from rp2.rp2_decimal import ZERO, RP2Decimal
 # FIFO (First In, First Out) plugin. See https://www.investopedia.com/terms/l/fifo.asp. This plugin uses universal application, not per-wallet application:
 # this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
 # More on this at https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/
-class AccountingMethod(AbstractAccountingMethod):
+class AccountingMethod(AbstractListAccountingMethod):
     def seek_non_exhausted_acquired_lot(
         self,
-        lot_candidates: AcquiredLotCandidates,
+        lot_candidates: AbstractAcquiredLotCandidates,
         taxable_event: Optional[AbstractTransaction],
         taxable_event_amount: RP2Decimal,
     ) -> Optional[AcquiredLotAndAmount]:

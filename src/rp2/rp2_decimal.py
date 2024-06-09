@@ -125,5 +125,8 @@ class RP2Decimal(Decimal):
             raise RP2TypeError(f"Operand has non-Decimal value {repr(other)}")
         return RP2Decimal(Decimal.__rmod__(self, other))
 
+    def __neg__(self) -> "RP2Decimal":
+        return RP2Decimal(Decimal.__neg__(self))
+
 
 ZERO: RP2Decimal = RP2Decimal("0")

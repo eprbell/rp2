@@ -20,8 +20,8 @@ from prezzemolo.avl_tree import AVLTree
 
 from rp2.abstract_accounting_method import (
     AbstractAccountingMethod,
+    AbstractAcquiredLotCandidates,
     AcquiredLotAndAmount,
-    AcquiredLotCandidates,
 )
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
@@ -84,7 +84,7 @@ class AccountingEngine:
 
     def __init__(self, years_2_methods: AVLTree[int, AbstractAccountingMethod]) -> None:
         self.__years_2_methods: AVLTree[int, AbstractAccountingMethod] = years_2_methods
-        self.__years_2_lot_candidates: AVLTree[int, AcquiredLotCandidates] = AVLTree()
+        self.__years_2_lot_candidates: AVLTree[int, AbstractAcquiredLotCandidates] = AVLTree()
         if not self.__years_2_methods:
             raise RP2RuntimeError("Internal error: no accounting method defined")
 
@@ -119,7 +119,7 @@ class AccountingEngine:
         node = self.__years_2_methods.root
         while node is not None:
             self.__years_2_lot_candidates.insert_node(
-                node.key, AcquiredLotCandidates(node.value, self.__acquired_lot_list, self.__acquired_lot_2_partial_amount)
+                node.key, node.value.create_lot_candidates(self.__acquired_lot_list, self.__acquired_lot_2_partial_amount)
             )
             if node.left:
                 to_visit.append(node.left)
@@ -206,7 +206,7 @@ class AccountingEngine:
             if acquired_lot_and_index.acquired_lot != self.__acquired_lot_list[acquired_lot_and_index.index]:
                 raise RP2RuntimeError("Internal error: acquired_lot incongruence in accounting logic")
             method = self._get_accounting_method(taxable_event.timestamp.year)
-            lot_candidates: Optional[AcquiredLotCandidates] = self.__years_2_lot_candidates.find_max_value_less_than(taxable_event.timestamp.year)
+            lot_candidates: Optional[AbstractAcquiredLotCandidates] = self.__years_2_lot_candidates.find_max_value_less_than(taxable_event.timestamp.year)
             # lot_candidates is 1:1 with acquired_lot_and_index, should always be True
             if lot_candidates:
                 lot_candidates.set_to_index(acquired_lot_and_index.index)

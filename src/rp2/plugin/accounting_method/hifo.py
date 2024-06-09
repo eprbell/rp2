@@ -15,12 +15,15 @@
 from typing import Optional
 
 from rp2.abstract_accounting_method import (
-    AbstractAccountingMethod,
+    AbstractAcquiredLotCandidates,
+    AbstractHeapAccountingMethod,
     AcquiredLotAndAmount,
-    AcquiredLotCandidates,
     AcquiredLotCandidatesOrder,
+    AcquiredLotHeapSortKey,
+    HeapAcquiredLotCandidates,
 )
 from rp2.abstract_transaction import AbstractTransaction
+from rp2.rp2_error import RP2TypeError
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 
@@ -28,18 +31,20 @@ from rp2.rp2_decimal import ZERO, RP2Decimal
 # HIFO plugin. See https://www.investopedia.com/terms/h/hifo.asp. This plugin uses universal application, not per-wallet application:
 # this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
 # More on this at https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/
-class AccountingMethod(AbstractAccountingMethod):
+class AccountingMethod(AbstractHeapAccountingMethod):
     def seek_non_exhausted_acquired_lot(
         self,
-        lot_candidates: AcquiredLotCandidates,
+        lot_candidates: AbstractAcquiredLotCandidates,
         taxable_event: Optional[AbstractTransaction],
         taxable_event_amount: RP2Decimal,
     ) -> Optional[AcquiredLotAndAmount]:
         selected_acquired_lot_amount: RP2Decimal = ZERO
         selected_acquired_lot: Optional[InTransaction] = None
         acquired_lot: InTransaction
-        # This loop causes O(m*n) complexity, where m is the number of acquired lots and n in the number of taxable events. The taxable
-        # event loop is in the caller. Non-trivial optimizations are possible using different data structures but they need to be researched.
+        if not isinstance(lot_candidates, HeapAcquiredLotCandidates):
+            raise RP2TypeError(f"Internal error: lot_candidates is not of type HeapAcquiredLotCandidates, but of type {type(lot_candidates)}")
+        # The HIFO plugin features O(n * log(m)) complexity where n is the number
+        # of transactions and m is the number of unexhausted acquistion lots
         for acquired_lot in lot_candidates:
             acquired_lot_amount: RP2Decimal = ZERO
 
@@ -51,14 +56,19 @@ class AccountingMethod(AbstractAccountingMethod):
                 # The acquired lot has zero partial amount
                 continue
 
-            if selected_acquired_lot is None or selected_acquired_lot.spot_price < acquired_lot.spot_price:
-                selected_acquired_lot_amount = acquired_lot_amount
-                selected_acquired_lot = acquired_lot
+            selected_acquired_lot_amount = acquired_lot_amount
+            selected_acquired_lot = acquired_lot
+            break
 
         if selected_acquired_lot_amount > ZERO and selected_acquired_lot:
             lot_candidates.clear_partial_amount(selected_acquired_lot)
+            if selected_acquired_lot_amount > taxable_event_amount:
+                self.add_selected_lot_to_heap(lot_candidates.acquired_lot_heap, selected_acquired_lot)
             return AcquiredLotAndAmount(acquired_lot=selected_acquired_lot, amount=selected_acquired_lot_amount)
         return None
 
     def lot_candidates_order(self) -> AcquiredLotCandidatesOrder:
         return AcquiredLotCandidatesOrder.OLDER_TO_NEWER
+
+    def heap_key(self, lot: InTransaction) -> AcquiredLotHeapSortKey:
+        return AcquiredLotHeapSortKey(-lot.spot_price, lot.timestamp.timestamp(), lot.row)
