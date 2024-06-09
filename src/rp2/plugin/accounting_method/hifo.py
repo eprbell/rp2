@@ -20,8 +20,10 @@ from rp2.abstract_accounting_method import (
     AcquiredLotAndAmount,
     AcquiredLotCandidatesOrder,
     AcquiredLotHeapSortKey,
+    HeapAcquiredLotCandidates,
 )
 from rp2.abstract_transaction import AbstractTransaction
+from rp2.rp2_error import RP2TypeError
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 
@@ -39,6 +41,8 @@ class AccountingMethod(AbstractHeapAccountingMethod):
         selected_acquired_lot_amount: RP2Decimal = ZERO
         selected_acquired_lot: Optional[InTransaction] = None
         acquired_lot: InTransaction
+        if not isinstance(lot_candidates, HeapAcquiredLotCandidates):
+            raise RP2TypeError(f"Internal error: lot_candidates is not of type HeapAcquiredLotCandidates, but of type {type(lot_candidates)}")
         # The HIFO plugin features O(n * log(m)) complexity where n is the number
         # of transactions and m is the number of unexhausted acquistion lots
         for acquired_lot in lot_candidates:

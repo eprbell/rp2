@@ -20,7 +20,7 @@ from typing import Dict, List, NamedTuple, Optional, Tuple
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
-from rp2.rp2_error import RP2RuntimeError
+from rp2.rp2_error import RP2RuntimeError, RP2TypeError
 
 
 class AbstractAccountingMethodIterator:
@@ -53,7 +53,6 @@ class AbstractAcquiredLotCandidates:
     ) -> None:
         self._accounting_method: AbstractAccountingMethod = accounting_method
         self.__acquired_lot_list = acquired_lot_list
-        self.__acquired_lot_heap: List[Tuple[AcquiredLotHeapSortKey, InTransaction]] = []
         self.__acquired_lot_2_partial_amount = acquired_lot_2_partial_amount
         self._to_index = 0
         self.__from_index = 0
@@ -71,10 +70,6 @@ class AbstractAcquiredLotCandidates:
     @property
     def to_index(self) -> int:
         return self._to_index
-
-    @property
-    def acquired_lot_heap(self) -> List[Tuple[AcquiredLotHeapSortKey, InTransaction]]:
-        return self.__acquired_lot_heap
 
     @property
     def acquired_lot_list(self) -> List[InTransaction]:
@@ -140,12 +135,25 @@ class ListAcquiredLotCandidates(AbstractAcquiredLotCandidates):
 class HeapAcquiredLotCandidates(AbstractAcquiredLotCandidates):
     _accounting_method: "AbstractHeapAccountingMethod"
 
+    def __init__(
+        self,
+        accounting_method: "AbstractAccountingMethod",
+        acquired_lot_list: List[InTransaction],
+        acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal],
+    ) -> None:
+        super().__init__(accounting_method, acquired_lot_list, acquired_lot_2_partial_amount)
+        self.__acquired_lot_heap: List[Tuple[AcquiredLotHeapSortKey, InTransaction]] = []
+
     def set_to_index(self, to_index: int) -> None:
         # Control how far to advance the iterator, caller is responsible for updating
         for i in range(self.to_index, to_index + 1):
             lot = self.acquired_lot_list[i]
             self._accounting_method.add_selected_lot_to_heap(self.acquired_lot_heap, lot)
         self._to_index = to_index
+
+    @property
+    def acquired_lot_heap(self) -> List[Tuple[AcquiredLotHeapSortKey, InTransaction]]:
+        return self.__acquired_lot_heap
 
 
 class AbstractAccountingMethod:
@@ -203,4 +211,6 @@ class AbstractHeapAccountingMethod(AbstractAccountingMethod):
         raise NotImplementedError("Abstract function")
 
     def _get_accounting_method_iterator(self, lot_candidates: AbstractAcquiredLotCandidates) -> HeapAccountingMethodIterator:
+        if not isinstance(lot_candidates, HeapAcquiredLotCandidates):
+            raise RP2TypeError(f"Internal error: lot_candidates is not of type HeapAcquiredLotCandidates, but of type {type(lot_candidates)}")
         return HeapAccountingMethodIterator(lot_candidates.acquired_lot_heap)
