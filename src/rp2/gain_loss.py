@@ -39,7 +39,7 @@ class GainLoss(AbstractEntry):
 
         self.__crypto_amount: RP2Decimal = configuration.type_check_positive_decimal("crypto_amount", crypto_amount, non_zero=True)
 
-        if not taxable_event.transaction_type.is_earn_type():
+        if not taxable_event.is_earning():
             if acquired_lot is None:
                 raise RP2TypeError("acquired_lot must not be None for non-earn-typed taxable_events")
             InTransaction.type_check("acquired_lot", acquired_lot)
@@ -171,18 +171,18 @@ class GainLoss(AbstractEntry):
     @property
     def acquired_lot_fraction_percentage(self) -> RP2Decimal:
         if not self.acquired_lot:
-            # Earn-typed taxable events don't have a acquired_lot
-            if not self.taxable_event.transaction_type.is_earn_type():
-                raise RP2RuntimeError("Internal error: acquired lot is None but taxable event is not earn-typed")
+            # Earning events don't have an acquired_lot
+            if not self.taxable_event.is_earning():
+                raise RP2RuntimeError("Internal error: acquired lot is None but taxable event is not an earning")
             return ZERO
         return self.crypto_amount / self.acquired_lot.crypto_balance_change
 
     @property
     def fiat_cost_basis(self) -> RP2Decimal:
         if not self.acquired_lot:
-            # Earn-typed taxable events don't have a acquired_lot and their cost basis is 0
-            if not self.taxable_event.transaction_type.is_earn_type():
-                raise RP2RuntimeError("Internal error: acquired lot is None but taxable event is not earn-typed")
+            # Earning events don't have an acquired_lot and their cost basis is 0
+            if not self.taxable_event.is_earning():
+                raise RP2RuntimeError("Internal error: acquired lot is None but taxable event is not an earning")
             return ZERO
         # The cost basis is fiat_in + fee (as explained in https://www.irs.gov/publications/p544 and
         # https://taxbit.com/cryptocurrency-tax-guide).
@@ -196,8 +196,8 @@ class GainLoss(AbstractEntry):
 
     def is_long_term_capital_gains(self) -> bool:
         if not self.acquired_lot:
-            # Earn-typed taxable events don't have a acquired lot and are always considered short term capital gains
-            if not self.taxable_event.transaction_type.is_earn_type():
-                raise RP2RuntimeError("Internal error: acquired lot is None but taxable event is not earn-typed")
+            # Earning events don't have an acquired lot and are always considered short term capital gains
+            if not self.taxable_event.is_earning():
+                raise RP2RuntimeError("Internal error: acquired lot is None but taxable event is not an earning")
             return False
         return (self.taxable_event.timestamp - self.acquired_lot.timestamp).days >= self.configuration.country.get_long_term_capital_gain_period()

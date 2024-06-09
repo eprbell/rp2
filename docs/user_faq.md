@@ -57,6 +57,7 @@
   * [How to Handle Crypto Interest?](#how-to-handle-crypto-interest)
   * [How to Handle Income from Mining?](#how-to-handle-income-from-mining)
   * [How to Handle Income from Staking?](#how-to-handle-income-from-staking)
+  * [How to Handle Losses from Staking?](#how-to-handle-losses-from-staking)
   * [How to Handle Income from Crypto Wages?](#how-to-handle-income-from-crypto-wages)
   * [How to Handle Crypto Rewards?](#how-to-handle-crypto-rewards)
   * [How to Handle Fee-only DeFi Transactions?](#how-to-handle-fee-only-defi-transactions)
@@ -258,6 +259,9 @@ Use an in-transaction and mark the transaction type as MINING. RP2 will collect 
 
 ### How to Handle Income from Staking?
 Use an in-transaction and mark the transaction type as STAKING. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
+
+### How to Handle Losses from Staking?
+This is useful to capture situations where the protocol penalizes users (e.g. when their node is offline for too long, etc.). Use an out-transaction and mark the transaction type as STAKING. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle Income from Crypto Wages?
 Use an in-transaction and mark the transaction type as WAGES. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.

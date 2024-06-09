@@ -128,3 +128,6 @@ class AbstractTransaction(AbstractEntry):
 
     def is_taxable(self) -> bool:
         raise NotImplementedError("Abstract method")
+
+    def is_earning(self) -> bool:
+        raise NotImplementedError("Abstract method")
