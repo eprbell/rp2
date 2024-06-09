@@ -65,6 +65,9 @@ class AbstractTransaction(AbstractEntry):
     def __ne__(self, other: object) -> bool:
         return not self.__eq__(other)
 
+    def __lt__(self, other: "AbstractTransaction") -> bool:
+        return self.timestamp < other.timestamp
+
     def __hash__(self) -> int:
         # By definition, internal_id can uniquely identify a transaction: this works even if it's the ODS line from the spreadsheet,
         # since there are no cross-asset transactions (so a spreadsheet line points to a unique transaction for that asset).
