@@ -212,8 +212,8 @@ class Generator(AbstractODSGenerator):
             _("Capital"),
             _("Transaction"),
             _("Crypto"),
-            _("USD"),
-            _("USD Total"),
+            _("{}".format(currency_code)),
+            _("{} Total".format(currency_code)),
         ]
 
         self.__yearly_gain_loss_summary_header_names_row_2: List[str] = [

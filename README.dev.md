@@ -220,6 +220,8 @@ Report generator plugins translate data structures that result from tax computat
 Report generator plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * if the new plugin is not country-specific, add a new Python file in the `src/rp2/plugin/report/` directory and give it a meaningful name
 * if the new plugin is country-specific, add a new Python file in the `src/rp2/plugin/report/<country>` directory and give it a meaningful name (where `<country>` is a 2-letter country code adhering to the [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format)
+* the `get_report_generators()` method in `src/rp2/plugin/country/<country>.py` should be updated such that it returns the new report generator;
+* for each report returned by the `get_report_generators()` method in `src/rp2/plugin/country/<country>.py` a corresponding ods template spreadsheet should be available in `src/rp2/plugin/report/data/<country>`. Already existing templates could be used as a starting point e.g. for an a modified "open positions" report, a copy of `src/rp2/plugin/report/data/us/template_open_positions_en.ods` could be used. Note there are various rp2 specific styles that can be changed, e.g. to change the currency symbol displayed
 * import the following (plus any other RP2 or Python package you might need):
 ```
 from typing import Dict
