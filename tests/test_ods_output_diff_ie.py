@@ -103,85 +103,85 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             generation_language="en",
         )
 
-    # def test_test_data2_rp2_full_report(self) -> None:
-    #     self._compare(
-    #         output_dir=self.output_dir,
-    #         test_name="test_data2",
-    #         method="fifo",
-    #         country="ie",
-    #         output_plugin=OutputPlugins.RP2_FULL_REPORT,
-    #         generation_language="en",
-    #     )
+    def test_test_data2_rp2_full_report(self) -> None:
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data2",
+            method="fifo",
+            country="ie",
+            output_plugin=OutputPlugins.RP2_FULL_REPORT,
+            generation_language="en",
+        )
 
-    # def test_test_data2_tax_report_ie(self) -> None:
-    #     self._compare(
-    #         output_dir=self.output_dir,
-    #         test_name="test_data2",
-    #         method="fifo",
-    #         country="ie",
-    #         output_plugin=OutputPlugins.TAX_REPORT_IE,
-    #         generation_language="en",
-    #     )
+    def test_test_data2_tax_report_ie(self) -> None:
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data2",
+            method="fifo",
+            country="ie",
+            output_plugin=OutputPlugins.TAX_REPORT_IE,
+            generation_language="en",
+        )
 
-    # def test_test_data3_rp2_full_report(self) -> None:
-    #     self._compare(
-    #         output_dir=self.output_dir,
-    #         test_name="test_data3",
-    #         method="fifo",
-    #         country="ie",
-    #         output_plugin=OutputPlugins.RP2_FULL_REPORT,
-    #         generation_language="en",
-    #     )
+    def test_test_data3_rp2_full_report(self) -> None:
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data3",
+            method="fifo",
+            country="ie",
+            output_plugin=OutputPlugins.RP2_FULL_REPORT,
+            generation_language="en",
+        )
 
-    # def test_test_data3_tax_report_ie(self) -> None:
-    #     self._compare(
-    #         output_dir=self.output_dir,
-    #         test_name="test_data3",
-    #         method="fifo",
-    #         country="ie",
-    #         output_plugin=OutputPlugins.TAX_REPORT_IE,
-    #         generation_language="en",
-    #     )
+    def test_test_data3_tax_report_ie(self) -> None:
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data3",
+            method="fifo",
+            country="ie",
+            output_plugin=OutputPlugins.TAX_REPORT_IE,
+            generation_language="en",
+        )
 
-    # def test_test_data4_rp2_full_report(self) -> None:
-    #     self._compare(
-    #         output_dir=self.output_dir,
-    #         test_name="test_data4",
-    #         method="fifo",
-    #         country="ie",
-    #         output_plugin=OutputPlugins.RP2_FULL_REPORT,
-    #         generation_language="en",
-    #     )
+    def test_test_data4_rp2_full_report(self) -> None:
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data4",
+            method="fifo",
+            country="ie",
+            output_plugin=OutputPlugins.RP2_FULL_REPORT,
+            generation_language="en",
+        )
 
-    # def test_test_data4_tax_report_ie(self) -> None:
-    #     self._compare(
-    #         output_dir=self.output_dir,
-    #         test_name="test_data4",
-    #         method="fifo",
-    #         country="ie",
-    #         output_plugin=OutputPlugins.TAX_REPORT_IE,
-    #         generation_language="en",
-    #     )
+    def test_test_data4_tax_report_ie(self) -> None:
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_data4",
+            method="fifo",
+            country="ie",
+            output_plugin=OutputPlugins.TAX_REPORT_IE,
+            generation_language="en",
+        )
 
-    # def test_test_many_year_data_rp2_full_report(self) -> None:
-    #     self._compare(
-    #         output_dir=self.output_dir,
-    #         test_name="test_many_year_data",
-    #         method="fifo",
-    #         country="ie",
-    #         output_plugin=OutputPlugins.RP2_FULL_REPORT,
-    #         generation_language="en",
-    #     )
+    def test_test_many_year_data_rp2_full_report(self) -> None:
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_many_year_data",
+            method="fifo",
+            country="ie",
+            output_plugin=OutputPlugins.RP2_FULL_REPORT,
+            generation_language="en",
+        )
 
-    # def test_test_many_year_data_tax_report_ie(self) -> None:
-    #     self._compare(
-    #         output_dir=self.output_dir,
-    #         test_name="test_many_year_data",
-    #         method="fifo",
-    #         country="ie",
-    #         output_plugin=OutputPlugins.TAX_REPORT_IE,
-    #         generation_language="en",
-    #     )
+    def test_test_many_year_data_tax_report_ie(self) -> None:
+        self._compare(
+            output_dir=self.output_dir,
+            test_name="test_many_year_data",
+            method="fifo",
+            country="ie",
+            output_plugin=OutputPlugins.TAX_REPORT_IE,
+            generation_language="en",
+        )
 
 
 if __name__ == "__main__":
