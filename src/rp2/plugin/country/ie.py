@@ -46,7 +46,7 @@ class IE(AbstractCountry):
 
     # Default language to use at report generation if the user doesn't specify it on the command line (in ISO 639-1 format)
     def get_default_generation_language(self) -> str:
-        return "en"
+        return "en_IE"
 
 
 # Ireland-specific entry point

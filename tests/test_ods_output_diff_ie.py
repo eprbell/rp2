@@ -37,26 +37,26 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             config="crypto_example",
             method="fifo",
             country="ie",
-            generation_language="en",
+            generation_language="en_IE",
             allow_negative_balances=True,
         )
         AbstractTestODSOutputDiff._generate(
-            cls.output_dir, test_name="test_data", config="test_data", method="fifo", country="ie", generation_language="en", allow_negative_balances=True
+            cls.output_dir, test_name="test_data", config="test_data", method="fifo", country="ie", generation_language="en_IE", allow_negative_balances=True
         )
         AbstractTestODSOutputDiff._generate(
-            cls.output_dir, test_name="test_data2", config="test_data", method="fifo", country="ie", generation_language="en", allow_negative_balances=True
+            cls.output_dir, test_name="test_data2", config="test_data", method="fifo", country="ie", generation_language="en_IE", allow_negative_balances=True
         )
         AbstractTestODSOutputDiff._generate(
-            cls.output_dir, test_name="test_data3", config="test_data", method="fifo", country="ie", generation_language="en", allow_negative_balances=True
+            cls.output_dir, test_name="test_data3", config="test_data", method="fifo", country="ie", generation_language="en_IE", allow_negative_balances=True
         )
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data4", config="test_data4", method="fifo", country="ie", generation_language="en")
+        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data4", config="test_data4", method="fifo", country="ie", generation_language="en_IE")
         AbstractTestODSOutputDiff._generate(
             cls.output_dir,
             test_name="test_many_year_data",
             config="test_data",
             method="fifo",
             country="ie",
-            generation_language="en",
+            generation_language="en_IE",
             allow_negative_balances=True,
         )
 
@@ -70,7 +70,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             method="fifo",
             country="ie",
             output_plugin=OutputPlugins.RP2_FULL_REPORT,
-            generation_language="en",
+            generation_language="en_IE",
         )
 
     def test_crypto_example_tax_report_ie(self) -> None:
@@ -80,7 +80,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             method="fifo",
             country="ie",
             output_plugin=OutputPlugins.TAX_REPORT_IE,
-            generation_language="en",
+            generation_language="en_IE",
         )
 
     def test_test_data_rp2_full_report(self) -> None:
@@ -90,7 +90,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             method="fifo",
             country="ie",
             output_plugin=OutputPlugins.RP2_FULL_REPORT,
-            generation_language="en",
+            generation_language="en_IE",
         )
 
     def test_test_data_tax_report_ie(self) -> None:
@@ -100,7 +100,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             method="fifo",
             country="ie",
             output_plugin=OutputPlugins.TAX_REPORT_IE,
-            generation_language="en",
+            generation_language="en_IE",
         )
 
     def test_test_data2_rp2_full_report(self) -> None:
@@ -110,7 +110,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             method="fifo",
             country="ie",
             output_plugin=OutputPlugins.RP2_FULL_REPORT,
-            generation_language="en",
+            generation_language="en_IE",
         )
 
     def test_test_data2_tax_report_ie(self) -> None:
@@ -120,7 +120,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             method="fifo",
             country="ie",
             output_plugin=OutputPlugins.TAX_REPORT_IE,
-            generation_language="en",
+            generation_language="en_IE",
         )
 
     def test_test_data3_rp2_full_report(self) -> None:
@@ -130,7 +130,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             method="fifo",
             country="ie",
             output_plugin=OutputPlugins.RP2_FULL_REPORT,
-            generation_language="en",
+            generation_language="en_IE",
         )
 
     def test_test_data3_tax_report_ie(self) -> None:
@@ -140,7 +140,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             method="fifo",
             country="ie",
             output_plugin=OutputPlugins.TAX_REPORT_IE,
-            generation_language="en",
+            generation_language="en_IE",
         )
 
     def test_test_data4_rp2_full_report(self) -> None:
@@ -150,7 +150,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             method="fifo",
             country="ie",
             output_plugin=OutputPlugins.RP2_FULL_REPORT,
-            generation_language="en",
+            generation_language="en_IE",
         )
 
     def test_test_data4_tax_report_ie(self) -> None:
@@ -160,7 +160,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             method="fifo",
             country="ie",
             output_plugin=OutputPlugins.TAX_REPORT_IE,
-            generation_language="en",
+            generation_language="en_IE",
         )
 
     def test_test_many_year_data_rp2_full_report(self) -> None:
@@ -170,7 +170,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             method="fifo",
             country="ie",
             output_plugin=OutputPlugins.RP2_FULL_REPORT,
-            generation_language="en",
+            generation_language="en_IE",
         )
 
     def test_test_many_year_data_tax_report_ie(self) -> None:
@@ -180,7 +180,7 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             method="fifo",
             country="ie",
             output_plugin=OutputPlugins.TAX_REPORT_IE,
-            generation_language="en",
+            generation_language="en_IE",
         )
 
 
