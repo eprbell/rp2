@@ -1,4 +1,4 @@
-# Copyright 2022 Neal Chambers
+# Copyright 2024 advidb
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,16 +40,46 @@ class TestODSOutputDiff(AbstractTestODSOutputDiff):  # pylint: disable=too-many-
             generation_language="en_IE",
             allow_negative_balances=True,
         )
+
         AbstractTestODSOutputDiff._generate(
-            cls.output_dir, test_name="test_data", config="test_data", method="fifo", country="ie", generation_language="en_IE", allow_negative_balances=True
+            cls.output_dir,
+            test_name="test_data",
+            config="test_data",
+            method="fifo",
+            country="ie",
+            generation_language="en_IE",
+            allow_negative_balances=True,
         )
+
         AbstractTestODSOutputDiff._generate(
-            cls.output_dir, test_name="test_data2", config="test_data", method="fifo", country="ie", generation_language="en_IE", allow_negative_balances=True
+            cls.output_dir,
+            test_name="test_data2",
+            config="test_data",
+            method="fifo",
+            country="ie",
+            generation_language="en_IE",
+            allow_negative_balances=True,
         )
+
         AbstractTestODSOutputDiff._generate(
-            cls.output_dir, test_name="test_data3", config="test_data", method="fifo", country="ie", generation_language="en_IE", allow_negative_balances=True
+            cls.output_dir,
+            test_name="test_data3",
+            config="test_data",
+            method="fifo",
+            country="ie",
+            generation_language="en_IE",
+            allow_negative_balances=True,
         )
-        AbstractTestODSOutputDiff._generate(cls.output_dir, test_name="test_data4", config="test_data4", method="fifo", country="ie", generation_language="en_IE")
+
+        AbstractTestODSOutputDiff._generate(
+            cls.output_dir,
+            test_name="test_data4",
+            config="test_data4",
+            method="fifo",
+            country="ie",
+            generation_language="en_IE",
+        )
+
         AbstractTestODSOutputDiff._generate(
             cls.output_dir,
             test_name="test_many_year_data",
