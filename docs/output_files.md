@@ -17,9 +17,9 @@
 ## Table of Contents
 * **[Introduction](#introduction)**
 * **[Reports Valid for Any Country](#reports-valid-for-any-country)**
-  * **[Transparent Computation (RP2 Full Output Report)](#rp2-full-report-transparent-computation)**
+  * **[RP2 Full Output Report: Transparent Computation](#rp2-full-report-transparent-computation)**
     * [Hyperlinks](#hyperlinks)
-  * **[Unrealized Gains (Open Positions Report Output)](#open-positions-report-unrealized-gains)**
+  * **[Open Positions Report: Unrealized Gains](#open-positions-report-unrealized-gains)**
 * **[Country-specific Reports](#country-specific-reports)**
   * **[Tax Report US: Advisor-Friendly Report](#tax-report-us-advisor-friendly-report)**
   * **[Tax Report IE: Advisor-Friendly Report](#tax-report-ie-advisor-friendly-report)**
@@ -27,11 +27,8 @@
 
 ## Introduction
 RP2 generates output files by running the report plugins, which vary [country by country](https://github.com/eprbell/rp2/blob/main/docs/supported_countries.md).
-* *tax_report_\** (US and Japan only). This is a tax-advisor-friendly report that can be given to a tax professional (not necessarily one that specializes in crypto).
-* *rp2_full_report* (all countries): a comprehensive report containing full transaction history with hyperlinks, long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. This report can be useful in case of audit because it contains the complete history of coin movements and fractioning. See [crypto_example_fifo_rp2_full_report.ods](../input/golden/us/crypto_example_fifo_rp2_full_report.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down in this document.
-* *open_positions* (all countries): a report on assets with non-zero crypto balance: unrealized gains / losses, portfolio weighting, and more.
 
-After running RP2, the output files can be found in the `output` directory or in the directory specified with the -o command line option.
+After running RP2, the output files can be found in the `output` directory or in the directory specified with the -o command line option. A description of the various report generators follows below.
 
 ## Reports Valid for Any Country
 
