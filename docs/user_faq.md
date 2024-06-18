@@ -86,23 +86,13 @@ In some cases exchange reports miss spot price information. In such situations y
 The user adds the tokens to the `assets` field of the [config file](input_files.md#the-config-file): RP2 accepts as valid all the tokens present in this field. See also the question on [writing a config file from scratch](#can-i-avoid-writing-a-config-file-from-scratch).
 
 ### What Accounting Methods Are Supported?
-RP2 currently supports the following accounting methods:
-* US: [FIFO](https://www.investopedia.com/terms/f/fifo.asp), [LIFO](https://www.investopedia.com/terms/l/lifo.asp) and [HIFO](https://www.investopedia.com/terms/h/hifo.asp). Note that these methods use universal application (not per-wallet application), as explained [here](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/);
-* Spain: FIFO;
-* Japan: Total Average Method;
-* Ireland: FIFO.
+Accounting methods vary country by country, as described in the [supported countries](supported_countries.md) document.
 
 ### Can I Change Accounting Method?
 Yes, for countries that support more than one accounting method, you can select which one to use via the `-m` command line option.
 
 ### What Countries Are Supported?
-Currently the following countries are supported:
-* US;
-* Japan;
-* Spain;
-* Ireland.
-
-However more countries are being added. As new countries are added this FAQ will be updated.
+See the [supported countries](supported_countries.md) document.
 
 ### How to Switch from Another Tax Software to RP2?
 In other words, how does RP2 handle transactions that were managed by other software in previous years? In this case the user can just leave out from the RP2 input spreadsheet the transactions/lots that were already sold in previous years.
