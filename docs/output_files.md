@@ -16,35 +16,57 @@
 
 ## Table of Contents
 * **[Introduction](#introduction)**
-* **[Transparent Computation (RP2 Full Output Report)](#transparent-computation-rp2-full-report-output)**
-  * [Hyperlinks](#hyperlinks)
-* **[Advisor-Friendly Report (Tax Report US Output)](#advisor-friendly-report-tax-report-us-output)**
-* **[NTA-Friendly Report (Tax Report Japan Output)](#nta-friendly-report-tax-report-japan-output)**
-* **[Unrealized Gains (Open Positions Report Output)](#unrealized-gains-open-positions-report-output)**
+* **[Reports Valid for Any Country](#reports-valid-for-any-country)**
+  * **[Transparent Computation (RP2 Full Output Report)](#rp2-full-report-transparent-computation)**
+    * [Hyperlinks](#hyperlinks)
+  * **[Unrealized Gains (Open Positions Report Output)](#open-positions-report-unrealized-gains)**
+* **[Country-specific Reports](#country-specific-reports)**
+  * **[Tax Report US: Advisor-Friendly Report](#tax-report-us-advisor-friendly-report)**
+  * **[Tax Report IE: Advisor-Friendly Report](#tax-report-ie-advisor-friendly-report)**
+  * **[Tax Report JP: NTA-Friendly Report](#tax-report-jp-nta-friendly-report)**
 
 ## Introduction
-RP2 generates output files by running the report plugins:
+RP2 generates output files by running the report plugins, which vary [country by country](https://github.com/eprbell/rp2/blob/main/docs/supported_countries.md).
 * *tax_report_\** (US and Japan only). This is a tax-advisor-friendly report that can be given to a tax professional (not necessarily one that specializes in crypto).
-* *rp2_full_report* (all countries): a comprehensive report containing full transaction history with hyperlinks, long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. This report can be useful in case of audit because it contains the complete history of coin movements and fractioning. See [crypto_example_fifo_rp2_full_report.ods](../input/golden/crypto_example_fifo_rp2_full_report.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down in this document.
+* *rp2_full_report* (all countries): a comprehensive report containing full transaction history with hyperlinks, long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. This report can be useful in case of audit because it contains the complete history of coin movements and fractioning. See [crypto_example_fifo_rp2_full_report.ods](../input/golden/us/crypto_example_fifo_rp2_full_report.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down in this document.
 * *open_positions* (all countries): a report on assets with non-zero crypto balance: unrealized gains / losses, portfolio weighting, and more.
 
 After running RP2, the output files can be found in the `output` directory or in the directory specified with the -o command line option.
 
-## Transparent Computation (RP2 Full Report Output)
-The rp2_full_report.ods output file is a comprehensive, ODS-format report containing full details about the computed taxes: it can be used to follow step-by-step the process RP2 uses to produce results and verify them. It contains:
+## Reports Valid for Any Country
+
+The following reports are valid for any country.
+
+### RP2 Full Report: Transparent Computation
+The rp2_full_report.ods output file is a comprehensive, ODS-format report containing full details about the computed taxes (which can be useful in case of audit): complete transaction history with hyperlinks, long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractioning. See [crypto_example_fifo_rp2_full_report.ods](../input/golden/us/crypto_example_fifo_rp2_full_report.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down in this document.
+
+This report makes it possible to follow step-by-step the process RP2 uses to produce results and verify them. It contains:
 * a Legend sheet containing accounting method information and the meaning of each column and keyword
 * a Summary sheet containing total short/long term capital gains per year, per cryptocurrency. Here follows an example of this sheet: ![RP2 full report summary example](images/rp2_full_report_output_summary.png)
 * two sheets per cryptocurrency:
   * *cryptocurrency* In-Out: full transaction history for the given *cryptocurrency*, organized by direction (In, Out, Intra). Taxable events are shown in blue, with taxable amount in yellow. The *In* table has a *Sent/Sold* column showing which lots have been fully or partially sold (in purple). Timestamps are homogenized (in the user input spreadsheet they may have different formats), transactions are sorted by time and some running sums are computed. Here follows an example of this sheet: ![RP2 full report in-out example](images/rp2_full_report_output_in_out.png)
   * *cryptocurrency* Tax: full tax computation details for the given *cryptocurrency*: long/short capital gains, cost bases, balances, average price, in/out lot relationships and fractions. In this sheet, blue refers to taxable events and outgoing (sold, donated, etc.) transactions, purple refers to cost basis and incoming (purchased, received) transactions and yellow refers to taxable amount. The Intra-Flow Detail table shows the mapping between taxable event fractions and in-transaction fractions. Here follows an example of this sheet: ![RP2 full report tax example](images/rp2_full_report_output_tax.png)
 
-### Hyperlinks
+#### Hyperlinks
 The RP2 Full Report contains hyperlinks to facilitate navigation: in LibreOffice, CTRL-click (on Mac, Command-click) on a cell to jump to the target. The following content is hyperlinked:
   * taxable events and acquired lots in *cryptocurrency* Tax sheet are hyperlinked to their definition line in the cryptocurrency* In-Out sheet;
   * summary lines in the Summary sheet are now hyperlinked to the first line of the given year in the *cryptocurrency* Tax sheet.
 
-## Advisor-Friendly Report (Tax Report US Output)
-This report can be used to fill form 8949, etc: see [crypto_example_fifo_tax_report_us.ods](../input/golden/crypto_example_fifo_tax_report_us.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down.
+### Open Positions Report: Unrealized Gains
+The open_positions_\*.ods output file is an ODS-format spreadsheet designed to provide information on assets with non-zero crypto balances including gains and losses.
+
+The report contains:
+* a Legend sheet containing the accounting method and the meaning of each column and keyword
+* the Input sheet for entering current asset values (or asset values on a given date to be used for the calculations per user requirements). ![Open Positions input tab example](images/open_positions_input.png)
+* the Asset sheet which among other things shows the crypto balance, cost basis information (by unit and in whole) and portfolio weighting of each asset as well as the unrealized / market value and the gains / loss data in fiat and percentage terms in addition to further breakdowns. This tab summarizes the information by asset and holder. ![Open Positions asset tab example](images/open_positions_asset.png)
+* The Asset - Exchange sheet provides the same information as the asset tab, but further breaks the information down by exchange. ![Open Positions asset exchange tab example](images/open_positions_asset_exchange.png)
+
+## Country-specific Reports
+
+The following reports are country-specific.
+
+### Tax Report US: Advisor-Friendly Report
+This is a US-specific tax-advisor-friendly report that can be understood by tax professionals (not necessarily specializing in crypto). It can be used to fill form 8949, etc: see [crypto_example_fifo_tax_report_us.ods](../input/golden/us/crypto_example_fifo_tax_report_us.ods) (an example of this output for input file [crypto_example.ods](../input/crypto_example.ods)) and screenshots further down.
 
 The tax_report_us.ods output file contains a legend sheet and a sheet per taxable event type (if there are no taxable events for a given event type, its respective sheet is not generated):
 * Airdrops;
@@ -71,18 +93,12 @@ And an example of the Interest sheet:
 
 ![tax report us output interest](images/tax_report_us_output_interest.png)
 
-## NTA-friendly Report (Tax Report Japan Output)
-The tax_report_jp.ods output file contains a legend sheet, a summary sheet for every year, and a calculation sheet per asset and year.
+### Tax Report IE: Advisor-Friendly Report
+This is a Ireland-specific tax-advisor-friendly report that can be understood by tax professionals (not necessarily specializing in crypto). It follows the same format as the [US variant](#advisor-friendly-report-tax-report-us-output)
+
+### Tax Report JP: NTA-friendly Report
+This is a Japan-specific report: tax_report_jp.ods output file contains a legend sheet, a summary sheet for every year, and a calculation sheet per asset and year.
 
 The NTA (National Tax Agency) provides an excel spreadsheet for calculating the total average of each crypto asset per year. This report generates a similar report and can be optionally submitted with an individual's taxes or provided to the NTA if requested.
 
 The summary sheet contains the total for the tax year. This is what is normally reported as "miscellaneous income" (雑所得). However, it may be reported as business income in certain circumstances. Please do your own research.
-
-## Unrealized Gains (Open Positions Report Output)
-The open_positions_\*.ods output file is an ODS-format spreadsheet designed to provide information on assets with non-zero crypto balances including gains and losses.
-
-The report contains:
-* a Legend sheet containing the accounting method and the meaning of each column and keyword
-* the Input sheet for entering current asset values (or asset values on a given date to be used for the calculations per user requirements). ![Open Positions input tab example](images/open_positions_input.png)
-* the Asset sheet which among other things shows the crypto balance, cost basis information (by unit and in whole) and portfolio weighting of each asset as well as the unrealized / market value and the gains / loss data in fiat and percentage terms in addition to further breakdowns. This tab summarizes the information by asset and holder. ![Open Positions asset tab example](images/open_positions_asset.png)
-* The Asset - Exchange sheet provides the same information as the asset tab, but further breaks the information down by exchange. ![Open Positions asset exchange tab example](images/open_positions_asset_exchange.png)

@@ -57,19 +57,11 @@ Another unique advantage of RP2 is [transparent computation](https://github.com/
 * verify step-by-step how RP2 reaches the final result;
 * track down every lot fraction and its accounting details, in case of an audit.
 
-RP2 currently supports the following accounting methods:
-* US: [FIFO](https://www.investopedia.com/terms/f/fifo.asp), [LIFO](https://www.investopedia.com/terms/l/lifo.asp) and [HIFO](https://www.investopedia.com/terms/h/hifo.asp). Note that these methods use universal application (not per-wallet application), as explained [here](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/);
-* Spain: FIFO;
-* Japan: Total Average Method;
-* Ireland: FIFO. In Ireland specific rules apply to assets bought and sold within a 4 week window. See [here](https://www.revenue.ie/en/tax-professionals/tdm/income-tax-capital-gains-tax-corporation-tax/part-19/19-04-03.pdf) and [here](https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/selling-or-disposing-of-shares.aspx). Note that this is **NOT** catered for. 
+RP2 supports multiple [countries and accounting methods](https://github.com/eprbell/rp2/blob/main/docs/supported_countries.md).
 
 RP2 reads a configuration file and an input spreadsheet containing crypto transactions. These [input files](https://github.com/eprbell/rp2/blob/main/docs/input_files.md) can be generated either manually or automatically using [DaLI](https://github.com/eprbell/dali-rp2), a RP2 data loader and input generator (which is also privacy-focused, free, non-commercial, open-source and community-driven). After parsing the input, RP2 uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates [output files](https://github.com/eprbell/rp2/blob/main/docs/output_files.md).
 
-RP2 has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-report-generator), [accounting methods](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-accounting-method) and [countries](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-support-for-a-new-country). The builtin output generator plugins are in part generic and in part country-specific, but RP2's architecture makes it possible to contribute additional generators for different countries or for different country-based cases. The builtin output generator plugins are:
-* tax_report_us: generates a US-specific tax report meant to be read by tax preparers (in the format of form 8949);
-* tax_report_jp: generates a Japan-specific tax report meant to be read by tax preparers;
-* rp2_full_report: generates a comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
-* open_positions: geterates a report (valid for any country) on assets with non-zero crypto balance: unrealized gains / losses, portfolio weighting, and more.
+RP2 has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-report-generator), [accounting methods](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-accounting-method) and [countries](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-support-for-a-new-country). Built-in [output generator plugins](https://github.com/eprbell/rp2/blob/main/docs/output_files.md) vary [country by country](https://github.com/eprbell/rp2/blob/main/docs/supported_countries.md), but RP2's architecture makes it possible to contribute additional generators for different countries or for different country-based cases.
 
 RP2 has extensive [unit test](https://github.com/eprbell/rp2/tree/main/tests/) coverage to reduce the risk of regression.
 
