@@ -91,7 +91,7 @@ And an example of the Interest sheet:
 ![tax report us output interest](images/tax_report_us_output_interest.png)
 
 ### Tax Report IE: Advisor-Friendly Report
-This is a Ireland-specific tax-advisor-friendly report that can be understood by tax professionals (not necessarily specializing in crypto). It follows the same format as the [US variant](#advisor-friendly-report-tax-report-us-output)
+This is a Ireland-specific tax-advisor-friendly report that can be understood by tax professionals (not necessarily specializing in crypto). It follows the same format as the [US variant](#tax-report-us-advisor-friendly-report).
 
 ### Tax Report JP: NTA-friendly Report
 This is a Japan-specific report: tax_report_jp.ods output file contains a legend sheet, a summary sheet for every year, and a calculation sheet per asset and year.

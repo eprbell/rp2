@@ -25,7 +25,7 @@
 RP2 supports multiple countries each of which has different characteristics, explained in the sections below.
 
 ## Ireland
-* Accounting methods: [FIFO](https://www.investopedia.com/terms/f/fifo.asp). Note that in Ireland specific rules apply to assets bought and sold within a 4 week window. See [here](https://www.revenue.ie/en/tax-professionals/tdm/income-tax-capital-gains-tax-corporation-tax/part-19/19-04-03.pdf) and [here](https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/selling-or-disposing-of-shares.aspx): that this is **NOT** yet catered for.
+* Accounting methods: [FIFO](https://www.investopedia.com/terms/f/fifo.asp). Note that in Ireland specific rules apply to assets bought and sold within a 4 week window (see [here](https://www.revenue.ie/en/tax-professionals/tdm/income-tax-capital-gains-tax-corporation-tax/part-19/19-04-03.pdf) and [here](https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/selling-or-disposing-of-shares.aspx)): this is **NOT** yet supported by RP2.
 * [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
   * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
   * [tax_report_ie](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#tax-report-ie-advisor-friendly-report): tax report meant to be read by tax preparers;
@@ -35,6 +35,7 @@ RP2 supports multiple countries each of which has different characteristics, exp
 ## Japan
 RP2 support for Japan includes the following features:
 * Accounting methods: Total Average Method;
+* [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
   * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
   * [tax_report_jp](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#tax-report-jp-advisor-friendly-report): Japan-specific tax report meant to be read by tax preparers;
   * [open_positions](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#open-positions-report-unrealized-gains): report on assets with non-zero crypto balance (valid for any country): unrealized gains / losses, portfolio weighting, and more.
