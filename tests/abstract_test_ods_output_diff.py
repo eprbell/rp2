@@ -119,6 +119,6 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
             f"{time_interval}{method}_{output_plugin.value}.ods"
         )
         full_output_file_name: Path = output_dir / output_file_name
-        full_golden_file_name: Path = GOLDEN_PATH / output_file_name
+        full_golden_file_name: Path = GOLDEN_PATH / Path(f"{country}") / output_file_name
         diff = ods_diff(full_golden_file_name, full_output_file_name, generate_ascii_representation=True)
         self.assertFalse(diff, msg=diff)
