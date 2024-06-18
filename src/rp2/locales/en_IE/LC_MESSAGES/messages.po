@@ -1,18 +1,18 @@
-# Japanese translations for rp2.
-# Copyright (C) 2022 eprbell
+# English (Ireland) translations for rp2.
+# Copyright (C) 2023 eprbell
 # This file is distributed under the same license as the rp2 project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: rp2 1.0.6\n"
+"Project-Id-Version: rp2 1.5.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2024-06-17 06:28+0100\n"
-"PO-Revision-Date: 2022-08-11 21:50-0700\n"
+"PO-Revision-Date: 2024-06-16 06:56+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: ja\n"
-"Language-Team: ja <LL@li.org>\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Language: en_IE\n"
+"Language-Team: en_IE <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -574,10 +574,10 @@ msgid "Type of the transaction (DONATE, GIFT, SELL, etc.)"
 msgstr ""
 
 msgid "USD"
-msgstr ""
+msgstr "EUR"
 
 msgid "USD Total"
-msgstr ""
+msgstr "EUR Total"
 
 msgid "Unique Id"
 msgstr ""
