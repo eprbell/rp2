@@ -25,7 +25,7 @@
 RP2 supports multiple countries each of which has different characteristics, explained in the sections below.
 
 ## Ireland
-* [FIFO](https://www.investopedia.com/terms/f/fifo.asp) accounting method. Note that in Ireland specific rules apply to assets bought and sold within a 4 week window. See [here](https://www.revenue.ie/en/tax-professionals/tdm/income-tax-capital-gains-tax-corporation-tax/part-19/19-04-03.pdf) and [here](https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/selling-or-disposing-of-shares.aspx): that this is **NOT** yet catered for.
+* Accounting methods: [FIFO](https://www.investopedia.com/terms/f/fifo.asp). Note that in Ireland specific rules apply to assets bought and sold within a 4 week window. See [here](https://www.revenue.ie/en/tax-professionals/tdm/income-tax-capital-gains-tax-corporation-tax/part-19/19-04-03.pdf) and [here](https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/selling-or-disposing-of-shares.aspx): that this is **NOT** yet catered for.
 * [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
   * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
   * [tax_report_ie](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#tax-report-ie-advisor-friendly-report): tax report meant to be read by tax preparers;
@@ -34,7 +34,7 @@ RP2 supports multiple countries each of which has different characteristics, exp
 
 ## Japan
 RP2 support for Japan includes the following features:
-* Total Average Method accounting method;
+* Accounting methods: Total Average Method;
   * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
   * [tax_report_jp](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#tax-report-jp-advisor-friendly-report): Japan-specific tax report meant to be read by tax preparers;
   * [open_positions](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#open-positions-report-unrealized-gains): report on assets with non-zero crypto balance (valid for any country): unrealized gains / losses, portfolio weighting, and more.
@@ -42,7 +42,7 @@ RP2 support for Japan includes the following features:
 
 ## Spain
 RP2 support for Spain includes the following features:
-* [FIFO](https://www.investopedia.com/terms/f/fifo.asp) accounting method.
+* Accounting methods: [FIFO](https://www.investopedia.com/terms/f/fifo.asp).
 * [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
   * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
   * [open_positions](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#open-positions-report-unrealized-gains): report on assets with non-zero crypto balance (valid for any country): unrealized gains / losses, portfolio weighting, and more.
@@ -50,7 +50,7 @@ RP2 support for Spain includes the following features:
 
 ## USA
 RP2 support for the US includes the following features:
-* Multiple accounting methods (note that these methods use [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/), not per-wallet application):
+* Accounting methods (note that these methods use [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/), not per-wallet application):
   * [FIFO](https://www.investopedia.com/terms/f/fifo.asp),
   * [LIFO](https://www.investopedia.com/terms/l/lifo.asp),
   * [HIFO](https://www.investopedia.com/terms/h/hifo.asp).

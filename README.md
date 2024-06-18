@@ -53,7 +53,7 @@ Privacy-focused, free, powerful crypto tax calculator
 
 This means that with RP2 there are no transaction limits, no premium versions, no payment requests, no personal data sent to a server (at risk of being hacked), no account creation, no unauditable source code.
 
-Another unique advantage of RP2 is [transparent computation](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#transparent-computation-rp2-full-report-output): RP2 generates full computation details for every lot fraction, so that it's possible to:
+Another unique advantage of RP2 is [transparent computation](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): RP2 generates full computation details for every lot fraction, so that it's possible to:
 * verify step-by-step how RP2 reaches the final result;
 * track down every lot fraction and its accounting details, in case of an audit.
 
