@@ -22,7 +22,7 @@
 * **[USA](#usa)**
 
 ## Introduction
-RP2 supports multiple countries each of which has different characteristics, explained in the sections below.
+RP2 supports multiple countries each of which has different accounting methods and report generators, as explained in the sections below.
 
 ## Ireland
 * Accounting methods: [FIFO](https://www.investopedia.com/terms/f/fifo.asp). Note that in Ireland specific rules apply to assets bought and sold within a 4 week window (see [here](https://www.revenue.ie/en/tax-professionals/tdm/income-tax-capital-gains-tax-corporation-tax/part-19/19-04-03.pdf) and [here](https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/selling-or-disposing-of-shares.aspx)): this is **NOT** yet supported by RP2.
