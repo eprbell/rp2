@@ -14,6 +14,14 @@
 
 # RP2 Change Log
 
+# 1.6.0
+* optimized FIFO accounting from quadratic to linear (#115)
+* optimized LIFO and HIFO accounting from quadratic to m*log(n) (#116)
+* added support for Ireland (#122)
+* added negative staking (#119)
+* fixed negative balance bug (#113)
+* reworked country-specific documentation: added dedicated page with country-specific information (see docs/supported_countries.md)
+
 ## 1.5.1
 * re-enabled LIFO and HIFO accounting methods (see discussion at #79)
 * added Python 3.11 to test matrix (#107)
