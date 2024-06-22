@@ -16,15 +16,18 @@
 
 ## Table of Contents
 * **[Introduction](#introduction)**
-* **[Ireland](#ireland)**
-* **[Japan](#japan)**
-* **[Spain](#Spain)**
-* **[USA](#usa)**
+* **[Countries](#countries)**
+  * [Ireland](#ireland)
+  * [Japan](#japan)
+  * [Spain](#Spain)
+  * [USA](#usa)
 
 ## Introduction
 RP2 supports multiple countries each of which has different accounting methods and report generators, as explained in the sections below.
 
-## Ireland
+## Countries
+
+### Ireland
 * Accounting methods (note that in Ireland [specific](https://www.revenue.ie/en/tax-professionals/tdm/income-tax-capital-gains-tax-corporation-tax/part-19/19-04-03.pdf) [rules](https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/selling-or-disposing-of-shares.aspx) apply to assets bought and sold within a 4 week window: this is **NOT** yet supported by RP2):
   * [FIFO](https://www.investopedia.com/terms/f/fifo.asp)
 * [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
@@ -33,7 +36,7 @@ RP2 supports multiple countries each of which has different accounting methods a
   * [open_positions](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#open-positions-report-unrealized-gains): report on assets with non-zero crypto balance (valid for any country): unrealized gains / losses, portfolio weighting, and more.
 * Ireland-specific RP2 executable: `rp2_ie`.
 
-## Japan
+### Japan
 RP2 support for Japan includes the following features:
 * Accounting methods:
   * Total Average Method;
@@ -43,7 +46,7 @@ RP2 support for Japan includes the following features:
   * [open_positions](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#open-positions-report-unrealized-gains): report on assets with non-zero crypto balance (valid for any country): unrealized gains / losses, portfolio weighting, and more.
 * Japan-specific RP2 executable: `rp2_jp`.
 
-## Spain
+### Spain
 RP2 support for Spain includes the following features:
 * Accounting methods:
   * [FIFO](https://www.investopedia.com/terms/f/fifo.asp).
@@ -52,7 +55,7 @@ RP2 support for Spain includes the following features:
   * [open_positions](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#open-positions-report-unrealized-gains): report on assets with non-zero crypto balance (valid for any country): unrealized gains / losses, portfolio weighting, and more.
 * Spain-specific RP2 executable: `rp2_es`.
 
-## USA
+### USA
 RP2 support for the US includes the following features:
 * Accounting methods (note that these methods use [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/), not per-wallet application):
   * [FIFO](https://www.investopedia.com/terms/f/fifo.asp),
