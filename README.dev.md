@@ -275,40 +275,93 @@ Accounting method plugins modify the behavior of the tax engine. They pair in/ou
 
 Accounting method plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * add a new Python file to the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
-* import the following (plus any other RP2 or Python package you might need):
-```
-from typing import Optional
+* there are two flavors of accounting method: list-based and heap-based. The first one sets acquired lots in a list and picks them from the front of the list until exhaustion. The second one sets acquired lots into a priority queue, based on a given criteria (e.g. spot price, etc.). Which flavor to choose depends on the semantics of the accounting method to be implemented: e.g. FIFO requires list-based, whereas HIFO requires heap-based.
+* For list-based accounting methods:
+  * import the following (plus any other RP2 or Python package you might need):
+    ```
+    from typing import Optional
 
-from rp2.abstract_accounting_method import AbstractAccountingMethod
-from rp2.abstract_accounting_method import AcquiredLotCandidates, AcquiredLotCandidatesOrder, AcquiredLotAndAmount
-from rp2.abstract_transaction import AbstractTransaction
-from rp2.in_transaction import InTransaction
-from rp2.rp2_decimal import ZERO, RP2Decimal
-```
-* Add a class named `AccountingMethod`, deriving from `AbstractAccountingMethod`:
-```
-class AccountingMethod(AbstractAccountingMethod):
-```
-* Add a `seek_non_exhausted_acquired_lot()` method to the class with the following signature:
-```
+    from rp2.abstract_accounting_method import (
+        AbstractAcquiredLotCandidates,
+        AbstractListAccountingMethod,
+        AcquiredLotAndAmount,
+        AcquiredLotCandidatesOrder,
+    )
+    from rp2.abstract_transaction import AbstractTransaction
+    from rp2.in_transaction import InTransaction
+    from rp2.rp2_decimal import ZERO, RP2Decimal
+    ```
+  * Add a class named `AccountingMethod`, deriving from `AbstractListAccountingMethod`:
+    ```
+    class AccountingMethod(AbstractListAccountingMethod):
+    ```
+  * Add a `seek_non_exhausted_acquired_lot()` method to the class with the following signature:
+    ```
     def seek_non_exhausted_acquired_lot(
         self,
-        lot_candidates: AcquiredLotCandidates,
+        lot_candidates: AbstractAcquiredLotCandidates,
         taxable_event: Optional[AbstractTransaction],
         taxable_event_amount: RP2Decimal,
     ) -> Optional[AcquiredLotAndAmount]:
-```
-* write the body of the method. The parameters/return values are:
-  * `lot_candidates`: iterable of acquired lot candidates to select from according to the accounting method. The lots are in the order specified by the `lot_candidates_order()` method (see below);
-  * `taxable_event`: the taxable event the method is finding an acquired lot to pair with;
-  * `taxable_event_amount`: the amount left in taxable event;
-  * it returns `None` if it doesn't find a suitable acquired lot, or `AcquiredLotAndAmount`, which captures a new acquired lot and its remaining amount. Note that, since lots can be fractioned, the remaining amount can be less than `crypto_in`. In the body of the function use the `has_partial_amount()` and `get_partial_amount()` methods of `AcquiredLotCandidates` to check if the lot has a partial amount and how much it is.
+    ```
+  * write the body of the method. The parameters/return values are:
+    * `lot_candidates`: iterable of acquired lot candidates to select from according to the accounting method. The lots are in the order specified by the `lot_candidates_order()` method (see below);
+    * `taxable_event`: the taxable event the method is finding an acquired lot to pair with;
+    * `taxable_event_amount`: the amount left in taxable event;
+    * it returns `None` if it doesn't find a suitable acquired lot, or `AcquiredLotAndAmount`, which captures a new acquired lot and its remaining amount. Note that, since lots can be fractioned, the remaining amount can be less than `acquired_lot.crypto_in`. In the body of the function use the `has_partial_amount()`, `get_partial_amount()` and `clear_partial_amount` methods of `AbstractAcquiredLotCandidates` to check if the lot has a partial amount, how much it is and to clear it as needed. Also use the `set_from_index` method of `AbstractAcquiredLotCandidates` to reset the starting index of the list (to avoid scanning the list from the beginning each time the function is called).
 
-* Add a `lot_candidates_order()` method to the class with the following signature:
-```
+  * Add a `lot_candidates_order()` method to the class with the following signature:
+    ```
     def lot_candidates_order(self) -> AcquiredLotCandidatesOrder:
-```
-* write the body of the method: it returns `AcquiredLotCandidatesOrder.OLDER_TO_NEWER` or `AcquiredLotCandidatesOrder.NEWER_TO_OLDER`, depending on whether the desired chronological order is ascending or descending.
+    ```
+  * write the body of the method: it returns `AcquiredLotCandidatesOrder.OLDER_TO_NEWER` or `AcquiredLotCandidatesOrder.NEWER_TO_OLDER`, depending on whether the desired chronological order is ascending or descending.
+
+* For heap-based accounting methods:
+  * import the following (plus any other RP2 or Python package you might need):
+    ```
+    from typing import Optional
+
+    from rp2.abstract_accounting_method import (
+        AbstractAcquiredLotCandidates,
+        AbstractHeapAccountingMethod,
+        AcquiredLotAndAmount,
+        AcquiredLotCandidatesOrder,
+        AcquiredLotHeapSortKey,
+        HeapAcquiredLotCandidates,
+    )
+    from rp2.abstract_transaction import AbstractTransaction
+    from rp2.rp2_error import RP2TypeError
+    from rp2.in_transaction import InTransaction
+    from rp2.rp2_decimal import ZERO, RP2Decimal
+    ```
+  * Add a class named `AccountingMethod`, deriving from `AbstractHeapAccountingMethod`:
+    ```
+    class AccountingMethod(AbstractHeapAccountingMethod):
+    ```
+  * Add a `seek_non_exhausted_acquired_lot()` method to the class with the following signature:
+    ```
+    def seek_non_exhausted_acquired_lot(
+        self,
+        lot_candidates: AbstractAcquiredLotCandidates,
+        taxable_event: Optional[AbstractTransaction],
+        taxable_event_amount: RP2Decimal,
+    ) -> Optional[AcquiredLotAndAmount]:
+    ```
+  * write the body of the method. The parameters/return values are:
+    * `lot_candidates`: iterable of acquired lot candidates to select from according to the accounting method. The lots are in the order specified by the `lot_candidates_order()` method (see below);
+    * `taxable_event`: the taxable event the method is finding an acquired lot to pair with;
+    * `taxable_event_amount`: the amount left in taxable event;
+    * it returns `None` if it doesn't find a suitable acquired lot, or `AcquiredLotAndAmount`, which captures a new acquired lot and its remaining amount. Note that, since lots can be fractioned, the remaining amount can be less than `acquired_lot.crypto_in`. In the body of the function use the `has_partial_amount()`, `get_partial_amount()` and `clear_partial_amount` methods of `AbstractAcquiredLotCandidates` to check if the lot has a partial amount, how much it is and to clear it as needed.
+  * Add a `lot_candidates_order()` method to the class with the following signature:
+    ```
+    def lot_candidates_order(self) -> AcquiredLotCandidatesOrder:
+    ```
+  * write the body of the method: it returns `AcquiredLotCandidatesOrder.OLDER_TO_NEWER` or `AcquiredLotCandidatesOrder.NEWER_TO_OLDER`, depending on whether the desired chronological order is ascending or descending.
+  * Add a `heap_key()` mehtod to the class with the following signature:
+    ```
+    def heap_key(self, lot: InTransaction) -> AcquiredLotHeapSortKey:
+    ```
+  * write the body of the method: it would return the heap key, reflecting the desired sort criteria for the heap.
 
 **NOTE**: If you're interested in adding support for a new accounting method, open a [PR](CONTRIBUTING.md).
 
