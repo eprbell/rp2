@@ -23,11 +23,6 @@ from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2RuntimeError, RP2TypeError
 
 
-class AbstractAccountingMethodIterator:
-    def __next__(self) -> InTransaction:
-        raise NotImplementedError("abstract function")
-
-
 class AcquiredLotAndAmount(NamedTuple):
     acquired_lot: InTransaction
     amount: RP2Decimal
@@ -42,6 +37,45 @@ class AcquiredLotHeapSortKey(NamedTuple):
     spot_price: RP2Decimal
     timestamp: float
     internal_id_int: int
+
+
+class AbstractAccountingMethodIterator:
+    def __next__(self) -> InTransaction:
+        raise NotImplementedError("abstract function")
+
+
+class ListAccountingMethodIterator(AbstractAccountingMethodIterator):
+    def __init__(self, acquired_lot_list: List[InTransaction], from_index: int, to_index: int, order_type: AcquiredLotCandidatesOrder) -> None:
+        self.__acquired_lot_list = acquired_lot_list
+        self.__start_index = from_index if order_type == AcquiredLotCandidatesOrder.OLDER_TO_NEWER else to_index
+        self.__end_index = to_index if order_type == AcquiredLotCandidatesOrder.OLDER_TO_NEWER else from_index
+        self.__step = 1 if order_type == AcquiredLotCandidatesOrder.OLDER_TO_NEWER else -1
+        self.__index = self.__start_index
+        self.__order_type = order_type
+
+    def _check_index(self) -> bool:
+        if self.__order_type == AcquiredLotCandidatesOrder.OLDER_TO_NEWER:
+            return self.__index <= self.__end_index
+        return self.__index >= self.__end_index
+
+    def __next__(self) -> InTransaction:
+        result: Optional[InTransaction] = None
+        while self._check_index():
+            result = self.__acquired_lot_list[self.__index]
+            self.__index += self.__step
+            return result
+        raise StopIteration(self)
+
+
+class HeapAccountingMethodIterator(AbstractAccountingMethodIterator):
+    def __init__(self, acquired_lot_heap: List[Tuple[AcquiredLotHeapSortKey, InTransaction]]) -> None:
+        self.__acquired_lot_heap = acquired_lot_heap
+
+    def __next__(self) -> InTransaction:
+        while len(self.__acquired_lot_heap) > 0:
+            _, result = heappop(self.__acquired_lot_heap)
+            return result
+        raise StopIteration(self)
 
 
 class AbstractAcquiredLotCandidates:
@@ -91,40 +125,6 @@ class AbstractAcquiredLotCandidates:
 
     def __iter__(self) -> AbstractAccountingMethodIterator:
         return self._accounting_method._create_accounting_method_iterator(self)
-
-
-class ListAccountingMethodIterator(AbstractAccountingMethodIterator):
-    def __init__(self, acquired_lot_list: List[InTransaction], from_index: int, to_index: int, order_type: AcquiredLotCandidatesOrder) -> None:
-        self.__acquired_lot_list = acquired_lot_list
-        self.__start_index = from_index if order_type == AcquiredLotCandidatesOrder.OLDER_TO_NEWER else to_index
-        self.__end_index = to_index if order_type == AcquiredLotCandidatesOrder.OLDER_TO_NEWER else from_index
-        self.__step = 1 if order_type == AcquiredLotCandidatesOrder.OLDER_TO_NEWER else -1
-        self.__index = self.__start_index
-        self.__order_type = order_type
-
-    def _check_index(self) -> bool:
-        if self.__order_type == AcquiredLotCandidatesOrder.OLDER_TO_NEWER:
-            return self.__index <= self.__end_index
-        return self.__index >= self.__end_index
-
-    def __next__(self) -> InTransaction:
-        result: Optional[InTransaction] = None
-        while self._check_index():
-            result = self.__acquired_lot_list[self.__index]
-            self.__index += self.__step
-            return result
-        raise StopIteration(self)
-
-
-class HeapAccountingMethodIterator(AbstractAccountingMethodIterator):
-    def __init__(self, acquired_lot_heap: List[Tuple[AcquiredLotHeapSortKey, InTransaction]]) -> None:
-        self.__acquired_lot_heap = acquired_lot_heap
-
-    def __next__(self) -> InTransaction:
-        while len(self.__acquired_lot_heap) > 0:
-            _, result = heappop(self.__acquired_lot_heap)
-            return result
-        raise StopIteration(self)
 
 
 class ListAcquiredLotCandidates(AbstractAcquiredLotCandidates):
