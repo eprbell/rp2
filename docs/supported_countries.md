@@ -17,6 +17,7 @@
 ## Table of Contents
 * **[Introduction](#introduction)**
 * **[Countries](#countries)**
+  * [Generic](#generic)
   * [Ireland](#ireland)
   * [Japan](#japan)
   * [Spain](#Spain)
@@ -26,6 +27,28 @@
 RP2 supports multiple countries each of which has different accounting methods and report generators, as explained in the sections below.
 
 ## Countries
+
+### Generic
+This is a placeholder country that is meant to be used by people of countries that are yet unsupported by RP2. It produces a country-agnostic, detailed report and supports all RP2 accounting methods (which can be selected with the `-m` option). It requires the definition of two environment variables:
+* CURRENCY_CODE: [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) string representing the currency used;
+* LONG_TERM_CAPITAL_GAINS: period in days after which sold assets trigger long-term capital gains instead of short-term ones (for the US this value is 365). For countries that don't have short/long-term capital gains a very large number can be used (e.g. 1000000000).
+To set environment variables for the generic RP2 executable on Unix-like systems:
+```
+CURRENCY_CODE=eur LONG_TERM_CAPITAL_GAINS=1000000000 rp2_generic...
+```
+To set environment variables for the generic RP2 executable on Windows systems:
+```
+Set CURRENCY_CODE=eur LONG_TERM_CAPITAL_GAINS=1000000000 rp2_generic...
+```
+RP2 Generic supports the following features:
+* Accounting methods (note that these methods use [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/), not per-wallet application):
+  * [FIFO](https://www.investopedia.com/terms/f/fifo.asp),
+  * [LIFO](https://www.investopedia.com/terms/l/lifo.asp),
+  * [HIFO](https://www.investopedia.com/terms/h/hifo.asp).
+* [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
+  * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
+  * [open_positions](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#open-positions-report-unrealized-gains): report on assets with non-zero crypto balance (valid for any country): unrealized gains / losses, portfolio weighting, and more.
+* Generic executable: `rp2_generic`.
 
 ### Ireland
 * Accounting methods (note that in Ireland [specific](https://www.revenue.ie/en/tax-professionals/tdm/income-tax-capital-gains-tax-corporation-tax/part-19/19-04-03.pdf) [rules](https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/selling-or-disposing-of-shares.aspx) apply to assets bought and sold within a 4 week window: this is **NOT** yet supported by RP2):
