@@ -15,7 +15,8 @@
 
 from typing import List, Set
 
-from rp2.rp2_error import RP2TypeError
+from pycountry import countries, currencies
+from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
 class AbstractCountry:
@@ -36,6 +37,11 @@ class AbstractCountry:
             raise RP2TypeError(f"Parameter 'country_iso_code' has non-string value {repr(country_iso_code)}")
         if not isinstance(currency_iso_code, str):
             raise RP2TypeError(f"Parameter 'currency_iso_code' has non-string value {repr(currency_iso_code)}")
+
+        if not (country_iso_code == "generic" or countries.get(alpha_2=country_iso_code)):
+            raise RP2ValueError(f"Parameter 'country_iso_code' has non-ISO-3166-1 alpha-2 format value {country_iso_code}.")
+        if not currencies.get(alpha_3=currency_iso_code):
+            raise RP2ValueError(f"Parameter 'currency_iso_code' has non-ISO-4217 format value {currency_iso_code}.")
 
         self.__country_iso_code = country_iso_code
         self.__currency_iso_code = currency_iso_code
