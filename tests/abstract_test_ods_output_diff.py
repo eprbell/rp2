@@ -18,7 +18,7 @@ from datetime import date
 from enum import Enum
 from pathlib import Path
 from subprocess import run
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from ods_diff import ods_diff
 
@@ -37,6 +37,7 @@ class OutputPlugins(Enum):
     TAX_REPORT_JP = "tax_report_jp"
     TAX_REPORT_US = "tax_report_us"
     TAX_REPORT_IE = "tax_report_ie"
+
 
 class AbstractTestODSOutputDiff(unittest.TestCase):
     # Temporarily removed lifo and hifo due to https://github.com/eprbell/rp2/issues/79
@@ -69,6 +70,7 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
         allow_negative_balances: bool = False,
         generation_language: Optional[str] = None,
         country: str = "us",
+        env: Optional[Dict[str, str]] = None,
     ) -> None:
         config = test_name if config is None else config
         time_interval: str = cls.__get_time_interval(from_date, to_date)
@@ -96,8 +98,12 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
                 str(input_path / Path(f"{test_name}.ods")),
             ]
         )
-
-        run(arguments, check=True)
+        if not env:
+            run(arguments, check=True)
+        else:
+            merged_env = os.environ.copy()
+            merged_env.update(env)
+            run(arguments, check=True, env=merged_env)
 
     def _compare(
         self,
