@@ -130,6 +130,7 @@ class AbstractAcquiredLotCandidates:
 class ListAcquiredLotCandidates(AbstractAcquiredLotCandidates):
     pass
 
+
 class HeapAcquiredLotCandidates(AbstractAcquiredLotCandidates):
     _accounting_method: "AbstractHeapAccountingMethod"
 
