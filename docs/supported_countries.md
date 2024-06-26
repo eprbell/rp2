@@ -30,8 +30,8 @@ RP2 supports multiple countries each of which has different accounting methods a
 
 ### Generic
 This is a placeholder country that is meant to be used by people of countries that are yet unsupported by RP2. It produces a country-agnostic, detailed report and supports all RP2 accounting methods (which can be selected with the `-m` option). It requires the definition of two environment variables:
-* CURRENCY_CODE: [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) string representing the currency used;
-* LONG_TERM_CAPITAL_GAINS: period in days after which sold assets trigger long-term capital gains instead of short-term ones (for the US this value is 365). For countries that don't have short/long-term capital gains a very large number can be used (e.g. 1000000000).
+* `CURRENCY_CODE`: [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) string representing the currency used;
+* `LONG_TERM_CAPITAL_GAINS`: period in days after which sold assets trigger long-term capital gains instead of short-term ones (for the US this value is 365). For countries that don't have short/long-term capital gains a very large number can be used (e.g. 1000000000).
 To set environment variables for the generic RP2 executable on Unix-like systems:
 ```
 CURRENCY_CODE=eur LONG_TERM_CAPITAL_GAINS=1000000000 rp2_generic...
