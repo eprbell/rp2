@@ -182,7 +182,7 @@ To print full command usage information for the `rp2_us` command:
 Read the [input files](https://github.com/eprbell/rp2/blob/main/docs/input_files.md) and [output files](https://github.com/eprbell/rp2/blob/main/docs/output_files.md) documentation.
 
 ## Supported Countries
-Read the [supported countries](https://github.com/eprbell/rp2/blob/main/docs/input_files.md) documentation.
+Read the [supported countries](https://github.com/eprbell/rp2/blob/main/docs/supported_countries.md) documentation.
 
 ## RP2 Ecosystem
 This is a call for coders: come and help us expand RP2's functionality!
