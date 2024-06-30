@@ -37,7 +37,7 @@ Privacy-focused, free, powerful crypto tax calculator
   * [Other Unix-like Systems](https://github.com/eprbell/rp2/blob/main/README.md#installation-on-other-unix-like-systems)
 * **[Running](https://github.com/eprbell/rp2/blob/main/README.md#running)**
 * **[Input and Output Files](https://github.com/eprbell/rp2/blob/main/README.md#input-and-output-files)**
-* **[Supported Countries](https://github.com/eprbell/rp2/blob/main/README.md#supported_countries)**
+* **[Supported Countries](https://github.com/eprbell/rp2/blob/main/README.md#supported-countries)**
 * **[RP2 Ecosystem](https://github.com/eprbell/rp2/blob/main/README.md#rp2-ecosystem)**
   * [List of Ecosystem Projects](https://github.com/eprbell/rp2/blob/main/README.md#list-of-ecosystem-projects)
 * **[Reporting Bugs](https://github.com/eprbell/rp2/blob/main/README.md#reporting-bugs)**
@@ -182,7 +182,7 @@ To print full command usage information for the `rp2_us` command:
 Read the [input files](https://github.com/eprbell/rp2/blob/main/docs/input_files.md) and [output files](https://github.com/eprbell/rp2/blob/main/docs/output_files.md) documentation.
 
 ## Supported Countries
-Read the [supported countries](https://github.com/eprbell/rp2/blob/main/docs/input_files.md) documentation.
+Read the [supported countries](https://github.com/eprbell/rp2/blob/main/docs/supported_countries.md) documentation.
 
 ## RP2 Ecosystem
 This is a call for coders: come and help us expand RP2's functionality!
