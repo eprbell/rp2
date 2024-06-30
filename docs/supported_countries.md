@@ -24,7 +24,7 @@
   * [USA](#usa)
 
 ## Introduction
-RP2 supports multiple countries each of which has different accounting methods and report generators, as explained in the sections below.
+RP2 supports most countries each of which has different accounting methods and report generators, as explained in the sections below. Some countries have direct support (by means of a country-specific RP2 plugin), but other countries can still benefit from RP2 via the generic country plugin (see below).
 
 ## Countries
 

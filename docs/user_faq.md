@@ -92,7 +92,7 @@ Accounting methods vary country by country, as described in the [supported count
 Yes, for countries that support more than one accounting method, you can select which one to use via the `-m` command line option.
 
 ### What Countries Are Supported?
-See the [supported countries](supported_countries.md) document.
+RP2 can be used in most countries: see the [supported countries](supported_countries.md) document for details.
 
 ### How to Switch from Another Tax Software to RP2?
 In other words, how does RP2 handle transactions that were managed by other software in previous years? In this case the user can just leave out from the RP2 input spreadsheet the transactions/lots that were already sold in previous years.

@@ -14,6 +14,10 @@
 
 # RP2 Change Log
 
+# 1.7.0
+* added generic country plugin (for use in countries that don't have country-specific support yet)
+* various improvements to documentation
+
 # 1.6.0
 * optimized FIFO accounting from quadratic to linear (#115)
 * optimized LIFO and HIFO accounting from quadratic to m*log(n) (#116)
