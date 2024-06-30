@@ -14,7 +14,7 @@
 
 # RP2 Change Log
 
-# 1.7.0
+# 1.7.1
 * added generic country plugin (for use in countries that don't have country-specific support yet)
 * various improvements to documentation
 
