@@ -169,9 +169,6 @@ class AbstractAccountingMethod:
     ) -> Optional[AcquiredLotAndAmount]:
         raise NotImplementedError("Abstract function")
 
-    def lot_candidates_order(self) -> AcquiredLotCandidatesOrder:
-        raise NotImplementedError("Abstract function")
-
     @property
     def name(self) -> str:
         return f"{self.__class__.__module__.rsplit('.', 1)[1]}"

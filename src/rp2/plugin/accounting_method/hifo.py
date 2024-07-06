@@ -18,7 +18,6 @@ from rp2.abstract_accounting_method import (
     AbstractAcquiredLotCandidates,
     AbstractHeapAccountingMethod,
     AcquiredLotAndAmount,
-    AcquiredLotCandidatesOrder,
     AcquiredLotHeapSortKey,
     HeapAcquiredLotCandidates,
 )
@@ -66,9 +65,6 @@ class AccountingMethod(AbstractHeapAccountingMethod):
                 self.add_selected_lot_to_heap(lot_candidates.acquired_lot_heap, selected_acquired_lot)
             return AcquiredLotAndAmount(acquired_lot=selected_acquired_lot, amount=selected_acquired_lot_amount)
         return None
-
-    def lot_candidates_order(self) -> AcquiredLotCandidatesOrder:
-        return AcquiredLotCandidatesOrder.OLDER_TO_NEWER
 
     def heap_key(self, lot: InTransaction) -> AcquiredLotHeapSortKey:
         return AcquiredLotHeapSortKey(-lot.spot_price, lot.timestamp.timestamp(), lot.row)
