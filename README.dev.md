@@ -273,9 +273,14 @@ Report plugin output can be localized in many languages (see the [Localization](
 ### Adding a New Accounting Method
 Accounting method plugins modify the behavior of the tax engine. They pair in/out lots according to the given accounting algorithm: [FIFO](src/rp2/plugin/accounting_method/fifo.py), [LIFO](src/rp2/plugin/accounting_method/lifo.py) and [HIFO](src/rp2/plugin/accounting_method/hifo.py) are examples of accounting method plugins.
 
+In RP2 there are two flavors of accounting method:
+* List-based: these methods are characterized by a global, method-specific sorting criterion for the in-lots. "Global" means that in-lot sorting doesn't depend on the features of the current out-lot. This enables the arrangement of in-lots in a list. These methods pick in-lots from the front of the list until exhaustion and have O(n) complexity. An example of list-based method is FIFO: in FIFO in-lots are ordered chronologically from older to newer (and this order is not affected by the current out-lot).
+* Heap-based: these methods are characterized by a non-global, method-specific sorting criterion for the in-lots. Non-global means that in-lot sorting does depend on the features of the current out-lot. These methods arrange in-lots in priority queues, based on a method-specific criterion (e.g. spot price, etc.): they pick in-lots from the heap that satisfies the out-lot, until exhaustion. They have O(n*log(n)) complexity. An example of heap-based method is HIFO: in HIFO lots are arranged by price (highest first), however the set of in-lots that can be paired with the current out-lot depends on the date of sale of the out-lot (because the in-lots cannot be newer than the out-lot).
+
+Note that most of the management of list and heap semantics is handled automatically by the `AccountingEngine` class: new accounting method plugins only need to define a few methods to respect the contract with the accounting engine.
+
 Accounting method plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * add a new Python file to the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
-* there are two flavors of accounting method: list-based and heap-based. The first one sets acquired lots in a list and picks them from the front of the list until exhaustion. The second one sets acquired lots into a priority queue, based on a given criteria (e.g. spot price, etc.). Which flavor to choose depends on the semantics of the accounting method to be implemented: e.g. FIFO requires list-based, whereas HIFO requires heap-based.
 * For list-based accounting methods:
   * import the following (plus any other RP2 or Python package you might need):
     ```
@@ -325,7 +330,6 @@ Accounting method plugins are discovered by RP2 at runtime and they must adhere 
         AbstractAcquiredLotCandidates,
         AbstractHeapAccountingMethod,
         AcquiredLotAndAmount,
-        AcquiredLotCandidatesOrder,
         AcquiredLotHeapSortKey,
         HeapAcquiredLotCandidates,
     )
@@ -352,12 +356,7 @@ Accounting method plugins are discovered by RP2 at runtime and they must adhere 
     * `taxable_event`: the taxable event the method is finding an acquired lot to pair with;
     * `taxable_event_amount`: the amount left in taxable event;
     * it returns `None` if it doesn't find a suitable acquired lot, or `AcquiredLotAndAmount`, which captures a new acquired lot and its remaining amount. Note that, since lots can be fractioned, the remaining amount can be less than `acquired_lot.crypto_in`. In the body of the function use the `has_partial_amount()`, `get_partial_amount()` and `clear_partial_amount` methods of `AbstractAcquiredLotCandidates` to check if the lot has a partial amount, how much it is and to clear it as needed.
-  * Add a `lot_candidates_order()` method to the class with the following signature:
-    ```
-    def lot_candidates_order(self) -> AcquiredLotCandidatesOrder:
-    ```
-  * write the body of the method: it returns `AcquiredLotCandidatesOrder.OLDER_TO_NEWER` or `AcquiredLotCandidatesOrder.NEWER_TO_OLDER`, depending on whether the desired chronological order is ascending or descending.
-  * Add a `heap_key()` mehtod to the class with the following signature:
+  * Add a `heap_key()` method to the class with the following signature:
     ```
     def heap_key(self, lot: InTransaction) -> AcquiredLotHeapSortKey:
     ```
