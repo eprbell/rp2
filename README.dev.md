@@ -352,7 +352,7 @@ Accounting method plugins are discovered by RP2 at runtime and they must adhere 
     ) -> Optional[AcquiredLotAndAmount]:
     ```
   * write the body of the method. The parameters/return values are:
-    * `lot_candidates`: iterable of acquired lot candidates to select from according to the accounting method. The lots are in the order specified by the `lot_candidates_order()` method (see below);
+    * `lot_candidates`: iterable of acquired lot candidates to select from according to the accounting method.
     * `taxable_event`: the taxable event the method is finding an acquired lot to pair with;
     * `taxable_event_amount`: the amount left in taxable event;
     * it returns `None` if it doesn't find a suitable acquired lot, or `AcquiredLotAndAmount`, which captures a new acquired lot and its remaining amount. Note that, since lots can be fractioned, the remaining amount can be less than `acquired_lot.crypto_in`. In the body of the function use the `has_partial_amount()`, `get_partial_amount()` and `clear_partial_amount` methods of `AbstractAcquiredLotCandidates` to check if the lot has a partial amount, how much it is and to clear it as needed.
