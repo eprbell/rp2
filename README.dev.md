@@ -310,11 +310,11 @@ from rp2.in_transaction import InTransaction
     ```
     class AccountingMethod(AbstractFeatureBasedAccountingMethod):
     ```
-  * Add a `heap_key()` method to the class with the following signature:
+  * Add a `sort_key()` method to the class with the following signature:
     ```
-    def heap_key(self, lot: InTransaction) -> AcquiredLotSortKey:
+    def sort_key(self, lot: InTransaction) -> AcquiredLotSortKey:
     ```
-  * write the body of the method: it should return the heap key, reflecting the desired sort criteria for acquired lots.
+  * write the body of the method: it should return the sort key, reflecting the desired sort criteria for acquired lots. Note that you may have to add new fields to `AcquiredLotSortKey` to reflect the feature you want to sort on: such addition should be backward compatible to ensure it doesn't break existing accounting methods.
 
 **NOTE**: If you're interested in adding support for a new accounting method, open a [PR](CONTRIBUTING.md).
 

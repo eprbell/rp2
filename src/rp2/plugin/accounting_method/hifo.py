@@ -25,5 +25,5 @@ from rp2.in_transaction import InTransaction
 # More on this at https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/
 class AccountingMethod(AbstractFeatureBasedAccountingMethod):
 
-    def heap_key(self, lot: InTransaction) -> AcquiredLotSortKey:
+    def sort_key(self, lot: InTransaction) -> AcquiredLotSortKey:
         return AcquiredLotSortKey(-lot.spot_price, lot.timestamp.timestamp(), lot.row)

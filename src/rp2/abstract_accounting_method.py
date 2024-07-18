@@ -234,10 +234,10 @@ class AbstractFeatureBasedAccountingMethod(AbstractAccountingMethod):
         return FeatureBasedAcquiredLotCandidates(self, acquired_lot_list, acquired_lot_2_partial_amount)
 
     def add_selected_lot_to_heap(self, heap: List[Tuple[AcquiredLotSortKey, InTransaction]], lot: InTransaction) -> None:
-        heap_item = (self.heap_key(lot), lot)
+        heap_item = (self.sort_key(lot), lot)
         heappush(heap, heap_item)
 
-    def heap_key(self, lot: InTransaction) -> AcquiredLotSortKey:
+    def sort_key(self, lot: InTransaction) -> AcquiredLotSortKey:
         raise NotImplementedError("Abstract function")
 
     def _create_accounting_method_iterator(self, lot_candidates: AbstractAcquiredLotCandidates) -> FeatureBasedAccountingMethodIterator:

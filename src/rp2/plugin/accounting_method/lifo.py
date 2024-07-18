@@ -27,5 +27,5 @@ from rp2.rp2_decimal import ZERO
 # https://ttlc.intuit.com/community/investments-and-rental-properties/discussion/using-lifo-method-for-cryptocurrency-or-even-stock-cost-basis/00/1433542
 class AccountingMethod(AbstractFeatureBasedAccountingMethod):
 
-    def heap_key(self, lot: InTransaction) -> AcquiredLotSortKey:
+    def sort_key(self, lot: InTransaction) -> AcquiredLotSortKey:
         return AcquiredLotSortKey(ZERO, -lot.timestamp.timestamp(), -lot.row)
