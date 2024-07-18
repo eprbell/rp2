@@ -271,7 +271,7 @@ Report plugin output can be localized in many languages (see the [Localization](
 **NOTE**: If you're interested in adding support for a new report generator, open a [PR](CONTRIBUTING.md).
 
 ### Adding a New Accounting Method
-Accounting method plugins modify the behavior of the tax engine. They pair in/out lots according to the given accounting algorithm: [FIFO](src/rp2/plugin/accounting_method/fifo.py), [LIFO](src/rp2/plugin/accounting_method/lifo.py), [LIFO](src/rp2/plugin/accounting_method/lifo.py) and [HIFO](src/rp2/plugin/accounting_method/hifo.py) are examples of accounting method plugins.
+Accounting method plugins modify the behavior of the tax engine. They pair in/out lots according to the given accounting algorithm: [FIFO](src/rp2/plugin/accounting_method/fifo.py), [LIFO](src/rp2/plugin/accounting_method/lifo.py), and [HIFO](src/rp2/plugin/accounting_method/hifo.py) are examples of accounting method plugins.
 
 In RP2 there are two accounting method flavors:
 * Chronological: these methods sort the in-lots based on their chronological order and have O(n) complexity. FIFO is an example of this type.
