@@ -295,7 +295,7 @@ Accounting method plugins are discovered by RP2 at runtime and they must adhere 
     ```
     def lot_candidates_order(self) -> AcquiredLotCandidatesOrder:
     ```
-  * write the body of the method: it returns `AcquiredLotCandidatesOrder.OLDER_TO_NEWER` or `AcquiredLotCandidatesOrder.NEWER_TO_OLDER`, depending on whether the desired chronological order is ascending or descending.
+  * write the body of the method: it should return either `AcquiredLotCandidatesOrder.OLDER_TO_NEWER` or `AcquiredLotCandidatesOrder.NEWER_TO_OLDER`, depending on whether the desired chronological order is ascending or descending.
 
 * For feature-based accounting methods:
   * import the following (plus any other RP2 or Python package you might need):
@@ -304,7 +304,7 @@ Accounting method plugins are discovered by RP2 at runtime and they must adhere 
         AbstractFeatureBasedAccountingMethod,
         AcquiredLotSortKey,
     )
-from rp2.in_transaction import InTransaction
+    from rp2.in_transaction import InTransaction
     ```
   * Add a class named `AccountingMethod`, deriving from `AbstractFeatureBasedAccountingMethod`:
     ```
