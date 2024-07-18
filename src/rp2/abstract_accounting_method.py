@@ -33,7 +33,7 @@ class AcquiredLotCandidatesOrder(Enum):
     NEWER_TO_OLDER: str = "newer_to_older"
 
 
-class AcquiredLotHeapSortKey(NamedTuple):
+class AcquiredLotSortKey(NamedTuple):
     spot_price: RP2Decimal
     timestamp: float
     internal_id_int: int
@@ -44,7 +44,7 @@ class AbstractAccountingMethodIterator:
         raise NotImplementedError("abstract function")
 
 
-class ListAccountingMethodIterator(AbstractAccountingMethodIterator):
+class ChronologicalAccountingMethodIterator(AbstractAccountingMethodIterator):
     def __init__(self, acquired_lot_list: List[InTransaction], from_index: int, to_index: int, order_type: AcquiredLotCandidatesOrder) -> None:
         self.__acquired_lot_list = acquired_lot_list
         self.__start_index = from_index if order_type == AcquiredLotCandidatesOrder.OLDER_TO_NEWER else to_index
@@ -67,8 +67,8 @@ class ListAccountingMethodIterator(AbstractAccountingMethodIterator):
         raise StopIteration(self)
 
 
-class HeapAccountingMethodIterator(AbstractAccountingMethodIterator):
-    def __init__(self, acquired_lot_heap: List[Tuple[AcquiredLotHeapSortKey, InTransaction]]) -> None:
+class FeatureBasedAccountingMethodIterator(AbstractAccountingMethodIterator):
+    def __init__(self, acquired_lot_heap: List[Tuple[AcquiredLotSortKey, InTransaction]]) -> None:
         self.__acquired_lot_heap = acquired_lot_heap
 
     def __next__(self) -> InTransaction:
@@ -127,12 +127,12 @@ class AbstractAcquiredLotCandidates:
         return self._accounting_method._create_accounting_method_iterator(self)
 
 
-class ListAcquiredLotCandidates(AbstractAcquiredLotCandidates):
+class ChronologicalAcquiredLotCandidates(AbstractAcquiredLotCandidates):
     pass
 
 
-class HeapAcquiredLotCandidates(AbstractAcquiredLotCandidates):
-    _accounting_method: "AbstractHeapAccountingMethod"
+class FeatureBasedAcquiredLotCandidates(AbstractAcquiredLotCandidates):
+    _accounting_method: "AbstractFeatureBasedAccountingMethod"
 
     def __init__(
         self,
@@ -141,7 +141,7 @@ class HeapAcquiredLotCandidates(AbstractAcquiredLotCandidates):
         acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal],
     ) -> None:
         super().__init__(accounting_method, acquired_lot_list, acquired_lot_2_partial_amount)
-        self.__acquired_lot_heap: List[Tuple[AcquiredLotHeapSortKey, InTransaction]] = []
+        self.__acquired_lot_heap: List[Tuple[AcquiredLotSortKey, InTransaction]] = []
 
     def set_to_index(self, to_index: int) -> None:
         # Control how far to advance the iterator, caller is responsible for updating
@@ -151,7 +151,7 @@ class HeapAcquiredLotCandidates(AbstractAcquiredLotCandidates):
         super().set_to_index(to_index)
 
     @property
-    def acquired_lot_heap(self) -> List[Tuple[AcquiredLotHeapSortKey, InTransaction]]:
+    def acquired_lot_heap(self) -> List[Tuple[AcquiredLotSortKey, InTransaction]]:
         return self.__acquired_lot_heap
 
 
@@ -180,33 +180,102 @@ class AbstractAccountingMethod:
         raise NotImplementedError("Abstract function")
 
 
-class AbstractListAccountingMethod(AbstractAccountingMethod):
+class AbstractChronologicalAccountingMethod(AbstractAccountingMethod):
     def create_lot_candidates(
         self, acquired_lot_list: List[InTransaction], acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal]
-    ) -> ListAcquiredLotCandidates:
-        return ListAcquiredLotCandidates(self, acquired_lot_list, acquired_lot_2_partial_amount)
+    ) -> ChronologicalAcquiredLotCandidates:
+        return ChronologicalAcquiredLotCandidates(self, acquired_lot_list, acquired_lot_2_partial_amount)
 
     def lot_candidates_order(self) -> AcquiredLotCandidatesOrder:
         raise NotImplementedError("Abstract function")
 
-    def _create_accounting_method_iterator(self, lot_candidates: AbstractAcquiredLotCandidates) -> ListAccountingMethodIterator:
-        return ListAccountingMethodIterator(lot_candidates.acquired_lot_list, lot_candidates.from_index, lot_candidates.to_index, self.lot_candidates_order())
+    def _create_accounting_method_iterator(self, lot_candidates: AbstractAcquiredLotCandidates) -> ChronologicalAccountingMethodIterator:
+        return ChronologicalAccountingMethodIterator(
+            lot_candidates.acquired_lot_list, lot_candidates.from_index, lot_candidates.to_index, self.lot_candidates_order()
+        )
+
+    def seek_non_exhausted_acquired_lot(
+        self,
+        lot_candidates: AbstractAcquiredLotCandidates,
+        taxable_event: Optional[AbstractTransaction],
+        taxable_event_amount: RP2Decimal,
+    ) -> Optional[AcquiredLotAndAmount]:
+        selected_acquired_lot_amount: RP2Decimal = ZERO
+        selected_acquired_lot: Optional[InTransaction] = None
+        acquired_lot: InTransaction
+        # The FIFO plugin features linear complexity by setting lot_candidates from_index to the first non-exhausted lot (to_index is set in the caller).
+        # As FIFO ensures no non-exhausted lots can exist to the left of this index, this approach is O(n).
+        for acquired_lot in lot_candidates:
+            acquired_lot_amount: RP2Decimal = ZERO
+
+            if not lot_candidates.has_partial_amount(acquired_lot):
+                acquired_lot_amount = acquired_lot.crypto_in
+            elif lot_candidates.get_partial_amount(acquired_lot) > ZERO:
+                acquired_lot_amount = lot_candidates.get_partial_amount(acquired_lot)
+            else:
+                # The acquired lot has zero partial amount, so we can advance our start offset
+                lot_candidates.set_from_index(lot_candidates.from_index + 1)
+                continue
+
+            selected_acquired_lot_amount = acquired_lot_amount
+            selected_acquired_lot = acquired_lot
+            break
+
+        if selected_acquired_lot_amount > ZERO and selected_acquired_lot:
+            lot_candidates.clear_partial_amount(selected_acquired_lot)
+            return AcquiredLotAndAmount(acquired_lot=selected_acquired_lot, amount=selected_acquired_lot_amount)
+        return None
 
 
-class AbstractHeapAccountingMethod(AbstractAccountingMethod):
+class AbstractFeatureBasedAccountingMethod(AbstractAccountingMethod):
     def create_lot_candidates(
         self, acquired_lot_list: List[InTransaction], acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal]
-    ) -> HeapAcquiredLotCandidates:
-        return HeapAcquiredLotCandidates(self, acquired_lot_list, acquired_lot_2_partial_amount)
+    ) -> FeatureBasedAcquiredLotCandidates:
+        return FeatureBasedAcquiredLotCandidates(self, acquired_lot_list, acquired_lot_2_partial_amount)
 
-    def add_selected_lot_to_heap(self, heap: List[Tuple[AcquiredLotHeapSortKey, InTransaction]], lot: InTransaction) -> None:
+    def add_selected_lot_to_heap(self, heap: List[Tuple[AcquiredLotSortKey, InTransaction]], lot: InTransaction) -> None:
         heap_item = (self.heap_key(lot), lot)
         heappush(heap, heap_item)
 
-    def heap_key(self, lot: InTransaction) -> AcquiredLotHeapSortKey:
+    def heap_key(self, lot: InTransaction) -> AcquiredLotSortKey:
         raise NotImplementedError("Abstract function")
 
-    def _create_accounting_method_iterator(self, lot_candidates: AbstractAcquiredLotCandidates) -> HeapAccountingMethodIterator:
-        if not isinstance(lot_candidates, HeapAcquiredLotCandidates):
-            raise RP2TypeError(f"Internal error: lot_candidates is not of type HeapAcquiredLotCandidates, but of type {type(lot_candidates)}")
-        return HeapAccountingMethodIterator(lot_candidates.acquired_lot_heap)
+    def _create_accounting_method_iterator(self, lot_candidates: AbstractAcquiredLotCandidates) -> FeatureBasedAccountingMethodIterator:
+        if not isinstance(lot_candidates, FeatureBasedAcquiredLotCandidates):
+            raise RP2TypeError(f"Internal error: lot_candidates is not of type FeatureBasedAcquiredLotCandidates, but of type {type(lot_candidates)}")
+        return FeatureBasedAccountingMethodIterator(lot_candidates.acquired_lot_heap)
+
+    def seek_non_exhausted_acquired_lot(
+        self,
+        lot_candidates: AbstractAcquiredLotCandidates,
+        taxable_event: Optional[AbstractTransaction],
+        taxable_event_amount: RP2Decimal,
+    ) -> Optional[AcquiredLotAndAmount]:
+        selected_acquired_lot_amount: RP2Decimal = ZERO
+        selected_acquired_lot: Optional[InTransaction] = None
+        acquired_lot: InTransaction
+        if not isinstance(lot_candidates, FeatureBasedAcquiredLotCandidates):
+            raise RP2TypeError(f"Internal error: lot_candidates is not of type FeatureBasedAcquiredLotCandidates, but of type {type(lot_candidates)}")
+        # This plugin features O(n * log(m)) complexity, where n is the number
+        # of transactions and m is the number of unexhausted acquistion lots
+        for acquired_lot in lot_candidates:
+            acquired_lot_amount: RP2Decimal = ZERO
+
+            if not lot_candidates.has_partial_amount(acquired_lot):
+                acquired_lot_amount = acquired_lot.crypto_in
+            elif lot_candidates.get_partial_amount(acquired_lot) > ZERO:
+                acquired_lot_amount = lot_candidates.get_partial_amount(acquired_lot)
+            else:
+                # The acquired lot has zero partial amount
+                continue
+
+            selected_acquired_lot_amount = acquired_lot_amount
+            selected_acquired_lot = acquired_lot
+            break
+
+        if selected_acquired_lot_amount > ZERO and selected_acquired_lot:
+            lot_candidates.clear_partial_amount(selected_acquired_lot)
+            if selected_acquired_lot_amount > taxable_event_amount:
+                self.add_selected_lot_to_heap(lot_candidates.acquired_lot_heap, selected_acquired_lot)
+            return AcquiredLotAndAmount(acquired_lot=selected_acquired_lot, amount=selected_acquired_lot_amount)
+        return None
