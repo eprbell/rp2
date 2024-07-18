@@ -41,7 +41,7 @@ class AcquiredLotSortKey(NamedTuple):
 
 class AbstractAccountingMethodIterator:
     def __next__(self) -> InTransaction:
-        raise NotImplementedError("abstract function")
+        raise NotImplementedError("Abstract function")
 
 
 class ChronologicalAccountingMethodIterator(AbstractAccountingMethodIterator):
@@ -159,7 +159,7 @@ class AbstractAccountingMethod:
     def create_lot_candidates(
         self, acquired_lot_list: List[InTransaction], acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal]
     ) -> AbstractAcquiredLotCandidates:
-        raise NotImplementedError("abstract")
+        raise NotImplementedError("Abstract function")
 
     def seek_non_exhausted_acquired_lot(
         self,
