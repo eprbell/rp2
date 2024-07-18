@@ -282,10 +282,10 @@ Accounting method plugins are discovered by RP2 at runtime and they must adhere 
 * For chronological accounting methods:
   * import the following (plus any other RP2 or Python package you might need):
     ```
-from rp2.abstract_accounting_method import (
-    AbstractChronologicalAccountingMethod,
-    AcquiredLotCandidatesOrder,
-)
+    from rp2.abstract_accounting_method import (
+        AbstractChronologicalAccountingMethod,
+        AcquiredLotCandidatesOrder,
+    )
     ```
   * Add a class named `AccountingMethod`, deriving from `AbstractChronologicalAccountingMethod`:
     ```
@@ -300,10 +300,10 @@ from rp2.abstract_accounting_method import (
 * For feature-based accounting methods:
   * import the following (plus any other RP2 or Python package you might need):
     ```
-from rp2.abstract_accounting_method import (
-    AbstractFeatureBasedAccountingMethod,
-    AcquiredLotSortKey,
-)
+    from rp2.abstract_accounting_method import (
+        AbstractFeatureBasedAccountingMethod,
+        AcquiredLotSortKey,
+    )
 from rp2.in_transaction import InTransaction
     ```
   * Add a class named `AccountingMethod`, deriving from `AbstractFeatureBasedAccountingMethod`:
