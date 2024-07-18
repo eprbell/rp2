@@ -271,96 +271,50 @@ Report plugin output can be localized in many languages (see the [Localization](
 **NOTE**: If you're interested in adding support for a new report generator, open a [PR](CONTRIBUTING.md).
 
 ### Adding a New Accounting Method
-Accounting method plugins modify the behavior of the tax engine. They pair in/out lots according to the given accounting algorithm: [FIFO](src/rp2/plugin/accounting_method/fifo.py), [LIFO](src/rp2/plugin/accounting_method/lifo.py) and [HIFO](src/rp2/plugin/accounting_method/hifo.py) are examples of accounting method plugins.
+Accounting method plugins modify the behavior of the tax engine. They pair in/out lots according to the given accounting algorithm: [FIFO](src/rp2/plugin/accounting_method/fifo.py), [LIFO](src/rp2/plugin/accounting_method/lifo.py), [LIFO](src/rp2/plugin/accounting_method/lifo.py) and [HIFO](src/rp2/plugin/accounting_method/hifo.py) are examples of accounting method plugins.
 
-In RP2 there are two flavors of accounting method:
-* List-based: these methods are characterized by a global, method-specific sorting criterion for the in-lots. "Global" means that in-lot sorting doesn't depend on the features of the current out-lot. This enables the arrangement of in-lots in a list. These methods pick in-lots from the front of the list until exhaustion and have O(n) complexity. An example of list-based method is FIFO: in FIFO in-lots are ordered chronologically from older to newer (and this order is not affected by the current out-lot).
-* Heap-based: these methods are characterized by a non-global, method-specific sorting criterion for the in-lots. Non-global means that in-lot sorting does depend on the features of the current out-lot. These methods arrange in-lots in priority queues, based on a method-specific criterion (e.g. spot price, etc.): they pick in-lots from the heap that satisfies the out-lot, until exhaustion. They have O(n*log(n)) complexity. An example of heap-based method is HIFO: in HIFO lots are arranged by price (highest first), however the set of in-lots that can be paired with the current out-lot depends on the date of sale of the out-lot (because the in-lots cannot be newer than the out-lot).
-
-Note that most of the management of list and heap semantics is handled automatically by the `AccountingEngine` class: new accounting method plugins only need to define a few methods to respect the contract with the accounting engine.
+In RP2 there are two accounting method flavors:
+* Chronological: these methods sort the in-lots based on their chronological order and have O(n) complexity. FIFO is an example of this type.
+* Feature-dependent: these methods sort in-lots according to a specific criterion that depends on the features of the current out-lot, such as spot price or date of sale, and have O(n*log(n)) complexity. HIFO (Highest-Index-First-Out) is an example of this type.
 
 Accounting method plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * add a new Python file to the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
-* For list-based accounting methods:
+* For chronological accounting methods:
   * import the following (plus any other RP2 or Python package you might need):
     ```
-    from typing import Optional
-
-    from rp2.abstract_accounting_method import (
-        AbstractAcquiredLotCandidates,
-        AbstractListAccountingMethod,
-        AcquiredLotAndAmount,
-        AcquiredLotCandidatesOrder,
-    )
-    from rp2.abstract_transaction import AbstractTransaction
-    from rp2.in_transaction import InTransaction
-    from rp2.rp2_decimal import ZERO, RP2Decimal
+from rp2.abstract_accounting_method import (
+    AbstractChronologicalAccountingMethod,
+    AcquiredLotCandidatesOrder,
+)
     ```
-  * Add a class named `AccountingMethod`, deriving from `AbstractListAccountingMethod`:
+  * Add a class named `AccountingMethod`, deriving from `AbstractChronologicalAccountingMethod`:
     ```
-    class AccountingMethod(AbstractListAccountingMethod):
+    class AccountingMethod(AbstractChronologicalAccountingMethod):
     ```
-  * Add a `seek_non_exhausted_acquired_lot()` method to the class with the following signature:
-    ```
-    def seek_non_exhausted_acquired_lot(
-        self,
-        lot_candidates: AbstractAcquiredLotCandidates,
-        taxable_event: Optional[AbstractTransaction],
-        taxable_event_amount: RP2Decimal,
-    ) -> Optional[AcquiredLotAndAmount]:
-    ```
-  * write the body of the method. The parameters/return values are:
-    * `lot_candidates`: iterable of acquired lot candidates to select from according to the accounting method. The lots are in the order specified by the `lot_candidates_order()` method (see below);
-    * `taxable_event`: the taxable event the method is finding an acquired lot to pair with;
-    * `taxable_event_amount`: the amount left in taxable event;
-    * it returns `None` if it doesn't find a suitable acquired lot, or `AcquiredLotAndAmount`, which captures a new acquired lot and its remaining amount. Note that, since lots can be fractioned, the remaining amount can be less than `acquired_lot.crypto_in`. In the body of the function use the `has_partial_amount()`, `get_partial_amount()` and `clear_partial_amount` methods of `AbstractAcquiredLotCandidates` to check if the lot has a partial amount, how much it is and to clear it as needed. Also use the `set_from_index` method of `AbstractAcquiredLotCandidates` to reset the starting index of the list (to avoid scanning the list from the beginning each time the function is called).
-
   * Add a `lot_candidates_order()` method to the class with the following signature:
     ```
     def lot_candidates_order(self) -> AcquiredLotCandidatesOrder:
     ```
   * write the body of the method: it returns `AcquiredLotCandidatesOrder.OLDER_TO_NEWER` or `AcquiredLotCandidatesOrder.NEWER_TO_OLDER`, depending on whether the desired chronological order is ascending or descending.
 
-* For heap-based accounting methods:
+* For feature-based accounting methods:
   * import the following (plus any other RP2 or Python package you might need):
     ```
-    from typing import Optional
-
-    from rp2.abstract_accounting_method import (
-        AbstractAcquiredLotCandidates,
-        AbstractHeapAccountingMethod,
-        AcquiredLotAndAmount,
-        AcquiredLotHeapSortKey,
-        HeapAcquiredLotCandidates,
-    )
-    from rp2.abstract_transaction import AbstractTransaction
-    from rp2.rp2_error import RP2TypeError
-    from rp2.in_transaction import InTransaction
-    from rp2.rp2_decimal import ZERO, RP2Decimal
+from rp2.abstract_accounting_method import (
+    AbstractFeatureBasedAccountingMethod,
+    AcquiredLotSortKey,
+)
+from rp2.in_transaction import InTransaction
     ```
-  * Add a class named `AccountingMethod`, deriving from `AbstractHeapAccountingMethod`:
+  * Add a class named `AccountingMethod`, deriving from `AbstractFeatureBasedAccountingMethod`:
     ```
-    class AccountingMethod(AbstractHeapAccountingMethod):
+    class AccountingMethod(AbstractFeatureBasedAccountingMethod):
     ```
-  * Add a `seek_non_exhausted_acquired_lot()` method to the class with the following signature:
-    ```
-    def seek_non_exhausted_acquired_lot(
-        self,
-        lot_candidates: AbstractAcquiredLotCandidates,
-        taxable_event: Optional[AbstractTransaction],
-        taxable_event_amount: RP2Decimal,
-    ) -> Optional[AcquiredLotAndAmount]:
-    ```
-  * write the body of the method. The parameters/return values are:
-    * `lot_candidates`: iterable of acquired lot candidates to select from according to the accounting method.
-    * `taxable_event`: the taxable event the method is finding an acquired lot to pair with;
-    * `taxable_event_amount`: the amount left in taxable event;
-    * it returns `None` if it doesn't find a suitable acquired lot, or `AcquiredLotAndAmount`, which captures a new acquired lot and its remaining amount. Note that, since lots can be fractioned, the remaining amount can be less than `acquired_lot.crypto_in`. In the body of the function use the `has_partial_amount()`, `get_partial_amount()` and `clear_partial_amount` methods of `AbstractAcquiredLotCandidates` to check if the lot has a partial amount, how much it is and to clear it as needed.
   * Add a `heap_key()` method to the class with the following signature:
     ```
-    def heap_key(self, lot: InTransaction) -> AcquiredLotHeapSortKey:
+    def heap_key(self, lot: InTransaction) -> AcquiredLotSortKey:
     ```
-  * write the body of the method: it would return the heap key, reflecting the desired sort criteria for the heap.
+  * write the body of the method: it should return the heap key, reflecting the desired sort criteria for acquired lots.
 
 **NOTE**: If you're interested in adding support for a new accounting method, open a [PR](CONTRIBUTING.md).
 
