@@ -22,6 +22,7 @@
   * [What if I Don't Have the Spot Price for Some Transactions?](#what-if-i-dont-have-the-spot-price-for-some-transactions)
   * [What Tokens Does RP2 Support?](#what-tokens-does-rp2-support)
   * [What Accounting Methods Are Supported?](#what-accounting-methods-are-supported)
+  * [Do Accounting Methods Use Universal or Per-Wallet Application](#do-accounting-methods-use-universal-or-per-wallet-application)
   * [Can I Change Accounting Method?](#can-i-change-accounting-method)
   * [What Countries Are Supported?](#what-countries-are-supported)
   * [How to Switch from Another Tax Software to RP2?](#how-to-switch-from-another-tax-software-to-rp2)
@@ -87,6 +88,9 @@ The user adds the tokens to the `assets` field of the [config file](input_files.
 
 ### What Accounting Methods Are Supported?
 Accounting methods vary country by country, as described in the [supported countries](supported_countries.md) document.
+
+### Do Accounting Methods Use Universal or Per-Wallet Application?
+RP2 engine uses [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/), not per-wallet application: this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
 
 ### Can I Change Accounting Method?
 Yes, for countries that support more than one accounting method, you can select which one to use via the `-m` command line option.
