@@ -18,10 +18,7 @@ from rp2.abstract_accounting_method import (
 )
 
 
-# FIFO (First In, First Out) plugin. See https://www.investopedia.com/terms/l/fifo.asp. This plugin uses universal application, not per-wallet application:
-# this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
-# More on this at https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/
+# FIFO (First In, First Out) plugin. See https://www.investopedia.com/terms/l/fifo.asp.
 class AccountingMethod(AbstractChronologicalAccountingMethod):
-
     def lot_candidates_order(self) -> AcquiredLotCandidatesOrder:
         return AcquiredLotCandidatesOrder.OLDER_TO_NEWER

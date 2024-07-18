@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# RP2 accounting methods use universal application, not per-wallet application:
+# this means there is one queue for each coin across every wallet and exchange
+# and the accounting method is applied to each such queue.
+# More on this at https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/
 
 from enum import Enum
 from heapq import heappop, heappush
