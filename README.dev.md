@@ -277,6 +277,15 @@ In RP2 there are two accounting method flavors:
 * Chronological: these methods sort the in-lots based on their chronological order and have O(n) complexity. FIFO is an example of this type.
 * Feature-dependent: these methods sort in-lots according to a specific criterion that depends on the features of the current out-lot, such as spot price or date of sale, and have O(n*log(n)) complexity. HIFO (Highest-Index-First-Out) is an example of this type.
 
+The RP2 accounting engine automatically provides the following common functionality for all plugins:
+* ensure the date of the selected acquired lot is always before or on the date of the sold lot;
+* lot iteration, sorting, pairing and fractioning;
+* partial lot management: this occurs when a lot amount cannot be used fully;
+* lot disambiguation: this occurs when lots have the same timestamp;
+* accounting method change year over year: this occurs when the user changes accounting method with the `-m` option.
+
+Note that the RP2 accounting engine uses [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/), not per-wallet application: this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
+
 Accounting method plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * add a new Python file to the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
 * For chronological accounting methods:
