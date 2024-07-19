@@ -16,7 +16,7 @@
 
 ## Table of Contents
 * **[Introduction](#introduction)**
-* **[Accounting Methods](accounting-methods)**
+* **[Accounting Methods](#accounting-methods)**
 * **[Countries](#countries)**
   * [Generic](#generic)
   * [Ireland](#ireland)
