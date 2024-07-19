@@ -29,10 +29,10 @@ RP2 supports most countries each of which has different accounting methods and r
 
 ## Accounting Methods
 RP2 supports the following accounting methods (although not all countries support all accounting methods):
-  * [FIFO](https://www.investopedia.com/terms/f/fifo.asp);
-  * [LIFO](https://www.investopedia.com/terms/l/lifo.asp);
-  * [HIFO](https://www.investopedia.com/terms/h/hifo.asp);
-  * LOFO: lowest cost in, first out. This is the opposite of HIFO.
+  * [FIFO](https://www.investopedia.com/terms/f/fifo.asp): lots acquired first are disposed of first;
+  * [LIFO](https://www.investopedia.com/terms/l/lifo.asp): lots acquired last are disposed of first (opposite of FIFO);
+  * [HIFO](https://www.investopedia.com/terms/h/hifo.asp): highest priced lots are disposed of first;
+  * LOFO: lowest priced lots are disposed of first (opposite of HIFO).
 
 ## Countries
 
