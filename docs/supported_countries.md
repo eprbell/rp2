@@ -12,10 +12,11 @@
 <!--- See the License for the specific language governing permissions and --->
 <!--- limitations under the License. --->
 
-# Supported Countries
+# Supported Countries and Accounting Methods
 
 ## Table of Contents
 * **[Introduction](#introduction)**
+* **[Accounting Methods](accounting-methods)**
 * **[Countries](#countries)**
   * [Generic](#generic)
   * [Ireland](#ireland)
@@ -25,6 +26,13 @@
 
 ## Introduction
 RP2 supports most countries each of which has different accounting methods and report generators, as explained in the sections below. Some countries have direct support (by means of a country-specific RP2 plugin), but other countries can still benefit from RP2 via the generic country plugin (see below).
+
+## Accounting Methods
+RP2 supports the following accounting methods (although not all countries support all accounting methods):
+  * [FIFO](https://www.investopedia.com/terms/f/fifo.asp);
+  * [LIFO](https://www.investopedia.com/terms/l/lifo.asp);
+  * [HIFO](https://www.investopedia.com/terms/h/hifo.asp);
+  * LOFO: lowest cost in, first out. This is the opposite of HIFO.
 
 ## Countries
 
@@ -65,7 +73,7 @@ RP2 support for Ireland includes the following features:
 RP2 support for Japan includes the following features:
 * Japan-specific RP2 executable: `rp2_jp`.
 * Accounting methods:
-  * Total Average Method.
+  * [Total Average Method](https://www.investopedia.com/terms/a/averagecostmethod.asp).
 * [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
   * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
   * [tax_report_jp](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#tax-report-jp-advisor-friendly-report): Japan-specific tax report meant to be read by tax preparers;
