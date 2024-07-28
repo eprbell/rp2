@@ -167,7 +167,7 @@ The RP2 executable is country-dependent: `rp2_<country_code>`, where country cod
 To generate US tax output for the example files open a terminal window (or PowerShell if on Windows) and enter the following commands:
   ```
   cd <download_directory>
-  rp2_us -m fifo -o output -p crypto_example_ crypto_example.ini crypto_example.ods
+  rp2_us -n -m fifo -o output -p crypto_example_ crypto_example.ini crypto_example.ods
   ```
 Results are generated in the `output` directory and logs are stored in the `log` directory.
 
