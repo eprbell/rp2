@@ -261,7 +261,7 @@ class AbstractFeatureBasedAccountingMethod(AbstractAccountingMethod):
         if not isinstance(lot_candidates, FeatureBasedAcquiredLotCandidates):
             raise RP2TypeError(f"Internal error: lot_candidates is not of type FeatureBasedAcquiredLotCandidates, but of type {type(lot_candidates)}")
         # This plugin features O(n * log(m)) complexity, where n is the number
-        # of transactions and m is the number of unexhausted acquistion lots
+        # of transactions and m is the number of unexhausted acquisition lots
         for acquired_lot in lot_candidates:
             acquired_lot_amount: RP2Decimal = ZERO
 

@@ -174,7 +174,7 @@ class AccountingEngine:
         new_taxable_event_amount: RP2Decimal = new_taxable_event.crypto_balance_change
 
         # If the new taxable event is newer than the old one (and it's not earn-typed) check if there is a newer acquired lot that
-        # meets the accounting method criteria (but it's still older than the new taxable event)
+        # meets the accounting method criteria (but it's still older than the new taxable event).
         if taxable_event and taxable_event.timestamp < new_taxable_event.timestamp:
             if acquired_lot:
                 self._set_partial_amount(acquired_lot, new_acquired_lot_amount)
@@ -189,8 +189,7 @@ class AccountingEngine:
             acquired_lot_amount=new_acquired_lot_amount,
         )
 
-    # After selecting the taxable event, RP2 calls this function to find the acquired_lot to pair with it. This means that the taxable
-    # event can be passed to this function (which is useful for certain accounting methods)
+    # After selecting the taxable event, RP2 calls this function to find the acquired_lot to pair with it.
     def get_acquired_lot_for_taxable_event(
         self,
         taxable_event: AbstractTransaction,
@@ -199,6 +198,8 @@ class AccountingEngine:
         acquired_lot_amount: RP2Decimal,
     ) -> TaxableEventAndAcquiredLot:
         new_taxable_event_amount: RP2Decimal = taxable_event_amount - acquired_lot_amount
+        # Find the acquired_lot and index just before the taxable event: the index is used as an upper bound
+        # in the search of acquired lot candidates (see set_to_index() below).
         acquired_lot_and_index: Optional[_AcquiredLotAndIndex] = self.__acquired_lot_avl.find_max_value_less_than(
             self._get_avl_node_key_with_max_disambiguator(taxable_event.timestamp)
         )
