@@ -207,11 +207,12 @@ class AbstractChronologicalAccountingMethod(AbstractAccountingMethod):
         selected_acquired_lot_amount: RP2Decimal = ZERO
         selected_acquired_lot: Optional[InTransaction] = None
         acquired_lot: InTransaction
+        if not isinstance(lot_candidates, ChronologicalAcquiredLotCandidates):
+            raise RP2TypeError(f"Internal error: lot_candidates is not of type ChronologicalAcquiredLotCandidates, but of type {type(lot_candidates)}")
         # The FIFO plugin features linear complexity by setting lot_candidates from_index to the first non-exhausted lot (to_index is set in the caller).
         # As FIFO ensures no non-exhausted lots can exist to the left of this index, this approach is O(n).
         for acquired_lot in lot_candidates:
             acquired_lot_amount: RP2Decimal = ZERO
-
             if not lot_candidates.has_partial_amount(acquired_lot):
                 acquired_lot_amount = acquired_lot.crypto_in
             elif lot_candidates.get_partial_amount(acquired_lot) > ZERO:
@@ -261,10 +262,9 @@ class AbstractFeatureBasedAccountingMethod(AbstractAccountingMethod):
         if not isinstance(lot_candidates, FeatureBasedAcquiredLotCandidates):
             raise RP2TypeError(f"Internal error: lot_candidates is not of type FeatureBasedAcquiredLotCandidates, but of type {type(lot_candidates)}")
         # This plugin features O(n * log(m)) complexity, where n is the number
-        # of transactions and m is the number of unexhausted acquisition lots
+        # of transactions and m is the number of unexhausted acquisition lots.
         for acquired_lot in lot_candidates:
             acquired_lot_amount: RP2Decimal = ZERO
-
             if not lot_candidates.has_partial_amount(acquired_lot):
                 acquired_lot_amount = acquired_lot.crypto_in
             elif lot_candidates.get_partial_amount(acquired_lot) > ZERO:
