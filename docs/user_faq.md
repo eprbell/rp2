@@ -93,7 +93,7 @@ Accounting methods vary country by country, as described in the [supported count
 RP2 engine uses [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/), not per-wallet application: this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
 
 ### Can I Change Accounting Method?
-Yes, for countries that support more than one accounting method, you can select which one to use via the `-m` command line option.
+Yes, for countries that support more than one accounting method, you can select which one to use via the `-m` command line option or you can use the `accounting_methods` section of the [config file](https://github.com/eprbell/rp2/blob/main/docs/input_files.md#the-config-file).
 
 ### What Countries Are Supported?
 RP2 can be used in most countries: see the [supported countries](supported_countries.md) document for details.
