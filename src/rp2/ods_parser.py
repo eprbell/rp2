@@ -123,10 +123,13 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
             else:
                 raise RP2ValueError(f"{asset}({i + 1}): Found data with no header")
         elif current_table_type is not None and current_table_row_count > 1:
-            # Transaction line
-            _create_and_process_transaction(
-                configuration, row_values, current_table_type, i + 1, artificial_internal_id, unfiltered_transaction_sets, artificial_transaction_list
-            )
+            try:
+                # Transaction line
+                _create_and_process_transaction(
+                    configuration, row_values, current_table_type, i + 1, artificial_internal_id, unfiltered_transaction_sets, artificial_transaction_list
+                )
+            except RP2Error as exc:
+                raise RP2ValueError(f"{asset}({i + 1}): {exc}") from exc
         current_table_row_count += 1
 
     if current_table_type is not None:
