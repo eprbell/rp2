@@ -66,9 +66,7 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
     row: Any = None
     # Used for artificial transactions only: e.g. the fee-only transaction that is created artificially to model crypto fee of in-transactions.
     # Artificial internal ids are negative.
-    artificial_internal_id = 0
     for i, row in enumerate(input_sheet.rows()):
-        artificial_internal_id -= 1
         cell0_value: str = row[0].value
         # The numeric elements of the row_values list are used to initialize RP2Decimal instances. In theory we could collect string representations
         # from numeric strings using the plaintext() method of Cell, but this doesn't work well because of an ezodf limitation: such strings are
@@ -125,7 +123,7 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
         elif current_table_type is not None and current_table_row_count > 1:
             # Transaction line
             _create_and_process_transaction(
-                configuration, row_values, current_table_type, i + 1, artificial_internal_id, unfiltered_transaction_sets, artificial_transaction_list
+                configuration, row_values, current_table_type, i + 1, unfiltered_transaction_sets, artificial_transaction_list
             )
         current_table_row_count += 1
 
@@ -159,7 +157,6 @@ def _create_and_process_transaction(
     row_values: List[Any],
     current_table_type: EntrySetType,
     internal_id: int,
-    artificial_internal_id: int,
     unfiltered_transaction_sets: Dict[EntrySetType, TransactionSet],
     artificial_transaction_list: List[AbstractTransaction],
 ) -> None:
@@ -207,7 +204,7 @@ def _create_and_process_transaction(
                 spot_price=transaction.spot_price,
                 crypto_out_no_fee=ZERO,
                 crypto_fee=transaction.crypto_fee,
-                row=artificial_internal_id,
+                row=get_artificial_id_from_row(internal_id),
                 unique_id=transaction.unique_id,
                 notes=(
                     f"Artificial transaction modeling the crypto fee of {transaction.crypto_fee} {transaction.asset} "
@@ -218,6 +215,8 @@ def _create_and_process_transaction(
     else:
         unfiltered_transaction_sets[current_table_type].add_entry(transaction)
 
+def get_artificial_id_from_row(row: int) -> int:
+    return -row
 
 # Returns all numeric parameters of the constructor: used in construction of __init__ argument pack to parse such parameters as decimals
 @lru_cache(maxsize=None, typed=False)
