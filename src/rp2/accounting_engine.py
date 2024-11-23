@@ -118,6 +118,7 @@ class AccountingEngine:
         to_visit = []
         node = self.__years_2_methods.root
         while node is not None:
+            # Pass __acquired_lot_2_partial_amount to all lot candidates so that they share the partial amount cache even across different accounting methods.
             self.__years_2_lot_candidates.insert_node(
                 node.key, node.value.create_lot_candidates(self.__acquired_lot_list, self.__acquired_lot_2_partial_amount)
             )
@@ -212,7 +213,7 @@ class AccountingEngine:
             if lot_candidates:
                 lot_candidates.set_to_index(acquired_lot_and_index.index)
                 acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = method.seek_non_exhausted_acquired_lot(
-                    lot_candidates, taxable_event, new_taxable_event_amount
+                    lot_candidates, new_taxable_event_amount
                 )
                 if acquired_lot_and_amount:
                     return TaxableEventAndAcquiredLot(
