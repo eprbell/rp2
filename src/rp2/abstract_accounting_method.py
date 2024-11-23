@@ -21,7 +21,6 @@ from enum import Enum
 from heapq import heappop, heappush
 from typing import Dict, List, NamedTuple, Optional, Tuple
 
-from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2RuntimeError, RP2TypeError
@@ -113,6 +112,12 @@ class AbstractAcquiredLotCandidates:
     def acquired_lot_list(self) -> List[InTransaction]:
         return self.__acquired_lot_list
 
+    # CAUTION:
+    # - acquired_lot must be the last lot chronologically.
+    # - this operation invalidates any outstanding iterator.
+    def add_acquired_lot(self, acquired_lot: InTransaction) -> None:
+        self.__acquired_lot_list.append(acquired_lot)
+
     def has_partial_amount(self, acquired_lot: InTransaction) -> bool:
         return acquired_lot in self.__acquired_lot_2_partial_amount
 
@@ -168,7 +173,6 @@ class AbstractAccountingMethod:
     def seek_non_exhausted_acquired_lot(
         self,
         lot_candidates: AbstractAcquiredLotCandidates,
-        taxable_event: Optional[AbstractTransaction],
         taxable_event_amount: RP2Decimal,
     ) -> Optional[AcquiredLotAndAmount]:
         raise NotImplementedError("Abstract function")
@@ -201,7 +205,6 @@ class AbstractChronologicalAccountingMethod(AbstractAccountingMethod):
     def seek_non_exhausted_acquired_lot(
         self,
         lot_candidates: AbstractAcquiredLotCandidates,
-        taxable_event: Optional[AbstractTransaction],
         taxable_event_amount: RP2Decimal,
     ) -> Optional[AcquiredLotAndAmount]:
         selected_acquired_lot_amount: RP2Decimal = ZERO
@@ -253,7 +256,6 @@ class AbstractFeatureBasedAccountingMethod(AbstractAccountingMethod):
     def seek_non_exhausted_acquired_lot(
         self,
         lot_candidates: AbstractAcquiredLotCandidates,
-        taxable_event: Optional[AbstractTransaction],
         taxable_event_amount: RP2Decimal,
     ) -> Optional[AcquiredLotAndAmount]:
         selected_acquired_lot_amount: RP2Decimal = ZERO
