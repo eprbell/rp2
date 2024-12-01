@@ -17,6 +17,7 @@ from configparser import ConfigParser, SectionProxy
 from datetime import date, datetime
 from enum import Enum
 from pathlib import Path
+from threading import Lock
 from typing import Any, Dict, List, Set
 
 from dateutil.parser import parse
@@ -150,6 +151,8 @@ class Configuration:  # pylint: disable=too-many-public-methods
         self.__holders: Set[str] = set()
         self.__generators: Set[str] = {f"{REPORT_GENERATOR_PACKAGE}.{generator}" for generator in country.get_report_generators()}
         self.__years_2_accounting_method_names: Dict[int, str] = {}
+        self.__artificial_id_counter: int = 0
+        self.__lock = Lock()
 
         if not Path(configuration_path).exists():
             raise RP2ValueError(f"Error: {configuration_path} does not exist")
@@ -479,3 +482,10 @@ class Configuration:  # pylint: disable=too-many-public-methods
         if not isinstance(value, RP2Decimal):
             raise RP2TypeError(f"Parameter '{name}' has non-RP2Decimal value {repr(value)}")
         return value
+
+    def update_artificial_id_counter(self) -> int:
+        result: int
+        with self.__lock:
+            self.__artificial_id_counter -= 1
+            result = self.__artificial_id_counter
+        return result
