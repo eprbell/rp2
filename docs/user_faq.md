@@ -75,7 +75,7 @@
 In rp2_full_report.ods check the Account Balances table in the tax sheets, and make sure they match the actual balances of your accounts. If not, you probably have an error in the input file or missed some transactions.
 
 ### How to Verify that Tax Computation is Correct?
-RP2 supports [transparent computation](output_files.md#rp2-full-report-transparent-computation) and generates full computation details for every lot fraction, so that it's possible to verify step-by-step how RP2 reaches the final result.
+RP2 features [transparent computation](output_files.md#rp2-full-report-transparent-computation) and generates full computation details for every lot fraction, so that it's possible to verify step-by-step how RP2 reaches the final result.
 
 ### What Is the Timestamp Format?
 Timestamp format is [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) (see [examples](https://en.wikipedia.org/wiki/ISO_8601#Combined_date_and_time_representations) of timestamps in this format). Note that RP2 requires full timestamps, including date, time and timezone.
