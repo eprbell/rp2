@@ -483,7 +483,7 @@ class Configuration:  # pylint: disable=too-many-public-methods
             raise RP2TypeError(f"Parameter '{name}' has non-RP2Decimal value {repr(value)}")
         return value
 
-    def update_artificial_id_counter(self) -> int:
+    def get_new_artificial_id(self) -> int:
         result: int
         with self.__lock:
             self.__artificial_id_counter -= 1
