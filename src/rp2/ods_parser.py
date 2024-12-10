@@ -122,9 +122,7 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
                 raise RP2ValueError(f"{asset}({i + 1}): Found data with no header")
         elif current_table_type is not None and current_table_row_count > 1:
             # Transaction line
-            _create_and_process_transaction(
-                configuration, row_values, current_table_type, i + 1, unfiltered_transaction_sets, artificial_transaction_list
-            )
+            _create_and_process_transaction(configuration, row_values, current_table_type, i + 1, unfiltered_transaction_sets, artificial_transaction_list)
         current_table_row_count += 1
 
     if current_table_type is not None:
@@ -204,7 +202,7 @@ def _create_and_process_transaction(
                 spot_price=transaction.spot_price,
                 crypto_out_no_fee=ZERO,
                 crypto_fee=transaction.crypto_fee,
-                row=get_artificial_id(configuration),
+                row=configuration.get_new_artificial_id(),
                 unique_id=transaction.unique_id,
                 notes=(
                     f"Artificial transaction modeling the crypto fee of {transaction.crypto_fee} {transaction.asset} "
@@ -215,8 +213,6 @@ def _create_and_process_transaction(
     else:
         unfiltered_transaction_sets[current_table_type].add_entry(transaction)
 
-def get_artificial_id(configuration: Configuration) -> int:
-    return configuration.update_artificial_id_counter()
 
 # Returns all numeric parameters of the constructor: used in construction of __init__ argument pack to parse such parameters as decimals
 @lru_cache(maxsize=None, typed=False)
