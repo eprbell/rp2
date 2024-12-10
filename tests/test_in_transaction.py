@@ -115,7 +115,9 @@ class TestInTransaction(unittest.TestCase):
   fiat_in_with_fee=2000.2000
   unique_id=
   is_taxable=True
-  fiat_taxable_amount=2000.2000""",
+  fiat_taxable_amount=2000.2000
+  from_lot=
+  to_lots=""",
         )
         self.assertEqual(
             in_transaction.to_string(2, repr_format=False, extra_data=["foobar", "qwerty"]),
@@ -134,6 +136,8 @@ class TestInTransaction(unittest.TestCase):
       unique_id=
       is_taxable=True
       fiat_taxable_amount=2000.2000
+      from_lot=
+      to_lots=
       foobar
       qwerty""",
         )
@@ -155,6 +159,8 @@ class TestInTransaction(unittest.TestCase):
                 "unique_id=, "
                 "is_taxable=True, "
                 "fiat_taxable_amount=2000.2000, "
+                "from_lot=, "
+                "to_lots=, "
                 "foobar, "
                 "qwerty)"
             ),
@@ -196,7 +202,9 @@ class TestInTransaction(unittest.TestCase):
   fiat_in_with_fee=2020.2000
   unique_id=
   is_taxable=False
-  fiat_taxable_amount=0.0000""",
+  fiat_taxable_amount=0.0000
+  from_lot=
+  to_lots=""",
         )
 
     def test_in_transaction_equality_and_hashing(self) -> None:
