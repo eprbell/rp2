@@ -212,9 +212,7 @@ class AccountingEngine:
             # lot_candidates is 1:1 with acquired_lot_and_index, should always be True
             if lot_candidates:
                 lot_candidates.set_to_index(acquired_lot_and_index.index)
-                acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = method.seek_non_exhausted_acquired_lot(
-                    lot_candidates, new_taxable_event_amount
-                )
+                acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = method.seek_non_exhausted_acquired_lot(lot_candidates, new_taxable_event_amount)
                 if acquired_lot_and_amount:
                     return TaxableEventAndAcquiredLot(
                         taxable_event=taxable_event,
