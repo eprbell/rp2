@@ -133,6 +133,7 @@ class InTransaction(AbstractTransaction):
         stringify: Callable[[object], str] = repr
         if not repr_format:
             stringify = str
+        to_lots_string_parts = [f"{exchange}: {', '.join(t.internal_id for t in transactions)}" for exchange, transactions in self.to_lots.items()]
         class_specific_data = [
             f"exchange={stringify(self.exchange)}",
             f"holder={stringify(self.holder)}",
@@ -147,7 +148,7 @@ class InTransaction(AbstractTransaction):
             f"fiat_taxable_amount={self.fiat_taxable_amount:.4f}",
             f"from_lot={self.from_lot.internal_id if self.from_lot is not None else ''}",
 #            f"to_lots={', '.join(f'{exchange}: {', '.join(t.internal_id for t in transactions)}' for exchange, transactions in self.to_lots.items())}",
-            f"to_lots={', '.join(f'{exchange}: {', '.join([t.internal_id for t in transactions])}' for exchange, transactions in self.to_lots.items())}"
+            f"to_lots={', '.join(to_lots_string_parts)}"
         ]
         if extra_data:
             class_specific_data.extend(extra_data)
