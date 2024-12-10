@@ -147,7 +147,6 @@ class InTransaction(AbstractTransaction):
             f"is_taxable={stringify(self.is_taxable())}",
             f"fiat_taxable_amount={self.fiat_taxable_amount:.4f}",
             f"from_lot={self.from_lot.internal_id if self.from_lot is not None else ''}",
-#            f"to_lots={', '.join(f'{exchange}: {', '.join(t.internal_id for t in transactions)}' for exchange, transactions in self.to_lots.items())}",
             f"to_lots={', '.join(to_lots_string_parts)}"
         ]
         if extra_data:
