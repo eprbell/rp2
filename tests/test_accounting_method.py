@@ -28,15 +28,18 @@ from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
 from rp2.in_transaction import InTransaction
 
+
 @dataclass(frozen=True, eq=True)
 class SeekLotResult:
     amount: int
     row: int
 
+
 @dataclass(frozen=True, eq=True)
 class InTransactionSpec:
     spot_price: int
     amount: int
+
 
 class TestAccountingMethod(unittest.TestCase):
     _configuration: Configuration
@@ -62,15 +65,16 @@ class TestAccountingMethod(unittest.TestCase):
                     "Buy",
                     RP2Decimal(in_transaction_spec.spot_price),
                     RP2Decimal(in_transaction_spec.amount),
-                    row=1+i,
+                    row=1 + i,
                 )
             )
             date += timedelta(days=1)
         return in_transactions
 
     # This function adds all acquired lots at first and then does amount pairings.
-    def _test_fixed_lot_candidates(self, lot_selection_method: AbstractAccountingMethod, in_transactions: List[InTransaction],
-                             amounts_to_match: List[int], want: List[SeekLotResult]) -> None:
+    def _test_fixed_lot_candidates(
+        self, lot_selection_method: AbstractAccountingMethod, in_transactions: List[InTransaction], amounts_to_match: List[int], want: List[SeekLotResult]
+    ) -> None:
         acquired_lot_candidates = lot_selection_method.create_lot_candidates(in_transactions, {})
         acquired_lot_candidates.set_to_index(len(in_transactions) - 1)
         print(in_transactions)
@@ -96,8 +100,9 @@ class TestAccountingMethod(unittest.TestCase):
                 i += 1
 
     # This function grows lot_candidates dynamically: it adds an acquired lot, does an amount pairing and repeats.
-    def _test_dynamic_lot_candidates(self, lot_selection_method: AbstractAccountingMethod, in_transactions: List[InTransaction],
-                             amounts_to_match: List[int], want: List[SeekLotResult]) -> None:
+    def _test_dynamic_lot_candidates(
+        self, lot_selection_method: AbstractAccountingMethod, in_transactions: List[InTransaction], amounts_to_match: List[int], want: List[SeekLotResult]
+    ) -> None:
         acquired_lot_candidates = lot_selection_method.create_lot_candidates([], {})
         i = 0
         for int_amount in amounts_to_match:
@@ -131,7 +136,7 @@ class TestAccountingMethod(unittest.TestCase):
             lot_selection_method=lot_selection_method,
             in_transactions=self._initialize_acquired_lots([InTransactionSpec(10, 10), InTransactionSpec(11, 20), InTransactionSpec(12, 30)]),
             amounts_to_match=[6, 4, 2, 18, 3],
-            want=[SeekLotResult(10, 1), SeekLotResult(4, 1), SeekLotResult(20, 2), SeekLotResult(18, 2), SeekLotResult(30, 3)]
+            want=[SeekLotResult(10, 1), SeekLotResult(4, 1), SeekLotResult(20, 2), SeekLotResult(18, 2), SeekLotResult(30, 3)],
         )
 
         # Test with requested amount greater than acquired lot.
@@ -139,7 +144,7 @@ class TestAccountingMethod(unittest.TestCase):
             lot_selection_method=lot_selection_method,
             in_transactions=self._initialize_acquired_lots([InTransactionSpec(10, 10), InTransactionSpec(11, 20), InTransactionSpec(12, 30)]),
             amounts_to_match=[15, 10, 5],
-            want=[SeekLotResult(10, 1), SeekLotResult(20, 2), SeekLotResult(15, 2), SeekLotResult(5, 2)]
+            want=[SeekLotResult(10, 1), SeekLotResult(20, 2), SeekLotResult(15, 2), SeekLotResult(5, 2)],
         )
 
         # Test with dynamic lot candidates
@@ -147,7 +152,7 @@ class TestAccountingMethod(unittest.TestCase):
             lot_selection_method=lot_selection_method,
             in_transactions=self._initialize_acquired_lots([InTransactionSpec(10, 10), InTransactionSpec(11, 20), InTransactionSpec(12, 30)]),
             amounts_to_match=[6, 4, 2, 18, 3],
-            want=[SeekLotResult(10, 1), SeekLotResult(4, 1), SeekLotResult(20, 2), SeekLotResult(18, 2), SeekLotResult(30, 3)]
+            want=[SeekLotResult(10, 1), SeekLotResult(4, 1), SeekLotResult(20, 2), SeekLotResult(18, 2), SeekLotResult(30, 3)],
         )
 
     def test_lot_candidates_with_lifo(self) -> None:
@@ -158,7 +163,7 @@ class TestAccountingMethod(unittest.TestCase):
             lot_selection_method=lot_selection_method,
             in_transactions=self._initialize_acquired_lots([InTransactionSpec(10, 10), InTransactionSpec(11, 20), InTransactionSpec(12, 30)]),
             amounts_to_match=[7, 23, 19, 1, 9],
-            want=[SeekLotResult(30, 3), SeekLotResult(23, 3), SeekLotResult(20, 2), SeekLotResult(1, 2), SeekLotResult(10, 1)]
+            want=[SeekLotResult(30, 3), SeekLotResult(23, 3), SeekLotResult(20, 2), SeekLotResult(1, 2), SeekLotResult(10, 1)],
         )
 
         # Test with requested amount greater than acquired lot.
@@ -166,7 +171,7 @@ class TestAccountingMethod(unittest.TestCase):
             lot_selection_method=lot_selection_method,
             in_transactions=self._initialize_acquired_lots([InTransactionSpec(10, 10), InTransactionSpec(11, 20), InTransactionSpec(12, 30)]),
             amounts_to_match=[55, 5],
-            want=[SeekLotResult(30, 3), SeekLotResult(20, 2), SeekLotResult(10, 1), SeekLotResult(5, 1)]
+            want=[SeekLotResult(30, 3), SeekLotResult(20, 2), SeekLotResult(10, 1), SeekLotResult(5, 1)],
         )
 
         # Test with dynamic lot candidates
@@ -174,9 +179,8 @@ class TestAccountingMethod(unittest.TestCase):
             lot_selection_method=lot_selection_method,
             in_transactions=self._initialize_acquired_lots([InTransactionSpec(10, 10), InTransactionSpec(11, 20), InTransactionSpec(12, 30)]),
             amounts_to_match=[4, 15, 27, 14],
-            want=[SeekLotResult(10, 1), SeekLotResult(20, 2), SeekLotResult(30, 3), SeekLotResult(3, 3), SeekLotResult(5, 2), SeekLotResult(6, 1)]
+            want=[SeekLotResult(10, 1), SeekLotResult(20, 2), SeekLotResult(30, 3), SeekLotResult(3, 3), SeekLotResult(5, 2), SeekLotResult(6, 1)],
         )
-
 
     def test_fixed_lot_candidates_with_hifo(self) -> None:
         lot_selection_method = AccountingMethodHIFO()
@@ -186,7 +190,7 @@ class TestAccountingMethod(unittest.TestCase):
             lot_selection_method=lot_selection_method,
             in_transactions=self._initialize_acquired_lots([InTransactionSpec(10, 10), InTransactionSpec(12, 20), InTransactionSpec(11, 30)]),
             amounts_to_match=[15, 5, 20, 10, 7],
-            want=[SeekLotResult(20, 2), SeekLotResult(5, 2), SeekLotResult(30, 3), SeekLotResult(10, 3), SeekLotResult(10, 1)]
+            want=[SeekLotResult(20, 2), SeekLotResult(5, 2), SeekLotResult(30, 3), SeekLotResult(10, 3), SeekLotResult(10, 1)],
         )
 
         # Test with requested amount greater than acquired lot.
@@ -194,7 +198,7 @@ class TestAccountingMethod(unittest.TestCase):
             lot_selection_method=lot_selection_method,
             in_transactions=self._initialize_acquired_lots([InTransactionSpec(10, 10), InTransactionSpec(12, 20), InTransactionSpec(11, 30)]),
             amounts_to_match=[15, 5, 35, 5],
-            want=[SeekLotResult(20, 2), SeekLotResult(5, 2), SeekLotResult(30, 3), SeekLotResult(10, 1), SeekLotResult(5, 1)]
+            want=[SeekLotResult(20, 2), SeekLotResult(5, 2), SeekLotResult(30, 3), SeekLotResult(10, 1), SeekLotResult(5, 1)],
         )
 
         # Test with dynamic lot candidates
@@ -202,7 +206,7 @@ class TestAccountingMethod(unittest.TestCase):
             lot_selection_method=lot_selection_method,
             in_transactions=self._initialize_acquired_lots([InTransactionSpec(10, 10), InTransactionSpec(12, 20), InTransactionSpec(11, 30)]),
             amounts_to_match=[4, 16, 40],
-            want=[SeekLotResult(10, 1), SeekLotResult(20, 2), SeekLotResult(4, 2), SeekLotResult(30, 3), SeekLotResult(6, 1)]
+            want=[SeekLotResult(10, 1), SeekLotResult(20, 2), SeekLotResult(4, 2), SeekLotResult(30, 3), SeekLotResult(6, 1)],
         )
 
     def test_fixed_lot_candidates_with_lofo(self) -> None:
@@ -213,7 +217,7 @@ class TestAccountingMethod(unittest.TestCase):
             lot_selection_method=lot_selection_method,
             in_transactions=self._initialize_acquired_lots([InTransactionSpec(12, 10), InTransactionSpec(10, 20), InTransactionSpec(11, 30)]),
             amounts_to_match=[15, 5, 20, 10, 7],
-            want=[SeekLotResult(20, 2), SeekLotResult(5, 2), SeekLotResult(30, 3), SeekLotResult(10, 3), SeekLotResult(10, 1)]
+            want=[SeekLotResult(20, 2), SeekLotResult(5, 2), SeekLotResult(30, 3), SeekLotResult(10, 3), SeekLotResult(10, 1)],
         )
 
         # Test with requested amount greater than acquired lot.
@@ -221,7 +225,7 @@ class TestAccountingMethod(unittest.TestCase):
             lot_selection_method=lot_selection_method,
             in_transactions=self._initialize_acquired_lots([InTransactionSpec(12, 10), InTransactionSpec(10, 20), InTransactionSpec(11, 30)]),
             amounts_to_match=[15, 5, 35, 5],
-            want=[SeekLotResult(20, 2), SeekLotResult(5, 2), SeekLotResult(30, 3), SeekLotResult(10, 1), SeekLotResult(5, 1)]
+            want=[SeekLotResult(20, 2), SeekLotResult(5, 2), SeekLotResult(30, 3), SeekLotResult(10, 1), SeekLotResult(5, 1)],
         )
 
         # Test with dynamic lot candidates
@@ -229,7 +233,7 @@ class TestAccountingMethod(unittest.TestCase):
             lot_selection_method=lot_selection_method,
             in_transactions=self._initialize_acquired_lots([InTransactionSpec(12, 10), InTransactionSpec(10, 20), InTransactionSpec(11, 30)]),
             amounts_to_match=[4, 16, 40],
-            want=[SeekLotResult(10, 1), SeekLotResult(20, 2), SeekLotResult(4, 2), SeekLotResult(30, 3), SeekLotResult(6, 1)]
+            want=[SeekLotResult(10, 1), SeekLotResult(20, 2), SeekLotResult(4, 2), SeekLotResult(30, 3), SeekLotResult(6, 1)],
         )
 
 
