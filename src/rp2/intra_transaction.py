@@ -164,3 +164,6 @@ class IntraTransaction(AbstractTransaction):
 
     def is_earning(self) -> bool:
         return False
+
+    def is_self_transfer(self) -> bool:
+        return self.from_exchange == self.to_exchange and self.from_holder == self.to_holder
