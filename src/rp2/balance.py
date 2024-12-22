@@ -21,7 +21,7 @@ from prezzemolo.utility import to_string
 
 from rp2.abstract_entry import AbstractEntry
 from rp2.configuration import Configuration
-from rp2.in_transaction import InTransaction
+from rp2.in_transaction import Account, InTransaction
 from rp2.input_data import InputData
 from rp2.intra_transaction import IntraTransaction
 from rp2.logger import LOGGER
@@ -82,12 +82,6 @@ class Balance:
 
     def __repr__(self) -> str:
         return self.to_string(indent=0, repr_format=True)
-
-
-@dataclass(frozen=True, eq=True)
-class Account:
-    exchange: str
-    holder: str
 
 
 class BalanceSet:
