@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional
 
 from rp2.abstract_entry import AbstractEntry
@@ -21,6 +22,12 @@ from rp2.entry_types import TransactionType
 from rp2.logger import LOGGER
 from rp2.rp2_decimal import FIAT_DECIMAL_MASK, ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
+
+
+@dataclass(frozen=True, eq=True)
+class Account:
+    exchange: str
+    holder: str
 
 
 class InTransaction(AbstractTransaction):
@@ -63,8 +70,18 @@ class InTransaction(AbstractTransaction):
             self.__crypto_in = configuration.type_check_positive_decimal("crypto_in", crypto_in, non_zero=True)
         self.__crypto_fee: RP2Decimal = configuration.type_check_positive_decimal("crypto_fee", crypto_fee) if crypto_fee else ZERO
         self.__fiat_fee: RP2Decimal = configuration.type_check_positive_decimal("fiat_fee", fiat_fee) if fiat_fee else ZERO
+
+        # After a transfer, the per-wallet application model is populated with artificial InTransactions that model the "to" part
+        # of the transfer (these artificial InTransactions are not present in the universal application model). These fields are
+        # only populated in the artificial InTransactions of the per-wallet application model field and describes where the funds
+        # come from (due to the transfer) and go to (after the transfer).
         self.__from_lot: Optional[InTransaction] = InTransaction.type_check("from_lot", from_lot) if from_lot is not None else None
-        self.__to_lots: Dict[str, List[InTransaction]] = {}
+        self.__to_lots: Dict[Account, List[InTransaction]] = {}
+
+        # This field is also used only in the artificial InTransactions of the per-wallet application model. If captures all the
+        # upstream InTransactions that the funds came from and it is used for loop detection (it's a map from
+        # wallet -> InTransaction).
+        self.__originates_from: Dict[Account, InTransaction] = {}
 
         if spot_price == ZERO:
             raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.internal_id}): parameter 'spot_price' cannot be 0")
@@ -147,7 +164,7 @@ class InTransaction(AbstractTransaction):
             f"is_taxable={stringify(self.is_taxable())}",
             f"fiat_taxable_amount={self.fiat_taxable_amount:.4f}",
             f"from_lot={self.from_lot.internal_id if self.from_lot is not None else ''}",
-            f"to_lots={', '.join(to_lots_string_parts)}"
+            f"to_lots={', '.join(to_lots_string_parts)}",
         ]
         if extra_data:
             class_specific_data.extend(extra_data)
@@ -216,13 +233,23 @@ class InTransaction(AbstractTransaction):
     def is_crypto_fee_defined(self) -> bool:
         return self.crypto_fee > ZERO
 
+    # This is only populated in artificial InTransactions of the per-wallet application model and describes where the funds come from
+    # (i.e. the from part of an IntraTransaction that moved these funds).
     @property
     def from_lot(self) -> Optional["InTransaction"]:
         return self.__from_lot
 
+    # This is only populated in artificial InTransactions of the per-wallet application model and describes where the funds go to after
+    # transfers.
     @property
-    def to_lots(self) -> Dict[str, List["InTransaction"]]:
+    def to_lots(self) -> Dict[Account, List["InTransaction"]]:
         return self.__to_lots
+
+    # This is only populated in artificial InTransactions of the per-wallet application model and describes the upstream chain of
+    # transfers that ended up in these funds being moved here.
+    @property
+    def originates_from(self) -> Dict[Account, "InTransaction"]:
+        return self.__originates_from
 
     def is_taxable(self) -> bool:
         return self.transaction_type.is_earn_type()
