@@ -83,7 +83,14 @@ class OutTransaction(AbstractTransaction):
             self.__fiat_fee = configuration.type_check_positive_decimal("fiat_fee", fiat_fee)
         self.__fiat_out_with_fee = self.__fiat_out_no_fee + self.__fiat_fee
 
-        if self.transaction_type not in (TransactionType.DONATE, TransactionType.FEE, TransactionType.GIFT, TransactionType.LOST, TransactionType.SELL, TransactionType.STAKING):
+        if self.transaction_type not in (
+            TransactionType.DONATE,
+            TransactionType.FEE,
+            TransactionType.GIFT,
+            TransactionType.LOST,
+            TransactionType.SELL,
+            TransactionType.STAKING,
+        ):
             raise RP2ValueError(
                 f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.internal_id}): invalid transaction type {self.transaction_type}"
             )
