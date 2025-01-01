@@ -52,8 +52,8 @@ class _TransactionRow(NamedTuple):
 
 
 class _SheetNames(Enum):
-    ASSET: str = "Asset"
-    SUMMARY: str = "Summary"
+    ASSET = "Asset"
+    SUMMARY = "Summary"
 
 
 _TEMPLATE_SHEETS_TO_KEEP: Set[str] = {f"__{item.value}" for item in _SheetNames}

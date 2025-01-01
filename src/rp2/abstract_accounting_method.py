@@ -32,8 +32,8 @@ class AcquiredLotAndAmount(NamedTuple):
 
 
 class AcquiredLotCandidatesOrder(Enum):
-    OLDER_TO_NEWER: str = "older_to_newer"
-    NEWER_TO_OLDER: str = "newer_to_older"
+    OLDER_TO_NEWER = "older_to_newer"
+    NEWER_TO_OLDER = "newer_to_older"
 
 
 class AcquiredLotSortKey(NamedTuple):
