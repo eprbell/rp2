@@ -90,10 +90,10 @@ _transaction_type_values_to_translation: Dict[TransactionType, str] = {
 
 
 class EntrySetType(Enum):
-    IN: str = "in"
-    INTRA: str = "intra"
-    MIXED: str = "mixed"
-    OUT: str = "out"
+    IN = "in"
+    INTRA = "intra"
+    MIXED = "mixed"
+    OUT = "out"
 
     @classmethod
     def has_value(cls, value: str) -> bool:
