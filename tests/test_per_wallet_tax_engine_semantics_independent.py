@@ -23,6 +23,7 @@ from rp2.plugin.accounting_method.lofo import AccountingMethod as AccountingMeth
 
 from per_wallet_tax_engine_common import _Test, Account, InTransactionDescriptor, OutTransactionDescriptor, IntraTransactionDescriptor, AbstractTestPerWalletTaxEngine
 
+# These tests are independent of the accounting method, so they are repeated for all accounting methods.
 class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
 
     # Transfer analysis failure tests. These tests are independent of transfer semantics, so the code repeats each test with all transfer semantics.

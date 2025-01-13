@@ -23,6 +23,7 @@ from rp2.plugin.accounting_method.lofo import AccountingMethod as AccountingMeth
 
 from per_wallet_tax_engine_common import _Test, Account, InTransactionDescriptor, OutTransactionDescriptor, IntraTransactionDescriptor, AbstractTestPerWalletTaxEngine
 
+# These tests are dependent on transfer semantics, so they are not run for all accounting methods.
 class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
 
     # Transfer analysis across different accounts using only FIFO transfer semantics.
