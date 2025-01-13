@@ -147,8 +147,15 @@ class AbstractAcquiredLotCandidates:
 
 
 class ChronologicalAcquiredLotCandidates(AbstractAcquiredLotCandidates):
-    pass
-
+    def __init__(
+        self,
+        accounting_method: "AbstractAccountingMethod",
+        acquired_lot_list: List[InTransaction],
+        acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal],
+    ) -> None:
+        super().__init__(accounting_method, acquired_lot_list, acquired_lot_2_partial_amount)
+        if not isinstance(accounting_method, AbstractChronologicalAccountingMethod):
+            raise RP2TypeError(f"Internal error: accounting_method is not of type AbstractChronologicalAccountingMethod, but of type {type(accounting_method)}")
 
 class FeatureBasedAcquiredLotCandidates(AbstractAcquiredLotCandidates):
     _accounting_method: "AbstractFeatureBasedAccountingMethod"
@@ -160,6 +167,8 @@ class FeatureBasedAcquiredLotCandidates(AbstractAcquiredLotCandidates):
         acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal],
     ) -> None:
         super().__init__(accounting_method, acquired_lot_list, acquired_lot_2_partial_amount)
+        if not isinstance(accounting_method, AbstractFeatureBasedAccountingMethod):
+            raise RP2TypeError(f"Internal error: accounting_method is not of type AbstractFeatureBasedAccountingMethod, but of type {type(accounting_method)}")
         self.__acquired_lot_heap: List[Tuple[AcquiredLotSortKey, InTransaction]] = []
 
     def set_to_index(self, to_index: int) -> None:
