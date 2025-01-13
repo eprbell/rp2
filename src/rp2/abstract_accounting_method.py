@@ -19,7 +19,7 @@
 
 from enum import Enum
 from heapq import heappop, heappush
-from typing import Dict, List, NamedTuple, Optional, Tuple
+from typing import cast, Dict, List, NamedTuple, Optional, Tuple
 
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
@@ -157,6 +157,7 @@ class ChronologicalAcquiredLotCandidates(AbstractAcquiredLotCandidates):
         if not isinstance(accounting_method, AbstractChronologicalAccountingMethod):
             raise RP2TypeError(f"Internal error: accounting_method is not of type AbstractChronologicalAccountingMethod, but of type {type(accounting_method)}")
 
+
 class FeatureBasedAcquiredLotCandidates(AbstractAcquiredLotCandidates):
     _accounting_method: "AbstractFeatureBasedAccountingMethod"
 
@@ -187,7 +188,8 @@ class FeatureBasedAcquiredLotCandidates(AbstractAcquiredLotCandidates):
     # - this operation invalidates any outstanding iterator.
     def add_acquired_lot(self, acquired_lot: InTransaction) -> None:
         super().add_acquired_lot(acquired_lot)
-        self.accounting_method.add_selected_lot_to_heap(self.__acquired_lot_heap, acquired_lot)
+        accounting_method = cast(AbstractFeatureBasedAccountingMethod, self.accounting_method)
+        accounting_method.add_selected_lot_to_heap(self.__acquired_lot_heap, acquired_lot)
 
     def reset_partial_amounts(self, accounting_method: "AbstractAccountingMethod", original_partial_amounts: Dict[InTransaction, RP2Decimal]) -> None:
         if not isinstance(accounting_method, AbstractFeatureBasedAccountingMethod):
@@ -195,6 +197,7 @@ class FeatureBasedAcquiredLotCandidates(AbstractAcquiredLotCandidates):
         super().reset_partial_amounts(accounting_method, original_partial_amounts)
         for current_transaction, original_partial_amount in original_partial_amounts.items():
             accounting_method.add_selected_lot_to_heap(self.__acquired_lot_heap, current_transaction)
+
 
 class AbstractAccountingMethod:
     def create_lot_candidates(
