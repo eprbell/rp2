@@ -136,6 +136,7 @@ def is_transaction_cycle(acquired_lot: InTransaction, transfer: IntraTransaction
     to_account = Account(transfer.to_exchange, transfer.to_holder)
     return to_account in acquired_lot.originates_from
 
+
 # _process_remaining_transfer_amount processes the remaining amount of a transfer (that has not yet been assigned to in lots by transfer analysis):
 # it handles the cases of a self-transfer, a cycle or a normal transfer. In the last case it creates an artificial InTransaction to model the remaining amount.
 def _process_remaining_transfer_amount(
@@ -175,9 +176,7 @@ def _process_remaining_transfer_amount(
 
 # This function performs transfer analysis on an InputData and generates as many new InputData objects as there are wallets.
 # For details see https://github.com/eprbell/rp2/wiki/Adding-Per%E2%80%90Wallet-Application-to-RP2.
-def transfer_analysis(
-    configuration: Configuration, transfer_semantics: AbstractAccountingMethod, universal_input_data: InputData
-) -> Dict[Account, InputData]:
+def transfer_analysis(configuration: Configuration, transfer_semantics: AbstractAccountingMethod, universal_input_data: InputData) -> Dict[Account, InputData]:
     all_transactions: TransactionSet = TransactionSet(configuration, "MIXED", universal_input_data.asset)
     for transaction_set in [
         universal_input_data.unfiltered_in_transaction_set,
@@ -218,7 +217,9 @@ def transfer_analysis(
                         f"Insufficient balance on {account} to cover out transaction (amount {amount_left_to_dispose_of} {transaction.asset}): {transaction}"
                     )
                 if current_in_lot_and_amount.amount >= amount_left_to_dispose_of:
-                    per_wallet_transactions.in_transactions.set_partial_amount(current_in_lot_and_amount.acquired_lot, current_in_lot_and_amount.amount - amount_left_to_dispose_of)
+                    per_wallet_transactions.in_transactions.set_partial_amount(
+                        current_in_lot_and_amount.acquired_lot, current_in_lot_and_amount.amount - amount_left_to_dispose_of
+                    )
                     break
                 per_wallet_transactions.in_transactions.clear_partial_amount(current_in_lot_and_amount.acquired_lot)
                 amount_left_to_dispose_of -= current_in_lot_and_amount.amount
