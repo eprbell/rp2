@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional
 
@@ -56,6 +57,7 @@ class InTransaction(AbstractTransaction):
         unique_id: Optional[str] = None,
         notes: Optional[str] = None,
         from_lot: Optional["InTransaction"] = None,
+        cost_basis_timestamp: Optional[str] = None,
     ) -> None:
         super().__init__(configuration, timestamp, asset, transaction_type, spot_price, row, unique_id, notes)
 
@@ -82,6 +84,10 @@ class InTransaction(AbstractTransaction):
         # upstream InTransactions that the funds came from and it is used for loop detection (it's a map from
         # wallet -> InTransaction).
         self.__originates_from: Dict[Account, InTransaction] = {}
+
+        self.__cost_basis_timestamp: Optional[datetime] = (
+            configuration.type_check_timestamp_from_string("cost_basis_timestamp", cost_basis_timestamp) if cost_basis_timestamp else None
+        )
 
         if spot_price == ZERO:
             raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.internal_id}): parameter 'spot_price' cannot be 0")
@@ -165,6 +171,7 @@ class InTransaction(AbstractTransaction):
             f"fiat_taxable_amount={self.fiat_taxable_amount:.4f}",
             f"from_lot={self.from_lot.internal_id if self.from_lot is not None else ''}",
             f"to_lots={', '.join(to_lots_string_parts)}",
+            f"cost_basis_timestamp={stringify(self.cost_basis_timestamp.strftime('%Y-%m-%d %H:%M:%S.%f %z'))}",
         ]
         if extra_data:
             class_specific_data.extend(extra_data)
@@ -250,6 +257,10 @@ class InTransaction(AbstractTransaction):
     @property
     def originates_from(self) -> Dict[Account, "InTransaction"]:
         return self.__originates_from
+
+    @property
+    def cost_basis_timestamp(self) -> datetime:
+        return self.__cost_basis_timestamp if self.__cost_basis_timestamp else self.timestamp
 
     def is_taxable(self) -> bool:
         return self.transaction_type.is_earn_type()
