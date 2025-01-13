@@ -204,21 +204,25 @@ class AccountingEngine:
         acquired_lot_and_index: Optional[_AcquiredLotAndIndex] = self.__acquired_lot_avl.find_max_value_less_than(
             self._get_avl_node_key_with_max_disambiguator(taxable_event.timestamp)
         )
-        if acquired_lot_and_index is not None:
-            if acquired_lot_and_index.acquired_lot != self.__acquired_lot_list[acquired_lot_and_index.index]:
-                raise RP2RuntimeError("Internal error: acquired_lot incongruence in accounting logic")
-            method = self._get_accounting_method(taxable_event.timestamp.year)
-            lot_candidates: Optional[AbstractAcquiredLotCandidates] = self.__years_2_lot_candidates.find_max_value_less_than(taxable_event.timestamp.year)
-            # lot_candidates is 1:1 with acquired_lot_and_index, should always be True
-            if lot_candidates:
-                lot_candidates.set_to_index(acquired_lot_and_index.index)
-                acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = method.seek_non_exhausted_acquired_lot(lot_candidates, new_taxable_event_amount)
-                if acquired_lot_and_amount:
-                    return TaxableEventAndAcquiredLot(
-                        taxable_event=taxable_event,
-                        acquired_lot=acquired_lot_and_amount.acquired_lot,
-                        taxable_event_amount=new_taxable_event_amount,
-                        acquired_lot_amount=acquired_lot_and_amount.amount,
-                    )
 
-        raise AcquiredLotsExhaustedException()
+        if acquired_lot_and_index is None:
+            raise AcquiredLotsExhaustedException()
+        if acquired_lot_and_index.acquired_lot != self.__acquired_lot_list[acquired_lot_and_index.index]:
+            raise RP2RuntimeError("Internal error: acquired_lot incongruence in accounting logic")
+        method = self._get_accounting_method(taxable_event.timestamp.year)
+        lot_candidates: Optional[AbstractAcquiredLotCandidates] = self.__years_2_lot_candidates.find_max_value_less_than(taxable_event.timestamp.year)
+        # lot_candidates is 1:1 with acquired_lot_and_index, should always be True
+        if not lot_candidates:
+            raise RP2RuntimeError("Internal error: no lot candidates found for year")
+        lot_candidates.set_to_index(acquired_lot_and_index.index)
+        acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = method.seek_non_exhausted_acquired_lot(lot_candidates, new_taxable_event_amount)
+        if not acquired_lot_and_amount:
+            raise AcquiredLotsExhaustedException()
+
+        return TaxableEventAndAcquiredLot(
+            taxable_event=taxable_event,
+            acquired_lot=acquired_lot_and_amount.acquired_lot,
+            taxable_event_amount=new_taxable_event_amount,
+            acquired_lot_amount=acquired_lot_and_amount.amount,
+        )
+
