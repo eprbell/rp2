@@ -17,11 +17,10 @@ import unittest
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from difflib import unified_diff
-from typing import Dict, List, Optional
+from typing import cast, Dict, List, Optional
 
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.abstract_accounting_method import AbstractAccountingMethod
-from rp2.accounting_engine import AccountingEngine
 from rp2.configuration import Configuration
 from rp2.in_transaction import Account, InTransaction
 from rp2.intra_transaction import IntraTransaction
@@ -88,15 +87,14 @@ class _Test:
 
 class AbstractTestPerWalletTaxEngine(unittest.TestCase):
     _asset: str
-    _accounting_engine: AccountingEngine
     _start_date: datetime
+    _transfer_semantics: List[AbstractAccountingMethod]
 
     @classmethod
     def setUpClass(cls) -> None:
         AbstractTestPerWalletTaxEngine._asset = "B1"
         AbstractTestPerWalletTaxEngine._start_date = datetime.strptime("2024-01-01", "%Y-%m-%d").replace(tzinfo=timezone.utc)
         AbstractTestPerWalletTaxEngine._transfer_semantics = [AccountingMethodFIFO(), AccountingMethodLIFO(), AccountingMethodHIFO(), AccountingMethodLOFO()]
-
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -265,10 +263,10 @@ class AbstractTestPerWalletTaxEngine(unittest.TestCase):
         while True:
             if not deferred_transactions:
                 break
-            new_deferred_transactions: List[AbstractTransactionDescriptor] = []
+            new_deferred_transactions: List[InTransactionDescriptor] = []
             self._create_transactions(
                 configuration,
-                deferred_transactions,
+                cast(List[AbstractTransactionDescriptor], deferred_transactions),
                 unique_id_2_in_transaction,
                 unique_id_2_out_transaction,
                 unique_id_2_intra_transaction,
