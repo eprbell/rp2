@@ -18,7 +18,7 @@ from typing import List
 
 from rp2.in_transaction import Account
 
-from per_wallet_tax_engine_common import _Test, InTransactionDescriptor, OutTransactionDescriptor, IntraTransactionDescriptor, AbstractTestPerWalletTaxEngine
+from transfer_analysis_test_common import _Test, InTransactionDescriptor, OutTransactionDescriptor, IntraTransactionDescriptor, AbstractTestPerWalletTaxEngine
 
 
 # These tests are independent of the accounting method, so they are repeated for all accounting methods.

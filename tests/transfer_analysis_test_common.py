@@ -34,7 +34,7 @@ from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2ValueError
 from rp2.transaction_set import TransactionSet
-from rp2.per_wallet_tax_engine import transfer_analysis
+from rp2.transfer_analysis import transfer_analysis
 
 
 # Transaction descriptor data classes are used in tests as short-form descriptions of transactions.
