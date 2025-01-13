@@ -117,7 +117,8 @@ class TestInTransaction(unittest.TestCase):
   is_taxable=True
   fiat_taxable_amount=2000.2000
   from_lot=
-  to_lots=""",
+  to_lots=
+  cost_basis_timestamp=2021-01-02 08:42:43.882000 +0000""",
         )
         self.assertEqual(
             in_transaction.to_string(2, repr_format=False, extra_data=["foobar", "qwerty"]),
@@ -138,6 +139,7 @@ class TestInTransaction(unittest.TestCase):
       fiat_taxable_amount=2000.2000
       from_lot=
       to_lots=
+      cost_basis_timestamp=2021-01-02 08:42:43.882000 +0000
       foobar
       qwerty""",
         )
@@ -161,6 +163,7 @@ class TestInTransaction(unittest.TestCase):
                 "fiat_taxable_amount=2000.2000, "
                 "from_lot=, "
                 "to_lots=, "
+                "cost_basis_timestamp='2021-01-02 08:42:43.882000 +0000', "
                 "foobar, "
                 "qwerty)"
             ),
@@ -204,7 +207,8 @@ class TestInTransaction(unittest.TestCase):
   is_taxable=False
   fiat_taxable_amount=0.0000
   from_lot=
-  to_lots=""",
+  to_lots=
+  cost_basis_timestamp=1841-01-02 15:22:03.000000 +0000""",
         )
 
     def test_in_transaction_equality_and_hashing(self) -> None:
