@@ -225,4 +225,3 @@ class AccountingEngine:
             taxable_event_amount=new_taxable_event_amount,
             acquired_lot_amount=acquired_lot_and_amount.amount,
         )
-
