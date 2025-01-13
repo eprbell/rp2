@@ -16,12 +16,14 @@ import unittest
 
 from typing import List
 
+from rp2.in_transaction import Account
 from rp2.plugin.accounting_method.fifo import AccountingMethod as AccountingMethodFIFO
 from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMethodLIFO
 from rp2.plugin.accounting_method.hifo import AccountingMethod as AccountingMethodHIFO
 from rp2.plugin.accounting_method.lofo import AccountingMethod as AccountingMethodLOFO
 
-from per_wallet_tax_engine_common import _Test, Account, InTransactionDescriptor, OutTransactionDescriptor, IntraTransactionDescriptor, AbstractTestPerWalletTaxEngine
+from per_wallet_tax_engine_common import _Test, InTransactionDescriptor, OutTransactionDescriptor, IntraTransactionDescriptor, AbstractTestPerWalletTaxEngine
+
 
 # These tests are dependent on transfer semantics, so they are not run for all accounting methods.
 class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
@@ -32,13 +34,13 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
         tests: List[_Test] = [
             _Test(
                 description="Interlaced in and intra transactions",
-                input = [
+                input=[
                     InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
                     IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "Kraken", "Bob", 120, 4, 4),
                     InTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 130, 4),
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 140, 10, 10),
                 ],
-                want = {
+                want={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["2/-1", "4/-2"]}),
                         IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "Kraken", "Bob", 120, 4, 4),
@@ -175,10 +177,46 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                 ],
                 want={
                     Account("Coinbase", "Bob"): [
-                        InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 6, to_lot_unique_ids={Account("Kraken", "Bob"): ["5/-1", "6/-2"], Account("BlockFi", "Bob"): ["11/-9", "11/-10"]}),
-                        InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 130, 6, to_lot_unique_ids={Account("Kraken", "Bob"): ["6/-3", "7/-4"], Account("BlockFi", "Bob"): ["11/-11", "11/-12"]}),
-                        InTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 120, 6, to_lot_unique_ids={Account("Kraken", "Bob"): ["8/-5", "9/-6"], Account("BlockFi", "Bob"): ["12/-13", "12/-14"]}),
-                        InTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", 140, 6, to_lot_unique_ids={Account("Kraken", "Bob"): ["9/-7", "10/-8"], Account("BlockFi", "Bob"): ["12/-15", "12/-16"]}),
+                        InTransactionDescriptor(
+                            "1",
+                            1,
+                            1,
+                            "Coinbase",
+                            "Bob",
+                            110,
+                            6,
+                            to_lot_unique_ids={Account("Kraken", "Bob"): ["5/-1", "6/-2"], Account("BlockFi", "Bob"): ["11/-9", "11/-10"]},
+                        ),
+                        InTransactionDescriptor(
+                            "2",
+                            2,
+                            2,
+                            "Coinbase",
+                            "Bob",
+                            130,
+                            6,
+                            to_lot_unique_ids={Account("Kraken", "Bob"): ["6/-3", "7/-4"], Account("BlockFi", "Bob"): ["11/-11", "11/-12"]},
+                        ),
+                        InTransactionDescriptor(
+                            "3",
+                            3,
+                            3,
+                            "Coinbase",
+                            "Bob",
+                            120,
+                            6,
+                            to_lot_unique_ids={Account("Kraken", "Bob"): ["8/-5", "9/-6"], Account("BlockFi", "Bob"): ["12/-13", "12/-14"]},
+                        ),
+                        InTransactionDescriptor(
+                            "4",
+                            4,
+                            4,
+                            "Coinbase",
+                            "Bob",
+                            140,
+                            6,
+                            to_lot_unique_ids={Account("Kraken", "Bob"): ["9/-7", "10/-8"], Account("BlockFi", "Bob"): ["12/-15", "12/-16"]},
+                        ),
                         IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Kraken", "Bob", 160, 4, 4),
                         IntraTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", "Kraken", "Bob", 170, 4, 4),
                         IntraTransactionDescriptor("7", 7, 7, "Coinbase", "Bob", "Kraken", "Bob", 180, 4, 4),
@@ -190,14 +228,102 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                         IntraTransactionDescriptor("18", 18, 18, "Coinbase", "Bob", "Coinbase", "Bob", 270, 18, 18),
                     ],
                     Account("Kraken", "Bob"): [
-                        InTransactionDescriptor("5/-1", 5, -1, "Kraken", "Bob", 110, 4, from_lot_unique_id="1", to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-9"]}, cost_basis_day=1),
-                        InTransactionDescriptor("6/-2", 6, -2, "Kraken", "Bob", 110, 2, from_lot_unique_id="1", to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-10"]}, cost_basis_day=1),
-                        InTransactionDescriptor("6/-3", 6, -3, "Kraken", "Bob", 130, 2, from_lot_unique_id="2", to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-11"]}, cost_basis_day=2),
-                        InTransactionDescriptor("7/-4", 7, -4, "Kraken", "Bob", 130, 4, from_lot_unique_id="2", to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-12"]}, cost_basis_day=2),
-                        InTransactionDescriptor("8/-5", 8, -5, "Kraken", "Bob", 120, 4, from_lot_unique_id="3", to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-13"]}, cost_basis_day=3),
-                        InTransactionDescriptor("9/-6", 9, -6, "Kraken", "Bob", 120, 2, from_lot_unique_id="3", to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-14"]}, cost_basis_day=3),
-                        InTransactionDescriptor("9/-7", 9, -7, "Kraken", "Bob", 140, 2, from_lot_unique_id="4", to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-15"]}, cost_basis_day=4),
-                        InTransactionDescriptor("10/-8", 10, -8, "Kraken", "Bob", 140, 4, from_lot_unique_id="4", to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-16"]}, cost_basis_day=4),
+                        InTransactionDescriptor(
+                            "5/-1",
+                            5,
+                            -1,
+                            "Kraken",
+                            "Bob",
+                            110,
+                            4,
+                            from_lot_unique_id="1",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-9"]},
+                            cost_basis_day=1,
+                        ),
+                        InTransactionDescriptor(
+                            "6/-2",
+                            6,
+                            -2,
+                            "Kraken",
+                            "Bob",
+                            110,
+                            2,
+                            from_lot_unique_id="1",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-10"]},
+                            cost_basis_day=1,
+                        ),
+                        InTransactionDescriptor(
+                            "6/-3",
+                            6,
+                            -3,
+                            "Kraken",
+                            "Bob",
+                            130,
+                            2,
+                            from_lot_unique_id="2",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-11"]},
+                            cost_basis_day=2,
+                        ),
+                        InTransactionDescriptor(
+                            "7/-4",
+                            7,
+                            -4,
+                            "Kraken",
+                            "Bob",
+                            130,
+                            4,
+                            from_lot_unique_id="2",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-12"]},
+                            cost_basis_day=2,
+                        ),
+                        InTransactionDescriptor(
+                            "8/-5",
+                            8,
+                            -5,
+                            "Kraken",
+                            "Bob",
+                            120,
+                            4,
+                            from_lot_unique_id="3",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-13"]},
+                            cost_basis_day=3,
+                        ),
+                        InTransactionDescriptor(
+                            "9/-6",
+                            9,
+                            -6,
+                            "Kraken",
+                            "Bob",
+                            120,
+                            2,
+                            from_lot_unique_id="3",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-14"]},
+                            cost_basis_day=3,
+                        ),
+                        InTransactionDescriptor(
+                            "9/-7",
+                            9,
+                            -7,
+                            "Kraken",
+                            "Bob",
+                            140,
+                            2,
+                            from_lot_unique_id="4",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-15"]},
+                            cost_basis_day=4,
+                        ),
+                        InTransactionDescriptor(
+                            "10/-8",
+                            10,
+                            -8,
+                            "Kraken",
+                            "Bob",
+                            140,
+                            4,
+                            from_lot_unique_id="4",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-16"]},
+                            cost_basis_day=4,
+                        ),
                         IntraTransactionDescriptor("11", 11, 11, "Kraken", "Bob", "BlockFi", "Bob", 220, 12, 12),
                         IntraTransactionDescriptor("12", 12, 12, "Kraken", "Bob", "BlockFi", "Bob", 230, 12, 12),
                     ],
@@ -222,20 +348,19 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
             with self.subTest(name=test.description):
                 self._run_test(test, AccountingMethodFIFO())
 
-
     # Transfer analysis across different accounts using only LIFO transfer semantics.
     def test_transfer_analysis_success_using_multiple_accounts_and_lifo(self) -> None:
         # Go-style, table-based tests. The input field contains test input and the want field contains the expected results.
         tests: List[_Test] = [
             _Test(
                 description="Interlaced in and intra transactions",
-                input = [
+                input=[
                     InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
                     IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "Kraken", "Bob", 120, 4, 4),
                     InTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 130, 4),
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 140, 10, 10),
                 ],
-                want = {
+                want={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["2/-1", "4/-3"]}),
                         IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "Kraken", "Bob", 120, 4, 4),
@@ -262,7 +387,9 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                 want={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Coinbase", "Alice"): ["5/-4"]}),
-                        InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 20, to_lot_unique_ids={Account("Coinbase", "Alice"): ["3/-1", "4/-2", "5/-3"]}),
+                        InTransactionDescriptor(
+                            "2", 2, 2, "Coinbase", "Bob", 120, 20, to_lot_unique_ids={Account("Coinbase", "Alice"): ["3/-1", "4/-2", "5/-3"]}
+                        ),
                         IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Coinbase", "Alice", 130, 8, 7),
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Coinbase", "Alice", 140, 10, 10),
                         IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Coinbase", "Alice", 150, 12, 12),
@@ -288,7 +415,9 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                 want={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Alice"): ["5/-4"]}),
-                        InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 20, to_lot_unique_ids={Account("Kraken", "Alice"): ["3/-1", "4/-2", "5/-3"]}),
+                        InTransactionDescriptor(
+                            "2", 2, 2, "Coinbase", "Bob", 120, 20, to_lot_unique_ids={Account("Kraken", "Alice"): ["3/-1", "4/-2", "5/-3"]}
+                        ),
                         IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Alice", 130, 8, 7),
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Alice", 140, 10, 10),
                         IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Kraken", "Alice", 150, 12, 12),
@@ -372,10 +501,46 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                 ],
                 want={
                     Account("Coinbase", "Bob"): [
-                        InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 6, to_lot_unique_ids={Account("Kraken", "Bob"): ["9/-7", "10/-8"], Account("BlockFi", "Bob"): ["12/-15", "12/-16"]}),
-                        InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 130, 6, to_lot_unique_ids={Account("Kraken", "Bob"): ["8/-5", "9/-6"], Account("BlockFi", "Bob"): ["12/-13", "12/-14"]}),
-                        InTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 120, 6, to_lot_unique_ids={Account("Kraken", "Bob"): ["6/-3", "7/-4"], Account("BlockFi", "Bob"): ["11/-11", "11/-12"]}),
-                        InTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", 140, 6, to_lot_unique_ids={Account("Kraken", "Bob"): ["5/-1", "6/-2"], Account("BlockFi", "Bob"): ["11/-9", "11/-10"]}),
+                        InTransactionDescriptor(
+                            "1",
+                            1,
+                            1,
+                            "Coinbase",
+                            "Bob",
+                            110,
+                            6,
+                            to_lot_unique_ids={Account("Kraken", "Bob"): ["9/-7", "10/-8"], Account("BlockFi", "Bob"): ["12/-15", "12/-16"]},
+                        ),
+                        InTransactionDescriptor(
+                            "2",
+                            2,
+                            2,
+                            "Coinbase",
+                            "Bob",
+                            130,
+                            6,
+                            to_lot_unique_ids={Account("Kraken", "Bob"): ["8/-5", "9/-6"], Account("BlockFi", "Bob"): ["12/-13", "12/-14"]},
+                        ),
+                        InTransactionDescriptor(
+                            "3",
+                            3,
+                            3,
+                            "Coinbase",
+                            "Bob",
+                            120,
+                            6,
+                            to_lot_unique_ids={Account("Kraken", "Bob"): ["6/-3", "7/-4"], Account("BlockFi", "Bob"): ["11/-11", "11/-12"]},
+                        ),
+                        InTransactionDescriptor(
+                            "4",
+                            4,
+                            4,
+                            "Coinbase",
+                            "Bob",
+                            140,
+                            6,
+                            to_lot_unique_ids={Account("Kraken", "Bob"): ["5/-1", "6/-2"], Account("BlockFi", "Bob"): ["11/-9", "11/-10"]},
+                        ),
                         IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Kraken", "Bob", 160, 4, 4),
                         IntraTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", "Kraken", "Bob", 170, 4, 4),
                         IntraTransactionDescriptor("7", 7, 7, "Coinbase", "Bob", "Kraken", "Bob", 180, 4, 4),
@@ -387,14 +552,102 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                         IntraTransactionDescriptor("18", 18, 18, "Coinbase", "Bob", "Coinbase", "Bob", 270, 18, 18),
                     ],
                     Account("Kraken", "Bob"): [
-                        InTransactionDescriptor("5/-1", 5, -1, "Kraken", "Bob", 140, 4, from_lot_unique_id="4", to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-9"]}, cost_basis_day=4),
-                        InTransactionDescriptor("6/-2", 6, -2, "Kraken", "Bob", 140, 2, from_lot_unique_id="4", to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-10"]}, cost_basis_day=4),
-                        InTransactionDescriptor("6/-3", 6, -3, "Kraken", "Bob", 120, 2, from_lot_unique_id="3", to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-11"]}, cost_basis_day=3),
-                        InTransactionDescriptor("7/-4", 7, -4, "Kraken", "Bob", 120, 4, from_lot_unique_id="3", to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-12"]}, cost_basis_day=3),
-                        InTransactionDescriptor("8/-5", 8, -5, "Kraken", "Bob", 130, 4, from_lot_unique_id="2", to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-13"]}, cost_basis_day=2),
-                        InTransactionDescriptor("9/-6", 9, -6, "Kraken", "Bob", 130, 2, from_lot_unique_id="2", to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-14"]}, cost_basis_day=2),
-                        InTransactionDescriptor("9/-7", 9, -7, "Kraken", "Bob", 110, 2, from_lot_unique_id="1", to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-15"]}, cost_basis_day=1),
-                        InTransactionDescriptor("10/-8", 10, -8, "Kraken", "Bob", 110, 4, from_lot_unique_id="1", to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-16"]}, cost_basis_day=1),
+                        InTransactionDescriptor(
+                            "5/-1",
+                            5,
+                            -1,
+                            "Kraken",
+                            "Bob",
+                            140,
+                            4,
+                            from_lot_unique_id="4",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-9"]},
+                            cost_basis_day=4,
+                        ),
+                        InTransactionDescriptor(
+                            "6/-2",
+                            6,
+                            -2,
+                            "Kraken",
+                            "Bob",
+                            140,
+                            2,
+                            from_lot_unique_id="4",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-10"]},
+                            cost_basis_day=4,
+                        ),
+                        InTransactionDescriptor(
+                            "6/-3",
+                            6,
+                            -3,
+                            "Kraken",
+                            "Bob",
+                            120,
+                            2,
+                            from_lot_unique_id="3",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-11"]},
+                            cost_basis_day=3,
+                        ),
+                        InTransactionDescriptor(
+                            "7/-4",
+                            7,
+                            -4,
+                            "Kraken",
+                            "Bob",
+                            120,
+                            4,
+                            from_lot_unique_id="3",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-12"]},
+                            cost_basis_day=3,
+                        ),
+                        InTransactionDescriptor(
+                            "8/-5",
+                            8,
+                            -5,
+                            "Kraken",
+                            "Bob",
+                            130,
+                            4,
+                            from_lot_unique_id="2",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-13"]},
+                            cost_basis_day=2,
+                        ),
+                        InTransactionDescriptor(
+                            "9/-6",
+                            9,
+                            -6,
+                            "Kraken",
+                            "Bob",
+                            130,
+                            2,
+                            from_lot_unique_id="2",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-14"]},
+                            cost_basis_day=2,
+                        ),
+                        InTransactionDescriptor(
+                            "9/-7",
+                            9,
+                            -7,
+                            "Kraken",
+                            "Bob",
+                            110,
+                            2,
+                            from_lot_unique_id="1",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-15"]},
+                            cost_basis_day=1,
+                        ),
+                        InTransactionDescriptor(
+                            "10/-8",
+                            10,
+                            -8,
+                            "Kraken",
+                            "Bob",
+                            110,
+                            4,
+                            from_lot_unique_id="1",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-16"]},
+                            cost_basis_day=1,
+                        ),
                         IntraTransactionDescriptor("11", 11, 11, "Kraken", "Bob", "BlockFi", "Bob", 220, 12, 12),
                         IntraTransactionDescriptor("12", 12, 12, "Kraken", "Bob", "BlockFi", "Bob", 230, 12, 12),
                     ],
@@ -410,7 +663,7 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                         IntraTransactionDescriptor("13", 13, 13, "BlockFi", "Bob", "BlockFi", "Bob", 230, 24, 24),
                         OutTransactionDescriptor("14", 14, 14, "BlockFi", "Bob", 240, 6, 0),
                         IntraTransactionDescriptor("15", 15, 15, "BlockFi", "Bob", "Coinbase", "Bob", 240, 18, 18),
-                    ]
+                    ],
                 },
                 want_error="",
             ),
@@ -419,20 +672,19 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
             with self.subTest(name=test.description):
                 self._run_test(test, AccountingMethodLIFO())
 
-
     # Transfer analysis across different accounts using only HIFO transfer semantics.
     def test_transfer_analysis_success_using_multiple_accounts_and_hifo(self) -> None:
         # Go-style, table-based tests. The input field contains test input and the want field contains the expected results.
         tests: List[_Test] = [
             _Test(
                 description="Interlaced in and intra transactions",
-                input = [
+                input=[
                     InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
                     IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "Kraken", "Bob", 120, 4, 4),
                     InTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 130, 4),
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 140, 10, 10),
                 ],
-                want = {
+                want={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["2/-1", "4/-3"]}),
                         IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "Kraken", "Bob", 120, 4, 4),
@@ -459,7 +711,9 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                 want={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Coinbase", "Alice"): ["5/-4"]}),
-                        InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 20, to_lot_unique_ids={Account("Coinbase", "Alice"): ["3/-1", "4/-2", "5/-3"]}),
+                        InTransactionDescriptor(
+                            "2", 2, 2, "Coinbase", "Bob", 120, 20, to_lot_unique_ids={Account("Coinbase", "Alice"): ["3/-1", "4/-2", "5/-3"]}
+                        ),
                         IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Coinbase", "Alice", 130, 8, 7),
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Coinbase", "Alice", 140, 10, 10),
                         IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Coinbase", "Alice", 150, 12, 12),
@@ -485,7 +739,9 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                 want={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Alice"): ["5/-4"]}),
-                        InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 20, to_lot_unique_ids={Account("Kraken", "Alice"): ["3/-1", "4/-2", "5/-3"]}),
+                        InTransactionDescriptor(
+                            "2", 2, 2, "Coinbase", "Bob", 120, 20, to_lot_unique_ids={Account("Kraken", "Alice"): ["3/-1", "4/-2", "5/-3"]}
+                        ),
                         IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Alice", 130, 8, 7),
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Alice", 140, 10, 10),
                         IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Kraken", "Alice", 150, 12, 12),
@@ -569,10 +825,46 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                 ],
                 want={
                     Account("Coinbase", "Bob"): [
-                        InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 6, to_lot_unique_ids={Account("Kraken", "Bob"): ["9/-7", "10/-8"], Account("BlockFi", "Bob"): ["12/-15", "12/-16"]}),
-                        InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 130, 6, to_lot_unique_ids={Account("Kraken", "Bob"): ["6/-3", "7/-4"], Account("BlockFi", "Bob"): ["11/-11", "11/-12"]}),
-                        InTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 120, 6, to_lot_unique_ids={Account("Kraken", "Bob"): ["8/-5", "9/-6"], Account("BlockFi", "Bob"): ["12/-13", "12/-14"]}),
-                        InTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", 140, 6, to_lot_unique_ids={Account("Kraken", "Bob"): ["5/-1", "6/-2"], Account("BlockFi", "Bob"): ["11/-9", "11/-10"]}),
+                        InTransactionDescriptor(
+                            "1",
+                            1,
+                            1,
+                            "Coinbase",
+                            "Bob",
+                            110,
+                            6,
+                            to_lot_unique_ids={Account("Kraken", "Bob"): ["9/-7", "10/-8"], Account("BlockFi", "Bob"): ["12/-15", "12/-16"]},
+                        ),
+                        InTransactionDescriptor(
+                            "2",
+                            2,
+                            2,
+                            "Coinbase",
+                            "Bob",
+                            130,
+                            6,
+                            to_lot_unique_ids={Account("Kraken", "Bob"): ["6/-3", "7/-4"], Account("BlockFi", "Bob"): ["11/-11", "11/-12"]},
+                        ),
+                        InTransactionDescriptor(
+                            "3",
+                            3,
+                            3,
+                            "Coinbase",
+                            "Bob",
+                            120,
+                            6,
+                            to_lot_unique_ids={Account("Kraken", "Bob"): ["8/-5", "9/-6"], Account("BlockFi", "Bob"): ["12/-13", "12/-14"]},
+                        ),
+                        InTransactionDescriptor(
+                            "4",
+                            4,
+                            4,
+                            "Coinbase",
+                            "Bob",
+                            140,
+                            6,
+                            to_lot_unique_ids={Account("Kraken", "Bob"): ["5/-1", "6/-2"], Account("BlockFi", "Bob"): ["11/-9", "11/-10"]},
+                        ),
                         IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Kraken", "Bob", 160, 4, 4),
                         IntraTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", "Kraken", "Bob", 170, 4, 4),
                         IntraTransactionDescriptor("7", 7, 7, "Coinbase", "Bob", "Kraken", "Bob", 180, 4, 4),
@@ -584,14 +876,102 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                         IntraTransactionDescriptor("18", 18, 18, "Coinbase", "Bob", "Coinbase", "Bob", 270, 18, 18),
                     ],
                     Account("Kraken", "Bob"): [
-                        InTransactionDescriptor("5/-1", 5, -1, "Kraken", "Bob", 140, 4, from_lot_unique_id="4", to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-9"]}, cost_basis_day=4),
-                        InTransactionDescriptor("6/-2", 6, -2, "Kraken", "Bob", 140, 2, from_lot_unique_id="4", to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-10"]}, cost_basis_day=4),
-                        InTransactionDescriptor("6/-3", 6, -3, "Kraken", "Bob", 130, 2, from_lot_unique_id="2", to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-11"]}, cost_basis_day=2),
-                        InTransactionDescriptor("7/-4", 7, -4, "Kraken", "Bob", 130, 4, from_lot_unique_id="2", to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-12"]}, cost_basis_day=2),
-                        InTransactionDescriptor("8/-5", 8, -5, "Kraken", "Bob", 120, 4, from_lot_unique_id="3", to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-13"]}, cost_basis_day=3),
-                        InTransactionDescriptor("9/-6", 9, -6, "Kraken", "Bob", 120, 2, from_lot_unique_id="3", to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-14"]}, cost_basis_day=3),
-                        InTransactionDescriptor("9/-7", 9, -7, "Kraken", "Bob", 110, 2, from_lot_unique_id="1", to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-15"]}, cost_basis_day=1),
-                        InTransactionDescriptor("10/-8", 10, -8, "Kraken", "Bob", 110, 4, from_lot_unique_id="1", to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-16"]}, cost_basis_day=1),
+                        InTransactionDescriptor(
+                            "5/-1",
+                            5,
+                            -1,
+                            "Kraken",
+                            "Bob",
+                            140,
+                            4,
+                            from_lot_unique_id="4",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-9"]},
+                            cost_basis_day=4,
+                        ),
+                        InTransactionDescriptor(
+                            "6/-2",
+                            6,
+                            -2,
+                            "Kraken",
+                            "Bob",
+                            140,
+                            2,
+                            from_lot_unique_id="4",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-10"]},
+                            cost_basis_day=4,
+                        ),
+                        InTransactionDescriptor(
+                            "6/-3",
+                            6,
+                            -3,
+                            "Kraken",
+                            "Bob",
+                            130,
+                            2,
+                            from_lot_unique_id="2",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-11"]},
+                            cost_basis_day=2,
+                        ),
+                        InTransactionDescriptor(
+                            "7/-4",
+                            7,
+                            -4,
+                            "Kraken",
+                            "Bob",
+                            130,
+                            4,
+                            from_lot_unique_id="2",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-12"]},
+                            cost_basis_day=2,
+                        ),
+                        InTransactionDescriptor(
+                            "8/-5",
+                            8,
+                            -5,
+                            "Kraken",
+                            "Bob",
+                            120,
+                            4,
+                            from_lot_unique_id="3",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-13"]},
+                            cost_basis_day=3,
+                        ),
+                        InTransactionDescriptor(
+                            "9/-6",
+                            9,
+                            -6,
+                            "Kraken",
+                            "Bob",
+                            120,
+                            2,
+                            from_lot_unique_id="3",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-14"]},
+                            cost_basis_day=3,
+                        ),
+                        InTransactionDescriptor(
+                            "9/-7",
+                            9,
+                            -7,
+                            "Kraken",
+                            "Bob",
+                            110,
+                            2,
+                            from_lot_unique_id="1",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-15"]},
+                            cost_basis_day=1,
+                        ),
+                        InTransactionDescriptor(
+                            "10/-8",
+                            10,
+                            -8,
+                            "Kraken",
+                            "Bob",
+                            110,
+                            4,
+                            from_lot_unique_id="1",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-16"]},
+                            cost_basis_day=1,
+                        ),
                         IntraTransactionDescriptor("11", 11, 11, "Kraken", "Bob", "BlockFi", "Bob", 220, 12, 12),
                         IntraTransactionDescriptor("12", 12, 12, "Kraken", "Bob", "BlockFi", "Bob", 230, 12, 12),
                     ],
@@ -607,7 +987,7 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                         IntraTransactionDescriptor("13", 13, 13, "BlockFi", "Bob", "BlockFi", "Bob", 230, 24, 24),
                         OutTransactionDescriptor("14", 14, 14, "BlockFi", "Bob", 240, 6, 0),
                         IntraTransactionDescriptor("15", 15, 15, "BlockFi", "Bob", "Coinbase", "Bob", 240, 18, 18),
-                    ]
+                    ],
                 },
                 want_error="",
             ),
@@ -616,20 +996,19 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
             with self.subTest(name=test.description):
                 self._run_test(test, AccountingMethodHIFO())
 
-
     # Transfer analysis across different accounts using only LOFO transfer semantics.
     def test_transfer_analysis_success_using_multiple_accounts_and_lofo(self) -> None:
         # Go-style, table-based tests. The input field contains test input and the want field contains the expected results.
         tests: List[_Test] = [
             _Test(
                 description="Interlaced in and intra transactions",
-                input = [
+                input=[
                     InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
                     IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "Kraken", "Bob", 120, 4, 4),
                     InTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 130, 4),
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 140, 10, 10),
                 ],
-                want = {
+                want={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["2/-1", "4/-2"]}),
                         IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "Kraken", "Bob", 120, 4, 4),
@@ -727,7 +1106,7 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                 # Note that using LOFO, the funds sent with transaction 3 are picked to be sent back with transaction 4. This triggers the loop detection
                 # logic: so there is no artificial transaction created for the 3 BTC set with transaction 4 (because these coins are being sent back to
                 # their place of origin): the transfer analysis algorithm simply increases the partial amount of transaction 1 by 3.
-                 description="Reciprocal transfer: CB->Kraken, Kraken->CB",
+                description="Reciprocal transfer: CB->Kraken, Kraken->CB",
                 input=[
                     InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
                     InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 10),
@@ -772,10 +1151,46 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                 ],
                 want={
                     Account("Coinbase", "Bob"): [
-                        InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 6, to_lot_unique_ids={Account("Kraken", "Bob"): ["5/-1", "6/-2"], Account("BlockFi", "Bob"): ["11/-9", "11/-10"]}),
-                        InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 130, 6, to_lot_unique_ids={Account("Kraken", "Bob"): ["8/-5", "9/-6"], Account("BlockFi", "Bob"): ["12/-13", "12/-14"]}),
-                        InTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 120, 6, to_lot_unique_ids={Account("Kraken", "Bob"): ["6/-3", "7/-4"], Account("BlockFi", "Bob"): ["11/-11", "11/-12"]}),
-                        InTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", 140, 6, to_lot_unique_ids={Account("Kraken", "Bob"): ["9/-7", "10/-8"], Account("BlockFi", "Bob"): ["12/-15", "12/-16"]}),
+                        InTransactionDescriptor(
+                            "1",
+                            1,
+                            1,
+                            "Coinbase",
+                            "Bob",
+                            110,
+                            6,
+                            to_lot_unique_ids={Account("Kraken", "Bob"): ["5/-1", "6/-2"], Account("BlockFi", "Bob"): ["11/-9", "11/-10"]},
+                        ),
+                        InTransactionDescriptor(
+                            "2",
+                            2,
+                            2,
+                            "Coinbase",
+                            "Bob",
+                            130,
+                            6,
+                            to_lot_unique_ids={Account("Kraken", "Bob"): ["8/-5", "9/-6"], Account("BlockFi", "Bob"): ["12/-13", "12/-14"]},
+                        ),
+                        InTransactionDescriptor(
+                            "3",
+                            3,
+                            3,
+                            "Coinbase",
+                            "Bob",
+                            120,
+                            6,
+                            to_lot_unique_ids={Account("Kraken", "Bob"): ["6/-3", "7/-4"], Account("BlockFi", "Bob"): ["11/-11", "11/-12"]},
+                        ),
+                        InTransactionDescriptor(
+                            "4",
+                            4,
+                            4,
+                            "Coinbase",
+                            "Bob",
+                            140,
+                            6,
+                            to_lot_unique_ids={Account("Kraken", "Bob"): ["9/-7", "10/-8"], Account("BlockFi", "Bob"): ["12/-15", "12/-16"]},
+                        ),
                         IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Kraken", "Bob", 160, 4, 4),
                         IntraTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", "Kraken", "Bob", 170, 4, 4),
                         IntraTransactionDescriptor("7", 7, 7, "Coinbase", "Bob", "Kraken", "Bob", 180, 4, 4),
@@ -787,14 +1202,102 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                         IntraTransactionDescriptor("18", 18, 18, "Coinbase", "Bob", "Coinbase", "Bob", 270, 18, 18),
                     ],
                     Account("Kraken", "Bob"): [
-                        InTransactionDescriptor("5/-1", 5, -1, "Kraken", "Bob", 110, 4, from_lot_unique_id="1", to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-9"]}, cost_basis_day=1),
-                        InTransactionDescriptor("6/-2", 6, -2, "Kraken", "Bob", 110, 2, from_lot_unique_id="1", to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-10"]}, cost_basis_day=1),
-                        InTransactionDescriptor("6/-3", 6, -3, "Kraken", "Bob", 120, 2, from_lot_unique_id="3", to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-11"]}, cost_basis_day=3),
-                        InTransactionDescriptor("7/-4", 7, -4, "Kraken", "Bob", 120, 4, from_lot_unique_id="3", to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-12"]}, cost_basis_day=3),
-                        InTransactionDescriptor("8/-5", 8, -5, "Kraken", "Bob", 130, 4, from_lot_unique_id="2", to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-13"]}, cost_basis_day=2),
-                        InTransactionDescriptor("9/-6", 9, -6, "Kraken", "Bob", 130, 2, from_lot_unique_id="2", to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-14"]}, cost_basis_day=2),
-                        InTransactionDescriptor("9/-7", 9, -7, "Kraken", "Bob", 140, 2, from_lot_unique_id="4", to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-15"]}, cost_basis_day=4),
-                        InTransactionDescriptor("10/-8", 10, -8, "Kraken", "Bob", 140, 4, from_lot_unique_id="4", to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-16"]}, cost_basis_day=4),
+                        InTransactionDescriptor(
+                            "5/-1",
+                            5,
+                            -1,
+                            "Kraken",
+                            "Bob",
+                            110,
+                            4,
+                            from_lot_unique_id="1",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-9"]},
+                            cost_basis_day=1,
+                        ),
+                        InTransactionDescriptor(
+                            "6/-2",
+                            6,
+                            -2,
+                            "Kraken",
+                            "Bob",
+                            110,
+                            2,
+                            from_lot_unique_id="1",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-10"]},
+                            cost_basis_day=1,
+                        ),
+                        InTransactionDescriptor(
+                            "6/-3",
+                            6,
+                            -3,
+                            "Kraken",
+                            "Bob",
+                            120,
+                            2,
+                            from_lot_unique_id="3",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-11"]},
+                            cost_basis_day=3,
+                        ),
+                        InTransactionDescriptor(
+                            "7/-4",
+                            7,
+                            -4,
+                            "Kraken",
+                            "Bob",
+                            120,
+                            4,
+                            from_lot_unique_id="3",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["11/-12"]},
+                            cost_basis_day=3,
+                        ),
+                        InTransactionDescriptor(
+                            "8/-5",
+                            8,
+                            -5,
+                            "Kraken",
+                            "Bob",
+                            130,
+                            4,
+                            from_lot_unique_id="2",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-13"]},
+                            cost_basis_day=2,
+                        ),
+                        InTransactionDescriptor(
+                            "9/-6",
+                            9,
+                            -6,
+                            "Kraken",
+                            "Bob",
+                            130,
+                            2,
+                            from_lot_unique_id="2",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-14"]},
+                            cost_basis_day=2,
+                        ),
+                        InTransactionDescriptor(
+                            "9/-7",
+                            9,
+                            -7,
+                            "Kraken",
+                            "Bob",
+                            140,
+                            2,
+                            from_lot_unique_id="4",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-15"]},
+                            cost_basis_day=4,
+                        ),
+                        InTransactionDescriptor(
+                            "10/-8",
+                            10,
+                            -8,
+                            "Kraken",
+                            "Bob",
+                            140,
+                            4,
+                            from_lot_unique_id="4",
+                            to_lot_unique_ids={Account("BlockFi", "Bob"): ["12/-16"]},
+                            cost_basis_day=4,
+                        ),
                         IntraTransactionDescriptor("11", 11, 11, "Kraken", "Bob", "BlockFi", "Bob", 220, 12, 12),
                         IntraTransactionDescriptor("12", 12, 12, "Kraken", "Bob", "BlockFi", "Bob", 230, 12, 12),
                     ],
@@ -810,7 +1313,7 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                         IntraTransactionDescriptor("13", 13, 13, "BlockFi", "Bob", "BlockFi", "Bob", 230, 24, 24),
                         OutTransactionDescriptor("14", 14, 14, "BlockFi", "Bob", 240, 6, 0),
                         IntraTransactionDescriptor("15", 15, 15, "BlockFi", "Bob", "Coinbase", "Bob", 240, 18, 18),
-                    ]
+                    ],
                 },
                 want_error="",
             ),

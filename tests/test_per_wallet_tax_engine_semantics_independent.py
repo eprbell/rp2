@@ -16,12 +16,10 @@ import unittest
 
 from typing import List
 
-from rp2.plugin.accounting_method.fifo import AccountingMethod as AccountingMethodFIFO
-from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMethodLIFO
-from rp2.plugin.accounting_method.hifo import AccountingMethod as AccountingMethodHIFO
-from rp2.plugin.accounting_method.lofo import AccountingMethod as AccountingMethodLOFO
+from rp2.in_transaction import Account
 
-from per_wallet_tax_engine_common import _Test, Account, InTransactionDescriptor, OutTransactionDescriptor, IntraTransactionDescriptor, AbstractTestPerWalletTaxEngine
+from per_wallet_tax_engine_common import _Test, InTransactionDescriptor, OutTransactionDescriptor, IntraTransactionDescriptor, AbstractTestPerWalletTaxEngine
+
 
 # These tests are independent of the accounting method, so they are repeated for all accounting methods.
 class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
@@ -315,7 +313,6 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
                 for transfer_semantics in self._transfer_semantics:
                     self._run_test(test, transfer_semantics)
 
-
     # Transfer analysis from / to the same account. These tests are independent of transfer semantics because they only use self transfers (which don't
     # generate transfer-semantics-dependent artificial transactions), so the code repeats each test with all transfer semantics.
     def test_transfer_analysis_success_using_same_account_and_all_semantics(self) -> None:
@@ -343,8 +340,7 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
             ),
             _Test(
                 description=(
-                    "Same-account transfer. Total transferred sum is greater than crypto in amount, "
-                    "but individual transfers are not (three in, three intra)"
+                    "Same-account transfer. Total transferred sum is greater than crypto in amount, " "but individual transfers are not (three in, three intra)"
                 ),
                 input=[
                     InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 8),
@@ -371,7 +367,6 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
             with self.subTest(name=test.description):
                 for transfer_semantics in self._transfer_semantics:
                     self._run_test(test, transfer_semantics)
-
 
     # Transfer analysis across different accounts, but with only one InTransaction (this makes these tests independent of transfer semantics), so the code
     # repeats each test with all transfer semantics.
@@ -688,8 +683,8 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
         ]
         for test in tests:
             with self.subTest(name=test.description):
-               for transfer_semantics in self._transfer_semantics:
-                   self._run_test(test, transfer_semantics)
+                for transfer_semantics in self._transfer_semantics:
+                    self._run_test(test, transfer_semantics)
 
 
 if __name__ == "__main__":
