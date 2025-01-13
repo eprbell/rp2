@@ -39,6 +39,7 @@ class SheetNames(Enum):
     INCOME = "Income"
     INTEREST = "Interest"
     INVESTMENT_EXPENSES = "Investment Expenses"
+    LOST = "Lost"
     MINING = "Mining"
     STAKING = "Staking"
     WAGES = "Wages"
@@ -56,6 +57,7 @@ _SHEET_TO_TYPES: Dict[str, Tuple[TransactionType, ...]] = {
     SheetNames.INTEREST.value: (TransactionType.INTEREST,),
     SheetNames.INVESTMENT_EXPENSES.value: (
         TransactionType.FEE,
+        TransactionType.LOST,
         TransactionType.MOVE,
     ),
     SheetNames.MINING.value: (TransactionType.MINING,),

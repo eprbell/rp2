@@ -29,6 +29,7 @@ class TransactionType(Enum):
     HARDFORK = "hardfork"
     INCOME = "income"
     INTEREST = "interest"
+    LOST = "lost"
     MINING = "mining"
     MOVE = "move"
     SELL = "sell"
@@ -79,6 +80,7 @@ _transaction_type_values_to_translation: Dict[TransactionType, str] = {
     TransactionType.HARDFORK: _("hardfork"),
     TransactionType.INCOME: _("income"),
     TransactionType.INTEREST: _("interest"),
+    TransactionType.LOST: _("lost"),
     TransactionType.MINING: _("mining"),
     TransactionType.MOVE: _("move"),
     TransactionType.SELL: _("sell"),
