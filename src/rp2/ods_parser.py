@@ -145,8 +145,8 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
         unfiltered_transaction_sets[EntrySetType.IN],
         unfiltered_transaction_sets[EntrySetType.OUT],
         unfiltered_transaction_sets[EntrySetType.INTRA],
-        configuration.from_date,
-        configuration.to_date,
+        from_date=configuration.from_date,
+        to_date=configuration.to_date,
     )
 
 
