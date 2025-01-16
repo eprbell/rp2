@@ -80,7 +80,7 @@ class InTransaction(AbstractTransaction):
         self.__from_lot: Optional[InTransaction] = InTransaction.type_check("from_lot", from_lot) if from_lot is not None else None
         self.__to_lots: Dict[Account, List[InTransaction]] = {}
 
-        # This field is also used only in the artificial InTransactions of the per-wallet application model. If captures all the
+        # This field is also used only in the artificial InTransactions of the per-wallet application model. It captures all the
         # upstream InTransactions that the funds came from and it is used for loop detection (it's a map from
         # wallet -> InTransaction).
         self.__originates_from: Dict[Account, InTransaction] = {}
