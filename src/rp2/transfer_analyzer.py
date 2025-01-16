@@ -193,7 +193,6 @@ class TransferAnalyzer:
     # This function performs transfer analysis on an InputData and generates as many new InputData objects as there are wallets.
     # For details see https://github.com/eprbell/rp2/wiki/Adding-Per%E2%80%90Wallet-Application-to-RP2.
     def analyze(self) -> Dict[Account, InputData]:
-        # TODO: add run-time argument type checks.
         all_transactions: TransactionSet = TransactionSet(self.__configuration, "MIXED", self.__universal_input_data.asset)
         for transaction_set in [
             self.__universal_input_data.unfiltered_in_transaction_set,
