@@ -233,6 +233,7 @@ class AbstractTestPerWalletTaxEngine(unittest.TestCase):
         # Create universal InputData.
         universal_input_data = self._create_input_data(configuration, unique_id_2_in_transaction, unique_id_2_out_transaction, unique_id_2_intra_transaction)
 
+        # Create TransferAnalyzer.
         transfer_analyzer = TransferAnalyzer(configuration, transfer_semantics, universal_input_data)
 
         # If the test expects an error, check for it.
