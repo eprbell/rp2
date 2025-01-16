@@ -34,7 +34,7 @@ from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2ValueError
 from rp2.transaction_set import TransactionSet
-from rp2.transfer_analysis import transfer_analysis
+from rp2.transfer_analyzer import TransferAnalyzer
 
 
 # Transaction descriptor data classes are used in tests as short-form descriptions of transactions.
@@ -233,16 +233,18 @@ class AbstractTestPerWalletTaxEngine(unittest.TestCase):
         # Create universal InputData.
         universal_input_data = self._create_input_data(configuration, unique_id_2_in_transaction, unique_id_2_out_transaction, unique_id_2_intra_transaction)
 
+        transfer_analyzer = TransferAnalyzer(configuration, transfer_semantics, universal_input_data)
+
         # If the test expects an error, check for it.
         if test.want_error:
             if test.want:
                 raise ValueError(f"Test data error: both want and want_error are set: {test}")
             with self.assertRaisesRegex(RP2ValueError, test.want_error):
-                transfer_analysis(configuration, transfer_semantics, universal_input_data)
+                transfer_analyzer.analyze()
             return
 
         # Call _transfer_analysis on universal InputData and receive per-wallet InputData.
-        wallet_2_per_wallet_input_data = transfer_analysis(configuration, transfer_semantics, universal_input_data)
+        wallet_2_per_wallet_input_data = transfer_analyzer.analyze()
 
         # Create expected per-wallet InputData, based on the want field of the test.
         unique_id_2_in_transaction = {}
