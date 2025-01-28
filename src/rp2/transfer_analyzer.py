@@ -67,15 +67,13 @@ class PerWalletTransactions:
 
 class TransferAnalyzer:
     def __init__(
-        self, configuration: Configuration, transfer_semantics: AbstractAccountingMethod, universal_input_data: InputData, skip_transfer_pointers: bool = False
+        self, configuration: Configuration, transfer_semantics: AbstractAccountingMethod, universal_input_data: InputData
     ):
         self.__configuration = Configuration.type_check("configuration", configuration)
         if not isinstance(transfer_semantics, AbstractAccountingMethod):
             raise RP2TypeError(f"Parameter 'transfer_semantics' is not of type AbstractAccountingMethod: {transfer_semantics}")
         self.__transfer_semantics = transfer_semantics
         self.__universal_input_data = InputData.type_check("universal_input_data", universal_input_data)
-        # skip_transfer_pointers is used in universal allocation, where the artificial transactions are used only as guides and are replaced by new ones decided by the allocation method.
-        self.__skip_transfer_pointers = Configuration.type_check_bool("skip_transfer_pointers", skip_transfer_pointers)
         # TODO: add run-time argument type checks.
 
     # Utility function to create an artificial InTransaction modeling the "to" side of an IntraTransaction
@@ -114,18 +112,17 @@ class TransferAnalyzer:
             cost_basis_timestamp=cost_basis_timestamp_string,
         )
 
-        if not self.__skip_transfer_pointers:
-            # Update the originates_from field of the artificial transaction and the to_lots field of all its ancestors.
-            current_transaction: Optional[InTransaction] = result
-            to_account = Account(transfer_transaction.to_exchange, transfer_transaction.to_holder)
-            while True:
-                current_transaction = current_transaction.from_lot if current_transaction is not None else None
-                if current_transaction is None:
-                    break
-                current_account = Account(current_transaction.exchange, current_transaction.holder)
-                result.originates_from[current_account] = current_transaction
-                to_lots = current_transaction.to_lots.setdefault(to_account, [])
-                to_lots.append(result)
+        # Update the originates_from field of the artificial transaction and the to_lots field of all its ancestors.
+        current_transaction: Optional[InTransaction] = result
+        to_account = Account(transfer_transaction.to_exchange, transfer_transaction.to_holder)
+        while True:
+            current_transaction = current_transaction.from_lot if current_transaction is not None else None
+            if current_transaction is None:
+                break
+            current_account = Account(current_transaction.exchange, current_transaction.holder)
+            result.originates_from[current_account] = current_transaction
+            to_lots = current_transaction.to_lots.setdefault(to_account, [])
+            to_lots.append(result)
 
         return result
 
