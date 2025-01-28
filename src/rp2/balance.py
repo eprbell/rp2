@@ -183,6 +183,7 @@ class BalanceSet:
             self._balances.append(balance)
 
         self._balances.sort(key=_balance_sort_key)
+        self.__account_to_balances: Dict[Account, Balance] = {Account(balance.exchange, balance.holder): balance for balance in self._balances}
 
     def __str__(self) -> str:
         output: List[str] = []
@@ -218,6 +219,10 @@ class BalanceSet:
     @property
     def asset(self) -> str:
         return self.__asset
+
+    @property
+    def account_to_balance(self) -> Dict[Account, Balance]:
+        return self.__account_to_balances
 
 
 class BalanceSetIterator:
