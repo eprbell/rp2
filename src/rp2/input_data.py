@@ -68,22 +68,53 @@ class InputData:
         self.__from_date = from_date
         self.__to_date = to_date
 
-    def create_unfiltered_taxable_event_set(self, configuration: Configuration) -> TransactionSet:
-        transaction_set: TransactionSet
-        entry: AbstractEntry
-        transaction: AbstractTransaction
-        taxable_event_set: TransactionSet = TransactionSet(configuration, "MIXED", self.asset, MIN_DATE, MAX_DATE)
+    def __repr__(self) -> str:
+        return (
+            f"InputData(asset={self.asset}, from_date={self.from_date}, to_date={self.to_date}, "
+            f"unfiltered_in_transaction_set={self.unfiltered_in_transaction_set}, "
+            f"unfiltered_out_transaction_set={self.unfiltered_out_transaction_set}, "
+            f"unfiltered_intra_transaction_set={self.unfiltered_intra_transaction_set}, "
+            f"filtered_in_transaction_set={self.filtered_in_transaction_set}, "
+            f"filtered_out_transaction_set={self.filtered_out_transaction_set}, "
+            f"filtered_intra_transaction_set={self.filtered_intra_transaction_set}, "
+            f"in_transaction_2_actual_amount={self.in_transaction_2_actual_amount})"
+        )
+
+    def __str__(self) -> str:
+        return (
+            f"InputData:\n"
+            f"  asset={self.asset}\n"
+            f"  from_date={self.from_date}\n"
+            f"  to_date={self.to_date}\n"
+            f"  unfiltered_in_transaction_set={self.unfiltered_in_transaction_set}\n"
+            f"  unfiltered_out_transaction_set={self.unfiltered_out_transaction_set}\n"
+            f"  unfiltered_intra_transaction_set={self.unfiltered_intra_transaction_set}\n"
+            f"  filtered_in_transaction_set={self.filtered_in_transaction_set}\n"
+            f"  filtered_out_transaction_set={self.filtered_out_transaction_set}\n"
+            f"  filtered_intra_transaction_set={self.filtered_intra_transaction_set}\n"
+            f"  in_transaction_2_actual_amount={self.in_transaction_2_actual_amount}\n"
+        )
+
+    def create_all_transaction_set(self, configuration: Configuration) -> TransactionSet:
+        result: TransactionSet = TransactionSet(configuration, "MIXED", self.asset, MIN_DATE, MAX_DATE)
         for transaction_set in [
             self.unfiltered_in_transaction_set,
             self.unfiltered_out_transaction_set,
             self.unfiltered_intra_transaction_set,
         ]:
             for entry in transaction_set:
-                transaction = cast(AbstractTransaction, entry)
-                if transaction.is_taxable():
-                    taxable_event_set.add_entry(transaction)
+                result.add_entry(cast(AbstractTransaction, entry))
+        return result
 
-        return taxable_event_set
+    def create_unfiltered_taxable_event_set(self, configuration: Configuration) -> TransactionSet:
+        all_transaction_set: TransactionSet = self.create_all_transaction_set(configuration)
+        result: TransactionSet = TransactionSet(configuration, "MIXED", self.asset, MIN_DATE, MAX_DATE)
+        entry: AbstractEntry
+        for entry in all_transaction_set:
+            transaction = cast(AbstractTransaction, entry)
+            if transaction.is_taxable():
+                result.add_entry(transaction)
+        return result
 
     @property
     def asset(self) -> str:
