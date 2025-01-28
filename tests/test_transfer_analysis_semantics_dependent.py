@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
 import unittest
 
-from typing import List
+from typing import Dict, List
 
 from rp2.in_transaction import Account
 from rp2.plugin.accounting_method.fifo import AccountingMethod as AccountingMethodFIFO
@@ -22,11 +23,12 @@ from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMeth
 from rp2.plugin.accounting_method.hifo import AccountingMethod as AccountingMethodHIFO
 from rp2.plugin.accounting_method.lofo import AccountingMethod as AccountingMethodLOFO
 
-from transfer_analysis_test_common import _Test, InTransactionDescriptor, OutTransactionDescriptor, IntraTransactionDescriptor, AbstractTestPerWalletTaxEngine
+from transaction_processing_common import AbstractTransactionDescriptor, InTransactionDescriptor, OutTransactionDescriptor, IntraTransactionDescriptor
+from transfer_analysis_common import _Test, AbstractTransferAnalysis
 
 
 # These tests are dependent on transfer semantics, so they are not run for all accounting methods.
-class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
+class TestTransferAnalysis(AbstractTransferAnalysis):
 
     # Transfer analysis across different accounts using only FIFO transfer semantics.
     def test_transfer_analysis_success_using_multiple_accounts_and_fifo(self) -> None:

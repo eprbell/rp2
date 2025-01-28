@@ -12,17 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
 import unittest
 
-from typing import List
+from typing import Dict, List
 
 from rp2.in_transaction import Account
 
-from transfer_analysis_test_common import _Test, InTransactionDescriptor, OutTransactionDescriptor, IntraTransactionDescriptor, AbstractTestPerWalletTaxEngine
+from transaction_processing_common import InTransactionDescriptor, OutTransactionDescriptor, IntraTransactionDescriptor
+from transfer_analysis_common import _Test, AbstractTransferAnalysis
+
 
 
 # These tests are independent of the accounting method, so they are repeated for all accounting methods.
-class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
+class TestTransferAnalysis(AbstractTransferAnalysis):
 
     # Transfer analysis failure tests. These tests are independent of transfer semantics, so the code repeats each test with all transfer semantics.
     def test_transfer_analysis_failure_all_transfer_semantics(self) -> None:
@@ -310,7 +313,7 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
         ]
         for test in tests:
             with self.subTest(name=test.description):
-                for transfer_semantics in self._transfer_semantics:
+                for transfer_semantics in self._accounting_methods:
                     self._run_test(test, transfer_semantics)
 
     # Transfer analysis from / to the same account. These tests are independent of transfer semantics because they only use self transfers (which don't
@@ -365,7 +368,7 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
         ]
         for test in tests:
             with self.subTest(name=test.description):
-                for transfer_semantics in self._transfer_semantics:
+                for transfer_semantics in self._accounting_methods:
                     self._run_test(test, transfer_semantics)
 
     # Transfer analysis across different accounts, but with only one InTransaction (this makes these tests independent of transfer semantics), so the code
@@ -683,7 +686,7 @@ class TestPerWalletTaxEngine(AbstractTestPerWalletTaxEngine):
         ]
         for test in tests:
             with self.subTest(name=test.description):
-                for transfer_semantics in self._transfer_semantics:
+                for transfer_semantics in self._accounting_methods:
                     self._run_test(test, transfer_semantics)
 
 
