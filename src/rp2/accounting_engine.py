@@ -14,7 +14,7 @@
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Dict, Iterator, List, NamedTuple, Optional
+from typing import Dict, Iterator, List, NamedTuple, Optional, cast
 
 from prezzemolo.avl_tree import AVLTree
 
@@ -25,8 +25,15 @@ from rp2.abstract_accounting_method import (
 )
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
+from rp2.out_transaction import OutTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2RuntimeError, RP2TypeError
+
+
+class AcquiredLotAndAmounts(NamedTuple):
+    acquired_lot: Optional[InTransaction]
+    taxable_event_amount: RP2Decimal
+    acquired_lot_amount: RP2Decimal
 
 
 class TaxableEventAndAcquiredLot(NamedTuple):
@@ -93,11 +100,12 @@ class AccountingEngine:
         self,
         taxable_event_iterator: Iterator[AbstractTransaction],
         acquired_lot_iterator: Iterator[InTransaction],
+        acquired_lot_to_partial_amount: Optional[Dict[InTransaction, RP2Decimal]] = None,
     ) -> None:
         self.__taxable_event_iterator = taxable_event_iterator
         self.__acquired_lot_list = []
         self.__acquired_lot_avl: AVLTree[str, _AcquiredLotAndIndex] = AVLTree()
-        self.__acquired_lot_2_partial_amount = {}
+        self.__acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal] = {} if acquired_lot_to_partial_amount is None else acquired_lot_to_partial_amount
 
         index: int = 0
         try:
@@ -142,6 +150,10 @@ class AccountingEngine:
     # with the same timestamp.
     def _get_avl_node_key_with_max_disambiguator(self, timestamp: datetime) -> str:
         return self._get_avl_node_key(timestamp, self.MAX_KEY_DISAMBIGUATOR)
+
+    @property
+    def acquired_lot_2_partial_amount(self) -> Dict[InTransaction, RP2Decimal]:
+        return self.__acquired_lot_2_partial_amount.copy()
 
     @property
     def years_2_methods(self) -> AVLTree[int, AbstractAccountingMethod]:
@@ -198,19 +210,33 @@ class AccountingEngine:
         taxable_event_amount: RP2Decimal,
         acquired_lot_amount: RP2Decimal,
     ) -> TaxableEventAndAcquiredLot:
+        acquired_lot_and_amounts = self.get_acquired_lot_for_timestamp(taxable_event.timestamp, acquired_lot, taxable_event_amount, acquired_lot_amount)
+        return TaxableEventAndAcquiredLot(
+            taxable_event=taxable_event,
+            acquired_lot=acquired_lot_and_amounts.acquired_lot,
+            taxable_event_amount=acquired_lot_and_amounts.taxable_event_amount,
+            acquired_lot_amount=acquired_lot_and_amounts.acquired_lot_amount,
+        )
+
+    def get_acquired_lot_for_timestamp(
+        self,
+        timestamp: datetime,
+        acquired_lot: Optional[InTransaction],  # pylint: disable=unused-argument
+        taxable_event_amount: RP2Decimal,
+        acquired_lot_amount: RP2Decimal,
+    ) -> AcquiredLotAndAmounts:
         new_taxable_event_amount: RP2Decimal = taxable_event_amount - acquired_lot_amount
         # Find the acquired_lot and index just before the taxable event: the index is used as an upper bound
         # in the search of acquired lot candidates (see set_to_index() below).
         acquired_lot_and_index: Optional[_AcquiredLotAndIndex] = self.__acquired_lot_avl.find_max_value_less_than(
-            self._get_avl_node_key_with_max_disambiguator(taxable_event.timestamp)
+            self._get_avl_node_key_with_max_disambiguator(timestamp)
         )
-
         if acquired_lot_and_index is None:
             raise AcquiredLotsExhaustedException()
         if acquired_lot_and_index.acquired_lot != self.__acquired_lot_list[acquired_lot_and_index.index]:
             raise RP2RuntimeError("Internal error: acquired_lot incongruence in accounting logic")
-        method = self._get_accounting_method(taxable_event.timestamp.year)
-        lot_candidates: Optional[AbstractAcquiredLotCandidates] = self.__years_2_lot_candidates.find_max_value_less_than(taxable_event.timestamp.year)
+        method = self._get_accounting_method(timestamp.year)
+        lot_candidates: Optional[AbstractAcquiredLotCandidates] = self.__years_2_lot_candidates.find_max_value_less_than(timestamp.year)
         # lot_candidates is 1:1 with acquired_lot_and_index, should always be True
         if not lot_candidates:
             raise RP2RuntimeError("Internal error: no lot candidates found for year")
@@ -219,8 +245,7 @@ class AccountingEngine:
         if not acquired_lot_and_amount:
             raise AcquiredLotsExhaustedException()
 
-        return TaxableEventAndAcquiredLot(
-            taxable_event=taxable_event,
+        return AcquiredLotAndAmounts(
             acquired_lot=acquired_lot_and_amount.acquired_lot,
             taxable_event_amount=new_taxable_event_amount,
             acquired_lot_amount=acquired_lot_and_amount.amount,
