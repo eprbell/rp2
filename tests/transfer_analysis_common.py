@@ -42,18 +42,17 @@ class AbstractTransferAnalysis(AbstractTestTransactionProcessing):
         # Prepare the test input
         universal_input_data = self._create_universal_input_data_from_transaction_descriptors(configuration, test.input)
 
-        # Create TransferAnalyzer.
-        transfer_analyzer = TransferAnalyzer(configuration, transfer_semantics, universal_input_data)
-
         # If the test expects an error, run the test and check for error.
         if test.want_error:
             if test.want:
                 raise ValueError(f"Test data error: both want and want_error are set: {test}")
             with self.assertRaisesRegex(RP2ValueError, test.want_error):
+                transfer_analyzer = TransferAnalyzer(configuration, transfer_semantics, universal_input_data)
                 transfer_analyzer.analyze()
             return
 
-        # Call analyze() on universal InputData and receive per-wallet InputData.
+        # Create transfer analyzer, call analyze() on universal InputData and receive per-wallet InputData.
+        transfer_analyzer = TransferAnalyzer(configuration, transfer_semantics, universal_input_data)
         wallet_2_per_wallet_input_data = transfer_analyzer.analyze()
 
         # Create expected per-wallet InputData, based on the want field of the test.
