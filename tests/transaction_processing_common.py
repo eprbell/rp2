@@ -88,6 +88,14 @@ class AbstractTestTransactionProcessing(unittest.TestCase):
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name
 
+    def _serialize_input_data_as_string_list(self, input_data: InputData, output: List[str]) -> None:
+        for transaction in input_data.unfiltered_in_transaction_set:
+            output.extend(f"{transaction}".splitlines())
+        for transaction in input_data.unfiltered_out_transaction_set:
+            output.extend(f"{transaction}".splitlines())
+        for transaction in input_data.unfiltered_intra_transaction_set:
+            output.extend(f"{transaction}".splitlines())
+
     def _list_to_transaction_set(self, configuration: Configuration, transaction_list: List[AbstractTransaction], entry_set_type: str) -> TransactionSet:
         result = TransactionSet(configuration, entry_set_type, self._asset)
         for transaction in transaction_list:
