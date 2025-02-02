@@ -176,6 +176,35 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                 want_error="",
             ),
             _Test(
+                description="Reciprocal transfer + sales: CB->Kraken, Kraken->CB, CB sales",
+                input=[
+                    InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
+                    InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 10),
+                    IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
+                    IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Coinbase", "Bob", 140, 2, 1),
+                    OutTransactionDescriptor("5", 5, 5, "Kraken", "Bob", 150, 2, 1),
+                    OutTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", 150, 3, 2),
+                ],
+                want={
+                    Account("Coinbase", "Bob"): [
+                        InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["3/-1"]}),
+                        IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
+                        OutTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", 150, 3, 2),
+                    ],
+                    Account("Kraken", "Bob"): [
+                        InTransactionDescriptor("3/-1", 3, -1, "Kraken", "Bob", 110, 3, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 10),
+                        IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Coinbase", "Bob", 140, 2, 1),
+                        OutTransactionDescriptor("5", 5, 5, "Kraken", "Bob", 150, 2, 1),
+                    ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 2},
+                    Account(exchange='Kraken', holder='Bob'): {'2': 8, '3/-1': 0},
+                },
+                want_error="",
+            ),
+            _Test(
                 description="Many transactions with loops, sales and self-transfers across three accounts",
                 input=[
                     InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 6),
@@ -540,6 +569,36 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                 want_amounts={
                     Account(exchange='Coinbase', holder='Bob'): {'1': 6},
                     Account(exchange='Kraken', holder='Bob'): {'2': 3},
+                },
+                want_error="",
+            ),
+            _Test(
+                description="Reciprocal transfer + sales: CB->Kraken, Kraken->CB, CB sales",
+                input=[
+                    InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
+                    InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 10),
+                    IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
+                    IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Coinbase", "Bob", 140, 2, 1),
+                    OutTransactionDescriptor("5", 5, 5, "Kraken", "Bob", 150, 2, 1),
+                    OutTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", 150, 3, 2),
+                ],
+                want={
+                    Account("Coinbase", "Bob"): [
+                        InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["3/-1"]}),
+                        IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
+                        InTransactionDescriptor("4/-2", 4, -2, "Coinbase", "Bob", 120, 1, from_lot_unique_id="2", cost_basis_day=2),
+                        OutTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", 150, 3, 2),
+                    ],
+                    Account("Kraken", "Bob"): [
+                        InTransactionDescriptor("3/-1", 3, -1, "Kraken", "Bob", 110, 3, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 10, to_lot_unique_ids={Account(exchange='Coinbase', holder='Bob'): ["4/-2"]}),
+                        IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Coinbase", "Bob", 140, 2, 1),
+                        OutTransactionDescriptor("5", 5, 5, "Kraken", "Bob", 150, 2, 1),
+                    ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 2, '4/-2': 0},
+                    Account(exchange='Kraken', holder='Bob'): {'2': 5},
                 },
                 want_error="",
             ),
@@ -911,6 +970,36 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                 want_error="",
             ),
             _Test(
+                description="Reciprocal transfer + sales: CB->Kraken, Kraken->CB, CB sales",
+                input=[
+                    InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
+                    InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 10),
+                    IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
+                    IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Coinbase", "Bob", 140, 2, 1),
+                    OutTransactionDescriptor("5", 5, 5, "Kraken", "Bob", 150, 2, 1),
+                    OutTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", 150, 3, 2),
+                ],
+                want={
+                    Account("Coinbase", "Bob"): [
+                        InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["3/-1"]}),
+                        IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
+                        InTransactionDescriptor("4/-2", 4, -2, "Coinbase", "Bob", 120, 1, from_lot_unique_id="2", cost_basis_day=2),
+                        OutTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", 150, 3, 2),
+                    ],
+                    Account("Kraken", "Bob"): [
+                        InTransactionDescriptor("3/-1", 3, -1, "Kraken", "Bob", 110, 3, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 10, to_lot_unique_ids={Account(exchange='Coinbase', holder='Bob'): ["4/-2"]}),
+                        IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Coinbase", "Bob", 140, 2, 1),
+                        OutTransactionDescriptor("5", 5, 5, "Kraken", "Bob", 150, 2, 1),
+                    ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 2, '4/-2': 0},
+                    Account(exchange='Kraken', holder='Bob'): {'2': 5},
+                },
+                want_error="",
+            ),
+            _Test(
                 description="Many transactions with loops, sales and self-transfers across three accounts",
                 input=[
                     InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 6),
@@ -1277,6 +1366,35 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                 want_amounts={
                     Account(exchange='Coinbase', holder='Bob'): {'1': 9},
                     Account(exchange='Kraken', holder='Bob'): {'2': 6, '3/-1': 0},
+                },
+                want_error="",
+            ),
+            _Test(
+                description="Reciprocal transfer + sales: CB->Kraken, Kraken->CB, CB sales",
+                input=[
+                    InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
+                    InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 10),
+                    IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
+                    IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Coinbase", "Bob", 140, 2, 1),
+                    OutTransactionDescriptor("5", 5, 5, "Kraken", "Bob", 150, 2, 1),
+                    OutTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", 150, 3, 2),
+                ],
+                want={
+                    Account("Coinbase", "Bob"): [
+                        InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["3/-1"]}),
+                        IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
+                        OutTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", 150, 3, 2),
+                    ],
+                    Account("Kraken", "Bob"): [
+                        InTransactionDescriptor("3/-1", 3, -1, "Kraken", "Bob", 110, 3, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 10),
+                        IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Coinbase", "Bob", 140, 2, 1),
+                        OutTransactionDescriptor("5", 5, 5, "Kraken", "Bob", 150, 2, 1),
+                    ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 2},
+                    Account(exchange='Kraken', holder='Bob'): {'2': 8, '3/-1': 0},
                 },
                 want_error="",
             ),
