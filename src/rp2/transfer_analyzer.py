@@ -67,14 +67,16 @@ class PerWalletTransactions:
 
 class TransferAnalyzer:
     def __init__(
-        self, configuration: Configuration, transfer_semantics: AbstractAccountingMethod, universal_input_data: InputData
+        self, configuration: Configuration, transfer_semantics: AbstractAccountingMethod, universal_input_data: InputData, skip_transfer_pointers: bool = False
     ):
+        # TODO: add run-time argument type checks.
         self.__configuration = Configuration.type_check("configuration", configuration)
         if not isinstance(transfer_semantics, AbstractAccountingMethod):
             raise RP2TypeError(f"Parameter 'transfer_semantics' is not of type AbstractAccountingMethod: {transfer_semantics}")
         self.__transfer_semantics = transfer_semantics
         self.__universal_input_data = InputData.type_check("universal_input_data", universal_input_data)
-        # TODO: add run-time argument type checks.
+        # skip_transfer_pointers is used in global allocation, where the artificial transactions are used only as guides and are replaced by new ones decided by the allocation method.
+        self.__skip_transfer_pointers = Configuration.type_check_bool("skip_transfer_pointers", skip_transfer_pointers)
 
     # Utility function to create an artificial InTransaction modeling the "to" side of an IntraTransaction
     def _create_to_in_transaction(self, from_in_transaction: InTransaction, transfer_transaction: IntraTransaction, amount: RP2Decimal) -> InTransaction:
@@ -112,17 +114,18 @@ class TransferAnalyzer:
             cost_basis_timestamp=cost_basis_timestamp_string,
         )
 
-        # Update the originates_from field of the artificial transaction and the to_lots field of all its ancestors.
-        current_transaction: Optional[InTransaction] = result
-        to_account = Account(transfer_transaction.to_exchange, transfer_transaction.to_holder)
-        while True:
-            current_transaction = current_transaction.from_lot if current_transaction is not None else None
-            if current_transaction is None:
-                break
-            current_account = Account(current_transaction.exchange, current_transaction.holder)
-            result.originates_from[current_account] = current_transaction
-            to_lots = current_transaction.to_lots.setdefault(to_account, [])
-            to_lots.append(result)
+        if not self.__skip_transfer_pointers:
+            # Update the originates_from field of the artificial transaction and the to_lots field of all its ancestors.
+            current_transaction: Optional[InTransaction] = result
+            to_account = Account(transfer_transaction.to_exchange, transfer_transaction.to_holder)
+            while True:
+                current_transaction = current_transaction.from_lot if current_transaction is not None else None
+                if current_transaction is None:
+                    break
+                current_account = Account(current_transaction.exchange, current_transaction.holder)
+                result.originates_from[current_account] = current_transaction
+                to_lots = current_transaction.to_lots.setdefault(to_account, [])
+                to_lots.append(result)
 
         return result
 
@@ -156,6 +159,7 @@ class TransferAnalyzer:
         current_in_lot_and_amount: AcquiredLotAndAmount,
         transfer: IntraTransaction,
         remaining_amount: RP2Decimal,
+        fee: RP2Decimal,
     ) -> None:
         from_account = Account(transfer.from_exchange, transfer.from_holder)
         from_per_wallet_transactions = wallet_2_per_wallet_transactions[from_account]
@@ -184,7 +188,7 @@ class TransferAnalyzer:
             to_per_wallet_transactions.in_transactions.set_to_index(len(to_per_wallet_transactions.in_transactions.acquired_lot_list) - 1)
         # Remove the remaining amount from the actual amount of the current in lot.
         from_per_wallet_transactions.in_transactions.set_partial_amount(
-            current_in_lot_and_amount.acquired_lot, current_in_lot_and_amount.amount - remaining_amount
+            current_in_lot_and_amount.acquired_lot, current_in_lot_and_amount.amount - remaining_amount - fee
         )
 
     # This function performs transfer analysis on an InputData and generates as many new InputData objects as there are wallets.
@@ -223,19 +227,21 @@ class TransferAnalyzer:
                 per_wallet_transactions = wallet_2_per_wallet_transactions[account]
                 per_wallet_transactions.out_transactions.add_entry(transaction)
 
-                # Find the acquired lots that cover the out transaction and mark them as actually (or fully) spent.
-                amount_left_to_dispose_of = transaction.crypto_out_with_fee
+                # Find the acquired lots that cover the out transaction and mark them as partially (or fully) spent.
+                amount_left_to_dispose_of = transaction.crypto_out_no_fee
+                fee = transaction.crypto_fee
                 while True:
                     current_in_lot_and_amount = self.__transfer_semantics.seek_non_exhausted_acquired_lot(
                         per_wallet_transactions.in_transactions, transaction.crypto_out_with_fee
                     )
                     if current_in_lot_and_amount is None:
                         raise RP2ValueError(
-                            f"Insufficient balance on {account} to cover out transaction (amount {amount_left_to_dispose_of} {transaction.asset}): {transaction}"
+                            f"Insufficient balance on {account} to cover out transaction (amount {amount_left_to_dispose_of + fee} {transaction.asset}): {transaction}"
                         )
-                    if current_in_lot_and_amount.amount >= amount_left_to_dispose_of:
+                    if current_in_lot_and_amount.amount >= amount_left_to_dispose_of + fee:
+                        # Pay the fee only in the last lot.
                         per_wallet_transactions.in_transactions.set_partial_amount(
-                            current_in_lot_and_amount.acquired_lot, current_in_lot_and_amount.amount - amount_left_to_dispose_of
+                            current_in_lot_and_amount.acquired_lot, current_in_lot_and_amount.amount - amount_left_to_dispose_of - fee
                         )
                         break
                     per_wallet_transactions.in_transactions.clear_partial_amount(current_in_lot_and_amount.acquired_lot)
@@ -260,8 +266,9 @@ class TransferAnalyzer:
                     ),
                 )
 
-                # Find the acquired lots that cover the transfer and mark them as actually (or fully) transferred.
+                # Find the acquired lots that cover the transfer and mark them as partially (or fully) transferred.
                 amount_left_to_transfer = transaction.crypto_received
+                fee = transaction.crypto_sent - transaction.crypto_received
                 original_actual_amounts: Dict[InTransaction, RP2Decimal] = {}
                 while True:
                     current_in_lot_and_amount = self.__transfer_semantics.seek_non_exhausted_acquired_lot(
@@ -269,15 +276,17 @@ class TransferAnalyzer:
                     )
                     if current_in_lot_and_amount is None:
                         raise RP2ValueError(
-                            f"Insufficient balance on {from_account} to send funds (amount {amount_left_to_transfer} {transaction.asset}): {transaction}"
+                            f"Insufficient balance on {from_account} to send funds (amount {amount_left_to_transfer + fee} {transaction.asset}): {transaction}"
                         )
                     original_actual_amounts[current_in_lot_and_amount.acquired_lot] = current_in_lot_and_amount.amount
-                    if current_in_lot_and_amount.amount >= amount_left_to_transfer:
+                    if current_in_lot_and_amount.amount >= amount_left_to_transfer + fee:
+                        # Pay the fee only in the last lot.
                         self._process_remaining_transfer_amount(
                             wallet_2_per_wallet_transactions,
                             current_in_lot_and_amount,
                             transaction,
                             amount_left_to_transfer,
+                            fee,
                         )
                         if transaction.is_self_transfer():
                             from_per_wallet_transactions.in_transactions.reset_partial_amounts(self.__transfer_semantics, original_actual_amounts)
@@ -287,6 +296,7 @@ class TransferAnalyzer:
                         current_in_lot_and_amount,
                         transaction,
                         current_in_lot_and_amount.amount,
+                        ZERO,
                     )
                     amount_left_to_transfer -= current_in_lot_and_amount.amount
             else:
