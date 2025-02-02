@@ -38,6 +38,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "Kraken", "Bob", 120, 20, 20),
                 ],
                 want={},
+                want_amounts={},
                 want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to send funds \(amount 10 B1\): .*",
             ),
             _Test(
@@ -47,6 +48,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     OutTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 10, 1),
                 ],
                 want={},
+                want_amounts={},
                 want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to cover out transaction \(amount 1 B1\): .*",
             ),
             _Test(
@@ -58,6 +60,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 140, 20, 20),
                 ],
                 want={},
+                want_amounts={},
                 want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to send funds \(amount 6 B1\): .*",
             ),
             _Test(
@@ -69,6 +72,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     OutTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", 140, 20, 0),
                 ],
                 want={},
+                want_amounts={},
                 want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to cover out transaction \(amount 6 B1\): .*",
             ),
             _Test(
@@ -82,7 +86,8 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", "Kraken", "Bob", 160, 16, 15),
                 ],
                 want={},
-                want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to send funds \(amount 7 B1\): .*",
+                want_amounts={},
+                want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to send funds \(amount 9 B1\): .*",
             ),
             _Test(
                 description="Sell more than is available (three in, three out)",
@@ -95,6 +100,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     OutTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", 160, 3, 1),
                 ],
                 want={},
+                want_amounts={},
                 want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to cover out transaction \(amount 4 B1\): .*",
             ),
             _Test(
@@ -108,7 +114,8 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     OutTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", 160, 1, 1),
                 ],
                 want={},
-                want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to cover out transaction \(amount 1 B1\): .*",
+                want_amounts={},
+                want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to cover out transaction \(amount 2 B1\): .*",
             ),
             _Test(
                 description="Sell more than is available (three in, two out, one intra)",
@@ -121,6 +128,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", "Kraken", "Bob", 160, 6, 6),
                 ],
                 want={},
+                want_amounts={},
                 want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to send funds \(amount 5 B1\): .*",
             ),
             _Test(
@@ -133,6 +141,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 140, 5, 5),
                 ],
                 want={},
+                want_amounts={},
                 want_error=r"Insufficient balance on Account\(exchange='Kraken', holder='Bob'\) to send funds \(amount 2 B1\): .*",
             ),
             _Test(
@@ -145,6 +154,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 140, 5, 5),
                 ],
                 want={},
+                want_amounts={},
                 want_error=r"Insufficient balance on Account\(exchange='Kraken', holder='Bob'\) to cover out transaction \(amount 2 B1\): .*",
             ),
             _Test(
@@ -154,6 +164,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "Coinbase", "Bob", 120, 20, 20),
                 ],
                 want={},
+                want_amounts={},
                 want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to send funds \(amount 10 B1\): .*",
             ),
             _Test(
@@ -168,6 +179,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("7", 7, 7, "Coinbase", "Bob", "Coinbase", "Bob", 170, 16, 15),
                 ],
                 want={},
+                want_amounts={},
                 want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to send funds \(amount 1 B1\): .*",
             ),
             _Test(
@@ -179,7 +191,8 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Coinbase", "Alice", 140, 10, 9),
                 ],
                 want={},
-                want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to send funds \(amount 8 B1\): .*",
+                want_amounts={},
+                want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to send funds \(amount 9 B1\): .*",
             ),
             _Test(
                 description=("Same-exchange transfers with different holders. Total transferred sum is greater than crypto in amount (three in, three intra)."),
@@ -192,7 +205,8 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", "Coinbase", "Alice", 150, 14, 14),
                 ],
                 want={},
-                want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to send funds \(amount 11 B1\): .*",
+                want_amounts={},
+                want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to send funds \(amount 12 B1\): .*",
             ),
             _Test(
                 description="Loop followed by excessive transfer on starting exchange: CB->Kraken->BlockFi->CB + CB->Kraken (not enough funds)",
@@ -204,6 +218,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Kraken", "Bob", 150, 8, 8),
                 ],
                 want={},
+                want_amounts={},
                 want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to send funds \(amount 1 B1\): .*",
             ),
             _Test(
@@ -216,6 +231,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     OutTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", 150, 9, 0),
                 ],
                 want={},
+                want_amounts={},
                 want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to cover out transaction \(amount 2 B1\): .*",
             ),
             _Test(
@@ -239,6 +255,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("16", 16, 16, "Coinbase", "Bob", "Coinbase", "Bob", 270, 24, 24),
                 ],
                 want={},
+                want_amounts={},
                 want_error=r"Insufficient balance on Account\(exchange='BlockFi', holder='Bob'\) to send funds \(amount 1 B1\): .*",
             ),
             _Test(
@@ -262,6 +279,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("16", 16, 16, "Coinbase", "Bob", "Coinbase", "Bob", 270, 24, 24),
                 ],
                 want={},
+                want_amounts={},
                 want_error=r"Insufficient balance on Account\(exchange='BlockFi', holder='Bob'\) to cover out transaction \(amount 3 B1\): .*",
             ),
             _Test(
@@ -285,6 +303,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("16", 16, 16, "Coinbase", "Bob", "Coinbase", "Bob", 270, 25, 25),
                 ],
                 want={},
+                want_amounts={},
                 want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to send funds \(amount 1 B1\): .*",
             ),
             _Test(
@@ -308,6 +327,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     OutTransactionDescriptor("16", 16, 16, "Coinbase", "Bob", 270, 30, 0),
                 ],
                 want={},
+                want_amounts={},
                 want_error=r"Insufficient balance on Account\(exchange='Coinbase', holder='Bob'\) to cover out transaction \(amount 6 B1\): .*",
             ),
         ]
@@ -339,6 +359,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Coinbase", "Bob", 140, 10, 9),
                     ],
                 },
+                want_amounts={Account(exchange='Coinbase', holder='Bob'): {'1': 10}},
                 want_error="",
             ),
             _Test(
@@ -353,6 +374,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Coinbase", "Bob", 150, 12, 12),
                     IntraTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", "Coinbase", "Bob", 150, 14, 14),
                 ],
+                want_amounts={Account(exchange='Coinbase', holder='Bob'): {'1': 8, '2': 4, '3': 2}},
                 want={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 8),
@@ -419,6 +441,11 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         InTransactionDescriptor("4/-3", 4, -3, "BlockFi", "Bob", 110, 5, from_lot_unique_id="1", cost_basis_day=1),
                     ],
                 },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 1},
+                    Account(exchange='Kraken', holder='Bob'): {'2/-1': 2},
+                    Account(exchange='BlockFi', holder='Bob'): {}
+                },
                 want_error="",
             ),
             _Test(
@@ -455,6 +482,11 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         InTransactionDescriptor("3/-2", 3, -2, "BlockFi", "Bob", 110, 2, from_lot_unique_id="2/-1", cost_basis_day=1),
                         IntraTransactionDescriptor("4", 4, 4, "BlockFi", "Bob", "Coinbase", "Bob", 140, 1, 1),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 7},
+                    Account(exchange='Kraken', holder='Bob'): {'2/-1': 2},
+                    Account(exchange='BlockFi', holder='Bob'): {'3/-2': 1}
                 },
                 want_error="",
             ),
@@ -503,6 +535,11 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         IntraTransactionDescriptor("4", 4, 4, "BlockFi", "Bob", "Coinbase", "Bob", 140, 1, 1),
                     ],
                 },
+                want_amounts={
+                    Account(exchange='Kraken', holder='Bob'): {'2/-1': 2},
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0},
+                    Account(exchange='BlockFi', holder='Bob'): {'3/-2': 1}
+                },
                 want_error="",
             ),
             _Test(
@@ -549,6 +586,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         IntraTransactionDescriptor("4", 4, 4, "BlockFi", "Bob", "Coinbase", "Bob", 140, 1, 1),
                     ],
                 },
+                want_amounts={
+                    Account(exchange='BlockFi', holder='Bob'): {'3/-2': 1},
+                    Account(exchange='Kraken', holder='Bob'): {'2/-1': 2},
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0}                },
                 want_error="",
             ),
             _Test(
@@ -590,6 +631,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Kraken", "Bob", 140, 10, 10),
                         IntraTransactionDescriptor("5", 5, 5, "Kraken", "Bob", "Kraken", "Bob", 150, 10, 10),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Kraken', holder='Bob'): {'2/-1': 10},
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0},
                 },
                 want_error="",
             ),
@@ -634,6 +679,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         ),
                         IntraTransactionDescriptor("3", 3, 3, "Kraken", "Bob", "Coinbase", "Bob", 130, 10, 10),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Kraken', holder='Bob'): {'2/-1': 0},
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 10}
                 },
                 want_error="",
             ),
@@ -680,6 +729,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         ),
                         IntraTransactionDescriptor("3", 3, 3, "Kraken", "Bob", "Coinbase", "Bob", 130, 10, 10),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 5},
+                    Account(exchange='Kraken', holder='Bob'): {'2/-1': 0},
                 },
                 want_error="",
             ),

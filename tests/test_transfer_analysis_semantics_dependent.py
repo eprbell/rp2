@@ -55,6 +55,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         InTransactionDescriptor("4/-3", 4, -3, "Kraken", "Bob", 130, 4, from_lot_unique_id="3", cost_basis_day=3),
                     ],
                 },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '3': 0},
+                    Account(exchange='Kraken', holder='Bob'): {},
+                },
                 want_error="",
             ),
             _Test(
@@ -76,10 +80,14 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     ],
                     Account("Coinbase", "Alice"): [
                         InTransactionDescriptor("3/-1", 3, -1, "Coinbase", "Alice", 110, 7, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor("4/-2", 4, -2, "Coinbase", "Alice", 110, 3, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor("4/-3", 4, -3, "Coinbase", "Alice", 120, 7, from_lot_unique_id="2", cost_basis_day=2),
+                        InTransactionDescriptor("4/-2", 4, -2, "Coinbase", "Alice", 110, 2, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-3", 4, -3, "Coinbase", "Alice", 120, 8, from_lot_unique_id="2", cost_basis_day=2),
                         InTransactionDescriptor("5/-4", 5, -4, "Coinbase", "Alice", 120, 12, from_lot_unique_id="2", cost_basis_day=2),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '2': 0},
+                    Account(exchange='Coinbase', holder='Alice'): {},
                 },
                 want_error="",
             ),
@@ -102,10 +110,14 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     ],
                     Account("Kraken", "Alice"): [
                         InTransactionDescriptor("3/-1", 3, -1, "Kraken", "Alice", 110, 7, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Alice", 110, 3, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor("4/-3", 4, -3, "Kraken", "Alice", 120, 7, from_lot_unique_id="2", cost_basis_day=2),
+                        InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Alice", 110, 2, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-3", 4, -3, "Kraken", "Alice", 120, 8, from_lot_unique_id="2", cost_basis_day=2),
                         InTransactionDescriptor("5/-4", 5, -4, "Kraken", "Alice", 120, 12, from_lot_unique_id="2", cost_basis_day=2),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '2': 0},
+                    Account(exchange='Kraken', holder='Alice'): {},
                 },
                 want_error="",
             ),
@@ -130,6 +142,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Alice", "Coinbase", "Bob", 140, 7, 6),
                     ],
                 },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 6},
+                    Account(exchange='Coinbase', holder='Alice'): {'2': 3},
+                },
                 want_error="",
             ),
             _Test(
@@ -152,6 +168,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 10, to_lot_unique_ids={Account("Coinbase", "Bob"): ["4/-2"]}),
                         IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Coinbase", "Bob", 140, 7, 6),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 6},
+                    Account(exchange='Kraken', holder='Bob'): {'2': 3},
                 },
                 want_error="",
             ),
@@ -343,6 +363,30 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         IntraTransactionDescriptor("15", 15, 15, "BlockFi", "Bob", "Coinbase", "Bob", 240, 18, 18),
                     ],
                 },
+                want_amounts={
+                    # TODO: why is CB transaction 1 at 0 and the other ones at 6? Shouldn't the first 3 be at 6 and the last at 0 with FIFO? Also check how this changes with the other accounting methods.
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '2': 6, '3': 6, '4': 6},
+                    Account(exchange='Kraken', holder='Bob'): {
+                        '10/-8': 0,
+                        '5/-1': 0,
+                        '6/-2': 0,
+                        '6/-3': 0,
+                        '7/-4': 0,
+                        '8/-5': 0,
+                        '9/-6': 0,
+                        '9/-7': 0
+                    },
+                    Account(exchange='BlockFi', holder='Bob'): {
+                        '11/-10': 0,
+                        '11/-11': 0,
+                        '11/-12': 0,
+                        '11/-9': 0,
+                        '12/-13': 0,
+                        '12/-14': 0,
+                        '12/-15': 0,
+                        '12/-16': 0
+                    },
+                },
                 want_error="",
             ),
         ]
@@ -375,6 +419,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         InTransactionDescriptor("4/-3", 4, -3, "Kraken", "Bob", 110, 6, from_lot_unique_id="1", cost_basis_day=1),
                     ],
                 },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '3': 0},
+                    Account(exchange='Kraken', holder='Bob'): {},
+                },
                 want_error="",
             ),
             _Test(
@@ -399,9 +447,13 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     Account("Coinbase", "Alice"): [
                         InTransactionDescriptor("3/-1", 3, -1, "Coinbase", "Alice", 120, 7, from_lot_unique_id="2", cost_basis_day=2),
                         InTransactionDescriptor("4/-2", 4, -2, "Coinbase", "Alice", 120, 10, from_lot_unique_id="2", cost_basis_day=2),
-                        InTransactionDescriptor("5/-3", 5, -3, "Coinbase", "Alice", 120, 3, from_lot_unique_id="2", cost_basis_day=2),
-                        InTransactionDescriptor("5/-4", 5, -4, "Coinbase", "Alice", 110, 9, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("5/-3", 5, -3, "Coinbase", "Alice", 120, 2, from_lot_unique_id="2", cost_basis_day=2),
+                        InTransactionDescriptor("5/-4", 5, -4, "Coinbase", "Alice", 110, 10, from_lot_unique_id="1", cost_basis_day=1),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '2': 0},
+                    Account(exchange='Coinbase', holder='Alice'): {},
                 },
                 want_error="",
             ),
@@ -427,9 +479,13 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     Account("Kraken", "Alice"): [
                         InTransactionDescriptor("3/-1", 3, -1, "Kraken", "Alice", 120, 7, from_lot_unique_id="2", cost_basis_day=2),
                         InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Alice", 120, 10, from_lot_unique_id="2", cost_basis_day=2),
-                        InTransactionDescriptor("5/-3", 5, -3, "Kraken", "Alice", 120, 3, from_lot_unique_id="2", cost_basis_day=2),
-                        InTransactionDescriptor("5/-4", 5, -4, "Kraken", "Alice", 110, 9, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("5/-3", 5, -3, "Kraken", "Alice", 120, 2, from_lot_unique_id="2", cost_basis_day=2),
+                        InTransactionDescriptor("5/-4", 5, -4, "Kraken", "Alice", 110, 10, from_lot_unique_id="1", cost_basis_day=1),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '2': 0},
+                    Account(exchange='Kraken', holder='Alice'): {},
                 },
                 want_error="",
             ),
@@ -454,6 +510,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Alice", "Coinbase", "Bob", 140, 7, 6),
                     ],
                 },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 6},
+                    Account(exchange='Coinbase', holder='Alice'): {'2': 3},
+                },
                 want_error="",
             ),
             _Test(
@@ -476,6 +536,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         InTransactionDescriptor("3/-1", 3, -1, "Kraken", "Bob", 110, 3, from_lot_unique_id="1", cost_basis_day=1),
                         IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Coinbase", "Bob", 140, 7, 6),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 6},
+                    Account(exchange='Kraken', holder='Bob'): {'2': 3},
                 },
                 want_error="",
             ),
@@ -667,6 +731,29 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         IntraTransactionDescriptor("15", 15, 15, "BlockFi", "Bob", "Coinbase", "Bob", 240, 18, 18),
                     ],
                 },
+                want_amounts={
+                    Account(exchange='BlockFi', holder='Bob'): {
+                        '11/-10': 0,
+                        '11/-11': 0,
+                        '11/-12': 0,
+                        '11/-9': 0,
+                        '12/-13': 0,
+                        '12/-14': 0,
+                        '12/-15': 0,
+                        '12/-16': 0
+                    },
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 6, '2': 6, '3': 6, '4': 0},
+                    Account(exchange='Kraken', holder='Bob'): {
+                        '10/-8': 0,
+                        '5/-1': 0,
+                        '6/-2': 0,
+                        '6/-3': 0,
+                        '7/-4': 0,
+                        '8/-5': 0,
+                        '9/-6': 0,
+                        '9/-7': 0
+                    },
+                },
                 want_error="",
             ),
         ]
@@ -699,6 +786,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         InTransactionDescriptor("4/-3", 4, -3, "Kraken", "Bob", 110, 6, from_lot_unique_id="1", cost_basis_day=1),
                     ],
                 },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '3': 0},
+                    Account(exchange='Kraken', holder='Bob'): {},
+                },
                 want_error="",
             ),
             _Test(
@@ -723,9 +814,13 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     Account("Coinbase", "Alice"): [
                         InTransactionDescriptor("3/-1", 3, -1, "Coinbase", "Alice", 120, 7, from_lot_unique_id="2", cost_basis_day=2),
                         InTransactionDescriptor("4/-2", 4, -2, "Coinbase", "Alice", 120, 10, from_lot_unique_id="2", cost_basis_day=2),
-                        InTransactionDescriptor("5/-3", 5, -3, "Coinbase", "Alice", 120, 3, from_lot_unique_id="2", cost_basis_day=2),
-                        InTransactionDescriptor("5/-4", 5, -4, "Coinbase", "Alice", 110, 9, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("5/-3", 5, -3, "Coinbase", "Alice", 120, 2, from_lot_unique_id="2", cost_basis_day=2),
+                        InTransactionDescriptor("5/-4", 5, -4, "Coinbase", "Alice", 110, 10, from_lot_unique_id="1", cost_basis_day=1),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '2': 0},
+                    Account(exchange='Coinbase', holder='Alice'): {},
                 },
                 want_error="",
             ),
@@ -751,9 +846,13 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     Account("Kraken", "Alice"): [
                         InTransactionDescriptor("3/-1", 3, -1, "Kraken", "Alice", 120, 7, from_lot_unique_id="2", cost_basis_day=2),
                         InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Alice", 120, 10, from_lot_unique_id="2", cost_basis_day=2),
-                        InTransactionDescriptor("5/-3", 5, -3, "Kraken", "Alice", 120, 3, from_lot_unique_id="2", cost_basis_day=2),
-                        InTransactionDescriptor("5/-4", 5, -4, "Kraken", "Alice", 110, 9, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("5/-3", 5, -3, "Kraken", "Alice", 120, 2, from_lot_unique_id="2", cost_basis_day=2),
+                        InTransactionDescriptor("5/-4", 5, -4, "Kraken", "Alice", 110, 10, from_lot_unique_id="1", cost_basis_day=1),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '2': 0},
+                    Account(exchange='Kraken', holder='Alice'): {},
                 },
                 want_error="",
             ),
@@ -778,6 +877,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Alice", "Coinbase", "Bob", 140, 7, 6),
                     ],
                 },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 6},
+                    Account(exchange='Coinbase', holder='Alice'): {'2': 3},
+                },
                 want_error="",
             ),
             _Test(
@@ -800,6 +903,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 10, to_lot_unique_ids={Account("Coinbase", "Bob"): ["4/-2"]}),
                         IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Coinbase", "Bob", 140, 7, 6),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 6},
+                    Account(exchange='Kraken', holder='Bob'): {'2': 3},
                 },
                 want_error="",
             ),
@@ -991,6 +1098,30 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         IntraTransactionDescriptor("15", 15, 15, "BlockFi", "Bob", "Coinbase", "Bob", 240, 18, 18),
                     ],
                 },
+                want_amounts={
+                    # TODO: why is transaction 1 at 0 and the other at 6? Shouldn't the first 3 be at 6 and the last at 0?
+                    Account(exchange='BlockFi', holder='Bob'): {
+                        '11/-10': 0,
+                        '11/-11': 0,
+                        '11/-12': 0,
+                        '11/-9': 0,
+                        '12/-13': 0,
+                        '12/-14': 0,
+                        '12/-15': 0,
+                        '12/-16': 0
+                    },
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 6, '2': 6, '3': 6, '4': 0},
+                    Account(exchange='Kraken', holder='Bob'): {
+                        '10/-8': 0,
+                        '5/-1': 0,
+                        '6/-2': 0,
+                        '6/-3': 0,
+                        '7/-4': 0,
+                        '8/-5': 0,
+                        '9/-6': 0,
+                        '9/-7': 0
+                    },
+                },
                 want_error="",
             ),
         ]
@@ -1023,6 +1154,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         InTransactionDescriptor("4/-3", 4, -3, "Kraken", "Bob", 130, 4, from_lot_unique_id="3", cost_basis_day=3),
                     ],
                 },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '3': 0},
+                    Account(exchange='Kraken', holder='Bob'): {},
+                },
                 want_error="",
             ),
             _Test(
@@ -1044,10 +1179,14 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     ],
                     Account("Coinbase", "Alice"): [
                         InTransactionDescriptor("3/-1", 3, -1, "Coinbase", "Alice", 110, 7, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor("4/-2", 4, -2, "Coinbase", "Alice", 110, 3, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor("4/-3", 4, -3, "Coinbase", "Alice", 120, 7, from_lot_unique_id="2", cost_basis_day=2),
+                        InTransactionDescriptor("4/-2", 4, -2, "Coinbase", "Alice", 110, 2, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-3", 4, -3, "Coinbase", "Alice", 120, 8, from_lot_unique_id="2", cost_basis_day=2),
                         InTransactionDescriptor("5/-4", 5, -4, "Coinbase", "Alice", 120, 12, from_lot_unique_id="2", cost_basis_day=2),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '2': 0},
+                    Account(exchange='Coinbase', holder='Alice'): {},
                 },
                 want_error="",
             ),
@@ -1070,10 +1209,14 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     ],
                     Account("Kraken", "Alice"): [
                         InTransactionDescriptor("3/-1", 3, -1, "Kraken", "Alice", 110, 7, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Alice", 110, 3, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor("4/-3", 4, -3, "Kraken", "Alice", 120, 7, from_lot_unique_id="2", cost_basis_day=2),
+                        InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Alice", 110, 2, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-3", 4, -3, "Kraken", "Alice", 120, 8, from_lot_unique_id="2", cost_basis_day=2),
                         InTransactionDescriptor("5/-4", 5, -4, "Kraken", "Alice", 120, 12, from_lot_unique_id="2", cost_basis_day=2),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '2': 0},
+                    Account(exchange='Kraken', holder='Alice'): {},
                 },
                 want_error="",
             ),
@@ -1101,6 +1244,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Alice", "Coinbase", "Bob", 140, 7, 6),
                     ],
                 },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 9},
+                    Account(exchange='Coinbase', holder='Alice'): {'2': 6, '3/-1': 0},
+                },
                 want_error="",
             ),
             _Test(
@@ -1126,6 +1273,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 10, to_lot_unique_ids={Account("Coinbase", "Bob"): ["4/-2"]}),
                         IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Coinbase", "Bob", 140, 7, 6),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 9},
+                    Account(exchange='Kraken', holder='Bob'): {'2': 6, '3/-1': 0},
                 },
                 want_error="",
             ),
@@ -1316,6 +1467,29 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                         OutTransactionDescriptor("14", 14, 14, "BlockFi", "Bob", 240, 6, 0),
                         IntraTransactionDescriptor("15", 15, 15, "BlockFi", "Bob", "Coinbase", "Bob", 240, 18, 18),
                     ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '2': 6, '3': 6, '4': 6},
+                    Account(exchange='Kraken', holder='Bob'): {
+                        '10/-8': 0,
+                        '5/-1': 0,
+                        '6/-2': 0,
+                        '6/-3': 0,
+                        '7/-4': 0,
+                        '8/-5': 0,
+                        '9/-6': 0,
+                        '9/-7': 0
+                    },
+                    Account(exchange='BlockFi', holder='Bob'): {
+                        '11/-10': 0,
+                        '11/-11': 0,
+                        '11/-12': 0,
+                        '11/-9': 0,
+                        '12/-13': 0,
+                        '12/-14': 0,
+                        '12/-15': 0,
+                        '12/-16': 0
+                    },
                 },
                 want_error="",
             ),
