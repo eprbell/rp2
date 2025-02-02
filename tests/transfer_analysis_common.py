@@ -30,6 +30,7 @@ class _Test:
     description: str
     input: List[AbstractTransactionDescriptor]
     want: Dict[Account, List[AbstractTransactionDescriptor]]
+    want_amounts: Dict[Account, Dict[str, int]]
     want_error: str
 
 
@@ -63,20 +64,27 @@ class AbstractTransferAnalysis(AbstractTestTransactionProcessing):
         for wallet, per_wallet_input_data in wallet_2_per_wallet_input_data.items():
             got.append(f"{wallet}:")
             for transaction in per_wallet_input_data.unfiltered_in_transaction_set:
-                got.append(f"{transaction}")
+                got.extend(f"{transaction}".splitlines())
             for transaction in per_wallet_input_data.unfiltered_out_transaction_set:
-                got.append(f"{transaction}")
+                got.extend(f"{transaction}".splitlines())
             for transaction in per_wallet_input_data.unfiltered_intra_transaction_set:
-                got.append(f"{transaction}")
+                got.extend(f"{transaction}".splitlines())
 
         want: List[str] = []
         for wallet, per_wallet_input_data in want_wallet_2_per_wallet_input_data.items():
             want.append(f"{wallet}:")
             for transaction in per_wallet_input_data.unfiltered_in_transaction_set:
-                want.append(f"{transaction}")
+                want.extend(f"{transaction}".splitlines())
             for transaction in per_wallet_input_data.unfiltered_out_transaction_set:
-                want.append(f"{transaction}")
+                want.extend(f"{transaction}".splitlines())
             for transaction in per_wallet_input_data.unfiltered_intra_transaction_set:
-                want.append(f"{transaction}")
+                want.extend(f"{transaction}".splitlines())
 
-        self.assertEqual("\n".join(unified_diff(got, want, lineterm="")), "")
+        self.assertEqual("\n".join(unified_diff(got, want, lineterm="", n=10)), "")
+
+        # Create got_actual_amounts and compare them with want actual amounts.
+        got_actual_amounts: Dict[Account, Dict[str, int]] = {
+            wallet: {transaction.unique_id: int(actual_amount) for transaction, actual_amount in per_wallet_input_data.in_transaction_2_actual_amount.items()}
+            for wallet, per_wallet_input_data in wallet_2_per_wallet_input_data.items()
+        }
+        self.assertEqual(got_actual_amounts, test.want_amounts)
