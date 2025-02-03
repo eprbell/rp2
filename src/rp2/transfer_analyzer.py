@@ -67,7 +67,7 @@ class PerWalletTransactions:
 
 class TransferAnalyzer:
     def __init__(
-        self, configuration: Configuration, transfer_semantics: AbstractAccountingMethod, universal_input_data: InputData, skip_transfer_pointers: bool = False
+        self, configuration: Configuration, transfer_semantics: AbstractAccountingMethod, universal_input_data: InputData, skip_transfer_pointers: bool = False, use_local_artificial_ids: bool = False
     ):
         # TODO: add run-time argument type checks.
         self.__configuration = Configuration.type_check("configuration", configuration)
@@ -77,10 +77,18 @@ class TransferAnalyzer:
         self.__universal_input_data = InputData.type_check("universal_input_data", universal_input_data)
         # skip_transfer_pointers is used in global allocation, where the artificial transactions are used only as guides and are replaced by new ones decided by the allocation method.
         self.__skip_transfer_pointers = Configuration.type_check_bool("skip_transfer_pointers", skip_transfer_pointers)
+        # use_local_artificial_ids is used in global allocation, to avoid increasing the artificial id counter when running the local transfer analysis (which is a throwaway operation).
+        self.__use_local_artificial_ids = Configuration.type_check_bool("use_fake_artificial_ids", use_local_artificial_ids)
+        self.__local_artificial_id_counter = -1
 
     # Utility function to create an artificial InTransaction modeling the "to" side of an IntraTransaction
     def _create_to_in_transaction(self, from_in_transaction: InTransaction, transfer_transaction: IntraTransaction, amount: RP2Decimal) -> InTransaction:
-        artificial_id = self.__configuration.get_new_artificial_id()
+        artificial_id: int
+        if self.__use_local_artificial_ids:
+            artificial_id = self.__local_artificial_id_counter
+            self.__local_artificial_id_counter -= 1
+        else:
+            artificial_id = self.__configuration.get_new_artificial_id()
 
         # Find cost basis timestamp.
         current_from_in_transaction: Optional[InTransaction] = from_in_transaction
