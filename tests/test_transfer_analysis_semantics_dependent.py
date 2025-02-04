@@ -15,7 +15,7 @@
 from dataclasses import dataclass
 import unittest
 
-from typing import Dict, List
+from typing import List
 
 from rp2.in_transaction import Account
 from rp2.plugin.accounting_method.fifo import AccountingMethod as AccountingMethodFIFO
@@ -23,7 +23,7 @@ from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMeth
 from rp2.plugin.accounting_method.hifo import AccountingMethod as AccountingMethodHIFO
 from rp2.plugin.accounting_method.lofo import AccountingMethod as AccountingMethodLOFO
 
-from transaction_processing_common import AbstractTransactionDescriptor, InTransactionDescriptor, OutTransactionDescriptor, IntraTransactionDescriptor
+from transaction_processing_common import InTransactionDescriptor, OutTransactionDescriptor, IntraTransactionDescriptor
 from transfer_analysis_common import _Test, AbstractTransferAnalysis
 
 
@@ -42,7 +42,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     InTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 130, 4),
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 140, 10, 10),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["2/-1", "4/-2"]}),
                         IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "Kraken", "Bob", 120, 4, 4),
@@ -70,7 +70,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Coinbase", "Alice", 140, 10, 10),
                     IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Coinbase", "Alice", 150, 12, 12),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Coinbase", "Alice"): ["3/-1", "4/-2"]}),
                         InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 20, to_lot_unique_ids={Account("Coinbase", "Alice"): ["4/-3", "5/-4"]}),
@@ -100,7 +100,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Alice", 140, 10, 10),
                     IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Kraken", "Alice", 150, 12, 12),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Alice"): ["3/-1", "4/-2"]}),
                         InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 20, to_lot_unique_ids={Account("Kraken", "Alice"): ["4/-3", "5/-4"]}),
@@ -130,7 +130,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Coinbase", "Alice", 130, 4, 3),
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Alice", "Coinbase", "Bob", 140, 7, 6),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Coinbase", "Alice"): ["3/-1"]}),
                         InTransactionDescriptor("4/-2", 4, -2, "Coinbase", "Bob", 120, 6, from_lot_unique_id="2", cost_basis_day=2),
@@ -157,7 +157,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
                     IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Coinbase", "Bob", 140, 7, 6),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["3/-1"]}),
                         InTransactionDescriptor("4/-2", 4, -2, "Coinbase", "Bob", 120, 6, from_lot_unique_id="2", cost_basis_day=2),
@@ -185,7 +185,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     OutTransactionDescriptor("5", 5, 5, "Kraken", "Bob", 150, 2, 1),
                     OutTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", 150, 3, 2),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["3/-1"]}),
                         IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
@@ -227,7 +227,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("17", 17, 17, "Coinbase", "Bob", "Coinbase", "Bob", 260, 18, 18),
                     IntraTransactionDescriptor("18", 18, 18, "Coinbase", "Bob", "Coinbase", "Bob", 270, 18, 18),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor(
                             "1",
@@ -436,7 +436,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     InTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 130, 4),
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 140, 10, 10),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["2/-1", "4/-3"]}),
                         IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "Kraken", "Bob", 120, 4, 4),
@@ -464,7 +464,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Coinbase", "Alice", 140, 10, 10),
                     IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Coinbase", "Alice", 150, 12, 12),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Coinbase", "Alice"): ["5/-4"]}),
                         InTransactionDescriptor(
@@ -496,7 +496,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Alice", 140, 10, 10),
                     IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Kraken", "Alice", 150, 12, 12),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Alice"): ["5/-4"]}),
                         InTransactionDescriptor(
@@ -528,7 +528,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Coinbase", "Alice", 130, 4, 3),
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Alice", "Coinbase", "Bob", 140, 7, 6),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Coinbase", "Alice"): ["3/-1"]}),
                         IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Coinbase", "Alice", 130, 4, 3),
@@ -555,7 +555,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
                     IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Coinbase", "Bob", 140, 7, 6),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["3/-1"]}),
                         IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
@@ -583,7 +583,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     OutTransactionDescriptor("5", 5, 5, "Kraken", "Bob", 150, 2, 1),
                     OutTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", 150, 3, 2),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["3/-1"]}),
                         IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
@@ -625,7 +625,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("17", 17, 17, "Coinbase", "Bob", "Coinbase", "Bob", 260, 18, 18),
                     IntraTransactionDescriptor("18", 18, 18, "Coinbase", "Bob", "Coinbase", "Bob", 270, 18, 18),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor(
                             "1",
@@ -833,7 +833,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     InTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 130, 4),
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 140, 10, 10),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["2/-1", "4/-3"]}),
                         IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "Kraken", "Bob", 120, 4, 4),
@@ -861,7 +861,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Coinbase", "Alice", 140, 10, 10),
                     IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Coinbase", "Alice", 150, 12, 12),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Coinbase", "Alice"): ["5/-4"]}),
                         InTransactionDescriptor(
@@ -893,7 +893,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Alice", 140, 10, 10),
                     IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Kraken", "Alice", 150, 12, 12),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Alice"): ["5/-4"]}),
                         InTransactionDescriptor(
@@ -925,7 +925,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Coinbase", "Alice", 130, 4, 3),
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Alice", "Coinbase", "Bob", 140, 7, 6),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Coinbase", "Alice"): ["3/-1"]}),
                         InTransactionDescriptor("4/-2", 4, -2, "Coinbase", "Bob", 120, 6, from_lot_unique_id="2", cost_basis_day=2),
@@ -952,7 +952,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
                     IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Coinbase", "Bob", 140, 7, 6),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["3/-1"]}),
                         InTransactionDescriptor("4/-2", 4, -2, "Coinbase", "Bob", 120, 6, from_lot_unique_id="2", cost_basis_day=2),
@@ -980,7 +980,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     OutTransactionDescriptor("5", 5, 5, "Kraken", "Bob", 150, 2, 1),
                     OutTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", 150, 3, 2),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["3/-1"]}),
                         IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
@@ -1022,7 +1022,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("17", 17, 17, "Coinbase", "Bob", "Coinbase", "Bob", 260, 18, 18),
                     IntraTransactionDescriptor("18", 18, 18, "Coinbase", "Bob", "Coinbase", "Bob", 270, 18, 18),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor(
                             "1",
@@ -1231,7 +1231,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     InTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 130, 4),
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 140, 10, 10),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["2/-1", "4/-2"]}),
                         IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "Kraken", "Bob", 120, 4, 4),
@@ -1259,7 +1259,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Coinbase", "Alice", 140, 10, 10),
                     IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Coinbase", "Alice", 150, 12, 12),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Coinbase", "Alice"): ["3/-1", "4/-2"]}),
                         InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 20, to_lot_unique_ids={Account("Coinbase", "Alice"): ["4/-3", "5/-4"]}),
@@ -1289,7 +1289,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Alice", 140, 10, 10),
                     IntraTransactionDescriptor("5", 5, 5, "Coinbase", "Bob", "Kraken", "Alice", 150, 12, 12),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Alice"): ["3/-1", "4/-2"]}),
                         InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 20, to_lot_unique_ids={Account("Kraken", "Alice"): ["4/-3", "5/-4"]}),
@@ -1322,7 +1322,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Coinbase", "Alice", 130, 4, 3),
                     IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Alice", "Coinbase", "Bob", 140, 7, 6),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Coinbase", "Alice"): ["3/-1"]}),
                         InTransactionDescriptor("4/-2", 4, -2, "Coinbase", "Bob", 120, 3, from_lot_unique_id="2", cost_basis_day=2),
@@ -1352,7 +1352,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
                     IntraTransactionDescriptor("4", 4, 4, "Kraken", "Bob", "Coinbase", "Bob", 140, 7, 6),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["3/-1"]}),
                         InTransactionDescriptor("4/-2", 4, -2, "Coinbase", "Bob", 120, 3, from_lot_unique_id="2", cost_basis_day=2),
@@ -1380,7 +1380,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     OutTransactionDescriptor("5", 5, 5, "Kraken", "Bob", 150, 2, 1),
                     OutTransactionDescriptor("6", 6, 6, "Coinbase", "Bob", 150, 3, 2),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10, to_lot_unique_ids={Account("Kraken", "Bob"): ["3/-1"]}),
                         IntraTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", "Kraken", "Bob", 130, 4, 3),
@@ -1421,7 +1421,7 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     IntraTransactionDescriptor("17", 17, 17, "Coinbase", "Bob", "Coinbase", "Bob", 260, 18, 18),
                     IntraTransactionDescriptor("18", 18, 18, "Coinbase", "Bob", "Coinbase", "Bob", 270, 18, 18),
                 ],
-                want={
+                want_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
                         InTransactionDescriptor(
                             "1",
