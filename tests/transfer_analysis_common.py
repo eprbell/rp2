@@ -32,7 +32,7 @@ class _Test:
     # List of universal-application, input transactions.
     input: List[AbstractTransactionDescriptor]
     # Dictionary of expected per-wallet, input transactions: this is the wanted output of transfer analysis.
-    want: Dict[Account, List[AbstractTransactionDescriptor]]
+    want_per_wallet_transactions: Dict[Account, List[AbstractTransactionDescriptor]]
     # Dictionary of expected actual amounts: this contains the actual crypto amounts of the per-wallet in-transactions. It is useful to understand
     # where the funds are, because in per-wallet application there can be multiple in-transactions covering the same funds in different exchanges:
     # artificial in-transactions are created when processing intra-transactions to model the reception of funds).
@@ -53,7 +53,7 @@ class AbstractTransferAnalysis(AbstractTestTransactionProcessing):
 
         # If the test expects an error, run transfer analysis and check for error.
         if test.want_error:
-            if test.want:
+            if test.want_per_wallet_transactions:
                 raise ValueError(f"Test data error: both want and want_error are set: {test}")
             with self.assertRaisesRegex(RP2ValueError, test.want_error):
                 transfer_analyzer = TransferAnalyzer(configuration, transfer_semantics, universal_input_data)
@@ -65,7 +65,7 @@ class AbstractTransferAnalysis(AbstractTestTransactionProcessing):
         got_wallet_2_per_wallet_input_data = transfer_analyzer.analyze()
 
         # Create expected per-wallet InputData, based on the want field of the test.
-        want_wallet_2_per_wallet_input_data = self._create_per_wallet_input_data_from_transaction_descriptors(configuration, test.want)
+        want_wallet_2_per_wallet_input_data = self._create_per_wallet_input_data_from_transaction_descriptors(configuration, test.want_per_wallet_transactions)
 
         # Diff got and want per-wallet input data.
         got: List[str] = []
