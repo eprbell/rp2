@@ -310,7 +310,7 @@ class TransferAnalyzer:
             else:
                 raise RP2ValueError(f"Internal error: invalid transaction class: {transaction}")
 
-        # Convert per-wallet transactions to input_data and call the tax engine.
+        # Convert per-wallet transactions to input_data.
         result: Dict[Account, InputData] = {}
         for wallet, per_wallet_transactions in wallet_2_per_wallet_transactions.items():
             per_wallet_input_data = self._convert_per_wallet_transactions_to_input_data(self.__universal_input_data, per_wallet_transactions)
