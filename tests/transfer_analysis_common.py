@@ -33,9 +33,9 @@ class _Test:
     input: List[AbstractTransactionDescriptor]
     # Dictionary of expected per-wallet, input transactions: this is the wanted output of transfer analysis.
     want_per_wallet_transactions: Dict[Account, List[AbstractTransactionDescriptor]]
-    # Dictionary of expected actual amounts: this contains the actual crypto amounts of the per-wallet in-transactions. It is useful to understand
-    # where the funds are, because in per-wallet application there can be multiple in-transactions covering the same funds in different exchanges:
-    # artificial in-transactions are created when processing intra-transactions to model the reception of funds).
+    # Dictionary of expected actual amounts from transfer analysis: this contains the actual crypto amounts of the per-wallet in-transactions. It
+    # is useful to understand where the funds are, because in per-wallet application there can be multiple in-transactions covering the same
+    # funds in different exchanges: artificial in-transactions are created when processing intra-transactions to model the reception of funds).
     want_amounts: Dict[Account, Dict[str, int]]
     # If not empty, the test is expected to raise an error and this is the expected error message.
     want_error: str
