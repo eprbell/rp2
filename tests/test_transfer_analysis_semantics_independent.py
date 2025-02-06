@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from dataclasses import dataclass
 import unittest
 
-from typing import Dict, List
+from typing import List
 
 from rp2.in_transaction import Account
 
@@ -133,7 +132,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
             ),
             _Test(
                 # This test is from the discussion at https://github.com/eprbell/rp2/issues/135#issuecomment-2558165460
-                description="Transfer more than is available at timestamp 3 (even though funds with earlier cost_basis_timestamp will be available at timestamp 4)",
+                description=(
+                    "Transfer more than is available at timestamp 3 (even though funds with earlier "
+                    "cost_basis_timestamp will be available at timestamp 4)"
+                ),
                 input=[
                     InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
                     InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 1),
@@ -146,7 +148,10 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
             ),
             _Test(
                 # This test is from the discussion at https://github.com/eprbell/rp2/issues/135#issuecomment-2558165460
-                description="Sell more than is available at timestamp 3 (even though funds with earlier cost_basis_timestamp will be available at timestamp 4)",
+                description=(
+                    "Sell more than is available at timestamp 3 (even though funds with earlier "
+                    "cost_basis_timestamp will be available at timestamp 4)"
+                ),
                 input=[
                     InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
                     InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 1),
