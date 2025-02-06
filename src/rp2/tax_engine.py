@@ -14,7 +14,6 @@
 
 from typing import Iterable, Iterator, Optional, cast
 
-from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.accounting_engine import (
     AccountingEngine,
