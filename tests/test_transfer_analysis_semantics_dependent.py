@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from dataclasses import dataclass
+# pylint: disable=too-many-lines
+
 import unittest
 
 from typing import List
@@ -394,7 +395,8 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     ],
                 },
                 want_amounts={
-                    # TODO: why is CB transaction 1 at 0 and the other ones at 6? Shouldn't the first 3 be at 6 and the last at 0 with FIFO? Also check how this changes with the other accounting methods.
+                    # TODO: why is CB transaction 1 at 0 and the other ones at 6? Shouldn't the first 3 be at 6 and the last at 0 with FIFO?
+                    # Also check how this changes with the other accounting methods.
                     Account(exchange='Coinbase', holder='Bob'): {'1': 0, '2': 6, '3': 6, '4': 6},
                     Account(exchange='Kraken', holder='Bob'): {
                         '10/-8': 0,
