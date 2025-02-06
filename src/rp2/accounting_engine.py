@@ -14,7 +14,7 @@
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Dict, Iterator, List, NamedTuple, Optional, cast
+from typing import Dict, Iterator, List, NamedTuple, Optional
 
 from prezzemolo.avl_tree import AVLTree
 
@@ -25,7 +25,6 @@ from rp2.abstract_accounting_method import (
 )
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
-from rp2.out_transaction import OutTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2RuntimeError, RP2TypeError
 
