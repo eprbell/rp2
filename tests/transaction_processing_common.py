@@ -117,7 +117,8 @@ class AbstractTestTransactionProcessing(unittest.TestCase):
         )
         return result
 
-    def _create_universal_input_data_from_transaction_descriptors(self, configuration: Configuration, descriptors: List[AbstractTransactionDescriptor]) -> InputData:
+    def _create_universal_input_data_from_transaction_descriptors(self, configuration: Configuration,
+                                                                  descriptors: List[AbstractTransactionDescriptor]) -> InputData:
         unique_id_2_in_transaction: Dict[str, InTransaction] = {}
         unique_id_2_out_transaction: Dict[str, OutTransaction] = {}
         unique_id_2_intra_transaction: Dict[str, IntraTransaction] = {}
@@ -125,18 +126,23 @@ class AbstractTestTransactionProcessing(unittest.TestCase):
 
         # Create transactions from transaction descriptors.
         self._create_transactions(
-            configuration, descriptors, unique_id_2_in_transaction, unique_id_2_out_transaction, unique_id_2_intra_transaction, deferred_transactions
+            configuration, descriptors, unique_id_2_in_transaction, unique_id_2_out_transaction,
+            unique_id_2_intra_transaction, deferred_transactions
         )
         if deferred_transactions:
             # Deferred transactions are not expected from test input.
             raise ValueError(f"Test data error: universal input data deferred transactions not empty: {deferred_transactions}")
 
         # Create universal InputData.
-        universal_input_data = self._create_input_data_from_unique_id_maps(configuration, unique_id_2_in_transaction, unique_id_2_out_transaction, unique_id_2_intra_transaction)
+        universal_input_data = self._create_input_data_from_unique_id_maps(configuration, unique_id_2_in_transaction,
+                                                                           unique_id_2_out_transaction, unique_id_2_intra_transaction)
 
         return universal_input_data
 
-    def _create_per_wallet_input_data_from_transaction_descriptors(self, configuration: Configuration, per_wallet_descriptors: Dict[Account, List[AbstractTransactionDescriptor]]) -> Dict[Account, InputData]:
+    def _create_per_wallet_input_data_from_transaction_descriptors(self,
+                                                                   configuration: Configuration,
+                                                                   per_wallet_descriptors: Dict[Account, List[AbstractTransactionDescriptor]]
+                                                                   ) -> Dict[Account, InputData]:
         unique_id_2_in_transaction: Dict[str, InTransaction] = {}
         unique_id_2_out_transaction: Dict[str, OutTransaction] = {}
         unique_id_2_intra_transaction: Dict[str, IntraTransaction] = {}
@@ -290,4 +296,3 @@ class AbstractTestTransactionProcessing(unittest.TestCase):
                 unique_id_2_intra_transaction[transaction.unique_id] = transaction
             else:
                 raise ValueError(f"Unknown transaction type: {transaction_descriptor}")
-
