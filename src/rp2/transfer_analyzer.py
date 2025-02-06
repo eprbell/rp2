@@ -67,18 +67,24 @@ class PerWalletTransactions:
 
 class TransferAnalyzer:
     def __init__(
-        self, configuration: Configuration, transfer_semantics: AbstractAccountingMethod, universal_input_data: InputData, skip_transfer_pointers: bool = False, use_local_artificial_ids: bool = False
+        self,
+        configuration: Configuration,
+        transfer_semantics: AbstractAccountingMethod,
+        universal_input_data: InputData,
+        skip_transfer_pointers: bool = False,
+        use_local_artificial_ids: bool = False
     ):
-        # TODO: add run-time argument type checks.
         self.__configuration = Configuration.type_check("configuration", configuration)
         if not isinstance(transfer_semantics, AbstractAccountingMethod):
             raise RP2TypeError(f"Parameter 'transfer_semantics' is not of type AbstractAccountingMethod: {transfer_semantics}")
         self.__transfer_semantics = transfer_semantics
         self.__universal_input_data = InputData.type_check("universal_input_data", universal_input_data)
-        # skip_transfer_pointers is used in global allocation, where the artificial transactions are used only as guides and are replaced by new ones decided by the allocation method.
+        # skip_transfer_pointers is used in global allocation, where the artificial transactions are used only as guides
+        # and are replaced by new ones decided by the allocation method.
         self.__skip_transfer_pointers = Configuration.type_check_bool("skip_transfer_pointers", skip_transfer_pointers)
-        # use_local_artificial_ids is used in global allocation, to avoid increasing the artificial id counter when running the local transfer analysis (which is a throwaway operation).
-        self.__use_local_artificial_ids = Configuration.type_check_bool("use_fake_artificial_ids", use_local_artificial_ids)
+        # use_local_artificial_ids is used in global allocation, to avoid increasing the artificial id counter when running
+        # the local transfer analysis (which is a throwaway operation).
+        self.__use_local_artificial_ids = Configuration.type_check_bool("use_local_artificial_ids", use_local_artificial_ids)
         self.__local_artificial_id_counter = -1
 
     # Utility function to create an artificial InTransaction modeling the "to" side of an IntraTransaction
@@ -160,7 +166,7 @@ class TransferAnalyzer:
         return to_account in acquired_lot.originates_from
 
     # _process_remaining_transfer_amount processes the remaining amount of a transfer (that has not yet been assigned to in lots by transfer analysis):
-    # it handles the cases of a self-transfer, a cycle or a normal transfer. In the last case it creates an artificial InTransaction to model the remaining amount.
+    # it handles self-transfers, cycles and normal transfers. In the last case it creates an artificial InTransaction to model the remaining amount.
     def _process_remaining_transfer_amount(
         self,
         wallet_2_per_wallet_transactions: Dict[Account, PerWalletTransactions],
@@ -201,7 +207,8 @@ class TransferAnalyzer:
 
     # This function performs transfer analysis on an InputData and generates as many new InputData objects as there are wallets.
     # For details see https://github.com/eprbell/rp2/wiki/Adding-Per%E2%80%90Wallet-Application-to-RP2.
-    def analyze(self) -> Dict[Account, InputData]:
+    def analyze(self) -> Dict[Account, InputData]:  # pylint: disable=too-many-branches
+
         all_transactions: TransactionSet = TransactionSet(self.__configuration, "MIXED", self.__universal_input_data.asset)
         for transaction_set in [
             self.__universal_input_data.unfiltered_in_transaction_set,
@@ -244,7 +251,8 @@ class TransferAnalyzer:
                     )
                     if current_in_lot_and_amount is None:
                         raise RP2ValueError(
-                            f"Insufficient balance on {account} to cover out transaction (amount {amount_left_to_dispose_of + fee} {transaction.asset}): {transaction}"
+                            f"Insufficient balance on {account} to cover out transaction "
+                            f"(amount {amount_left_to_dispose_of + fee} {transaction.asset}): {transaction}"
                         )
                     if current_in_lot_and_amount.amount >= amount_left_to_dispose_of + fee:
                         # Pay the fee only in the last lot.
