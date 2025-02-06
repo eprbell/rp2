@@ -137,7 +137,7 @@ class AbstractAcquiredLotCandidates:
         self.set_partial_amount(acquired_lot, ZERO)
 
     # Reset partial amounts to their original values and from index to zero.
-    def reset_partial_amounts(self, accounting_method: "AbstractAccountingMethod", original_partial_amounts: Dict[InTransaction, RP2Decimal]) -> None:
+    def reset_partial_amounts(self, accounting_method: "AbstractAccountingMethod", original_partial_amounts: Dict[InTransaction, RP2Decimal]) -> None:  # pylint: disable=unused-argument
         for current_transaction, original_partial_amount in original_partial_amounts.items():
             self.set_partial_amount(current_transaction, original_partial_amount)
         self.set_from_index(0)
@@ -195,7 +195,7 @@ class FeatureBasedAcquiredLotCandidates(AbstractAcquiredLotCandidates):
         if not isinstance(accounting_method, AbstractFeatureBasedAccountingMethod):
             raise RP2TypeError(f"Internal error: accounting_method is not of type AbstractFeatureBasedAccountingMethod, but of type {type(accounting_method)}")
         super().reset_partial_amounts(accounting_method, original_partial_amounts)
-        for current_transaction, original_partial_amount in original_partial_amounts.items():
+        for current_transaction, _ in original_partial_amounts.items():
             accounting_method.add_selected_lot_to_heap(self.__acquired_lot_heap, current_transaction)
 
 
