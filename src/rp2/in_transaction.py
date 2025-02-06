@@ -31,6 +31,7 @@ class Account:
     holder: str
 
 
+# pylint: disable=too-many-public-methods
 class InTransaction(AbstractTransaction):
     @classmethod
     def type_check(cls, name: str, instance: AbstractEntry) -> "InTransaction":
