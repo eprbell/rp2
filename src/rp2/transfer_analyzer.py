@@ -187,6 +187,7 @@ class TransferAnalyzer:
             start_of_cycle: InTransaction = current_in_lot_and_amount.acquired_lot.originates_from[to_account]
             start_of_cycle_per_wallet_transactions = to_per_wallet_transactions
             actual_amount = start_of_cycle_per_wallet_transactions.in_transactions.get_partial_amount(start_of_cycle)
+            # TODO: add crypto fee to crypto in?
             if actual_amount + remaining_amount > start_of_cycle.crypto_in:
                 raise RP2ValueError(
                     f"Internal error: start-of-cycle transaction's returned amount exceeds its crypto_in: "
