@@ -177,6 +177,33 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                 want_error="",
             ),
             _Test(
+                # This test is from the discussion at https://github.com/eprbell/rp2/issues/135#issuecomment-2640507147
+                description="Out transaction before intra",
+                input=[
+                    InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 100, 6),
+                    InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 8),
+                    OutTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 130, 5, 0),
+                    IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 120, 7, 7),
+                ],
+                want_per_wallet_transactions={
+                    Account("Coinbase", "Bob"): [
+                        InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 100, 6, to_lot_unique_ids={Account(exchange="Kraken", holder="Bob"): ["4/-1"]}),
+                        InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 8, to_lot_unique_ids={Account(exchange="Kraken", holder="Bob"): ["4/-2"]}),
+                        OutTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 130, 5, 0),
+                        IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 120, 7, 7),
+                    ],
+                    Account("Kraken", "Bob"): [
+                        InTransactionDescriptor("4/-1", 4, -1, "Kraken", "Bob", 100, 1, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Bob", 120, 6, from_lot_unique_id="2", cost_basis_day=2),
+                    ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {"1": 0, "2": 2},
+                    Account(exchange='Kraken', holder='Bob'): {},
+                },
+                want_error="",
+            ),
+            _Test(
                 description="Reciprocal transfer + sales: CB->Kraken, Kraken->CB, CB sales",
                 input=[
                     InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
@@ -572,6 +599,33 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                 want_amounts={
                     Account(exchange='Coinbase', holder='Bob'): {'1': 6},
                     Account(exchange='Kraken', holder='Bob'): {'2': 3},
+                },
+                want_error="",
+            ),
+            _Test(
+                # This test is from the discussion at https://github.com/eprbell/rp2/issues/135#issuecomment-2640507147
+                description="Out transaction before intra",
+                input=[
+                    InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 100, 6),
+                    InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 8),
+                    OutTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 130, 5, 0),
+                    IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 120, 7, 7),
+                ],
+                want_per_wallet_transactions={
+                    Account("Coinbase", "Bob"): [
+                        InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 100, 6, to_lot_unique_ids={Account(exchange="Kraken", holder="Bob"): ["4/-2"]}),
+                        InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 8, to_lot_unique_ids={Account(exchange="Kraken", holder="Bob"): ["4/-1"]}),
+                        OutTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 130, 5, 0),
+                        IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 120, 7, 7),
+                    ],
+                    Account("Kraken", "Bob"): [
+                        InTransactionDescriptor("4/-1", 4, -1, "Kraken", "Bob", 120, 3, from_lot_unique_id="2", cost_basis_day=2),
+                        InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Bob", 100, 4, from_lot_unique_id="1", cost_basis_day=1),
+                    ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {"1": 2, "2": 0},
+                    Account(exchange='Kraken', holder='Bob'): {},
                 },
                 want_error="",
             ),
@@ -973,6 +1027,33 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                 want_error="",
             ),
             _Test(
+                # This test is from the discussion at https://github.com/eprbell/rp2/issues/135#issuecomment-2640507147
+                description="Out transaction before intra",
+                input=[
+                    InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 100, 6),
+                    InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 8),
+                    OutTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 130, 5, 0),
+                    IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 120, 7, 7),
+                ],
+                want_per_wallet_transactions={
+                    Account("Coinbase", "Bob"): [
+                        InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 100, 6, to_lot_unique_ids={Account(exchange="Kraken", holder="Bob"): ["4/-2"]}),
+                        InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 8, to_lot_unique_ids={Account(exchange="Kraken", holder="Bob"): ["4/-1"]}),
+                        OutTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 130, 5, 0),
+                        IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 120, 7, 7),
+                    ],
+                    Account("Kraken", "Bob"): [
+                        InTransactionDescriptor("4/-1", 4, -1, "Kraken", "Bob", 120, 3, from_lot_unique_id="2", cost_basis_day=2),
+                        InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Bob", 100, 4, from_lot_unique_id="1", cost_basis_day=1),
+                    ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {"1": 2, "2": 0},
+                    Account(exchange='Kraken', holder='Bob'): {},
+                },
+                want_error="",
+            ),
+            _Test(
                 description="Reciprocal transfer + sales: CB->Kraken, Kraken->CB, CB sales",
                 input=[
                     InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
@@ -1369,6 +1450,33 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                 want_amounts={
                     Account(exchange='Coinbase', holder='Bob'): {'1': 9},
                     Account(exchange='Kraken', holder='Bob'): {'2': 6, '3/-1': 0},
+                },
+                want_error="",
+            ),
+            _Test(
+                # This test is from the discussion at https://github.com/eprbell/rp2/issues/135#issuecomment-2640507147
+                description="Out transaction before intra",
+                input=[
+                    InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 100, 6),
+                    InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 8),
+                    OutTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 130, 5, 0),
+                    IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 120, 7, 7),
+                ],
+                want_per_wallet_transactions={
+                    Account("Coinbase", "Bob"): [
+                        InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 100, 6, to_lot_unique_ids={Account(exchange="Kraken", holder="Bob"): ["4/-1"]}),
+                        InTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", 120, 8, to_lot_unique_ids={Account(exchange="Kraken", holder="Bob"): ["4/-2"]}),
+                        OutTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 130, 5, 0),
+                        IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 120, 7, 7),
+                    ],
+                    Account("Kraken", "Bob"): [
+                        InTransactionDescriptor("4/-1", 4, -1, "Kraken", "Bob", 100, 1, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Bob", 120, 6, from_lot_unique_id="2", cost_basis_day=2),
+                    ],
+                },
+                want_amounts={
+                    Account(exchange='Coinbase', holder='Bob'): {"1": 0, "2": 2},
+                    Account(exchange='Kraken', holder='Bob'): {},
                 },
                 want_error="",
             ),
