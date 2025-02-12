@@ -139,6 +139,7 @@ class AbstractTestTransactionProcessing(unittest.TestCase):
 
         return universal_input_data
 
+    # pylint: disable=too-many-branches
     def _create_per_wallet_input_data_from_transaction_descriptors(self,
                                                                    configuration: Configuration,
                                                                    per_wallet_descriptors: Dict[Account, List[AbstractTransactionDescriptor]],
@@ -183,7 +184,8 @@ class AbstractTestTransactionProcessing(unittest.TestCase):
                 if isinstance(transaction_descriptor, InTransactionDescriptor):
                     transaction = unique_id_2_in_transaction[transaction_descriptor.unique_id]
                     in_transaction_set.add_entry(transaction)
-                    if in_transaction_descriptor_2_actual_amount is not None and account in in_transaction_descriptor_2_actual_amount and transaction.unique_id in in_transaction_descriptor_2_actual_amount[account]:
+                    if (in_transaction_descriptor_2_actual_amount is not None and account in in_transaction_descriptor_2_actual_amount
+                        and transaction.unique_id in in_transaction_descriptor_2_actual_amount[account]):
                         in_transaction_2_actual_amount[transaction] = RP2Decimal(in_transaction_descriptor_2_actual_amount[account][transaction.unique_id])
                 elif isinstance(transaction_descriptor, OutTransactionDescriptor):
                     transaction = unique_id_2_out_transaction[transaction_descriptor.unique_id]
@@ -204,10 +206,17 @@ class AbstractTestTransactionProcessing(unittest.TestCase):
                             to_lots = transaction.to_lots.setdefault(to_account, [])
                             to_lots.append(unique_id_2_in_transaction[unique_id])
 
-            want_wallet_2_per_wallet_input_data[account] = InputData(self._asset, in_transaction_set, out_transaction_set, intra_transaction_set, in_transaction_2_actual_amount)
+            want_wallet_2_per_wallet_input_data[account] = InputData(
+                self._asset,
+                in_transaction_set,
+                out_transaction_set,
+                intra_transaction_set,
+                in_transaction_2_actual_amount
+            )
 
         return want_wallet_2_per_wallet_input_data
 
+    # pylint: enable=too-many-branches
     def _create_in_transaction(
         self, configuration: Configuration, transaction_descriptor: InTransactionDescriptor, from_lot: Optional["InTransaction"] = None
     ) -> InTransaction:
