@@ -142,7 +142,7 @@ class AbstractTestTransactionProcessing(unittest.TestCase):
     def _create_per_wallet_input_data_from_transaction_descriptors(self,
                                                                    configuration: Configuration,
                                                                    per_wallet_descriptors: Dict[Account, List[AbstractTransactionDescriptor]],
-                                                                   in_transaction_descriptor_2_actual_amount: Dict[Account, Dict[str, int]] | None = None,
+                                                                   in_transaction_descriptor_2_actual_amount: Optional[Dict[Account, Dict[str, int]]] = None,
                                                                    ) -> Dict[Account, InputData]:
         unique_id_2_in_transaction: Dict[str, InTransaction] = {}
         unique_id_2_out_transaction: Dict[str, OutTransaction] = {}
