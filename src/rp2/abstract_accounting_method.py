@@ -19,7 +19,7 @@
 
 from enum import Enum
 from heapq import heappop, heappush
-from typing import Dict, List, NamedTuple, Optional, Tuple
+from typing import cast, Dict, List, NamedTuple, Optional, Tuple
 
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
@@ -101,6 +101,10 @@ class AbstractAcquiredLotCandidates:
         self.__to_index = to_index  # pylint: disable=unused-private-member
 
     @property
+    def accounting_method(self) -> "AbstractAccountingMethod":
+        return self._accounting_method
+
+    @property
     def from_index(self) -> int:
         return self.__from_index
 
@@ -132,12 +136,26 @@ class AbstractAcquiredLotCandidates:
     def clear_partial_amount(self, acquired_lot: InTransaction) -> None:
         self.set_partial_amount(acquired_lot, ZERO)
 
+    # Reset partial amounts to their original values and from index to zero.
+    def reset_partial_amounts(self, accounting_method: "AbstractAccountingMethod", original_partial_amounts: Dict[InTransaction, RP2Decimal]) -> None:  # pylint: disable=unused-argument
+        for current_transaction, original_partial_amount in original_partial_amounts.items():
+            self.set_partial_amount(current_transaction, original_partial_amount)
+        self.set_from_index(0)
+
     def __iter__(self) -> AbstractAccountingMethodIterator:
         return self._accounting_method._create_accounting_method_iterator(self)
 
 
 class ChronologicalAcquiredLotCandidates(AbstractAcquiredLotCandidates):
-    pass
+    def __init__(
+        self,
+        accounting_method: "AbstractAccountingMethod",
+        acquired_lot_list: List[InTransaction],
+        acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal],
+    ) -> None:
+        super().__init__(accounting_method, acquired_lot_list, acquired_lot_2_partial_amount)
+        if not isinstance(accounting_method, AbstractChronologicalAccountingMethod):
+            raise RP2TypeError(f"Internal error: accounting_method is not of type AbstractChronologicalAccountingMethod, but of type {type(accounting_method)}")
 
 
 class FeatureBasedAcquiredLotCandidates(AbstractAcquiredLotCandidates):
@@ -150,6 +168,8 @@ class FeatureBasedAcquiredLotCandidates(AbstractAcquiredLotCandidates):
         acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal],
     ) -> None:
         super().__init__(accounting_method, acquired_lot_list, acquired_lot_2_partial_amount)
+        if not isinstance(accounting_method, AbstractFeatureBasedAccountingMethod):
+            raise RP2TypeError(f"Internal error: accounting_method is not of type AbstractFeatureBasedAccountingMethod, but of type {type(accounting_method)}")
         self.__acquired_lot_heap: List[Tuple[AcquiredLotSortKey, InTransaction]] = []
 
     def set_to_index(self, to_index: int) -> None:
@@ -162,6 +182,21 @@ class FeatureBasedAcquiredLotCandidates(AbstractAcquiredLotCandidates):
     @property
     def acquired_lot_heap(self) -> List[Tuple[AcquiredLotSortKey, InTransaction]]:
         return self.__acquired_lot_heap
+
+    # CAUTION:
+    # - acquired_lot must be the last lot chronologically.
+    # - this operation invalidates any outstanding iterator.
+    def add_acquired_lot(self, acquired_lot: InTransaction) -> None:
+        super().add_acquired_lot(acquired_lot)
+        accounting_method = cast(AbstractFeatureBasedAccountingMethod, self.accounting_method)
+        accounting_method.add_selected_lot_to_heap(self.__acquired_lot_heap, acquired_lot)
+
+    def reset_partial_amounts(self, accounting_method: "AbstractAccountingMethod", original_partial_amounts: Dict[InTransaction, RP2Decimal]) -> None:
+        if not isinstance(accounting_method, AbstractFeatureBasedAccountingMethod):
+            raise RP2TypeError(f"Internal error: accounting_method is not of type AbstractFeatureBasedAccountingMethod, but of type {type(accounting_method)}")
+        super().reset_partial_amounts(accounting_method, original_partial_amounts)
+        for current_transaction, _ in original_partial_amounts.items():
+            accounting_method.add_selected_lot_to_heap(self.__acquired_lot_heap, current_transaction)
 
 
 class AbstractAccountingMethod:
