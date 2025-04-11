@@ -66,9 +66,7 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
     row: Any = None
     # Used for artificial transactions only: e.g. the fee-only transaction that is created artificially to model crypto fee of in-transactions.
     # Artificial internal ids are negative.
-    artificial_internal_id = 0
     for i, row in enumerate(input_sheet.rows()):
-        artificial_internal_id -= 1
         cell0_value: str = row[0].value
         # The numeric elements of the row_values list are used to initialize RP2Decimal instances. In theory we could collect string representations
         # from numeric strings using the plaintext() method of Cell, but this doesn't work well because of an ezodf limitation: such strings are
@@ -124,9 +122,7 @@ def parse_ods(configuration: Configuration, asset: str, input_file_handle: Any) 
                 raise RP2ValueError(f"{asset}({i + 1}): Found data with no header")
         elif current_table_type is not None and current_table_row_count > 1:
             # Transaction line
-            _create_and_process_transaction(
-                configuration, row_values, current_table_type, i + 1, artificial_internal_id, unfiltered_transaction_sets, artificial_transaction_list
-            )
+            _create_and_process_transaction(configuration, row_values, current_table_type, i + 1, unfiltered_transaction_sets, artificial_transaction_list)
         current_table_row_count += 1
 
     if current_table_type is not None:
@@ -159,7 +155,6 @@ def _create_and_process_transaction(
     row_values: List[Any],
     current_table_type: EntrySetType,
     internal_id: int,
-    artificial_internal_id: int,
     unfiltered_transaction_sets: Dict[EntrySetType, TransactionSet],
     artificial_transaction_list: List[AbstractTransaction],
 ) -> None:
@@ -191,7 +186,7 @@ def _create_and_process_transaction(
                 fiat_in_no_fee=transaction.fiat_in_no_fee,
                 fiat_in_with_fee=transaction.fiat_in_with_fee,
                 fiat_fee=transaction.fiat_fee,
-                internal_id=internal_id,
+                row=internal_id,
                 unique_id=transaction.unique_id,
                 notes=notes,
             )
@@ -207,7 +202,7 @@ def _create_and_process_transaction(
                 spot_price=transaction.spot_price,
                 crypto_out_no_fee=ZERO,
                 crypto_fee=transaction.crypto_fee,
-                internal_id=artificial_internal_id,
+                row=configuration.get_new_artificial_id(),
                 unique_id=transaction.unique_id,
                 notes=(
                     f"Artificial transaction modeling the crypto fee of {transaction.crypto_fee} {transaction.asset} "
@@ -243,7 +238,7 @@ def _process_constructor_argument_pack(
     internal_id: int,
     class_name: str,
 ) -> Dict[str, Any]:
-    argument_pack.update({"configuration": configuration, "internal_id": internal_id})
+    argument_pack.update({"configuration": configuration, "row": internal_id})
     numeric_parameters: List[str] = _get_decimal_constructor_argument_names(class_name)
     for numeric_parameter in numeric_parameters:
         if numeric_parameter in argument_pack:

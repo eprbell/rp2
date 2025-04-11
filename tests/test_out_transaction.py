@@ -47,7 +47,7 @@ class TestOutTransaction(unittest.TestCase):
             RP2Decimal("900.9"),
             RP2Decimal("2.2"),
             RP2Decimal("0.01"),
-            internal_id=38,
+            row=38,
         )
         OutTransaction.type_check("my_instance", out_transaction)
 
@@ -55,6 +55,7 @@ class TestOutTransaction(unittest.TestCase):
         self.assertEqual(RP2Decimal("1981.98"), out_transaction.fiat_taxable_amount)
         self.assertEqual(RP2Decimal("2.2"), out_transaction.crypto_taxable_amount)
         self.assertEqual("38", out_transaction.internal_id)
+        self.assertEqual(38, out_transaction.row)
         self.assertEqual(2020, out_transaction.timestamp.year)
         self.assertEqual(6, out_transaction.timestamp.month)
         self.assertEqual(1, out_transaction.timestamp.day)
@@ -137,7 +138,7 @@ class TestOutTransaction(unittest.TestCase):
             RP2Decimal("900.9"),
             RP2Decimal("2.2"),
             RP2Decimal("0.01"),
-            internal_id=38,
+            row=38,
         )
         out_transaction2: OutTransaction = OutTransaction(
             self._configuration,
@@ -149,7 +150,7 @@ class TestOutTransaction(unittest.TestCase):
             RP2Decimal("900.9"),
             RP2Decimal("2.2"),
             RP2Decimal("0.01"),
-            internal_id=38,
+            row=38,
         )
         out_transaction3: OutTransaction = OutTransaction(
             self._configuration,
@@ -161,7 +162,7 @@ class TestOutTransaction(unittest.TestCase):
             RP2Decimal("900.9"),
             RP2Decimal("2.2"),
             RP2Decimal("0.01"),
-            internal_id=7,
+            row=7,
         )
         self.assertEqual(out_transaction, out_transaction)
         self.assertEqual(out_transaction, out_transaction2)
@@ -182,7 +183,7 @@ class TestOutTransaction(unittest.TestCase):
             RP2Decimal("900.9"),
             RP2Decimal("2.2"),
             RP2Decimal("0.01"),
-            internal_id=38,
+            row=38,
         )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'indent' has non-integer value"):
             out_transaction.to_string(None, repr_format=False, extra_data=["foobar", "qwerty"])  # type: ignore
@@ -212,7 +213,7 @@ class TestOutTransaction(unittest.TestCase):
                     RP2Decimal("10000"),
                     RP2Decimal("1"),
                     RP2Decimal("1"),
-                    internal_id=45,
+                    row=45,
                 ),
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
@@ -227,7 +228,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'configuration' is not of type Configuration: .*"):
             # Bad configuration
@@ -241,10 +242,10 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
-        with self.assertRaisesRegex(RP2TypeError, "Parameter 'internal_id' has non-integer value .*"):
-            # Bad internal_id
+        with self.assertRaisesRegex(RP2TypeError, "Parameter 'row' has non-integer value .*"):
+            # Bad row
             OutTransaction(
                 self._configuration,
                 "6/1/2020 3:59:59 -04:00",
@@ -255,7 +256,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=(1, 2, 3),  # type: ignore
+                row=(1, 2, 3),  # type: ignore
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'timestamp' has non-string value .*"):
             # Bad timestamp
@@ -269,7 +270,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'timestamp' value has no timezone info: .*"):
             # Bad timestamp
@@ -283,7 +284,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'timestamp' has non-string value .*"):
             # Bad timestamp
@@ -297,7 +298,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'asset' value is not known: .*"):
             # Bad asset
@@ -311,7 +312,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'asset' has non-string value .*"):
             # Bad asset
@@ -325,7 +326,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'exchange' value is not known: .*"):
             # Bad exchange
@@ -339,7 +340,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'exchange' has non-string value .*"):
             # Bad exchange
@@ -353,7 +354,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'holder' value is not known: .*"):
             # Bad holder
@@ -367,7 +368,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'holder' has non-string value .*"):
             # Bad holder
@@ -381,7 +382,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2ValueError, ".*OutTransaction .*, id.*invalid transaction type .*"):
             # Bad transaction type
@@ -395,7 +396,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2ValueError, ".*OutTransaction .*, id.*invalid transaction type .*"):
             # Bad transaction type
@@ -409,7 +410,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter .* has invalid transaction type value: .*"):
             # Bad transaction type
@@ -423,7 +424,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter .* has non-string value .*"):
             # Bad transaction type
@@ -437,7 +438,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2ValueError, "OutTransaction .*, id.*parameter 'spot_price' cannot be 0"):
             # Bad spot price
@@ -451,7 +452,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("0"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'spot_price' has non-positive value .*"):
             # Bad spot price
@@ -465,7 +466,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("-900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'spot_price' has non-RP2Decimal value ,*"):
             # Bad spot price
@@ -479,7 +480,7 @@ class TestOutTransaction(unittest.TestCase):
                 None,  # type: ignore
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_out_no_fee' has zero value"):
             # Bad crypto out no fee
@@ -493,7 +494,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("0"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_out_no_fee' has non-positive value .*"):
             # Bad crypto out no fee
@@ -507,7 +508,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("-2.2"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_out_no_fee' has non-RP2Decimal value .*"):
             # Bad crypto out no fee
@@ -521,7 +522,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 None,  # type: ignore
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2ValueError, "fee-typed transaction has non-zero 'crypto_out_no_fee'"):
             # Bad crypto out no fee
@@ -535,7 +536,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("10"),
                 RP2Decimal("0"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'crypto_fee' has non-positive value .*"):
             # Bad crypto fee
@@ -549,7 +550,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 RP2Decimal("-0.1"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'crypto_fee' has non-RP2Decimal value .*"):
             # Bad crypto fee
@@ -563,7 +564,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("2.2"),
                 "foobar",  # type: ignore
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'fiat_out_no_fee' has non-positive value .*"):
             # Bad fiat_out_no_fee
@@ -578,7 +579,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
                 fiat_out_no_fee=RP2Decimal("-0.1"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'fiat_out_no_fee' has non-RP2Decimal value .*"):
             # Bad fiat_out_no_fee
@@ -593,7 +594,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
                 fiat_out_no_fee="foobar",  # type: ignore
-                internal_id=38,
+                row=38,
             )
 
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'fiat_fee' has non-positive value .*"):
@@ -610,7 +611,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("0"),
                 fiat_out_no_fee=RP2Decimal("1800"),
                 fiat_fee=RP2Decimal("-10"),
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'fiat_fee' has non-RP2Decimal value .*"):
             # Bad fiat fee
@@ -626,7 +627,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("0"),
                 fiat_out_no_fee=RP2Decimal("1800"),
                 fiat_fee="foobar",  # type: ignore
-                internal_id=38,
+                row=38,
             )
         with self.assertRaisesRegex(RP2TypeError, "Parameter 'notes' has non-string value .*"):
             # Bad notes
@@ -641,7 +642,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("2.2"),
                 RP2Decimal("0"),
                 notes=(1, 2, 3),  # type: ignore
-                internal_id=38,
+                row=38,
             )
 
         with self.assertLogs(level="WARNING") as log:
@@ -656,7 +657,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("2.2"),
                 RP2Decimal("0.1"),
                 crypto_out_with_fee=RP2Decimal("2.2"),
-                internal_id=38,
+                row=38,
             )
             self.assertTrue(re.search("crypto_out_with_fee != crypto_out_no_fee.*crypto_fee:.*", log.output[0]))
         with self.assertLogs(level="WARNING") as log:
@@ -672,7 +673,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("0.1"),
                 fiat_out_no_fee=RP2Decimal("1981.98"),
                 fiat_fee=RP2Decimal("5.9"),
-                internal_id=38,
+                row=38,
             )
             self.assertTrue(re.search("crypto_fee.*spot_price.*!= fiat_fee.*:.*", log.output[0]))
         with self.assertLogs(level="WARNING") as log:
@@ -688,7 +689,7 @@ class TestOutTransaction(unittest.TestCase):
                 RP2Decimal("0.1"),
                 fiat_out_no_fee=RP2Decimal("1081.98"),
                 fiat_fee=RP2Decimal("90.09"),
-                internal_id=38,
+                row=38,
             )
             self.assertTrue(re.search("crypto_out_no_fee.*spot_price.*!= fiat_out_no_fee.*:.*", log.output[0]))
 

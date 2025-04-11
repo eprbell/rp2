@@ -17,6 +17,7 @@ from configparser import ConfigParser, SectionProxy
 from datetime import date, datetime
 from enum import Enum
 from pathlib import Path
+from threading import Lock
 from typing import Any, Dict, List, Set
 
 from dateutil.parser import parse
@@ -34,37 +35,37 @@ REPORT_GENERATOR_PACKAGE = "rp2.plugin.report"
 
 
 class Keyword(Enum):
-    ACCOUNTING_METHODS: str = "accounting_methods"
-    ASSET: str = "asset"
-    ASSETS: str = "assets"
-    CRYPTO_FEE: str = "crypto_fee"
-    CRYPTO_IN: str = "crypto_in"
-    CRYPTO_OUT_NO_FEE: str = "crypto_out_no_fee"
-    CRYPTO_OUT_WITH_FEE: str = "crypto_out_with_fee"
-    CRYPTO_RECEIVED: str = "crypto_received"
-    CRYPTO_SENT: str = "crypto_sent"
-    EXCHANGE: str = "exchange"
-    EXCHANGES: str = "exchanges"
-    FIAT_FEE: str = "fiat_fee"
-    FIAT_IN_NO_FEE: str = "fiat_in_no_fee"
-    FIAT_IN_WITH_FEE: str = "fiat_in_with_fee"
-    FIAT_OUT_NO_FEE: str = "fiat_out_no_fee"
-    FROM_EXCHANGE: str = "from_exchange"
-    FROM_HOLDER: str = "from_holder"
-    GENERAL: str = "general"
-    GENERATORS: str = "generators"
-    HOLDER: str = "holder"
-    HOLDERS: str = "holders"
-    IN_HEADER: str = "in_header"
-    INTRA_HEADER: str = "intra_header"
-    NOTES: str = "notes"
-    OUT_HEADER: str = "out_header"
-    SPOT_PRICE: str = "spot_price"
-    TIMESTAMP: str = "timestamp"
-    TO_EXCHANGE: str = "to_exchange"
-    TO_HOLDER: str = "to_holder"
-    TRANSACTION_TYPE: str = "transaction_type"
-    UNIQUE_ID: str = "unique_id"
+    ACCOUNTING_METHODS = "accounting_methods"
+    ASSET = "asset"
+    ASSETS = "assets"
+    CRYPTO_FEE = "crypto_fee"
+    CRYPTO_IN = "crypto_in"
+    CRYPTO_OUT_NO_FEE = "crypto_out_no_fee"
+    CRYPTO_OUT_WITH_FEE = "crypto_out_with_fee"
+    CRYPTO_RECEIVED = "crypto_received"
+    CRYPTO_SENT = "crypto_sent"
+    EXCHANGE = "exchange"
+    EXCHANGES = "exchanges"
+    FIAT_FEE = "fiat_fee"
+    FIAT_IN_NO_FEE = "fiat_in_no_fee"
+    FIAT_IN_WITH_FEE = "fiat_in_with_fee"
+    FIAT_OUT_NO_FEE = "fiat_out_no_fee"
+    FROM_EXCHANGE = "from_exchange"
+    FROM_HOLDER = "from_holder"
+    GENERAL = "general"
+    GENERATORS = "generators"
+    HOLDER = "holder"
+    HOLDERS = "holders"
+    IN_HEADER = "in_header"
+    INTRA_HEADER = "intra_header"
+    NOTES = "notes"
+    OUT_HEADER = "out_header"
+    SPOT_PRICE = "spot_price"
+    TIMESTAMP = "timestamp"
+    TO_EXCHANGE = "to_exchange"
+    TO_HOLDER = "to_holder"
+    TRANSACTION_TYPE = "transaction_type"
+    UNIQUE_ID = "unique_id"
 
 
 _HEADER_COLUMNS: Dict[str, Set[str]] = {
@@ -150,6 +151,8 @@ class Configuration:  # pylint: disable=too-many-public-methods
         self.__holders: Set[str] = set()
         self.__generators: Set[str] = {f"{REPORT_GENERATOR_PACKAGE}.{generator}" for generator in country.get_report_generators()}
         self.__years_2_accounting_method_names: Dict[int, str] = {}
+        self.__artificial_id_counter: int = 0
+        self.__lock = Lock()
 
         if not Path(configuration_path).exists():
             raise RP2ValueError(f"Error: {configuration_path} does not exist")
@@ -479,3 +482,10 @@ class Configuration:  # pylint: disable=too-many-public-methods
         if not isinstance(value, RP2Decimal):
             raise RP2TypeError(f"Parameter '{name}' has non-RP2Decimal value {repr(value)}")
         return value
+
+    def get_new_artificial_id(self) -> int:
+        result: int
+        with self.__lock:
+            self.__artificial_id_counter -= 1
+            result = self.__artificial_id_counter
+        return result

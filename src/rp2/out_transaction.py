@@ -38,11 +38,11 @@ class OutTransaction(AbstractTransaction):
         crypto_out_with_fee: Optional[RP2Decimal] = None,
         fiat_out_no_fee: Optional[RP2Decimal] = None,
         fiat_fee: Optional[RP2Decimal] = None,
-        internal_id: Optional[int] = None,
+        row: Optional[int] = None,
         unique_id: Optional[str] = None,
         notes: Optional[str] = None,
     ) -> None:
-        super().__init__(configuration, timestamp, asset, transaction_type, spot_price, internal_id, unique_id, notes)
+        super().__init__(configuration, timestamp, asset, transaction_type, spot_price, row, unique_id, notes)
 
         self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
         self.__holder: str = configuration.type_check_holder("holder", holder)
@@ -83,7 +83,14 @@ class OutTransaction(AbstractTransaction):
             self.__fiat_fee = configuration.type_check_positive_decimal("fiat_fee", fiat_fee)
         self.__fiat_out_with_fee = self.__fiat_out_no_fee + self.__fiat_fee
 
-        if self.transaction_type not in (TransactionType.DONATE, TransactionType.FEE, TransactionType.GIFT, TransactionType.SELL):
+        if self.transaction_type not in (
+            TransactionType.DONATE,
+            TransactionType.FEE,
+            TransactionType.GIFT,
+            TransactionType.LOST,
+            TransactionType.SELL,
+            TransactionType.STAKING,
+        ):
             raise RP2ValueError(
                 f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.internal_id}): invalid transaction type {self.transaction_type}"
             )
@@ -213,3 +220,6 @@ class OutTransaction(AbstractTransaction):
 
     def is_taxable(self) -> bool:
         return True
+
+    def is_earning(self) -> bool:
+        return False

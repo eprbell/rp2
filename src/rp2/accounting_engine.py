@@ -20,8 +20,8 @@ from prezzemolo.avl_tree import AVLTree
 
 from rp2.abstract_accounting_method import (
     AbstractAccountingMethod,
+    AbstractAcquiredLotCandidates,
     AcquiredLotAndAmount,
-    AcquiredLotCandidates,
 )
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
@@ -84,6 +84,7 @@ class AccountingEngine:
 
     def __init__(self, years_2_methods: AVLTree[int, AbstractAccountingMethod]) -> None:
         self.__years_2_methods: AVLTree[int, AbstractAccountingMethod] = years_2_methods
+        self.__years_2_lot_candidates: AVLTree[int, AbstractAcquiredLotCandidates] = AVLTree()
         if not self.__years_2_methods:
             raise RP2RuntimeError("Internal error: no accounting method defined")
 
@@ -113,6 +114,23 @@ class AccountingEngine:
 
         if not self.__acquired_lot_avl.root:
             raise RP2RuntimeError("Internal error: AVL tree has no root node")
+
+        to_visit = []
+        node = self.__years_2_methods.root
+        while node is not None:
+            # Pass __acquired_lot_2_partial_amount to all lot candidates so that they share the partial amount cache even across different accounting methods.
+            self.__years_2_lot_candidates.insert_node(
+                node.key, node.value.create_lot_candidates(self.__acquired_lot_list, self.__acquired_lot_2_partial_amount)
+            )
+            if node.left:
+                to_visit.append(node.left)
+            if node.right:
+                to_visit.append(node.right)
+
+            if len(to_visit) > 0:
+                node = to_visit.pop()
+            else:
+                break
 
     # AVL tree node keys have this format: <timestamp>_<internal_id>. The internal_id part is needed to disambiguate transactions
     # that have the same timestamp. Timestamp is in format "YYYYmmddHHMMSS.ffffff" and internal_id is padded right in a string of fixed
@@ -157,7 +175,7 @@ class AccountingEngine:
         new_taxable_event_amount: RP2Decimal = new_taxable_event.crypto_balance_change
 
         # If the new taxable event is newer than the old one (and it's not earn-typed) check if there is a newer acquired lot that
-        # meets the accounting method criteria (but it's still older than the new taxable event)
+        # meets the accounting method criteria (but it's still older than the new taxable event).
         if taxable_event and taxable_event.timestamp < new_taxable_event.timestamp:
             if acquired_lot:
                 self._set_partial_amount(acquired_lot, new_acquired_lot_amount)
@@ -172,8 +190,7 @@ class AccountingEngine:
             acquired_lot_amount=new_acquired_lot_amount,
         )
 
-    # After selecting the taxable event, RP2 calls this function to find the acquired_lot to pair with it. This means that the taxable
-    # event can be passed to this function (which is useful for certain accounting methods)
+    # After selecting the taxable event, RP2 calls this function to find the acquired_lot to pair with it.
     def get_acquired_lot_for_taxable_event(
         self,
         taxable_event: AbstractTransaction,
@@ -182,25 +199,26 @@ class AccountingEngine:
         acquired_lot_amount: RP2Decimal,
     ) -> TaxableEventAndAcquiredLot:
         new_taxable_event_amount: RP2Decimal = taxable_event_amount - acquired_lot_amount
-        avl_result: Optional[_AcquiredLotAndIndex] = self.__acquired_lot_avl.find_max_value_less_than(
+        # Find the acquired_lot and index just before the taxable event: the index is used as an upper bound
+        # in the search of acquired lot candidates (see set_to_index() below).
+        acquired_lot_and_index: Optional[_AcquiredLotAndIndex] = self.__acquired_lot_avl.find_max_value_less_than(
             self._get_avl_node_key_with_max_disambiguator(taxable_event.timestamp)
         )
-        if avl_result is not None:
-            if avl_result.acquired_lot != self.__acquired_lot_list[avl_result.index]:
+        if acquired_lot_and_index is not None:
+            if acquired_lot_and_index.acquired_lot != self.__acquired_lot_list[acquired_lot_and_index.index]:
                 raise RP2RuntimeError("Internal error: acquired_lot incongruence in accounting logic")
             method = self._get_accounting_method(taxable_event.timestamp.year)
-            lot_candidates: AcquiredLotCandidates = AcquiredLotCandidates(
-                method, self.__acquired_lot_list, self.__acquired_lot_2_partial_amount, avl_result.index
-            )
-            acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = method.seek_non_exhausted_acquired_lot(
-                lot_candidates, taxable_event, new_taxable_event_amount
-            )
-            if acquired_lot_and_amount:
-                return TaxableEventAndAcquiredLot(
-                    taxable_event=taxable_event,
-                    acquired_lot=acquired_lot_and_amount.acquired_lot,
-                    taxable_event_amount=new_taxable_event_amount,
-                    acquired_lot_amount=acquired_lot_and_amount.amount,
-                )
+            lot_candidates: Optional[AbstractAcquiredLotCandidates] = self.__years_2_lot_candidates.find_max_value_less_than(taxable_event.timestamp.year)
+            # lot_candidates is 1:1 with acquired_lot_and_index, should always be True
+            if lot_candidates:
+                lot_candidates.set_to_index(acquired_lot_and_index.index)
+                acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = method.seek_non_exhausted_acquired_lot(lot_candidates, new_taxable_event_amount)
+                if acquired_lot_and_amount:
+                    return TaxableEventAndAcquiredLot(
+                        taxable_event=taxable_event,
+                        acquired_lot=acquired_lot_and_amount.acquired_lot,
+                        taxable_event_amount=new_taxable_event_amount,
+                        acquired_lot_amount=acquired_lot_and_amount.amount,
+                    )
 
         raise AcquiredLotsExhaustedException()

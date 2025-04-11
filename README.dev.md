@@ -12,7 +12,7 @@
 <!--- See the License for the specific language governing permissions and --->
 <!--- limitations under the License. --->
 
-# RP2 v1.5.0 Developer Guide
+# RP2 v1.7.2 Developer Guide
 [![Static Analysis / Main Branch](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml)
 [![Documentation Check / Main Branch](https://github.com/eprbell/rp2/actions/workflows/documentation_check.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/documentation_check.yml)
 [![Unix Unit Tests / Main Branch](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml)
@@ -51,7 +51,7 @@ RP2 is released under the terms of Apache License Version 2.0. For more informat
 The latest RP2 source can be downloaded at: <https://github.com/eprbell/rp2>
 
 ## Setup
-RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.7.0 or greater. Virtualenv is recommended for RP2 development.
+RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.8.0 or greater. Virtualenv is recommended for RP2 development.
 
 ### Setup on Ubuntu Linux
 First make sure Python, pip and virtualenv are installed. If not, open a terminal window and enter the following commands:
@@ -82,7 +82,7 @@ virtualenv -p python3 .venv
 .venv/bin/pip3 install -e '.[dev]'
 ```
 ### Setup on Windows 10
-First make sure [Python](https://python.org) 3.7 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following commands:
+First make sure [Python](https://python.org) 3.8 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following commands:
 ```
 python -m pip install virtualenv
 ```
@@ -97,7 +97,7 @@ python -m pip install -e ".[dev]"
 
 If `activate.ps1` cannot be loaded because running scripts is disabled on the system, run `activate.bat` instead or change the PowerShell execution policy `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`.
 ### Setup on Other Unix-like Systems
-* install python 3.7 or greater
+* install python 3.8 or greater
 * install pip3
 * install virtualenv
 
@@ -220,6 +220,8 @@ Report generator plugins translate data structures that result from tax computat
 Report generator plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * if the new plugin is not country-specific, add a new Python file in the `src/rp2/plugin/report/` directory and give it a meaningful name
 * if the new plugin is country-specific, add a new Python file in the `src/rp2/plugin/report/<country>` directory and give it a meaningful name (where `<country>` is a 2-letter country code adhering to the [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format)
+* the `get_report_generators()` method in `src/rp2/plugin/country/<country>.py` should be updated such that it returns the new report generator;
+* for each report returned by the `get_report_generators()` method in `src/rp2/plugin/country/<country>.py` a corresponding ods template spreadsheet should be available in `src/rp2/plugin/report/data/<country>`. Already existing templates could be used as a starting point e.g. for an a modified "open positions" report, a copy of `src/rp2/plugin/report/data/us/template_open_positions_en.ods` could be used. Note there are various rp2 specific styles that can be changed, e.g. to change the currency symbol displayed
 * import the following (plus any other RP2 or Python package you might need):
 ```
 from typing import Dict
@@ -269,44 +271,59 @@ Report plugin output can be localized in many languages (see the [Localization](
 **NOTE**: If you're interested in adding support for a new report generator, open a [PR](CONTRIBUTING.md).
 
 ### Adding a New Accounting Method
-Accounting method plugins modify the behavior of the tax engine. They pair in/out lots according to the given accounting algorithm: [FIFO](src/rp2/plugin/accounting_method/fifo.py), [LIFO](src/rp2/plugin/accounting_method/lifo.py) and [HIFO](src/rp2/plugin/accounting_method/hifo.py) are examples of accounting method plugins.
+Accounting method plugins modify the behavior of the tax engine. They pair in/out lots according to the given accounting algorithm: [FIFO](src/rp2/plugin/accounting_method/fifo.py), [LIFO](src/rp2/plugin/accounting_method/lifo.py), and [HIFO](src/rp2/plugin/accounting_method/hifo.py) are examples of accounting method plugins.
+
+In RP2 there are two accounting method flavors:
+* Chronological: these methods sort the in-lots based on their chronological order and have O(n) complexity. FIFO is an example of this type.
+* Feature-dependent: these methods sort in-lots according to a specific criterion that depends on the features of the current out-lot, such as spot price or date of sale, and have O(n*log(n)) complexity. HIFO (Highest-Index-First-Out) is an example of this type.
+
+The RP2 accounting engine automatically provides the following common functionality for all plugins:
+* ensure the date of the selected acquired lot is always before or on the date of the sold lot;
+* lot iteration, sorting, pairing and fractioning;
+* partial lot management: this occurs when a lot amount cannot be used fully;
+* lot disambiguation: this occurs when lots have the same timestamp;
+* accounting method change year over year: this occurs when the user changes accounting method with the `-m` option.
+
+Note that the RP2 accounting engine uses [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/), not per-wallet application: this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
 
 Accounting method plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * add a new Python file to the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
-* import the following (plus any other RP2 or Python package you might need):
-```
-from typing import Optional
-
-from rp2.abstract_accounting_method import AbstractAccountingMethod
-from rp2.abstract_accounting_method import AcquiredLotCandidates, AcquiredLotCandidatesOrder, AcquiredLotAndAmount
-from rp2.abstract_transaction import AbstractTransaction
-from rp2.in_transaction import InTransaction
-from rp2.rp2_decimal import ZERO, RP2Decimal
-```
-* Add a class named `AccountingMethod`, deriving from `AbstractAccountingMethod`:
-```
-class AccountingMethod(AbstractAccountingMethod):
-```
-* Add a `seek_non_exhausted_acquired_lot()` method to the class with the following signature:
-```
-    def seek_non_exhausted_acquired_lot(
-        self,
-        lot_candidates: AcquiredLotCandidates,
-        taxable_event: Optional[AbstractTransaction],
-        taxable_event_amount: RP2Decimal,
-    ) -> Optional[AcquiredLotAndAmount]:
-```
-* write the body of the method. The parameters/return values are:
-  * `lot_candidates`: iterable of acquired lot candidates to select from according to the accounting method. The lots are in the order specified by the `lot_candidates_order()` method (see below);
-  * `taxable_event`: the taxable event the method is finding an acquired lot to pair with;
-  * `taxable_event_amount`: the amount left in taxable event;
-  * it returns `None` if it doesn't find a suitable acquired lot, or `AcquiredLotAndAmount`, which captures a new acquired lot and its remaining amount. Note that, since lots can be fractioned, the remaining amount can be less than `crypto_in`. In the body of the function use the `has_partial_amount()` and `get_partial_amount()` methods of `AcquiredLotCandidates` to check if the lot has a partial amount and how much it is.
-
-* Add a `lot_candidates_order()` method to the class with the following signature:
-```
+* For chronological accounting methods:
+  * import the following (plus any other RP2 or Python package you might need):
+    ```
+    from rp2.abstract_accounting_method import (
+        AbstractChronologicalAccountingMethod,
+        AcquiredLotCandidatesOrder,
+    )
+    ```
+  * Add a class named `AccountingMethod`, deriving from `AbstractChronologicalAccountingMethod`:
+    ```
+    class AccountingMethod(AbstractChronologicalAccountingMethod):
+    ```
+  * Add a `lot_candidates_order()` method to the class with the following signature:
+    ```
     def lot_candidates_order(self) -> AcquiredLotCandidatesOrder:
-```
-* write the body of the method: it returns `AcquiredLotCandidatesOrder.OLDER_TO_NEWER` or `AcquiredLotCandidatesOrder.NEWER_TO_OLDER`, depending on whether the desired chronological order is ascending or descending.
+    ```
+  * write the body of the method: it should return either `AcquiredLotCandidatesOrder.OLDER_TO_NEWER` or `AcquiredLotCandidatesOrder.NEWER_TO_OLDER`, depending on whether the desired chronological order is ascending or descending.
+
+* For feature-based accounting methods:
+  * import the following (plus any other RP2 or Python package you might need):
+    ```
+    from rp2.abstract_accounting_method import (
+        AbstractFeatureBasedAccountingMethod,
+        AcquiredLotSortKey,
+    )
+    from rp2.in_transaction import InTransaction
+    ```
+  * Add a class named `AccountingMethod`, deriving from `AbstractFeatureBasedAccountingMethod`:
+    ```
+    class AccountingMethod(AbstractFeatureBasedAccountingMethod):
+    ```
+  * Add a `sort_key()` method to the class with the following signature:
+    ```
+    def sort_key(self, lot: InTransaction) -> AcquiredLotSortKey:
+    ```
+  * write the body of the method: it should return the sort key, reflecting the desired sort criteria for acquired lots. Note that you may have to add new fields to `AcquiredLotSortKey` to reflect the feature you want to sort on: such addition should be backward compatible to ensure it doesn't break existing accounting methods.
 
 **NOTE**: If you're interested in adding support for a new accounting method, open a [PR](CONTRIBUTING.md).
 

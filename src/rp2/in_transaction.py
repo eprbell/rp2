@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Callable, List, Optional
+from typing import Callable, Dict, List, Optional
 
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
@@ -45,17 +45,26 @@ class InTransaction(AbstractTransaction):
         fiat_in_no_fee: Optional[RP2Decimal] = None,
         fiat_in_with_fee: Optional[RP2Decimal] = None,
         fiat_fee: Optional[RP2Decimal] = None,
-        internal_id: Optional[int] = None,
+        row: Optional[int] = None,
         unique_id: Optional[str] = None,
         notes: Optional[str] = None,
+        from_lot: Optional["InTransaction"] = None,
     ) -> None:
-        super().__init__(configuration, timestamp, asset, transaction_type, spot_price, internal_id, unique_id, notes)
+        super().__init__(configuration, timestamp, asset, transaction_type, spot_price, row, unique_id, notes)
 
         self.__exchange: str = configuration.type_check_exchange("exchange", exchange)
         self.__holder: str = configuration.type_check_holder("holder", holder)
-        self.__crypto_in: RP2Decimal = configuration.type_check_positive_decimal("crypto_in", crypto_in, non_zero=True)
+        self.__crypto_in: RP2Decimal
+        if self.transaction_type == TransactionType.STAKING:
+            # Staking income can be negative: in certain cases the protocol can remove from the stash rather than
+            # add to it (e.g. if the node stays offline too long).
+            self.__crypto_in = configuration.type_check_decimal("crypto_in", crypto_in)
+        else:
+            self.__crypto_in = configuration.type_check_positive_decimal("crypto_in", crypto_in, non_zero=True)
         self.__crypto_fee: RP2Decimal = configuration.type_check_positive_decimal("crypto_fee", crypto_fee) if crypto_fee else ZERO
         self.__fiat_fee: RP2Decimal = configuration.type_check_positive_decimal("fiat_fee", fiat_fee) if fiat_fee else ZERO
+        self.__from_lot: Optional[InTransaction] = InTransaction.type_check("from_lot", from_lot) if from_lot is not None else None
+        self.__to_lots: Dict[str, List[InTransaction]] = {}
 
         if spot_price == ZERO:
             raise RP2ValueError(f"{self.asset} {type(self).__name__} ({self.timestamp}, id {self.internal_id}): parameter 'spot_price' cannot be 0")
@@ -124,6 +133,7 @@ class InTransaction(AbstractTransaction):
         stringify: Callable[[object], str] = repr
         if not repr_format:
             stringify = str
+        to_lots_string_parts = [f"{exchange}: {', '.join(t.internal_id for t in transactions)}" for exchange, transactions in self.to_lots.items()]
         class_specific_data = [
             f"exchange={stringify(self.exchange)}",
             f"holder={stringify(self.holder)}",
@@ -136,6 +146,8 @@ class InTransaction(AbstractTransaction):
             f"unique_id={self.unique_id}",
             f"is_taxable={stringify(self.is_taxable())}",
             f"fiat_taxable_amount={self.fiat_taxable_amount:.4f}",
+            f"from_lot={self.from_lot.internal_id if self.from_lot is not None else ''}",
+            f"to_lots={', '.join(to_lots_string_parts)}",
         ]
         if extra_data:
             class_specific_data.extend(extra_data)
@@ -204,5 +216,16 @@ class InTransaction(AbstractTransaction):
     def is_crypto_fee_defined(self) -> bool:
         return self.crypto_fee > ZERO
 
+    @property
+    def from_lot(self) -> Optional["InTransaction"]:
+        return self.__from_lot
+
+    @property
+    def to_lots(self) -> Dict[str, List["InTransaction"]]:
+        return self.__to_lots
+
     def is_taxable(self) -> bool:
         return self.transaction_type.is_earn_type()
+
+    def is_earning(self) -> bool:
+        return self.is_taxable()

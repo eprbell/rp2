@@ -22,6 +22,7 @@
   * [What if I Don't Have the Spot Price for Some Transactions?](#what-if-i-dont-have-the-spot-price-for-some-transactions)
   * [What Tokens Does RP2 Support?](#what-tokens-does-rp2-support)
   * [What Accounting Methods Are Supported?](#what-accounting-methods-are-supported)
+  * [Do Accounting Methods Use Universal or Per-Wallet Application](#do-accounting-methods-use-universal-or-per-wallet-application)
   * [Can I Change Accounting Method?](#can-i-change-accounting-method)
   * [What Countries Are Supported?](#what-countries-are-supported)
   * [How to Switch from Another Tax Software to RP2?](#how-to-switch-from-another-tax-software-to-rp2)
@@ -57,6 +58,7 @@
   * [How to Handle Crypto Interest?](#how-to-handle-crypto-interest)
   * [How to Handle Income from Mining?](#how-to-handle-income-from-mining)
   * [How to Handle Income from Staking?](#how-to-handle-income-from-staking)
+  * [How to Handle Losses from Staking?](#how-to-handle-losses-from-staking)
   * [How to Handle Income from Crypto Wages?](#how-to-handle-income-from-crypto-wages)
   * [How to Handle Crypto Rewards?](#how-to-handle-crypto-rewards)
   * [How to Handle Fee-only DeFi Transactions?](#how-to-handle-fee-only-defi-transactions)
@@ -73,33 +75,28 @@
 In rp2_full_report.ods check the Account Balances table in the tax sheets, and make sure they match the actual balances of your accounts. If not, you probably have an error in the input file or missed some transactions.
 
 ### How to Verify that Tax Computation is Correct?
-RP2 supports [transparent computation](output_files.md#transparent-computation-rp2-full-report-output) and generates full computation details for every lot fraction, so that it's possible to verify step-by-step how RP2 reaches the final result.
+RP2 features [transparent computation](output_files.md#rp2-full-report-transparent-computation) and generates full computation details for every lot fraction, so that it's possible to verify step-by-step how RP2 reaches the final result.
 
 ### What Is the Timestamp Format?
 Timestamp format is [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) (see [examples](https://en.wikipedia.org/wiki/ISO_8601#Combined_date_and_time_representations) of timestamps in this format). Note that RP2 requires full timestamps, including date, time and timezone.
 
 ### What if I Don't Have the Spot Price for Some Transactions?
-In some cases exchange reports miss spot price information. In such situations you can retrieve historical price data from [Yahoo](https://finance.yahoo.com/quote/BTC-USD/history/), [CoinMarketCap](https://coinmarketcap.com/currencies/bitcoin/historical-data/) and others.
+In some cases exchange reports miss spot price information. In such situations you can retrieve historical price data from <!-- markdown-link-check-disable -->[Yahoo](https://finance.yahoo.com/quote/BTC-USD/history/)<!-- markdown-link-check-enable -->, [CoinMarketCap](https://coinmarketcap.com/currencies/bitcoin/historical-data/) and others.
 
 ### What Tokens Does RP2 Support?
 The user adds the tokens to the `assets` field of the [config file](input_files.md#the-config-file): RP2 accepts as valid all the tokens present in this field. See also the question on [writing a config file from scratch](#can-i-avoid-writing-a-config-file-from-scratch).
 
 ### What Accounting Methods Are Supported?
-RP2 currently supports the following accounting methods:
-* US: [FIFO](https://www.investopedia.com/terms/f/fifo.asp), [LIFO](https://www.investopedia.com/terms/l/lifo.asp) and [HIFO](https://www.investopedia.com/terms/h/hifo.asp). Note that these methods use universal application (not per-wallet application), as explained [here](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/);
-* Spain: FIFO;
-* Japan: Total Average Method.
+Accounting methods vary country by country, as described in the [supported countries](supported_countries.md) document.
+
+### Do Accounting Methods Use Universal or Per-Wallet Application?
+RP2 engine currently supports [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/) application, however per-wallet support is [being worked on](https://github.com/eprbell/rp2/issues/135).
 
 ### Can I Change Accounting Method?
-Yes, for countries that support more than one accounting method, you can select which one to use via the `-m` command line option.
+Yes, for countries that support more than one accounting method, you can select which one to use via the `-m` command line option, or you can use the `accounting_methods` section of the [config file](https://github.com/eprbell/rp2/blob/main/docs/input_files.md#the-config-file).
 
 ### What Countries Are Supported?
-Currently the following countries are supported:
-* US;
-* Japan;
-* Spain.
-
-However more countries are being added. As new countries are added this FAQ will be updated.
+RP2 can be used in most countries: see the [supported countries](supported_countries.md) document for details.
 
 ### How to Switch from Another Tax Software to RP2?
 In other words, how does RP2 handle transactions that were managed by other software in previous years? In this case the user can just leave out from the RP2 input spreadsheet the transactions/lots that were already sold in previous years.
@@ -134,7 +131,7 @@ RP2 has all of the following features:
 
 This means that with RP2 there are no transaction limits, no premium versions, no payment requests, no personal data sent to a server (at risk of being hacked), no account creation, no unauditable source code.
 
-Additionally RP2 offers [transparent computation](output_files.md#transparent-computation-rp2-full-report-output) and generates full computation details for every lot fraction, so that it's possible to:
+Additionally RP2 offers [transparent computation](output_files.md#rp2-full-report-transparent-computation) and generates full computation details for every lot fraction, so that it's possible to:
 * verify step-by-step how RP2 reaches the final result;
 * track down every lot fraction and its accounting details, in case of an audit.
 
@@ -258,6 +255,9 @@ Use an in-transaction and mark the transaction type as MINING. RP2 will collect 
 
 ### How to Handle Income from Staking?
 Use an in-transaction and mark the transaction type as STAKING. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
+
+### How to Handle Losses from Staking?
+This is useful to capture situations where the protocol penalizes users (e.g. when their node is offline for too long, etc.). Use an out-transaction and mark the transaction type as STAKING. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle Income from Crypto Wages?
 Use an in-transaction and mark the transaction type as WAGES. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.

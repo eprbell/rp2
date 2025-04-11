@@ -14,6 +14,30 @@
 
 # RP2 Change Log
 
+# 1.7.2
+* Added new LOST transaction type to model losses from bankruptcy, theft, etc.
+* Added LOFO accounting method (lowest in, first out)
+* misc improvements to documentation
+
+# 1.7.1
+* added generic country plugin (for use in countries that don't have country-specific support yet)
+* various improvements to documentation
+
+# 1.6.0
+* optimized FIFO accounting from quadratic to linear (#115)
+* optimized LIFO and HIFO accounting from quadratic to m*log(n) (#116)
+* added support for Ireland (#122)
+* added negative staking (#119)
+* fixed negative balance bug (#113)
+* reworked country-specific documentation: added dedicated page with country-specific information (see docs/supported_countries.md)
+
+## 1.5.1
+* re-enabled LIFO and HIFO accounting methods (see discussion at #79)
+* added Python 3.11 to test matrix (#107)
+* on certain Linux distribution the mpdecimal library is missing, which causes runtime errors. This is now detected and reported to the users (#108)
+* added -n CLI option to allow negative balances on exchanges (#106)
+* multiple small documentation improvements
+
 ## 1.5.0
 * added support for Spain (see #97)
 

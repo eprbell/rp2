@@ -38,7 +38,7 @@ The input spreadsheet is in .ods format and contains one or more sheets. Each sh
   * the second row is the table header: the meaning of each header cell is defined in the **in_header** section of the config file
   * the following rows describe one **IN**-transaction each
   * the last row contains the **TABLE END** keyword in column A
-* The **OUT**-table (optional) contains transactions describing crypto flowing out (e.g. donate, fee, gift, sell):
+* The **OUT**-table (optional) contains transactions describing crypto flowing out (e.g. donate, fee, gift, lost, sell, staking):
   * the first row contains the **OUT** keyword in column A
   * the second row is the table header: the meaning of each header cell is defined in the **out_header** section of the config file
   * the following rows describe one **OUT**-transaction each
@@ -74,7 +74,7 @@ Here follows an example of an input spreadsheet with 2 sheets (one for BTC and o
   * **asset**: which cryptocurrency was transacted (e.g. BTC, ETH, etc.). It must match the name of the spreadsheet and one of the values in the **assets** section of the config file.
   * **exchange**: exchange or wallet on which the transaction occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.). It must match one of the values in the **exchanges** section of the config file.
   * **holder**: exchange account or wallet owner. It must match one of the values in the **holders** section of the config file.
-  * **transaction_type**: DONATE, FEE, GIFT or SELL.
+  * **transaction_type**: DONATE, FEE, GIFT, LOST (useful to represent lost coins, due to exchange bankruptcy, theft, etc.), SELL or STAKING (useful to represent staking losses, due to node being offline, etc.).
   * **spot_price**: value of 1 unit of the given cryptocurrency at the time the transaction occurred.
   * **crypto_out_no_fee**: how much of the given cryptocurrency was sold or sent with the transaction (excluding fees).
   * **crypto_fee**: crypto value of the transaction fees.
@@ -110,8 +110,8 @@ The config file is structured as described below. Note that:
 * the `exchanges` field of the `general` section contains a comma-separated list of exchange or wallet identifiers;
 * the `holders` field of the `general` section typically contains only one name, unless multiple people are filing taxes jointly (in which case a comma-separated list is used);
 * the `generators` filed of the `general` section is optional and contains a comma-separated list of names of output generator plugins to use at generation time. If the section is not specified the default plugin set is used;
-<!--- * the `accounting_methods` section is optional and contains information on which accounting methods to use on any given year (see an [example](../config/test_data_multi_method.ini)). --->
-* *`<...>`* must be substituted with user-provided values (e.g. *`<column_number>`* must be substituted with 0 for column A in the input spreadsheet, 1 for B, etc);
+* the `accounting_methods` section is optional and contains information on which accounting methods to use on any given year (see an [example](../config/test_data_multi_method.ini));
+* *`<...>`* must be substituted with user-provided values (e.g. *`<column_number>`* must be substituted with 0 for column A in the input spreadsheet, 1 for B, etc).
 <pre>
 [in_header]
 timestamp = <em>&lt;column_number&gt;</em>
@@ -159,8 +159,8 @@ exchanges = <em>&lt;"exchange_or_wallet_1_in_quotes"&gt;</em>, ...&#x1F537; <em>
 holders = <em>&lt;"holder_1_in_quotes"&gt;</em>, ...&#x1F537; <em>&lt;"holder_n_in_quotes"&gt;</em>&#x1F537;
 generators&#x1F537; = <em>&lt;"generator_1_in_quotes"&gt;</em>, ...&#x1F537; <em>&lt;"generator_n_in_quotes"&gt;</em>&#x1F537;
 
-<!--- [accounting_methods]&#x1F537;
+[accounting_methods]&#x1F537;
 <em>&lt;"from_year_1"&gt;</em> = <em>&lt;"accounting_method_1"&gt;</em>
 ...&#x1F537;
 <em>&lt;"from_year_n"&gt;</em> = <em>&lt;"accounting_method_n"&gt;</em>&#x1F537;
-</pre> --->
+</pre>

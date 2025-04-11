@@ -31,17 +31,18 @@ LOGGER: logging.Logger = create_logger("tax_report_us")
 
 
 class SheetNames(Enum):
-    AIRDROPS: str = "Airdrops"
-    CAPITAL_GAINS: str = "Capital Gains"
-    DONATIONS: str = "Donations"
-    GIFTS: str = "Gifts"
-    HARDFORKS: str = "Hard Forks"
-    INCOME: str = "Income"
-    INTEREST: str = "Interest"
-    INVESTMENT_EXPENSES: str = "Investment Expenses"
-    MINING: str = "Mining"
-    STAKING: str = "Staking"
-    WAGES: str = "Wages"
+    AIRDROPS = "Airdrops"
+    CAPITAL_GAINS = "Capital Gains"
+    DONATIONS = "Donations"
+    GIFTS = "Gifts"
+    HARDFORKS = "Hard Forks"
+    INCOME = "Income"
+    INTEREST = "Interest"
+    INVESTMENT_EXPENSES = "Investment Expenses"
+    LOST = "Lost"
+    MINING = "Mining"
+    STAKING = "Staking"
+    WAGES = "Wages"
 
 
 _TEMPLATE_SHEETS_TO_KEEP: Set[str] = {f"__{item.value}" for item in SheetNames}
@@ -56,6 +57,7 @@ _SHEET_TO_TYPES: Dict[str, Tuple[TransactionType, ...]] = {
     SheetNames.INTEREST.value: (TransactionType.INTEREST,),
     SheetNames.INVESTMENT_EXPENSES.value: (
         TransactionType.FEE,
+        TransactionType.LOST,
         TransactionType.MOVE,
     ),
     SheetNames.MINING.value: (TransactionType.MINING,),

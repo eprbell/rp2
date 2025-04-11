@@ -17,10 +17,9 @@ from datetime import date
 from enum import Enum
 from itertools import chain
 from pathlib import Path
-from typing import Any, Dict, List, NamedTuple, Optional, Set, cast
+from typing import Any, Dict, List, NamedTuple, Optional, Set
 
 from rp2.abstract_country import AbstractCountry
-from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.computed_data import ComputedData
 from rp2.configuration import MAX_DATE, MIN_DATE
@@ -53,8 +52,8 @@ class _TransactionRow(NamedTuple):
 
 
 class _SheetNames(Enum):
-    ASSET: str = "Asset"
-    SUMMARY: str = "Summary"
+    ASSET = "Asset"
+    SUMMARY = "Summary"
 
 
 _TEMPLATE_SHEETS_TO_KEEP: Set[str] = {f"__{item.value}" for item in _SheetNames}
@@ -169,15 +168,14 @@ class Generator(AbstractODSGenerator):
         in_transaction_set: TransactionSet = computed_data.in_transaction_set
         out_transaction_set: TransactionSet = computed_data.out_transaction_set
         intra_transaction_set: TransactionSet = computed_data.intra_transaction_set
-        entry: AbstractEntry
+        entry: AbstractTransaction
         year: int
         years_2_transaction_sets: Dict[int, List[AbstractTransaction]] = {}
         previous_year_row_offset: int = 0
 
         # Sort all in and out transactions by year, the fee from intra transactions must be reported
         for entry in chain(in_transaction_set, out_transaction_set, intra_transaction_set):  # type: ignore
-            transaction: AbstractTransaction = cast(AbstractTransaction, entry)
-            years_2_transaction_sets.setdefault(transaction.timestamp.year, []).append(entry)
+            years_2_transaction_sets.setdefault(entry.timestamp.year, []).append(entry)
 
         for year, transaction_set in years_2_transaction_sets.items():
             # Sort the transactions by timestamp and generate sheet by year

@@ -21,19 +21,20 @@ from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
 class TransactionType(Enum):
-    AIRDROP: str = "airdrop"
-    BUY: str = "buy"
-    DONATE: str = "donate"
-    FEE: str = "fee"
-    GIFT: str = "gift"
-    HARDFORK: str = "hardfork"
-    INCOME: str = "income"
-    INTEREST: str = "interest"
-    MINING: str = "mining"
-    MOVE: str = "move"
-    SELL: str = "sell"
-    STAKING: str = "staking"
-    WAGES: str = "wages"
+    AIRDROP = "airdrop"
+    BUY = "buy"
+    DONATE = "donate"
+    FEE = "fee"
+    GIFT = "gift"
+    HARDFORK = "hardfork"
+    INCOME = "income"
+    INTEREST = "interest"
+    LOST = "lost"
+    MINING = "mining"
+    MOVE = "move"
+    SELL = "sell"
+    STAKING = "staking"
+    WAGES = "wages"
 
     @classmethod
     def has_value(cls, value: str) -> bool:
@@ -79,6 +80,7 @@ _transaction_type_values_to_translation: Dict[TransactionType, str] = {
     TransactionType.HARDFORK: _("hardfork"),
     TransactionType.INCOME: _("income"),
     TransactionType.INTEREST: _("interest"),
+    TransactionType.LOST: _("lost"),
     TransactionType.MINING: _("mining"),
     TransactionType.MOVE: _("move"),
     TransactionType.SELL: _("sell"),
@@ -88,10 +90,10 @@ _transaction_type_values_to_translation: Dict[TransactionType, str] = {
 
 
 class EntrySetType(Enum):
-    IN: str = "in"
-    INTRA: str = "intra"
-    MIXED: str = "mixed"
-    OUT: str = "out"
+    IN = "in"
+    INTRA = "intra"
+    MIXED = "mixed"
+    OUT = "out"
 
     @classmethod
     def has_value(cls, value: str) -> bool:

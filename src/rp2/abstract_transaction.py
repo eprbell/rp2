@@ -30,7 +30,7 @@ class AbstractTransaction(AbstractEntry):
         asset: str,
         transaction_type: str,
         spot_price: RP2Decimal,
-        internal_id: Optional[int] = None,
+        row: Optional[int] = None,
         unique_id: Optional[str] = None,
         notes: Optional[str] = None,
     ) -> None:
@@ -39,7 +39,9 @@ class AbstractTransaction(AbstractEntry):
         self.__timestamp: datetime = configuration.type_check_timestamp_from_string("timestamp", timestamp)
         self.__transaction_type: TransactionType = TransactionType.type_check_from_string("transaction_type", transaction_type)
         self.__spot_price: RP2Decimal = configuration.type_check_positive_decimal("spot_price", spot_price)
-        self.__internal_id: int = configuration.type_check_internal_id("internal_id", internal_id) if internal_id is not None else id(self)
+        # TODO: behavior when row is not provided does not semantically match "row", make non-optional  # pylint: disable=fixme
+        self.__row: int = configuration.type_check_internal_id("row", row) if row is not None else id(self)
+        self.__internal_id: int = self.__row
         self.__unique_id: str = configuration.type_check_string_or_integer("unique_id", unique_id) if unique_id is not None else ""
         self.__notes = configuration.type_check_string("notes", notes) if notes else ""
 
@@ -63,6 +65,9 @@ class AbstractTransaction(AbstractEntry):
     def __ne__(self, other: object) -> bool:
         return not self.__eq__(other)
 
+    def __lt__(self, other: "AbstractTransaction") -> bool:
+        return self.timestamp < other.timestamp
+
     def __hash__(self) -> int:
         # By definition, internal_id can uniquely identify a transaction: this works even if it's the ODS line from the spreadsheet,
         # since there are no cross-asset transactions (so a spreadsheet line points to a unique transaction for that asset).
@@ -85,6 +90,10 @@ class AbstractTransaction(AbstractEntry):
     @property
     def internal_id(self) -> str:
         return str(self.__internal_id)
+
+    @property
+    def row(self) -> int:
+        return self.__row
 
     @property
     def timestamp(self) -> datetime:
@@ -127,4 +136,7 @@ class AbstractTransaction(AbstractEntry):
         raise NotImplementedError("Abstract property")
 
     def is_taxable(self) -> bool:
+        raise NotImplementedError("Abstract method")
+
+    def is_earning(self) -> bool:
         raise NotImplementedError("Abstract method")

@@ -33,12 +33,14 @@ from rp2.tax_engine import compute_tax
 
 class TestTaxEngine(unittest.TestCase):
     _good_input_configuration: Configuration
+    _good_input_allow_negative_balance_configuration: Configuration
     _bad_input_configuration: Configuration
     _accounting_engine: AccountingEngine
 
     @classmethod
     def setUpClass(cls) -> None:
         TestTaxEngine._good_input_configuration = Configuration("./config/test_data.ini", US())
+        TestTaxEngine._good_input_allow_negative_balance_configuration = Configuration("./config/test_data.ini", US(), allow_negative_balances=True)
         TestTaxEngine._bad_input_configuration = Configuration("./config/test_bad_data.ini", US())
         years_2_methods = AVLTree[int, AbstractAccountingMethod]()
         years_2_methods.insert_node(MIN_DATE.year, AccountingMethod())
@@ -49,19 +51,24 @@ class TestTaxEngine(unittest.TestCase):
 
     def test_good_input(self) -> None:
         self._verify_good_output("B1")
-        self._verify_good_output("B2")
-        self._verify_good_output("B3")
-        self._verify_good_output("B4")
+        self._verify_good_output("B2", allow_negative_balances=True)
+        self._verify_good_output("B3", allow_negative_balances=True)
+        self._verify_good_output("B4", allow_negative_balances=True)
 
-    def _verify_good_output(self, sheet_name: str) -> None:
+    def _verify_good_output(self, sheet_name: str, allow_negative_balances: bool = False) -> None:
+        if allow_negative_balances:
+            config = self._good_input_allow_negative_balance_configuration
+        else:
+            config = self._good_input_configuration
+
         asset = sheet_name
 
         # Parser is tested separately (on same input) in test_input_parser.py
-        input_file_handle: object = open_ods(self._good_input_configuration, "./input/test_data.ods")
-        input_data: InputData = parse_ods(self._good_input_configuration, asset, input_file_handle)
+        input_file_handle: object = open_ods(config, "./input/test_data.ods")
+        input_data: InputData = parse_ods(config, asset, input_file_handle)
 
         # In table is always present
-        computed_data: ComputedData = compute_tax(self._good_input_configuration, self._accounting_engine, input_data)
+        computed_data: ComputedData = compute_tax(config, self._accounting_engine, input_data)
 
         if asset in RP2_TEST_OUTPUT:
             self.assertEqual(str(computed_data.gain_loss_set), RP2_TEST_OUTPUT[asset])
@@ -119,7 +126,7 @@ class TestTaxEngine(unittest.TestCase):
                 RP2Decimal("900.9"),
                 RP2Decimal("20.2"),
                 RP2Decimal("1"),
-                internal_id=38,
+                row=38,
             )
         )
 

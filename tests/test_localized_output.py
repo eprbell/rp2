@@ -34,7 +34,15 @@ class TestLocalizedOutput(AbstractTestODSOutputDiff):  # pylint: disable=too-man
         # To test localization plumbing, we generate Japanese taxes for test_data in Kalaallisut language. Note that the localization
         # file (locales/kl/LC_MESSAGES/messages.po) doesn't contain real Kalaallisut translations, but only placeholder strings starting
         # with "__test_": this is good enough to test localization plumbing (and it would work in the same way with a real translation).
-        cls._generate(cls.output_dir, test_name="test_data", config="test_data", method="fifo", generation_language="kl", country="jp")
+        cls._generate(
+            cls.output_dir,
+            test_name="test_data",
+            config="test_data",
+            method="fifo",
+            generation_language="kl",
+            country="jp",
+            allow_negative_balances=True,
+        )
 
     def setUp(self) -> None:
         self.maxDiff = None  # pylint: disable=invalid-name

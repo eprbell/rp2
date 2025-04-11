@@ -14,7 +14,7 @@
 
 ![RP2 Logo](https://raw.githubusercontent.com/eprbell/rp2/main/docs/images/rp2_header.png)
 
-# RP2 v1.5.0
+# RP2 v1.7.2
 Privacy-focused, free, powerful crypto tax calculator
 
 [![Static Analysis / Main Branch](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/static_analysis.yml)
@@ -37,6 +37,7 @@ Privacy-focused, free, powerful crypto tax calculator
   * [Other Unix-like Systems](https://github.com/eprbell/rp2/blob/main/README.md#installation-on-other-unix-like-systems)
 * **[Running](https://github.com/eprbell/rp2/blob/main/README.md#running)**
 * **[Input and Output Files](https://github.com/eprbell/rp2/blob/main/README.md#input-and-output-files)**
+* **[Supported Countries and Accounting Methods](https://github.com/eprbell/rp2/blob/main/README.md#supported-countries-and-accounting-methods)**
 * **[RP2 Ecosystem](https://github.com/eprbell/rp2/blob/main/README.md#rp2-ecosystem)**
   * [List of Ecosystem Projects](https://github.com/eprbell/rp2/blob/main/README.md#list-of-ecosystem-projects)
 * **[Reporting Bugs](https://github.com/eprbell/rp2/blob/main/README.md#reporting-bugs)**
@@ -46,29 +47,22 @@ Privacy-focused, free, powerful crypto tax calculator
 * **[Change Log](https://github.com/eprbell/rp2/blob/main/README.md#change-log)**
 
 ## Introduction
-[RP2](https://github.com/eprbell/rp2) is a privacy-focused, free, non-commercial, open-source, community-driven cryptocurrency tax calculator for multiple countries (currently US, Japan and Spain are supported). Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This task could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
+[RP2](https://github.com/eprbell/rp2) is a privacy-focused, free, non-commercial, open-source, community-driven cryptocurrency tax calculator for [multiple countries](https://github.com/eprbell/rp2/blob/main/docs/supported_countries.md). Preparing crypto taxes can be a daunting and error-prone task, especially if multiple transactions, coins, exchanges and wallets are involved. This task could be delegated to a crypto tax preparation service, but many crypto users value their privacy and prefer not to send their transaction information to third parties unnecessarily. Additionally, many of these services cost money. RP2 solves all of these problems:
 * it manages the complexity related to coin flows and tax calculation and it generates [reports that accountants can understand](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#advisor-friendly-report-tax-report-us-output) (in the format of form 8949, for the US case), even if they are not cryptocurrency experts;
 * it prioritizes user privacy by storing crypto transactions and tax results on the user's computer and not sending them anywhere else;
 * it's 100% free, open-source and non-commercial.
 
 This means that with RP2 there are no transaction limits, no premium versions, no payment requests, no personal data sent to a server (at risk of being hacked), no account creation, no unauditable source code.
 
-Another unique advantage of RP2 is [transparent computation](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#transparent-computation-rp2-full-report-output): RP2 generates full computation details for every lot fraction, so that it's possible to:
+Another unique advantage of RP2 is [transparent computation](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): RP2 generates full computation details for every lot fraction, so that it's possible to:
 * verify step-by-step how RP2 reaches the final result;
 * track down every lot fraction and its accounting details, in case of an audit.
 
-RP2 currently supports the following accounting methods:
-* US: [FIFO](https://www.investopedia.com/terms/f/fifo.asp), [LIFO](https://www.investopedia.com/terms/l/lifo.asp) and [HIFO](https://www.investopedia.com/terms/h/hifo.asp). Note that these methods use universal application (not per-wallet application), as explained [here](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/);
-* Spain: FIFO;
-* Japan: Total Average Method.
+RP2 supports most [countries](https://github.com/eprbell/rp2/blob/main/docs/supported_countries.md) and various [accounting methods](https://github.com/eprbell/rp2/blob/main/docs/supported_countries.md), which vary country by country.
 
 RP2 reads a configuration file and an input spreadsheet containing crypto transactions. These [input files](https://github.com/eprbell/rp2/blob/main/docs/input_files.md) can be generated either manually or automatically using [DaLI](https://github.com/eprbell/dali-rp2), a RP2 data loader and input generator (which is also privacy-focused, free, non-commercial, open-source and community-driven). After parsing the input, RP2 uses high-precision math to calculate long/short term capital gains, cost bases, balances, average price, in/out lot relationships/fractions, and finally it generates [output files](https://github.com/eprbell/rp2/blob/main/docs/output_files.md).
 
-RP2 has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-report-generator), [accounting methods](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-accounting-method) and [countries](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-support-for-a-new-country). The builtin output generator plugins are in part generic and in part country-specific, but RP2's architecture makes it possible to contribute additional generators for different countries or for different country-based cases. The builtin output generator plugins are:
-* tax_report_us: generates a US-specific tax report meant to be read by tax preparers (in the format of form 8949);
-* tax_report_jp: generates a Japan-specific tax report meant to be read by tax preparers;
-* rp2_full_report: generates a comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
-* open_positions: geterates a report (valid for any country) on assets with non-zero crypto balance: unrealized gains / losses, portfolio weighting, and more.
+RP2 has a programmable plugin architecture for [output generators](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-report-generator), [accounting methods](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-a-new-accounting-method) and [countries](https://github.com/eprbell/rp2/tree/main/README.dev.md#adding-support-for-a-new-country). Built-in [output generator plugins](https://github.com/eprbell/rp2/blob/main/docs/output_files.md) vary [country by country](https://github.com/eprbell/rp2/blob/main/docs/supported_countries.md), but RP2's architecture makes it possible to contribute additional generators for different countries or for different country-based cases.
 
 RP2 has extensive [unit test](https://github.com/eprbell/rp2/tree/main/tests/) coverage to reduce the risk of regression.
 
@@ -110,7 +104,7 @@ RP2 is released under the terms of Apache License Version 2.0. For more informat
 The latest version of RP2 can be downloaded at: <https://pypi.org/project/rp2/>
 
 ## Installation
-RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.7.0 or greater.
+RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.8.0 or greater.
 
 ### Installation on Ubuntu Linux
 Open a terminal window and enter the following commands:
@@ -135,13 +129,13 @@ Then install RP2:
 pip install rp2
 ```
 ### Installation on Windows 10
-First make sure [Python](https://python.org) 3.7 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following:
+First make sure [Python](https://python.org) 3.8 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following:
 ```
 pip install rp2
 ```
 
 ### Installation on Other Unix-like Systems
-* install python 3.7 or greater
+* install python 3.8 or greater
 * install pip3
 
 Then install RP2:
@@ -173,7 +167,7 @@ The RP2 executable is country-dependent: `rp2_<country_code>`, where country cod
 To generate US tax output for the example files open a terminal window (or PowerShell if on Windows) and enter the following commands:
   ```
   cd <download_directory>
-  rp2_us -m fifo -o output -p crypto_example_ crypto_example.ini crypto_example.ods
+  rp2_us -n -m fifo -o output -p crypto_example_ crypto_example.ini crypto_example.ods
   ```
 Results are generated in the `output` directory and logs are stored in the `log` directory.
 
@@ -186,6 +180,9 @@ To print full command usage information for the `rp2_us` command:
 
 ## Input and Output Files
 Read the [input files](https://github.com/eprbell/rp2/blob/main/docs/input_files.md) and [output files](https://github.com/eprbell/rp2/blob/main/docs/output_files.md) documentation.
+
+## Supported Countries and Accounting Methods
+Read the [supported countries and accounting methods](https://github.com/eprbell/rp2/blob/main/docs/supported_countries.md) documentation.
 
 ## RP2 Ecosystem
 This is a call for coders: come and help us expand RP2's functionality!
