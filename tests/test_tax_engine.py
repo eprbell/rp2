@@ -130,12 +130,30 @@ class TestTaxEngine(unittest.TestCase):
             )
         )
 
-        with self.assertRaisesRegex(RP2ValueError, "Total in-transaction crypto value < total taxable crypto value"):
+        with self.assertRaises(RP2ValueError) as value_error:
             compute_tax(
                 self._good_input_configuration,
                 self._accounting_engine,
                 input_data,
             )
+        self.assertEqual(
+            str(value_error.exception),
+            """Taxable out-transaction crypto value > acquired in-transaction crypto value by -16.22000000000 for OutTransaction:
+  id=38
+  timestamp=2020-06-01 03:59:59.000000 -0400
+  asset=B4
+  exchange=Coinbase Pro
+  holder=Bob
+  transaction_type=TransactionType.SELL
+  spot_price=900.9000
+  crypto_out_no_fee=20.20000000
+  crypto_fee=1.00000000
+  unique_id=
+  is_taxable=True
+  fiat_taxable_amount=18198.1800
+For more information, see Some Section in the User FAQ: \
+https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#somenewsection""",
+        )
 
 
 if __name__ == "__main__":
