@@ -107,7 +107,7 @@ class TestInputParser(unittest.TestCase):
 
         transaction: Optional[InTransaction] = None
         previous_transaction: Optional[InTransaction] = None
-        for (  # type: ignore
+        for (
             transaction,
             internal_id,
             timestamp,
@@ -117,7 +117,7 @@ class TestInputParser(unittest.TestCase):
             crypto_balance_change,
             fiat_balance_change,
             is_taxable,
-        ) in zip(  # type: ignore
+        ) in zip(
             in_transaction_set,
             internal_ids,
             timestamps,
@@ -182,7 +182,7 @@ class TestInputParser(unittest.TestCase):
         transaction: Optional[OutTransaction] = None
         previous_transaction: Optional[OutTransaction] = None
 
-        for (  # type: ignore
+        for (
             transaction,
             internal_id,
             timestamp,
@@ -192,7 +192,7 @@ class TestInputParser(unittest.TestCase):
             crypto_balance_change,
             fiat_balance_change,
             is_taxable,
-        ) in zip(  # type: ignore
+        ) in zip(
             out_transaction_set,
             internal_ids,
             timestamps,
@@ -254,7 +254,7 @@ class TestInputParser(unittest.TestCase):
 
         transaction: Optional[IntraTransaction] = None
         previous_transaction: Optional[IntraTransaction] = None
-        for (  # type: ignore
+        for (
             transaction,
             internal_id,
             timestamp,
@@ -264,7 +264,7 @@ class TestInputParser(unittest.TestCase):
             crypto_balance_change,
             fiat_balance_change,
             is_taxable,
-        ) in zip(  # type: ignore
+        ) in zip(
             intra_transaction_set,
             internal_ids,
             timestamps,
