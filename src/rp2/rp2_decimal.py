@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=signature-differs
+
 from decimal import Decimal, FloatOperation, getcontext
 
 from rp2.rp2_error import RP2TypeError
