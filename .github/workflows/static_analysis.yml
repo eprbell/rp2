@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.9]
+        python-version: ["3.10"]
     env:
       PYTHONPATH: ./src:./tests
       MYPYPATH: ./src:./tests:./src/stubs
