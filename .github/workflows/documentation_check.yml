@@ -17,6 +17,6 @@ jobs:
         uses: lycheeverse/lychee-action@v2
         with:
           # Check all markdown files recursively
-          args: --verbose --no-progress './**/*.md'
+          args: --config lychee.toml --verbose --no-progress './**/*.md'
           # Fail the job if broken links are found
           fail: true
