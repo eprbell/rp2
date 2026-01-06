@@ -13,20 +13,19 @@
 # limitations under the License.
 
 import unittest
-
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import List
 
 from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.configuration import Configuration
+from rp2.in_transaction import InTransaction
 from rp2.plugin.accounting_method.fifo import AccountingMethod as AccountingMethodFIFO
-from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMethodLIFO
 from rp2.plugin.accounting_method.hifo import AccountingMethod as AccountingMethodHIFO
+from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMethodLIFO
 from rp2.plugin.accounting_method.lofo import AccountingMethod as AccountingMethodLOFO
 from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
-from rp2.in_transaction import InTransaction
 
 
 @dataclass(frozen=True, eq=True)
@@ -39,6 +38,7 @@ class SeekLotResult:
 class InTransactionDescriptor:
     spot_price: int
     amount: int
+
 
 @dataclass(frozen=True, eq=True)
 class _Test:
@@ -189,13 +189,11 @@ class TestAccountingMethod(unittest.TestCase):
                 in_transactions=[InTransactionDescriptor(12, 10), InTransactionDescriptor(10, 20), InTransactionDescriptor(11, 30)],
                 amounts_to_match=[15, 5, 35, 5],
                 want=[SeekLotResult(20, 2), SeekLotResult(5, 2), SeekLotResult(30, 3), SeekLotResult(10, 1), SeekLotResult(5, 1)],
-            )
-
+            ),
         ]
         for test in tests:
             with self.subTest(name=f"{test.description}"):
                 self._run_test_fixed_lot_candidates(lot_selection_method=test.lot_selection_method, test=test)
-
 
     def test_with_dynamic_lot_candidates(self) -> None:
         # Go-style, table-based tests. The want field contains the expected results.
@@ -227,7 +225,7 @@ class TestAccountingMethod(unittest.TestCase):
                 in_transactions=[InTransactionDescriptor(12, 10), InTransactionDescriptor(10, 20), InTransactionDescriptor(11, 30)],
                 amounts_to_match=[4, 16, 40],
                 want=[SeekLotResult(10, 1), SeekLotResult(20, 2), SeekLotResult(4, 2), SeekLotResult(30, 3), SeekLotResult(6, 1)],
-            )
+            ),
         ]
         for test in tests:
             with self.subTest(name=f"{test.description}"):
