@@ -284,7 +284,7 @@ The RP2 accounting engine automatically provides the following common functional
 * lot disambiguation: this occurs when lots have the same timestamp;
 * accounting method change year over year: this occurs when the user changes accounting method with the `-m` option.
 
-Note that the RP2 accounting engine uses [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/), not per-wallet application: this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
+Note that the RP2 accounting engine uses <!-- markdown-link-check-disable -->[universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/)<!-- markdown-link-check-enable-->, not per-wallet application: this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
 
 Accounting method plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * add a new Python file to the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
