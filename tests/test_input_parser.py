@@ -26,7 +26,7 @@ from rp2.ods_parser import open_ods, parse_ods
 from rp2.out_transaction import OutTransaction
 from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
-from rp2.rp2_error import RP2Error, RP2RuntimeError, RP2TypeError, RP2ValueError
+from rp2.rp2_error import RP2Error, RP2TypeError, RP2ValueError
 from rp2.transaction_set import TransactionSet
 
 
