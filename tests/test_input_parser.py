@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import unittest
-from typing import Dict, List, NamedTuple, Optional, Type
+from typing import Dict, List, NamedTuple, Optional, Type, cast
 
 from dateutil.parser import parse
 
@@ -26,7 +26,7 @@ from rp2.ods_parser import open_ods, parse_ods
 from rp2.out_transaction import OutTransaction
 from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
-from rp2.rp2_error import RP2Error, RP2RuntimeError, RP2TypeError, RP2ValueError
+from rp2.rp2_error import RP2Error, RP2TypeError, RP2ValueError
 from rp2.transaction_set import TransactionSet
 
 
@@ -107,7 +107,7 @@ class TestInputParser(unittest.TestCase):
 
         transaction: Optional[InTransaction] = None
         previous_transaction: Optional[InTransaction] = None
-        for (
+        for (  # type: ignore
             transaction,
             internal_id,
             timestamp,
@@ -117,7 +117,7 @@ class TestInputParser(unittest.TestCase):
             crypto_balance_change,
             fiat_balance_change,
             is_taxable,
-        ) in zip(
+        ) in zip(  # type: ignore
             in_transaction_set,
             internal_ids,
             timestamps,
@@ -128,9 +128,8 @@ class TestInputParser(unittest.TestCase):
             fiat_balance_changes,
             is_taxable_values,
         ):
+            transaction = cast(InTransaction, transaction)
             row = int(internal_id)
-            if not in_transaction_set or not transaction:  # Unwrap the Optional types to keep mypy happy
-                raise RP2RuntimeError("Internal error: in_transaction_set or transaction are None")
             self.assertEqual(in_transaction_set.get_parent(transaction), previous_transaction)
             self.assertEqual(transaction.row, row)
             self.assertEqual(transaction.internal_id, internal_id)
@@ -182,7 +181,7 @@ class TestInputParser(unittest.TestCase):
         transaction: Optional[OutTransaction] = None
         previous_transaction: Optional[OutTransaction] = None
 
-        for (
+        for (  # type: ignore
             transaction,
             internal_id,
             timestamp,
@@ -192,7 +191,7 @@ class TestInputParser(unittest.TestCase):
             crypto_balance_change,
             fiat_balance_change,
             is_taxable,
-        ) in zip(
+        ) in zip(  # type: ignore
             out_transaction_set,
             internal_ids,
             timestamps,
@@ -203,9 +202,8 @@ class TestInputParser(unittest.TestCase):
             fiat_balance_changes,
             is_taxable_values,
         ):
+            transaction = cast(OutTransaction, transaction)
             row = int(internal_id)
-            if not out_transaction_set or not transaction:  # Unwrap the Optional types to keep mypy happy
-                raise RP2RuntimeError("Internal error: in_transaction_set or transaction are None")
             self.assertEqual(out_transaction_set.get_parent(transaction), previous_transaction)
             self.assertEqual(transaction.row, row)
             self.assertEqual(transaction.internal_id, internal_id)
@@ -254,7 +252,7 @@ class TestInputParser(unittest.TestCase):
 
         transaction: Optional[IntraTransaction] = None
         previous_transaction: Optional[IntraTransaction] = None
-        for (
+        for (  # type: ignore
             transaction,
             internal_id,
             timestamp,
@@ -264,7 +262,7 @@ class TestInputParser(unittest.TestCase):
             crypto_balance_change,
             fiat_balance_change,
             is_taxable,
-        ) in zip(
+        ) in zip(  # type: ignore
             intra_transaction_set,
             internal_ids,
             timestamps,
@@ -275,9 +273,8 @@ class TestInputParser(unittest.TestCase):
             fiat_balance_changes,
             is_taxable_values,
         ):
+            transaction = cast(IntraTransaction, transaction)
             row = int(internal_id)
-            if not intra_transaction_set or not transaction:  # Unwrap the Optional types to keep mypy happy
-                raise RP2RuntimeError("Internal error: intra_transaction_set or transaction are None")
             self.assertEqual(intra_transaction_set.get_parent(transaction), previous_transaction)
             self.assertEqual(transaction.row, row)
             self.assertEqual(transaction.internal_id, internal_id)
