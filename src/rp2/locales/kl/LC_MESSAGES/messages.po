@@ -764,4 +764,3 @@ msgstr "__test_{}_{}"
 
 #~ msgid "US dollar value of the fees"
 #~ msgstr "__test_US dollar value of the fees"
-

@@ -773,4 +773,3 @@ msgstr ""
 
 #~ msgid "Exchange or wallet where balance is held (asset and exchange tab only)"
 #~ msgstr ""
-

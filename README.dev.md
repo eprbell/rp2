@@ -185,6 +185,7 @@ While every commit and push is automatically tested as described, sometimes it's
 * security check: `bandit -r src`
 * reformat code: `black src tests`
 * sort imports: `isort .`
+* update local pre-commit repos: `pre-commit autoupdate; pre-commit install`
 * run pre-commit tests without committing: `pre-commit run --all-files`
 
 Logs are stored in the `log` directory. To generate debug logs, prepend the command line with `LOG_LEVEL=DEBUG`, e.g.:
