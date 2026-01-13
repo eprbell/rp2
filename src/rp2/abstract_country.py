@@ -16,6 +16,7 @@
 from typing import List, Set
 
 from pycountry import countries, currencies
+
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
