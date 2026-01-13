@@ -1,0 +1,7 @@
+# Ignore these domains because they block CI/CD bots
+exclude = [
+  "https://www.forbes.com/.*",
+  "https://www.reddit.com/.*",
+  "https://finance.yahoo.com/.*",
+  "https://www.cointracker.io/.*"
+]

@@ -50,7 +50,7 @@ Set CURRENCY_CODE=eur LONG_TERM_CAPITAL_GAINS=1000000000 rp2_generic...
 ```
 RP2 Generic supports the following features:
 * Generic RP2 executable: `rp2_generic`.
-* Accounting methods (note that these methods use <!-- markdown-link-check-disable -->[universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/)<!-- markdown-link-check-enable-->, not per-wallet application):
+* Accounting methods (note that these methods use [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/), not per-wallet application):
   * [FIFO](https://www.investopedia.com/terms/f/fifo.asp),
   * [LIFO](https://www.investopedia.com/terms/l/lifo.asp),
   * [HIFO](https://www.investopedia.com/terms/h/hifo.asp),
@@ -90,7 +90,7 @@ RP2 support for Spain includes the following features:
 
 ### USA
 RP2 support for the US includes the following features:
-* Accounting methods (note that these methods use <!-- markdown-link-check-disable -->[universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/)<!-- markdown-link-check-enable-->, not per-wallet application):
+* Accounting methods (note that these methods use [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/), not per-wallet application):
   * [FIFO](https://www.investopedia.com/terms/f/fifo.asp),
   * [LIFO](https://www.investopedia.com/terms/l/lifo.asp),
   * [HIFO](https://www.investopedia.com/terms/h/hifo.asp),

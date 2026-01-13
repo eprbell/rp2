@@ -18,6 +18,7 @@
 [![Unix Unit Tests / Main Branch](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml)
 [![Windows Unit Tests / Main Branch](https://github.com/eprbell/rp2/actions/workflows/windows_unit_tests.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/windows_unit_tests.yml)
 [![CodeQL/Main Branch](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/eprbell/rp2)
 
 ## Table of Contents
 * **[Introduction](#introduction)**
@@ -51,7 +52,7 @@ RP2 is released under the terms of Apache License Version 2.0. For more informat
 The latest RP2 source can be downloaded at: <https://github.com/eprbell/rp2>
 
 ## Setup
-RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.8.0 or greater. Virtualenv is recommended for RP2 development.
+RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.10.0 or greater. Virtualenv is recommended for RP2 development.
 
 ### Setup on Ubuntu Linux
 First make sure Python, pip and virtualenv are installed. If not, open a terminal window and enter the following commands:
@@ -82,7 +83,7 @@ virtualenv -p python3 .venv
 .venv/bin/pip3 install -e '.[dev]'
 ```
 ### Setup on Windows 10
-First make sure [Python](https://python.org) 3.8 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following commands:
+First make sure [Python](https://python.org) 3.10 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following commands:
 ```
 python -m pip install virtualenv
 ```
@@ -97,7 +98,7 @@ python -m pip install -e ".[dev]"
 
 If `activate.ps1` cannot be loaded because running scripts is disabled on the system, run `activate.bat` instead or change the PowerShell execution policy `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`.
 ### Setup on Other Unix-like Systems
-* install python 3.8 or greater
+* install python 3.10 or greater
 * install pip3
 * install virtualenv
 
@@ -184,6 +185,7 @@ While every commit and push is automatically tested as described, sometimes it's
 * security check: `bandit -r src`
 * reformat code: `black src tests`
 * sort imports: `isort .`
+* update local pre-commit repos: `pre-commit autoupdate; pre-commit install`
 * run pre-commit tests without committing: `pre-commit run --all-files`
 
 Logs are stored in the `log` directory. To generate debug logs, prepend the command line with `LOG_LEVEL=DEBUG`, e.g.:
@@ -284,7 +286,7 @@ The RP2 accounting engine automatically provides the following common functional
 * lot disambiguation: this occurs when lots have the same timestamp;
 * accounting method change year over year: this occurs when the user changes accounting method with the `-m` option.
 
-Note that the RP2 accounting engine uses <!-- markdown-link-check-disable -->[universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/)<!-- markdown-link-check-enable-->, not per-wallet application: this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
+Note that the RP2 accounting engine uses [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/), not per-wallet application: this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
 
 Accounting method plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * add a new Python file to the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
