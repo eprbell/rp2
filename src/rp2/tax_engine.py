@@ -14,7 +14,6 @@
 
 from typing import Iterable, Iterator, Optional, cast
 
-from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.accounting_engine import (
     AccountingEngine,
@@ -39,7 +38,7 @@ def compute_tax(configuration: Configuration, accounting_engine: AccountingEngin
     AccountingEngine.type_check("accounting_engine", accounting_engine)
     InputData.type_check("input_data", input_data)
 
-    unfiltered_taxable_event_set: TransactionSet = _create_unfiltered_taxable_event_set(configuration, input_data)
+    unfiltered_taxable_event_set: TransactionSet = input_data.create_unfiltered_taxable_event_set(configuration)
     LOGGER.debug("%s: Created taxable event set", input_data.asset)
     unfiltered_gain_loss_set: GainLossSet = _create_unfiltered_gain_and_loss_set(configuration, accounting_engine, input_data, unfiltered_taxable_event_set)
     LOGGER.debug("%s: Created gain-loss set", input_data.asset)
@@ -52,24 +51,6 @@ def compute_tax(configuration: Configuration, accounting_engine: AccountingEngin
         configuration.from_date,
         configuration.to_date,
     )
-
-
-def _create_unfiltered_taxable_event_set(configuration: Configuration, input_data: InputData) -> TransactionSet:
-    transaction_set: TransactionSet
-    entry: AbstractEntry
-    transaction: AbstractTransaction
-    taxable_event_set: TransactionSet = TransactionSet(configuration, "MIXED", input_data.asset, MIN_DATE, MAX_DATE)
-    for transaction_set in [
-        input_data.unfiltered_in_transaction_set,
-        input_data.unfiltered_out_transaction_set,
-        input_data.unfiltered_intra_transaction_set,
-    ]:
-        for entry in transaction_set:
-            transaction = cast(AbstractTransaction, entry)
-            if transaction.is_taxable():
-                taxable_event_set.add_entry(transaction)
-
-    return taxable_event_set
 
 
 def _get_next_taxable_event_and_acquired_lot(
