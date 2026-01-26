@@ -281,7 +281,6 @@ class AbstractFeatureBasedAccountingMethod(AbstractAccountingMethod):
 
         if selected_acquired_lot_amount > ZERO and selected_acquired_lot:
             lot_candidates.clear_partial_amount(selected_acquired_lot)
-            if selected_acquired_lot_amount > taxable_event_amount:
-                self.add_selected_lot_to_heap(lot_candidates.acquired_lot_heap, selected_acquired_lot)
+            self.add_selected_lot_to_heap(lot_candidates.acquired_lot_heap, selected_acquired_lot)
             return AcquiredLotAndAmount(acquired_lot=selected_acquired_lot, amount=selected_acquired_lot_amount)
         return None
