@@ -194,7 +194,12 @@ def _create_unfiltered_gain_and_loss_set(
                 )
 
     except AcquiredLotsExhaustedException:
-        raise RP2ValueError("Total in-transaction crypto value < total taxable crypto value") from None
+        raise RP2ValueError(
+            f"Taxable out-transaction crypto value > acquired in-transaction crypto value by "
+            f"{acquired_lot_amount - taxable_event_amount} for {taxable_event}\n"
+            f"For more information, see Some Section in the User FAQ: "
+            f"https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#somenewsection"
+        ) from None
     except TaxableEventsExhaustedException:
         pass
 
