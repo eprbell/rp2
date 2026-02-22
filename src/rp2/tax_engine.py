@@ -83,11 +83,11 @@ def _get_next_taxable_event_and_acquired_lot(
     new_acquired_lot: Optional[InTransaction]
     new_taxable_event_amount: RP2Decimal
     new_acquired_lot_amount: RP2Decimal
-    (new_taxable_event, new_acquired_lot, new_taxable_event_amount, new_acquired_lot_amount) = accounting_engine.get_next_taxable_event_and_amount(
+    new_taxable_event, new_acquired_lot, new_taxable_event_amount, new_acquired_lot_amount = accounting_engine.get_next_taxable_event_and_amount(
         taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount
     )
     if acquired_lot == new_acquired_lot:
-        (_, new_acquired_lot, _, new_acquired_lot_amount) = accounting_engine.get_acquired_lot_for_taxable_event(
+        _, new_acquired_lot, _, new_acquired_lot_amount = accounting_engine.get_acquired_lot_for_taxable_event(
             new_taxable_event, new_acquired_lot, new_taxable_event_amount, new_acquired_lot_amount
         )
     return TaxableEventAndAcquiredLot(new_taxable_event, new_acquired_lot, new_taxable_event_amount, new_acquired_lot_amount)
@@ -113,7 +113,7 @@ def _create_unfiltered_gain_and_loss_set(
         total_amount: RP2Decimal = ZERO
 
         # Retrieve first taxable event and acquired lot
-        (taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount) = _get_next_taxable_event_and_acquired_lot(
+        taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount = _get_next_taxable_event_and_acquired_lot(
             new_accounting_engine, None, None, ZERO, ZERO
         )
 
@@ -140,7 +140,7 @@ def _create_unfiltered_gain_and_loss_set(
                 )
                 total_amount += taxable_event_amount
                 gain_loss_set.add_entry(gain_loss)
-                (taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount) = new_accounting_engine.get_next_taxable_event_and_amount(
+                taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount = new_accounting_engine.get_next_taxable_event_and_amount(
                     taxable_event, acquired_lot, ZERO, acquired_lot_amount
                 )
                 continue
@@ -157,7 +157,7 @@ def _create_unfiltered_gain_and_loss_set(
                 )
                 total_amount += taxable_event_amount
                 gain_loss_set.add_entry(gain_loss)
-                (taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount) = _get_next_taxable_event_and_acquired_lot(
+                taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount = _get_next_taxable_event_and_acquired_lot(
                     new_accounting_engine, taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount
                 )
             elif taxable_event_amount < acquired_lot_amount:
@@ -173,7 +173,7 @@ def _create_unfiltered_gain_and_loss_set(
                 )
                 total_amount += taxable_event_amount
                 gain_loss_set.add_entry(gain_loss)
-                (taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount) = new_accounting_engine.get_next_taxable_event_and_amount(
+                taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount = new_accounting_engine.get_next_taxable_event_and_amount(
                     taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount
                 )
             else:  # taxable_amount > acquired_lot_amount
@@ -189,7 +189,7 @@ def _create_unfiltered_gain_and_loss_set(
                 )
                 total_amount += acquired_lot_amount
                 gain_loss_set.add_entry(gain_loss)
-                (taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount) = new_accounting_engine.get_acquired_lot_for_taxable_event(
+                taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount = new_accounting_engine.get_acquired_lot_for_taxable_event(
                     taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount
                 )
 

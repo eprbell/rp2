@@ -22,4 +22,5 @@ from rp2.in_transaction import InTransaction
 # HIFO (Highest In, First Out) plugin. See https://www.investopedia.com/terms/h/hifo.asp.
 class AccountingMethod(AbstractFeatureBasedAccountingMethod):
     def sort_key(self, lot: InTransaction) -> AcquiredLotSortKey:
-        return AcquiredLotSortKey(-lot.spot_price, lot.timestamp.timestamp(), lot.row)
+        adjusted_basis = lot.fiat_in_with_fee / lot.crypto_in
+        return AcquiredLotSortKey(-adjusted_basis, lot.timestamp.timestamp(), lot.row)

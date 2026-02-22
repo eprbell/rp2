@@ -22,4 +22,5 @@ from rp2.in_transaction import InTransaction
 # LOFO (Lowest In, First Out) plugin. In this method the lot with lowest cost of purchase is the first to be used.
 class AccountingMethod(AbstractFeatureBasedAccountingMethod):
     def sort_key(self, lot: InTransaction) -> AcquiredLotSortKey:
-        return AcquiredLotSortKey(lot.spot_price, lot.timestamp.timestamp(), lot.row)
+        adjusted_basis = lot.fiat_in_with_fee / lot.crypto_in
+        return AcquiredLotSortKey(adjusted_basis, lot.timestamp.timestamp(), lot.row)
