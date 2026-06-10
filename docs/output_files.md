@@ -23,6 +23,7 @@
 * **[Country-specific Reports](#country-specific-reports)**
   * **[Tax Report US: Advisor-Friendly Report](#tax-report-us-advisor-friendly-report)**
   * **[Tax Report IE: Advisor-Friendly Report](#tax-report-ie-advisor-friendly-report)**
+  * **[Tax Report BE: Advisor-Friendly Report for Belgium and Luxemburg](#tax-report-be-advisor-friendly-report)**
   * **[Tax Report JP: NTA-Friendly Report](#tax-report-jp-nta-friendly-report)**
 
 ## Introduction
@@ -92,6 +93,14 @@ And an example of the Interest sheet:
 
 ### Tax Report IE: Advisor-Friendly Report
 This is a Ireland-specific tax-advisor-friendly report that can be understood by tax professionals (not necessarily specializing in crypto). It follows the same format as the [US variant](#tax-report-us-advisor-friendly-report).
+
+### Tax Report BE: Advisor-Friendly Report
+This is a Belgium-specific tax-advisor-friendly report that can be understood by tax professionals (not necessarily specializing in crypto). It follows the same format as the [US variant](#tax-report-us-advisor-friendly-report).
+
+It provides a summary of all earnings and losses per category (Airdrops, crypto sales, staking interests, mining ...).
+
+### Tax Report LU: Advisor-Friendly Report
+This is a Luxemburg-specific tax-advisor-friendly report that can be understood by tax professionals (not necessarily specializing in crypto). It follows the same format as the [US variant](#tax-report-us-advisor-friendly-report).
 
 ### Tax Report JP: NTA-friendly Report
 This is a Japan-specific report: tax_report_jp.ods output file contains a legend sheet, a summary sheet for every year, and a calculation sheet per asset and year.

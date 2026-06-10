@@ -1,0 +1,758 @@
+# French translations for rp2.
+# Copyright (C) 2023 eprbell
+# This file is distributed under the same license as the rp2 project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# Thanks to Google Gemini
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: rp2 1.4.2\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-06-17 06:28+0100\n"
+"PO-Revision-Date: 2023-04-27 20:23+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.15.0\n"
+
+msgid "<Crypto> In-Out"
+msgstr "<Crypto> Entrée-Sortie"
+
+msgid "<Crypto> Tax"
+msgstr "<Crypto> Impôt"
+
+msgid "Account Balances"
+msgstr "Soldes de compte"
+
+msgid "Accounting Method"
+msgstr "Méthode de comptabilité"
+
+msgid "Acquired"
+msgstr "Acquis"
+
+msgid "Acquired Balance"
+msgstr "Solde acquis"
+
+msgid "Acquired Lot"
+msgstr "Lot acquis"
+
+msgid "Acquired Lot Fraction"
+msgstr "Fraction de lot acquis"
+
+msgid "Acquired Lot Fraction %"
+msgstr "Fraction de lot acquis %"
+
+msgid "Acquired Lot Fraction Description"
+msgstr "Description de la fraction du lot acquis"
+
+msgid "Acquired Lot Spot Price"
+msgstr "Prix au comptant du lot acquis"
+
+msgid "Acquired Lot Timestamp"
+msgstr "Horodatage du lot acquis"
+
+msgid "Acquired Lot {}"
+msgstr "Lot acquis {}"
+
+msgid "Acquired Lot {} Amount Fraction"
+msgstr "Lot acquis {} Montant de la fraction"
+
+msgid "Acquired Lot {} Cost Basis"
+msgstr "Lot acquis {} Base de coût"
+
+msgid "Acquired Lot {} Fee Fraction"
+msgstr "Lot acquis {} Fraction de frais"
+
+msgid "Amount"
+msgstr "Montant"
+
+msgid "Amount Fraction"
+msgstr "Montant de la fraction"
+
+msgid "Amount of given asset held"
+msgstr "Montant de l'actif détenu"
+
+msgid "Asset"
+msgstr "Actif"
+
+msgid "Asset - Exchange"
+msgstr "Actif - Échange"
+
+msgid "Asset Price Lookup Table"
+msgstr "Table de recherche de prix d'actif"
+
+msgid "Asset holder"
+msgstr "Détenteur d'actif"
+
+msgid "Average Price"
+msgstr "Prix moyen"
+
+msgid "Average Price Paid Per 1 crypto"
+msgstr "Prix moyen payé pour 1 crypto"
+
+msgid "Average price at which the crypto was acquired"
+msgstr "Prix moyen auquel la crypto a été acquise"
+
+msgid "Average price at which the crypto was acquired, across all transactions"
+msgstr "Prix moyen auquel la crypto a été acquise, toutes transactions confondues"
+
+msgid "Balance"
+msgstr "Solde"
+
+msgid "Balance of all the BUY and EARN transactions for a given exchange and holder"
+msgstr "Solde de toutes les transactions d'ACHAT et de GAIN pour un échange et un détenteur donnés"
+
+msgid "Balance of all the SEND and SOLD transactions for which the given exchange and holder are receiver"
+msgstr "Solde de toutes les transactions d'ENVOI et de VENTE pour lesquelles l'échange et le détenteur donnés sont le destinataire"
+
+msgid "Balance of all the SEND and SOLD transactions for which the given exchange and holder are sender"
+msgstr "Solde de toutes les transactions d'ENVOI et de VENTE pour lesquelles l'échange et le détenteur donnés sont l'expéditeur"
+
+msgid "Capital"
+msgstr "Capital"
+
+msgid "Capital Gains"
+msgstr "Gains en capital"
+
+msgid "Capital Gains Type"
+msgstr "Type de gains en capital"
+
+msgid "Captures all transactions coming in (IN), going out (OUT) and transferring across accounts (INTRA)"
+msgstr "Capture toutes les transactions entrantes (IN), sortantes (OUT) et les transferts entre comptes (INTRA)"
+
+msgid "Color Code"
+msgstr "Code de couleur"
+
+msgid "Computation of balances and gain / loss"
+msgstr "Calcul des soldes et des gains / pertes"
+
+msgid "Computed balances of all accounts. Useful to double-check that the input transactions have been entered correctly. If values don’t match actual balances some data is missing or wrong"
+msgstr "Soldes calculés de tous les comptes. Utile pour vérifier que les transactions d'entrée ont été saisies correctement. Si les valeurs ne correspondent pas aux soldes réels, certaines données sont manquantes ou incorrectes"
+
+msgid "Computed gain and loss for the given cryptocurrency, organized by year and capital gains type (LONG or SHORT)"
+msgstr "Gain et perte calculés pour la cryptomonnaie donnée, organisés par année et type de gains en capital (LONG ou COURT)"
+
+msgid "Cost Basis"
+msgstr "Base de coût"
+
+msgid "Cost Basis Weight %"
+msgstr "Base de coût Poids %"
+
+msgid "Crypto"
+msgstr "Crypto"
+
+msgid "Crypto / asset symbol"
+msgstr "Symbole de crypto / actif"
+
+msgid "Crypto Amount"
+msgstr "Montant de la crypto"
+
+msgid "Crypto Amt"
+msgstr "Montant crypto"
+
+msgid "Crypto Amt Running Sum"
+msgstr "Somme cumulée du montant crypto"
+
+msgid "Crypto Balance"
+msgstr "Solde crypto"
+
+msgid "Crypto Balance * Input Price"
+msgstr "Solde crypto * Prix d'entrée"
+
+msgid "Crypto Fee"
+msgstr "Frais crypto"
+
+msgid "Crypto Fee Running Sum"
+msgstr "Somme cumulée des frais crypto"
+
+msgid "Crypto In"
+msgstr "Crypto Entrée"
+
+msgid "Crypto In Running Sum"
+msgstr "Somme cumulée des entrées crypto"
+
+msgid "Crypto Out"
+msgstr "Crypto Sortie"
+
+msgid "Crypto Out Running Sum"
+msgstr "Somme cumulée des sorties crypto"
+
+msgid "Crypto Received"
+msgstr "Crypto reçue"
+
+msgid "Crypto Sent"
+msgstr "Crypto envoyée"
+
+msgid "Crypto Taxable Total"
+msgstr "Total imposable en crypto"
+
+msgid "Crypto amount for the given taxable event fraction"
+msgstr "Montant crypto pour la fraction d'événement imposable donnée"
+
+msgid "Crypto value of the fees"
+msgstr "Valeur crypto des frais"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Description of the transaction"
+msgstr "Description de la transaction"
+
+msgid "Detailed computation of gain and loss: each lot is divided into fractions, which are used to calculate the cost basis and the gain/loss"
+msgstr "Calcul détaillé du gain et de la perte : chaque lot est divisé en fractions, utilisées pour calculer la base de coût et le gain/la perte"
+
+msgid "Direction (IN/OUT/INTRA) and type (BUY, SOLD, etc) of the taxable event"
+msgstr "Direction (IN/OUT/INTRA) et type (ACHAT, VENDU, etc.) de l'événement imposable"
+
+msgid "Direction/Type"
+msgstr "Direction/Type"
+
+msgid "Does the transaction contain a taxable event? If so the taxable amount is highlighted in yellow"
+msgstr "La transaction contient-elle un événement imposable ? Si oui, le montant imposable est surligné en jaune"
+
+msgid "EARN (crypto earned through interest, etc.), GIFT (crypto given), SOLD (crypto sold) OR INTRA (fees for transferring crypto across accounts)"
+msgstr "GAIN (crypto gagnée par intérêts, etc.), DON (crypto donnée), VENDUE (crypto vendue) OU INTRA (frais de transfert de crypto entre comptes)"
+
+msgid "ENTER PRICES ON INPUT TAB"
+msgstr "ENTRER LES PRIX DANS L'ONGLET ENTRÉE"
+
+msgid "English description of this in-transaction fraction"
+msgstr "Description en français de cette fraction de transaction entrante"
+
+msgid "English description of this taxable event fraction"
+msgstr "Description en français de cette fraction d'événement imposable"
+
+msgid "Event"
+msgstr "Événement"
+
+msgid "Exchange"
+msgstr "Échange"
+
+msgid "Exchange account or wallet owner"
+msgstr "Propriétaire du compte d'échange ou du portefeuille"
+
+msgid "Exchange or wallet from which the transfer of crypto occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.)"
+msgstr "Échange ou portefeuille à partir duquel le transfert de crypto a eu lieu (par ex. Coinbase, Coinbase Pro, BlockFi, etc.)"
+
+msgid "Exchange or wallet on which the transaction occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.)"
+msgstr "Échange ou portefeuille sur lequel la transaction a eu lieu (par ex. Coinbase, Coinbase Pro, BlockFi, etc.)"
+
+msgid "Exchange or wallet to which the transfer of crypto occurred (e.g. Coinbase, Coinbase Pro, BlockFi, etc.)"
+msgstr "Échange ou portefeuille vers lequel le transfert de crypto a eu lieu (par ex. Coinbase, Coinbase Pro, BlockFi, etc.)"
+
+msgid "Exchange or wallet where balance is held (Asset - Exchange tab only)"
+msgstr "Échange ou portefeuille où le solde est détenu (Onglet Actif - Échange uniquement)"
+
+msgid "Fee Fraction"
+msgstr "Fraction de frais"
+
+msgid "Fill in Asset Prices in the Input Tab for calculations"
+msgstr "Remplissez les prix des actifs dans l'onglet Entrée pour les calculs"
+
+msgid "Final"
+msgstr "Final"
+
+msgid "Final Balance"
+msgstr "Solde final"
+
+msgid "Final balance of all transactions for a given exchange and holder"
+msgstr "Solde final de toutes les transactions pour un échange et un détenteur donnés"
+
+msgid "Fraction %"
+msgstr "Fraction %"
+
+msgid "Fraction Description"
+msgstr "Description de la fraction"
+
+msgid "From"
+msgstr "De"
+
+msgid "From Date Filter"
+msgstr "Filtre de date De"
+
+msgid "From Exchange"
+msgstr "De l'échange"
+
+msgid "From Holder"
+msgstr "Du détenteur"
+
+msgid "Gain / Loss"
+msgstr "Gain / Perte"
+
+msgid "Gain / Loss %"
+msgstr "Gain / Perte %"
+
+msgid "Gain / Loss Detail"
+msgstr "Détail du gain / de la perte"
+
+msgid "Gain / Loss Summary"
+msgstr "Résumé du gain / de la perte"
+
+msgid "Gains"
+msgstr "Gains"
+
+msgid "Gains Type"
+msgstr "Type de gains"
+
+msgid "General"
+msgstr "Général"
+
+msgid "Grand Total"
+msgstr "Total général"
+
+msgid "Gray"
+msgstr "Gris"
+
+msgid "Hash of the transaction"
+msgstr "Hachage de la transaction"
+
+msgid "Hash or exchange-specific unique identifier for the transaction"
+msgstr "Hachage ou identifiant unique spécifique à l'échange pour la transaction"
+
+msgid "Holder"
+msgstr "Détenteur"
+
+msgid "How much of the given cryptocurrency was acquired with the transaction"
+msgstr "Quantité de la cryptomonnaie donnée acquise avec la transaction"
+
+msgid "How much of the given cryptocurrency was received with the transaction"
+msgstr "Quantité de la cryptomonnaie donnée reçue avec la transaction"
+
+msgid "How much of the given cryptocurrency was sent with the transaction"
+msgstr "Quantité de la cryptomonnaie donnée envoyée avec la transaction"
+
+msgid "In"
+msgstr "Entrée"
+
+msgid "In-Flow Detail"
+msgstr "Détail du flux entrant"
+
+msgid "Indicates the percent of which this asset's unrealized gain/loss contributed to the whole portfolio's Unrealized Gain / Loss % (Gain/Loss relative to total cash investment)"
+msgstr "Indique le pourcentage de la contribution du gain/perte non réalisé de cet actif au pourcentage de gain / perte non réalisé total du portefeuille (Gain/Perte par rapport à l'investissement total en espèces)"
+
+msgid "Information calculated based on values entered in the Input tab"
+msgstr "Informations calculées basées sur les valeurs saisies dans l'onglet Entrée"
+
+msgid "Information from transactions"
+msgstr "Informations sur les transactions"
+
+msgid "Input"
+msgstr "Entrée"
+
+msgid "Input Price"
+msgstr "Prix d'entrée"
+
+msgid "Intra-Flow Detail"
+msgstr "Détail de l'intra-flux"
+
+msgid "LONG"
+msgstr "LONG"
+
+msgid "LONG (> 1 year) or SHORT (< 1 year)"
+msgstr "LONG (> 1 an) ou COURT (< 1 an)"
+
+msgid "Legend"
+msgstr "Légende"
+
+msgid "Looked up from the Input tab for the given asset"
+msgstr "Recherché dans l'onglet Entrée pour l'actif donné"
+
+msgid "Lots that have been sent or sold, according to the order defined by the Accounting Method (see General section)"
+msgstr "Lots qui ont été envoyés ou vendus, selon l'ordre défini par la méthode de comptabilité (voir section Générale)"
+
+msgid "Movements across accounts without increasing/decreasing total value of crypto owned. The amount transferred is non-taxable but the transfer fee is considered a crypto sale and it is a taxable event"
+msgstr "Mouvements entre comptes sans augmenter/diminuer la valeur totale de la crypto détenue. Le montant transféré n'est pas imposable mais les frais de transfert sont considérés comme une vente de crypto et constituent un événement imposable"
+
+msgid "N/A"
+msgstr "N/A"
+
+msgid "NO"
+msgstr "NON"
+
+msgid "Name of the exchange or wallet account holder"
+msgstr "Nom du détenteur du compte d'échange ou du portefeuille"
+
+msgid "No Fee"
+msgstr "Sans frais"
+
+msgid "Notes"
+msgstr "Notes"
+
+msgid "Open Positions / Unrealized Gains"
+msgstr "Positions ouvertes / Gains non réalisés"
+
+msgid "Open Positions by Asset"
+msgstr "Positions ouvertes par actif"
+
+msgid "Open Positions by Asset and Exchange"
+msgstr "Positions ouvertes par actif et échange"
+
+msgid "Out-Flow Detail"
+msgstr "Détail du flux sortant"
+
+msgid "Owner of the exchange account or wallet from which the transfer of crypto occurred"
+msgstr "Propriétaire du compte d'échange ou du portefeuille à partir duquel le transfert de crypto a eu lieu"
+
+msgid "Owner of the exchange account or wallet to which the transfer of crypto occurred"
+msgstr "Propriétaire du compte d'échange ou du portefeuille vers lequel le transfert de crypto a eu lieu"
+
+msgid "Paid Per 1 {}"
+msgstr "Payé pour 1 {}"
+
+msgid "Percent change between Unrealized Value and Unrealized Cost Basis"
+msgstr "Pourcentage de changement entre la valeur non réalisée et la base de coût non réalisée"
+
+msgid "Percentage of the in-transaction"
+msgstr "Pourcentage de la transaction entrante"
+
+msgid "Percentage of the taxable event"
+msgstr "Pourcentage de l'événement imposable"
+
+msgid "Price"
+msgstr "Prix"
+
+msgid "Received"
+msgstr "Reçu"
+
+msgid "Received Balance"
+msgstr "Solde reçu"
+
+msgid "Report Fields"
+msgstr "Champs du rapport"
+
+msgid "Running Sum"
+msgstr "Somme cumulée"
+
+msgid "Running sum of crypto amount"
+msgstr "Somme cumulée du montant crypto"
+
+msgid "Running sum of crypto fees"
+msgstr "Somme cumulée des frais crypto"
+
+msgid "Running sum of crypto received"
+msgstr "Somme cumulée de la crypto reçue"
+
+msgid "Running sum of crypto sent"
+msgstr "Somme cumulée de la crypto envoyée"
+
+msgid "SHORT"
+msgstr "COURT"
+
+msgid "Sent"
+msgstr "Envoyé"
+
+msgid "Sent Balance"
+msgstr "Solde envoyé"
+
+msgid "Sent/Sold"
+msgstr "Envoyé/Vendu"
+
+msgid "Sheet Types"
+msgstr "Types de feuille"
+
+msgid "Size of investment relative to other assets for cost basis ({} Unrealized Cost Basis divided by the sum of all assets' {} Unrealized Cost Basis)"
+msgstr "Taille de l'investissement par rapport aux autres actifs pour la base de coût ({} Base de coût non réalisée divisée par la somme de toutes les Bases de coût non réalisées {} des actifs)"
+
+msgid "Size of investment relative to the portfolio's unrealized value (Unrealized Value divided by sum of all assets' Unrealized Values)"
+msgstr "Taille de l'investissement par rapport à la valeur non réalisée du portefeuille (Valeur non réalisée divisée par la somme de toutes les valeurs non réalisées des actifs)"
+
+msgid "Spot Price"
+msgstr "Prix au comptant"
+
+msgid "Sum of all capital gains in {} for transactions of the given capital gains type"
+msgstr "Somme de tous les gains en capital en {} pour les transactions du type de gains en capital donné"
+
+msgid "Sum of all cost bases in {} for transactions of the given capital gains type"
+msgstr "Somme de toutes les bases de coût en {} pour les transactions du type de gains en capital donné"
+
+msgid "Sum of all taxable events in crypto for transactions of the given capital gains type"
+msgstr "Somme de tous les événements imposables en crypto pour les transactions du type de gains en capital donné"
+
+msgid "Sum of all taxable events in {} for transactions of the given capital gains type"
+msgstr "Somme de tous les événements imposables en {} pour les transactions du type de gains en capital donné"
+
+msgid "Sum of fiat cost to acquire the balance of crypto based on in-flow transactions"
+msgstr "Somme du coût fiat pour acquérir le solde crypto basé sur les transactions d'entrée"
+
+msgid "Sum of fiat cost to acquire the balance of crypto based on in-flow transactions divided by the crypto balance"
+msgstr "Somme du coût fiat pour acquérir le solde crypto basé sur les transactions d'entrée divisée par le solde crypto"
+
+msgid "Summary"
+msgstr "Résumé"
+
+msgid "Summary year"
+msgstr "Année de résumé"
+
+msgid "Table Types"
+msgstr "Types de table"
+
+msgid "Taxable"
+msgstr "Imposable"
+
+msgid "Taxable Event"
+msgstr "Événement imposable"
+
+msgid "Taxable Event Direction/Type"
+msgstr "Direction/Type de l'événement imposable"
+
+msgid "Taxable Event Fraction %"
+msgstr "Fraction d'événement imposable %"
+
+msgid "Taxable Event Fraction Description"
+msgstr "Description de la fraction d'événement imposable"
+
+msgid "Taxable Event Spot Price"
+msgstr "Prix au comptant de l'événement imposable"
+
+msgid "Taxable Event Timestamp"
+msgstr "Horodatage de l'événement imposable"
+
+msgid "Taxable Event {}"
+msgstr "Événement imposable {}"
+
+msgid "Taxable Event {} Amount Fraction"
+msgstr "Montant de la fraction de l'événement imposable {}"
+
+msgid "Taxable Total"
+msgstr "Total imposable"
+
+msgid "This file contains two versions of the same report. One version is grouped by Asset, the other by Asset and Exchange (or wallet)"
+msgstr "Ce fichier contient deux versions du même rapport. Une version est regroupée par Actif, l'autre par Actif et Échange (ou portefeuille)."
+
+msgid "This report leverages the details of your transactions to give you a snapshot of the value of your unsold holdings"
+msgstr "Ce rapport utilise les détails de vos transactions pour vous donner un aperçu de la valeur de vos avoirs non vendus."
+
+msgid "Time at which the in-transaction occurred"
+msgstr "Heure à laquelle la transaction entrante a eu lieu."
+
+msgid "Time at which the taxable event occurred"
+msgstr "Heure à laquelle l'événement imposable a eu lieu."
+
+msgid "Time at which the transaction occurred"
+msgstr "Heure à laquelle la transaction a eu lieu."
+
+msgid "Timestamp"
+msgstr "Horodatage"
+
+msgid "To Date Filter"
+msgstr "Filtre de date Jusqu'à"
+
+msgid "To Exchange"
+msgstr "Vers l'échange"
+
+msgid "To Holder"
+msgstr "Vers le détenteur"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Total Cost Basis %"
+msgstr "Base de coût totale %"
+
+msgid "Transaction"
+msgstr "Transaction"
+
+msgid "Transaction Type"
+msgstr "Type de transaction"
+
+msgid "Transactions that added new crypto to accounts (e.g. buy, etc.). Only EARN-typed transactions are taxable events (interest received on crypto)"
+msgstr "Transactions qui ont ajouté de la nouvelle crypto aux comptes (par ex. achat, etc.). Seules les transactions de type GAIN sont des événements imposables (intérêts reçus sur crypto)"
+
+msgid "Transactions that removed some crypto from accounts (e.g. sell, send as gift, etc.). These are taxable events"
+msgstr "Transactions qui ont retiré de la crypto des comptes (par ex. vente, envoi en cadeau, etc.). Ce sont des événements imposables."
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Type of the transaction (BUY, GIFT, INTEREST, STAKING, etc.)"
+msgstr "Type de la transaction (ACHAT, DON, INTÉRÊT, STAKING, etc.)"
+
+msgid "Type of the transaction (DONATE, GIFT, SELL, etc.)"
+msgstr "Type de la transaction (DONATION, DON, VENTE, etc.)"
+
+msgid "USD"
+msgstr "EUR"
+
+msgid "USD Total"
+msgstr "Total en EUR"
+
+msgid "Unique Id"
+msgstr "Identifiant unique"
+
+msgid "Unrealized G/L of"
+msgstr "G/P non réalisé de"
+
+msgid "Unrealized G/L of Total Cost Basis %"
+msgstr "G/P non réalisé de la Base de coût totale %"
+
+msgid "Unrealized Value - Unrealized Cost Basis"
+msgstr "Valeur non réalisée - Base de coût non réalisée"
+
+msgid "Value"
+msgstr "Valeur"
+
+msgid "Value Weight %"
+msgstr "Poids de la valeur %"
+
+msgid "Value of 1 unit of the given cryptocurrency at the time the in-transaction occurred"
+msgstr "Valeur d'une unité de la cryptomonnaie donnée au moment où la transaction entrante a eu lieu."
+
+msgid "Value of 1 unit of the given cryptocurrency at the time the taxable event occurred"
+msgstr "Valeur d'une unité de la cryptomonnaie donnée au moment où l'événement imposable a eu lieu."
+
+msgid "Value of 1 unit of the given cryptocurrency at the time the transaction occurred"
+msgstr "Valeur d'une unité de la cryptomonnaie donnée au moment où la transaction a eu lieu"
+
+msgid "Weight %"
+msgstr "Poids %"
+
+msgid "Which cryptocurrency (e.g. BTC, ETH, etc.)"
+msgstr "Quelle cryptomonnaie (par ex. BTC, ETH, etc.)"
+
+msgid "Which cryptocurrency was transacted (e.g. BTC, ETH, etc.)"
+msgstr "Quelle cryptomonnaie a été échangée (par ex. BTC, ETH, etc.)"
+
+msgid "With Fee"
+msgstr "Avec frais"
+
+msgid "YES"
+msgstr "OUI"
+
+msgid "Year"
+msgstr "Année"
+
+msgid "Yearly Gain / Loss Summary"
+msgstr "Résumé annuel du gain / de la perte"
+
+msgid "Yellow"
+msgstr "Jaune"
+
+msgid "airdrop"
+msgstr "airdrop"
+
+msgid "buy"
+msgstr "achat"
+
+msgid "donate"
+msgstr "don"
+
+msgid "fee"
+msgstr "frais"
+
+msgid "gift"
+msgstr "cadeau"
+
+msgid "hardfork"
+msgstr "hardfork"
+
+msgid "income"
+msgstr "revenu"
+
+msgid "interest"
+msgstr "intérêt"
+
+msgid "mining"
+msgstr "minage"
+
+msgid "move"
+msgstr "déplacement"
+
+msgid "sell"
+msgstr "vente"
+
+msgid "staking"
+msgstr "staking"
+
+msgid "wages"
+msgstr "salaires"
+
+msgid "{}"
+msgstr "{}"
+
+msgid "{} Fee"
+msgstr "{} Frais"
+
+msgid "{} In"
+msgstr "{} Entrée"
+
+msgid "{} In No Fee"
+msgstr "{} Entrée sans frais"
+
+msgid "{} In With Fee"
+msgstr "{} Entrée avec frais"
+
+msgid "{} In-Out"
+msgstr "{} Entrée-Sortie"
+
+msgid "{} Out"
+msgstr "{} Sortie"
+
+msgid "{} Per Unit"
+msgstr "{} Par unité"
+
+msgid "{} Per Unit Cost Basis"
+msgstr "{} Base de coût par unité"
+
+msgid "{} Per Unit Input Price"
+msgstr "{} Prix d'entrée par unité"
+
+msgid "{} Tax"
+msgstr "{} Impôt"
+
+msgid "{} Taxable Total"
+msgstr "{} Total imposable"
+
+msgid "{} Total"
+msgstr "{} Total"
+
+msgid "{} Total Cost Basis"
+msgstr "{} Base de coût totale"
+
+msgid "{} Unrealized"
+msgstr "{} Non réalisé"
+
+msgid "{} Unrealized Cost Basis"
+msgstr "{} Base de coût non réalisée"
+
+msgid "{} Unrealized Gain / Loss"
+msgstr "{} Gain / Perte non réalisé"
+
+msgid "{} Unrealized Gain / Loss %"
+msgstr "{} Gain / Perte non réalisé %"
+
+msgid "{} Unrealized Value"
+msgstr "{} Valeur non réalisée"
+
+msgid "{} Unrealized Value Weight %"
+msgstr "{} Poids de la valeur non réalisée %"
+
+msgid "{} amount of this in-transaction fraction"
+msgstr "{} montant de cette fraction de transaction entrante"
+
+msgid "{} amount of this taxable event fraction"
+msgstr "{} montant de cette fraction d'événement imposable"
+
+msgid "{} cost basis of this in-transaction fraction"
+msgstr "{} base de coût de cette fraction de transaction entrante"
+
+msgid "{} fee of this in-transaction fraction"
+msgstr "{} frais de cette fraction de transaction entrante"
+
+msgid "{} value of the fees"
+msgstr "{} valeur des frais"
+
+msgid "{} value of the transaction with fees"
+msgstr "{} valeur de la transaction avec frais"
+
+msgid "{} value of the transaction without fees"
+msgstr "{} valeur de la transaction sans frais"
+
+msgid "{}_Summary"
+msgstr "{}_Résumé"
+
+msgid "{}_{}"
+msgstr "{}_{}"

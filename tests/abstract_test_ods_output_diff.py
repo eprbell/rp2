@@ -36,6 +36,8 @@ class OutputPlugins(Enum):
     RP2_FULL_REPORT = "rp2_full_report"
     TAX_REPORT_JP = "tax_report_jp"
     TAX_REPORT_US = "tax_report_us"
+    TAX_REPORT_BE = "tax_report_be"
+    TAX_REPORT_LU = "tax_report_lu"
     TAX_REPORT_IE = "tax_report_ie"
 
 

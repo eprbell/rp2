@@ -19,8 +19,10 @@
 * **[Accounting Methods](#accounting-methods)**
 * **[Countries](#countries)**
   * [Generic](#generic)
+  * [Belgium](#belgium)
   * [Ireland](#ireland)
   * [Japan](#japan)
+  * [Luxemburg](#luxemburg)
   * [Spain](#Spain)
   * [USA](#usa)
 
@@ -59,6 +61,18 @@ RP2 Generic supports the following features:
   * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
   * [open_positions](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#open-positions-report-unrealized-gains): report on assets with non-zero crypto balance (valid for any country): unrealized gains / losses, portfolio weighting, and more.
 
+Note: If your local currency is not USD, you should provide prices in the local currency in the input files, do not pay attention to the currency symbol. For some reasons (usually the templates), the output files show the dollar symbol ($) instead of the local currency symbol. Please ignore this and assume amounts to be in the local currency.
+
+### Belgium
+RP2 support for Belgium includes the following features:
+* Belgium-specific RP2 executable: `rp2_be`.
+* Accounting methods (note that in Belgium [specific rules](https://curvo.eu/fr/article/impots-investisseurs-belges) on professional traders and accounts holding over 1 million eurosare not handled here:
+  * [FIFO](https://www.investopedia.com/terms/f/fifo.asp).
+* [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
+  * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
+  * [tax_report_be](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#tax-report-be-advisor-friendly-report): tax report meant to be read by tax preparers;
+  * [open_positions](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#open-positions-report-unrealized-gains): report on assets with non-zero crypto balance (valid for any country): unrealized gains / losses, portfolio weighting, and more.
+
 ### Ireland
 RP2 support for Ireland includes the following features:
 * Ireland-specific RP2 executable: `rp2_ie`.
@@ -77,6 +91,16 @@ RP2 support for Japan includes the following features:
 * [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
   * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
   * [tax_report_jp](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#tax-report-jp-advisor-friendly-report): Japan-specific tax report meant to be read by tax preparers;
+  * [open_positions](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#open-positions-report-unrealized-gains): report on assets with non-zero crypto balance (valid for any country): unrealized gains / losses, portfolio weighting, and more.
+
+### Luxemburg
+RP2 support for Luxemburg includes the following features:
+* Luxemburg-specific RP2 executable: `rp2_lu`.
+* Accounting methods (note that in Luxemburg [specific rules](https://www.dlapiper.com/en/insights/publications/2025/11/are-your-crypto-assets-taxable-in-luxembourg) on positions held by corporates are not handled here:
+  * [FIFO](https://www.investopedia.com/terms/f/fifo.asp).
+* [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
+  * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
+  * [tax_report_lu](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#tax-report-lu-advisor-friendly-report): tax report meant to be read by tax preparers;
   * [open_positions](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#open-positions-report-unrealized-gains): report on assets with non-zero crypto balance (valid for any country): unrealized gains / losses, portfolio weighting, and more.
 
 ### Spain
