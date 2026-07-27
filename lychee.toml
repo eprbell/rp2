@@ -3,5 +3,6 @@ exclude = [
   "https://www.forbes.com/.*",
   "https://www.reddit.com/.*",
   "https://finance.yahoo.com/.*",
-  "https://www.cointracker.io/.*"
+  "https://www.cointracker.io/.*",
+  "https://www.investopedia.com/.*"
 ]
