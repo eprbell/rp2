@@ -16,7 +16,7 @@
 currency code rather than the hardcoded "USD" string (regression for PR #144)."""
 
 import unittest
-from typing import ClassVar
+from typing import ClassVar, List, Set, cast
 
 from rp2.abstract_country import AbstractCountry
 from rp2.plugin.report.rp2_full_report import Generator
@@ -31,6 +31,18 @@ def _make_country(country_iso: str, currency_iso: str) -> AbstractCountry:
 
         def get_long_term_capital_gain_period(self) -> int:
             return 365
+
+        def get_default_accounting_method(self) -> str:
+            return "fifo"
+
+        def get_accounting_methods(self) -> Set[str]:
+            return {"fifo", "hifo", "lifo", "lofo"}
+
+        def get_report_generators(self) -> Set[str]:
+            return {"rp2_full_report"}
+
+        def get_default_generation_language(self) -> str:
+            return "en"
 
     return _Country()
 
@@ -48,11 +60,12 @@ class TestCurrencyCodeHeaders(unittest.TestCase):
         ("ca", "cad", "CAD"),
     ]
 
-    def _get_headers(self, country_iso: str, currency_iso: str):
+    def _get_headers(self, country_iso: str, currency_iso: str) -> List[str]:
+        # pylint: disable=protected-access
         g = Generator()
         g._setup_text_data(_make_country(country_iso, currency_iso))
         # Access name-mangled attribute
-        return g._Generator__yearly_gain_loss_summary_header_names_row_1  # type: ignore[attr-defined]
+        return cast(List[str], g._Generator__yearly_gain_loss_summary_header_names_row_1)  # type: ignore[attr-defined]
 
     def test_yearly_gain_loss_summary_headers_contain_currency_code(self) -> None:
         """Header row 1 of the gain/loss summary must use the active currency, not USD."""
