@@ -200,4 +200,5 @@ class GainLoss(AbstractEntry):
             if not self.taxable_event.is_earning():
                 raise RP2RuntimeError("Internal error: acquired lot is None but taxable event is not an earning")
             return False
-        return (self.taxable_event.timestamp - self.acquired_lot.cost_basis_timestamp).days >= self.configuration.country.get_long_term_capital_gain_period()
+        # The holding period starts at the original acquisition date (cost_basis_timestamp), which survives transfers between wallets.
+        return self.configuration.country.is_long_term_capital_gain(self.acquired_lot.cost_basis_timestamp, self.taxable_event.timestamp)

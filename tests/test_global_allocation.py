@@ -19,7 +19,7 @@ import unittest
 from typing import List
 
 from global_allocation_common import _Test, AbstractGlobalAllocation
-from rp2.in_transaction import Account
+from rp2.account import Account
 from rp2.plugin.accounting_method.fifo import AccountingMethod as AccountingMethodFIFO
 from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMethodLIFO
 from rp2.plugin.accounting_method.hifo import AccountingMethod as AccountingMethodHIFO
@@ -38,11 +38,10 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
         tests: List[_Test] = [
             _Test(
                 description="Empty input_per_wallet_transactions.",
-                input_per_wallet_transactions={
-                },
+                input_per_wallet_transactions={},
                 input_account_order=[Account("Coinbase", "Bob"), Account("BlockFi", "Bob")],
-                input_actual_amounts = {},
-                want_intra_transactions = [],
+                input_actual_amounts={},
+                want_intra_transactions=[],
                 want_error=r"Parameter 'wallet_2_per_wallet_input_data' is empty.",
             ),
             _Test(
@@ -59,8 +58,8 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                     ],
                 },
                 input_account_order=[Account("Coinbase", "Bob"), Account("BlockFi", "Bob")],
-                input_actual_amounts = {},
-                want_intra_transactions = [],
+                input_actual_amounts={},
+                want_intra_transactions=[],
                 want_error=r"Account order list is incomplete. Missing accounts: {Account\(exchange='Kraken', holder='Bob'\)}",
             ),
             _Test(
@@ -74,8 +73,8 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                     ],
                 },
                 input_account_order=[Account("Coinbase", "Bob"), Account("BlockFi", "Bob"), Account("Kraken", "Bob")],
-                input_actual_amounts = {},
-                want_intra_transactions = [],
+                input_actual_amounts={},
+                want_intra_transactions=[],
                 want_error=r"Account order list has extra account Account\(exchange='BlockFi', holder='Bob'\) that is not referenced in the transaction set.",
             ),
         ]
@@ -136,22 +135,22 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                 description="Mixed test with in, intra, out transactions.",
                 input_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
-                       InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
+                        InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
                     ],
                     Account("Kraken", "Bob"): [
                         InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 20),
                         IntraTransactionDescriptor("3", 3, 3, "Kraken", "Bob", "BlockFi", "Bob", 130, 5, 4),
                     ],
                     Account("BlockFi", "Bob"): [
-                        InTransactionDescriptor('3/-1', 3, -1, 'BlockFi', 'Bob', 120, 4, from_lot_unique_id="2", cost_basis_day=2),
+                        InTransactionDescriptor("3/-1", 3, -1, "BlockFi", "Bob", 120, 4, from_lot_unique_id="2", cost_basis_day=2),
                         OutTransactionDescriptor("4", 4, 4, "BlockFi", "Bob", 140, 2),
                     ],
                 },
                 input_account_order=[Account("BlockFi", "Bob"), Account("Kraken", "Bob"), Account("Coinbase", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='BlockFi', holder='Bob'): {"3/-1": 2},
-                    Account(exchange='Kraken', holder='Bob'): {"2": 15},
-                    Account(exchange='Coinbase', holder='Bob'): {},
+                    Account(exchange="BlockFi", holder="Bob"): {"3/-1": 2},
+                    Account(exchange="Kraken", holder="Bob"): {"2": 15},
+                    Account(exchange="Coinbase", holder="Bob"): {},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Coinbase", "Bob", "BlockFi", "Bob", 1, 2, 2),
@@ -170,14 +169,14 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                         IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "BlockFi", "Bob", 130, 5, 3),
                         InTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 120, 15),
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "BlockFi", "Bob", 130, 17, 16),
-                        InTransactionDescriptor('9/-5', 9, -5, 'Coinbase', 'Bob', 130, 1, from_lot_unique_id="2/-1", cost_basis_day=1),
-                        InTransactionDescriptor('9/-6', 9, -6, 'Coinbase', 'Bob', 130, 3, from_lot_unique_id="4/-2", cost_basis_day=1),
+                        InTransactionDescriptor("9/-5", 9, -5, "Coinbase", "Bob", 130, 1, from_lot_unique_id="2/-1", cost_basis_day=1),
+                        InTransactionDescriptor("9/-6", 9, -6, "Coinbase", "Bob", 130, 3, from_lot_unique_id="4/-2", cost_basis_day=1),
                     ],
                     Account("BlockFi", "Bob"): [
-                        InTransactionDescriptor('2/-1', 2, -1, 'BlockFi', 'Bob', 130, 3, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor('4/-2', 4, -2, 'BlockFi', 'Bob', 130, 5, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor('4/-3', 4, -3, 'BlockFi', 'Bob', 120, 11, from_lot_unique_id="3", cost_basis_day=3),
-                        InTransactionDescriptor('6/-4', 6, -4, 'BlockFi', 'Bob', 110, 14, from_lot_unique_id="5", cost_basis_day=5),
+                        InTransactionDescriptor("2/-1", 2, -1, "BlockFi", "Bob", 130, 3, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-2", 4, -2, "BlockFi", "Bob", 130, 5, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-3", 4, -3, "BlockFi", "Bob", 120, 11, from_lot_unique_id="3", cost_basis_day=3),
+                        InTransactionDescriptor("6/-4", 6, -4, "BlockFi", "Bob", 110, 14, from_lot_unique_id="5", cost_basis_day=5),
                         OutTransactionDescriptor("8", 8, 8, "BlockFi", "Bob", 140, 2),
                         IntraTransactionDescriptor("9", 9, 9, "BlockFi", "Bob", "Coinbase", "Bob", 130, 5, 4),
                     ],
@@ -189,16 +188,16 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                 },
                 input_account_order=[Account("BlockFi", "Bob"), Account("Coinbase", "Bob"), Account("Kraken", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {
-                        '1': 0,
-                        '3': 3,
+                    Account(exchange="Coinbase", holder="Bob"): {
+                        "1": 0,
+                        "3": 3,
                     },
-                    Account(exchange='BlockFi', holder='Bob'): {
-                        '2/-1': 0,
-                        '4/-2': 1,
+                    Account(exchange="BlockFi", holder="Bob"): {
+                        "2/-1": 0,
+                        "4/-2": 1,
                     },
-                    Account(exchange='Kraken', holder='Bob'): {
-                        '5': 5,
+                    Account(exchange="Kraken", holder="Bob"): {
+                        "5": 5,
                     },
                 },
                 want_intra_transactions=[
@@ -225,15 +224,15 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 140, 10, 10),
                     ],
                     Account("Kraken", "Bob"): [
-                        InTransactionDescriptor('2/-1', 2, -1, 'Kraken', 'Bob', 110, 4, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor('4/-2', 4, -2, 'Kraken', 'Bob', 110, 6, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor('4/-3', 4, -3, 'Kraken', 'Bob', 130, 4, from_lot_unique_id="3", cost_basis_day=3),
+                        InTransactionDescriptor("2/-1", 2, -1, "Kraken", "Bob", 110, 4, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Bob", 110, 6, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-3", 4, -3, "Kraken", "Bob", 130, 4, from_lot_unique_id="3", cost_basis_day=3),
                     ],
                 },
                 input_account_order=[Account("Coinbase", "Bob"), Account("Kraken", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '3': 0},
-                    Account(exchange='Kraken', holder='Bob'): {},
+                    Account(exchange="Coinbase", holder="Bob"): {"1": 0, "3": 0},
+                    Account(exchange="Kraken", holder="Bob"): {},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Kraken", "Bob", "Kraken", "Bob", 1, 4, 4),
@@ -257,12 +256,12 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                         InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Alice", 110, 2, from_lot_unique_id="1", cost_basis_day=1),
                         InTransactionDescriptor("4/-3", 4, -3, "Kraken", "Alice", 120, 8, from_lot_unique_id="2", cost_basis_day=2),
                         InTransactionDescriptor("5/-4", 5, -4, "Kraken", "Alice", 120, 12, from_lot_unique_id="2", cost_basis_day=2),
-                    ]
+                    ],
                 },
                 input_account_order=[Account("Kraken", "Alice"), Account("Coinbase", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '2': 0},
-                    Account(exchange='Kraken', holder='Alice'): {},
+                    Account(exchange="Coinbase", holder="Bob"): {"1": 0, "2": 0},
+                    Account(exchange="Kraken", holder="Alice"): {},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Kraken", "Alice", "Kraken", "Alice", 1, 7, 7),
@@ -289,8 +288,8 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                 },
                 input_account_order=[Account("Kraken", "Bob"), Account("Coinbase", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {'1': 6},
-                    Account(exchange='Kraken', holder='Bob'): {'2': 3},
+                    Account(exchange="Coinbase", holder="Bob"): {"1": 6},
+                    Account(exchange="Kraken", holder="Bob"): {"2": 3},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Coinbase", "Bob", "Kraken", "Bob", 1, 6, 6),
@@ -318,8 +317,8 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                 },
                 input_account_order=[Account("Kraken", "Bob"), Account("Coinbase", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {'1': 1},
-                    Account(exchange='Kraken', holder='Bob'): {'2': 5},
+                    Account(exchange="Coinbase", holder="Bob"): {"1": 1},
+                    Account(exchange="Kraken", holder="Bob"): {"2": 5},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Coinbase", "Bob", "Kraken", "Bob", 1, 1, 1),
@@ -334,7 +333,6 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
         for test in tests:
             with self.subTest(name=test.description):
                 self._run_test(test, AccountingMethodFIFO())
-
 
     def test_global_allocation_using_lifo(self) -> None:
         # Go-style, table-based tests. The input field contains test input and the want field contains the expected result.
@@ -388,22 +386,22 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                 description="Mixed test with in, intra, out transactions.",
                 input_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
-                       InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
+                        InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
                     ],
                     Account("Kraken", "Bob"): [
                         InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 20),
                         IntraTransactionDescriptor("3", 3, 3, "Kraken", "Bob", "BlockFi", "Bob", 130, 5, 4),
                     ],
                     Account("BlockFi", "Bob"): [
-                        InTransactionDescriptor('3/-1', 3, -1, 'BlockFi', 'Bob', 120, 4, from_lot_unique_id="2", cost_basis_day=2),
+                        InTransactionDescriptor("3/-1", 3, -1, "BlockFi", "Bob", 120, 4, from_lot_unique_id="2", cost_basis_day=2),
                         OutTransactionDescriptor("4", 4, 4, "BlockFi", "Bob", 140, 2),
                     ],
                 },
                 input_account_order=[Account("BlockFi", "Bob"), Account("Kraken", "Bob"), Account("Coinbase", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='BlockFi', holder='Bob'): {"3/-1": 2},
-                    Account(exchange='Kraken', holder='Bob'): {"2": 15},
-                    Account(exchange='Coinbase', holder='Bob'): {},
+                    Account(exchange="BlockFi", holder="Bob"): {"3/-1": 2},
+                    Account(exchange="Kraken", holder="Bob"): {"2": 15},
+                    Account(exchange="Coinbase", holder="Bob"): {},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Kraken", "Bob", "BlockFi", "Bob", 1, 2, 2),
@@ -421,14 +419,14 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                         IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "BlockFi", "Bob", 130, 5, 3),
                         InTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 120, 15),
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "BlockFi", "Bob", 130, 17, 16),
-                        InTransactionDescriptor('9/-5', 9, -5, 'Coinbase', 'Bob', 130, 1, from_lot_unique_id="2/-1", cost_basis_day=1),
-                        InTransactionDescriptor('9/-6', 9, -6, 'Coinbase', 'Bob', 130, 3, from_lot_unique_id="4/-2", cost_basis_day=1),
+                        InTransactionDescriptor("9/-5", 9, -5, "Coinbase", "Bob", 130, 1, from_lot_unique_id="2/-1", cost_basis_day=1),
+                        InTransactionDescriptor("9/-6", 9, -6, "Coinbase", "Bob", 130, 3, from_lot_unique_id="4/-2", cost_basis_day=1),
                     ],
                     Account("BlockFi", "Bob"): [
-                        InTransactionDescriptor('2/-1', 2, -1, 'BlockFi', 'Bob', 130, 3, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor('4/-2', 4, -2, 'BlockFi', 'Bob', 130, 5, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor('4/-3', 4, -3, 'BlockFi', 'Bob', 120, 11, from_lot_unique_id="3", cost_basis_day=3),
-                        InTransactionDescriptor('6/-4', 6, -4, 'BlockFi', 'Bob', 110, 14, from_lot_unique_id="5", cost_basis_day=5),
+                        InTransactionDescriptor("2/-1", 2, -1, "BlockFi", "Bob", 130, 3, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-2", 4, -2, "BlockFi", "Bob", 130, 5, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-3", 4, -3, "BlockFi", "Bob", 120, 11, from_lot_unique_id="3", cost_basis_day=3),
+                        InTransactionDescriptor("6/-4", 6, -4, "BlockFi", "Bob", 110, 14, from_lot_unique_id="5", cost_basis_day=5),
                         OutTransactionDescriptor("8", 8, 8, "BlockFi", "Bob", 140, 2),
                         IntraTransactionDescriptor("9", 9, 9, "BlockFi", "Bob", "Coinbase", "Bob", 130, 5, 4),
                     ],
@@ -440,16 +438,16 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                 },
                 input_account_order=[Account("BlockFi", "Bob"), Account("Coinbase", "Bob"), Account("Kraken", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {
-                        '1': 0,
-                        '3': 3,
+                    Account(exchange="Coinbase", holder="Bob"): {
+                        "1": 0,
+                        "3": 3,
                     },
-                    Account(exchange='BlockFi', holder='Bob'): {
-                        '2/-1': 0,
-                        '4/-2': 1,
+                    Account(exchange="BlockFi", holder="Bob"): {
+                        "2/-1": 0,
+                        "4/-2": 1,
                     },
-                    Account(exchange='Kraken', holder='Bob'): {
-                        '5': 5,
+                    Account(exchange="Kraken", holder="Bob"): {
+                        "5": 5,
                     },
                 },
                 want_intra_transactions=[
@@ -476,15 +474,15 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 140, 10, 10),
                     ],
                     Account("Kraken", "Bob"): [
-                        InTransactionDescriptor('2/-1', 2, -1, 'Kraken', 'Bob', 110, 4, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor('4/-2', 4, -2, 'Kraken', 'Bob', 110, 6, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor('4/-3', 4, -3, 'Kraken', 'Bob', 130, 4, from_lot_unique_id="3", cost_basis_day=3),
+                        InTransactionDescriptor("2/-1", 2, -1, "Kraken", "Bob", 110, 4, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Bob", 110, 6, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-3", 4, -3, "Kraken", "Bob", 130, 4, from_lot_unique_id="3", cost_basis_day=3),
                     ],
                 },
                 input_account_order=[Account("Coinbase", "Bob"), Account("Kraken", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '3': 0},
-                    Account(exchange='Kraken', holder='Bob'): {},
+                    Account(exchange="Coinbase", holder="Bob"): {"1": 0, "3": 0},
+                    Account(exchange="Kraken", holder="Bob"): {},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Kraken", "Bob", "Kraken", "Bob", 1, 4, 4),
@@ -508,12 +506,12 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                         InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Alice", 110, 2, from_lot_unique_id="1", cost_basis_day=1),
                         InTransactionDescriptor("4/-3", 4, -3, "Kraken", "Alice", 120, 8, from_lot_unique_id="2", cost_basis_day=2),
                         InTransactionDescriptor("5/-4", 5, -4, "Kraken", "Alice", 120, 12, from_lot_unique_id="2", cost_basis_day=2),
-                    ]
+                    ],
                 },
                 input_account_order=[Account("Kraken", "Alice"), Account("Coinbase", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '2': 0},
-                    Account(exchange='Kraken', holder='Alice'): {},
+                    Account(exchange="Coinbase", holder="Bob"): {"1": 0, "2": 0},
+                    Account(exchange="Kraken", holder="Alice"): {},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Kraken", "Alice", "Kraken", "Alice", 1, 8, 8),
@@ -540,8 +538,8 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                 },
                 input_account_order=[Account("Kraken", "Bob"), Account("Coinbase", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {'1': 6},
-                    Account(exchange='Kraken', holder='Bob'): {'2': 3},
+                    Account(exchange="Coinbase", holder="Bob"): {"1": 6},
+                    Account(exchange="Kraken", holder="Bob"): {"2": 3},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Kraken", "Bob", "Kraken", "Bob", 1, 3, 3),
@@ -570,8 +568,8 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                 },
                 input_account_order=[Account("Kraken", "Bob"), Account("Coinbase", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {'1': 1},
-                    Account(exchange='Kraken', holder='Bob'): {'2': 5},
+                    Account(exchange="Coinbase", holder="Bob"): {"1": 1},
+                    Account(exchange="Kraken", holder="Bob"): {"2": 5},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Kraken", "Bob", "Kraken", "Bob", 1, 5, 5),
@@ -586,7 +584,6 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
         for test in tests:
             with self.subTest(name=test.description):
                 self._run_test(test, AccountingMethodLIFO())
-
 
     def test_global_allocation_using_hifo(self) -> None:
         # Go-style, table-based tests. The input field contains test input and the want field contains the expected result.
@@ -642,22 +639,22 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                 description="Mixed test with in, intra, out transactions.",
                 input_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
-                       InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
+                        InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
                     ],
                     Account("Kraken", "Bob"): [
                         InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 20),
                         IntraTransactionDescriptor("3", 3, 3, "Kraken", "Bob", "BlockFi", "Bob", 130, 5, 4),
                     ],
                     Account("BlockFi", "Bob"): [
-                        InTransactionDescriptor('3/-1', 3, -1, 'BlockFi', 'Bob', 120, 4, from_lot_unique_id="2", cost_basis_day=2),
+                        InTransactionDescriptor("3/-1", 3, -1, "BlockFi", "Bob", 120, 4, from_lot_unique_id="2", cost_basis_day=2),
                         OutTransactionDescriptor("4", 4, 4, "BlockFi", "Bob", 140, 2),
                     ],
                 },
                 input_account_order=[Account("BlockFi", "Bob"), Account("Kraken", "Bob"), Account("Coinbase", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='BlockFi', holder='Bob'): {"3/-1": 2},
-                    Account(exchange='Kraken', holder='Bob'): {"2": 15},
-                    Account(exchange='Coinbase', holder='Bob'): {},
+                    Account(exchange="BlockFi", holder="Bob"): {"3/-1": 2},
+                    Account(exchange="Kraken", holder="Bob"): {"2": 15},
+                    Account(exchange="Coinbase", holder="Bob"): {},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Kraken", "Bob", "BlockFi", "Bob", 1, 2, 2),
@@ -675,14 +672,14 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                         IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "BlockFi", "Bob", 130, 5, 3),
                         InTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 120, 15),
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "BlockFi", "Bob", 130, 17, 16),
-                        InTransactionDescriptor('9/-5', 9, -5, 'Coinbase', 'Bob', 130, 1, from_lot_unique_id="2/-1", cost_basis_day=1),
-                        InTransactionDescriptor('9/-6', 9, -6, 'Coinbase', 'Bob', 130, 3, from_lot_unique_id="4/-2", cost_basis_day=1),
+                        InTransactionDescriptor("9/-5", 9, -5, "Coinbase", "Bob", 130, 1, from_lot_unique_id="2/-1", cost_basis_day=1),
+                        InTransactionDescriptor("9/-6", 9, -6, "Coinbase", "Bob", 130, 3, from_lot_unique_id="4/-2", cost_basis_day=1),
                     ],
                     Account("BlockFi", "Bob"): [
-                        InTransactionDescriptor('2/-1', 2, -1, 'BlockFi', 'Bob', 130, 3, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor('4/-2', 4, -2, 'BlockFi', 'Bob', 130, 5, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor('4/-3', 4, -3, 'BlockFi', 'Bob', 120, 11, from_lot_unique_id="3", cost_basis_day=3),
-                        InTransactionDescriptor('6/-4', 6, -4, 'BlockFi', 'Bob', 110, 14, from_lot_unique_id="5", cost_basis_day=5),
+                        InTransactionDescriptor("2/-1", 2, -1, "BlockFi", "Bob", 130, 3, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-2", 4, -2, "BlockFi", "Bob", 130, 5, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-3", 4, -3, "BlockFi", "Bob", 120, 11, from_lot_unique_id="3", cost_basis_day=3),
+                        InTransactionDescriptor("6/-4", 6, -4, "BlockFi", "Bob", 110, 14, from_lot_unique_id="5", cost_basis_day=5),
                         OutTransactionDescriptor("8", 8, 8, "BlockFi", "Bob", 140, 2),
                         IntraTransactionDescriptor("9", 9, 9, "BlockFi", "Bob", "Coinbase", "Bob", 130, 5, 4),
                     ],
@@ -694,16 +691,16 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                 },
                 input_account_order=[Account("BlockFi", "Bob"), Account("Coinbase", "Bob"), Account("Kraken", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {
-                        '1': 0,
-                        '3': 3,
+                    Account(exchange="Coinbase", holder="Bob"): {
+                        "1": 0,
+                        "3": 3,
                     },
-                    Account(exchange='BlockFi', holder='Bob'): {
-                        '2/-1': 0,
-                        '4/-2': 1,
+                    Account(exchange="BlockFi", holder="Bob"): {
+                        "2/-1": 0,
+                        "4/-2": 1,
                     },
-                    Account(exchange='Kraken', holder='Bob'): {
-                        '5': 5,
+                    Account(exchange="Kraken", holder="Bob"): {
+                        "5": 5,
                     },
                 },
                 want_intra_transactions=[
@@ -728,15 +725,15 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 140, 10, 10),
                     ],
                     Account("Kraken", "Bob"): [
-                        InTransactionDescriptor('2/-1', 2, -1, 'Kraken', 'Bob', 110, 4, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor('4/-2', 4, -2, 'Kraken', 'Bob', 110, 6, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor('4/-3', 4, -3, 'Kraken', 'Bob', 130, 4, from_lot_unique_id="3", cost_basis_day=3),
+                        InTransactionDescriptor("2/-1", 2, -1, "Kraken", "Bob", 110, 4, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Bob", 110, 6, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-3", 4, -3, "Kraken", "Bob", 130, 4, from_lot_unique_id="3", cost_basis_day=3),
                     ],
                 },
                 input_account_order=[Account("Coinbase", "Bob"), Account("Kraken", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '3': 0},
-                    Account(exchange='Kraken', holder='Bob'): {},
+                    Account(exchange="Coinbase", holder="Bob"): {"1": 0, "3": 0},
+                    Account(exchange="Kraken", holder="Bob"): {},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Kraken", "Bob", "Kraken", "Bob", 1, 4, 4),
@@ -760,12 +757,12 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                         InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Alice", 110, 2, from_lot_unique_id="1", cost_basis_day=1),
                         InTransactionDescriptor("4/-3", 4, -3, "Kraken", "Alice", 120, 8, from_lot_unique_id="2", cost_basis_day=2),
                         InTransactionDescriptor("5/-4", 5, -4, "Kraken", "Alice", 120, 12, from_lot_unique_id="2", cost_basis_day=2),
-                    ]
+                    ],
                 },
                 input_account_order=[Account("Kraken", "Alice"), Account("Coinbase", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '2': 0},
-                    Account(exchange='Kraken', holder='Alice'): {},
+                    Account(exchange="Coinbase", holder="Bob"): {"1": 0, "2": 0},
+                    Account(exchange="Kraken", holder="Alice"): {},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Kraken", "Alice", "Kraken", "Alice", 1, 8, 8),
@@ -792,8 +789,8 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                 },
                 input_account_order=[Account("Kraken", "Bob"), Account("Coinbase", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {'1': 6},
-                    Account(exchange='Kraken', holder='Bob'): {'2': 3},
+                    Account(exchange="Coinbase", holder="Bob"): {"1": 6},
+                    Account(exchange="Kraken", holder="Bob"): {"2": 3},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Kraken", "Bob", "Kraken", "Bob", 1, 3, 3),
@@ -822,8 +819,8 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                 },
                 input_account_order=[Account("Kraken", "Bob"), Account("Coinbase", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {'1': 1},
-                    Account(exchange='Kraken', holder='Bob'): {'2': 5},
+                    Account(exchange="Coinbase", holder="Bob"): {"1": 1},
+                    Account(exchange="Kraken", holder="Bob"): {"2": 5},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Kraken", "Bob", "Kraken", "Bob", 1, 5, 5),
@@ -838,7 +835,6 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
         for test in tests:
             with self.subTest(name=test.description):
                 self._run_test(test, AccountingMethodHIFO())
-
 
     def test_global_allocation_using_lofo(self) -> None:
         # Go-style, table-based tests. The input field contains test input and the want field contains the expected result.
@@ -892,22 +888,22 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                 description="Mixed test with in, intra, out transactions.",
                 input_per_wallet_transactions={
                     Account("Coinbase", "Bob"): [
-                       InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
+                        InTransactionDescriptor("1", 1, 1, "Coinbase", "Bob", 110, 10),
                     ],
                     Account("Kraken", "Bob"): [
                         InTransactionDescriptor("2", 2, 2, "Kraken", "Bob", 120, 20),
                         IntraTransactionDescriptor("3", 3, 3, "Kraken", "Bob", "BlockFi", "Bob", 130, 5, 4),
                     ],
                     Account("BlockFi", "Bob"): [
-                        InTransactionDescriptor('3/-1', 3, -1, 'BlockFi', 'Bob', 120, 4, from_lot_unique_id="2", cost_basis_day=2),
+                        InTransactionDescriptor("3/-1", 3, -1, "BlockFi", "Bob", 120, 4, from_lot_unique_id="2", cost_basis_day=2),
                         OutTransactionDescriptor("4", 4, 4, "BlockFi", "Bob", 140, 2),
                     ],
                 },
                 input_account_order=[Account("BlockFi", "Bob"), Account("Kraken", "Bob"), Account("Coinbase", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='BlockFi', holder='Bob'): {"3/-1": 2},
-                    Account(exchange='Kraken', holder='Bob'): {"2": 15},
-                    Account(exchange='Coinbase', holder='Bob'): {},
+                    Account(exchange="BlockFi", holder="Bob"): {"3/-1": 2},
+                    Account(exchange="Kraken", holder="Bob"): {"2": 15},
+                    Account(exchange="Coinbase", holder="Bob"): {},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Coinbase", "Bob", "BlockFi", "Bob", 1, 2, 2),
@@ -926,14 +922,14 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                         IntraTransactionDescriptor("2", 2, 2, "Coinbase", "Bob", "BlockFi", "Bob", 130, 5, 3),
                         InTransactionDescriptor("3", 3, 3, "Coinbase", "Bob", 120, 15),
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "BlockFi", "Bob", 130, 17, 16),
-                        InTransactionDescriptor('9/-5', 9, -5, 'Coinbase', 'Bob', 130, 1, from_lot_unique_id="2/-1", cost_basis_day=1),
-                        InTransactionDescriptor('9/-6', 9, -6, 'Coinbase', 'Bob', 130, 3, from_lot_unique_id="4/-2", cost_basis_day=1),
+                        InTransactionDescriptor("9/-5", 9, -5, "Coinbase", "Bob", 130, 1, from_lot_unique_id="2/-1", cost_basis_day=1),
+                        InTransactionDescriptor("9/-6", 9, -6, "Coinbase", "Bob", 130, 3, from_lot_unique_id="4/-2", cost_basis_day=1),
                     ],
                     Account("BlockFi", "Bob"): [
-                        InTransactionDescriptor('2/-1', 2, -1, 'BlockFi', 'Bob', 130, 3, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor('4/-2', 4, -2, 'BlockFi', 'Bob', 130, 5, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor('4/-3', 4, -3, 'BlockFi', 'Bob', 120, 11, from_lot_unique_id="3", cost_basis_day=3),
-                        InTransactionDescriptor('6/-4', 6, -4, 'BlockFi', 'Bob', 110, 14, from_lot_unique_id="5", cost_basis_day=5),
+                        InTransactionDescriptor("2/-1", 2, -1, "BlockFi", "Bob", 130, 3, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-2", 4, -2, "BlockFi", "Bob", 130, 5, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-3", 4, -3, "BlockFi", "Bob", 120, 11, from_lot_unique_id="3", cost_basis_day=3),
+                        InTransactionDescriptor("6/-4", 6, -4, "BlockFi", "Bob", 110, 14, from_lot_unique_id="5", cost_basis_day=5),
                         OutTransactionDescriptor("8", 8, 8, "BlockFi", "Bob", 140, 2),
                         IntraTransactionDescriptor("9", 9, 9, "BlockFi", "Bob", "Coinbase", "Bob", 130, 5, 4),
                     ],
@@ -945,16 +941,16 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                 },
                 input_account_order=[Account("BlockFi", "Bob"), Account("Coinbase", "Bob"), Account("Kraken", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {
-                        '1': 0,
-                        '3': 3,
+                    Account(exchange="Coinbase", holder="Bob"): {
+                        "1": 0,
+                        "3": 3,
                     },
-                    Account(exchange='BlockFi', holder='Bob'): {
-                        '2/-1': 0,
-                        '4/-2': 1,
+                    Account(exchange="BlockFi", holder="Bob"): {
+                        "2/-1": 0,
+                        "4/-2": 1,
                     },
-                    Account(exchange='Kraken', holder='Bob'): {
-                        '5': 5,
+                    Account(exchange="Kraken", holder="Bob"): {
+                        "5": 5,
                     },
                 },
                 want_intra_transactions=[
@@ -980,15 +976,15 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                         IntraTransactionDescriptor("4", 4, 4, "Coinbase", "Bob", "Kraken", "Bob", 140, 10, 10),
                     ],
                     Account("Kraken", "Bob"): [
-                        InTransactionDescriptor('2/-1', 2, -1, 'Kraken', 'Bob', 110, 4, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor('4/-2', 4, -2, 'Kraken', 'Bob', 110, 6, from_lot_unique_id="1", cost_basis_day=1),
-                        InTransactionDescriptor('4/-3', 4, -3, 'Kraken', 'Bob', 130, 4, from_lot_unique_id="3", cost_basis_day=3),
+                        InTransactionDescriptor("2/-1", 2, -1, "Kraken", "Bob", 110, 4, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Bob", 110, 6, from_lot_unique_id="1", cost_basis_day=1),
+                        InTransactionDescriptor("4/-3", 4, -3, "Kraken", "Bob", 130, 4, from_lot_unique_id="3", cost_basis_day=3),
                     ],
                 },
                 input_account_order=[Account("Coinbase", "Bob"), Account("Kraken", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '3': 0},
-                    Account(exchange='Kraken', holder='Bob'): {},
+                    Account(exchange="Coinbase", holder="Bob"): {"1": 0, "3": 0},
+                    Account(exchange="Kraken", holder="Bob"): {},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Kraken", "Bob", "Kraken", "Bob", 1, 4, 4),
@@ -1012,12 +1008,12 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                         InTransactionDescriptor("4/-2", 4, -2, "Kraken", "Alice", 110, 2, from_lot_unique_id="1", cost_basis_day=1),
                         InTransactionDescriptor("4/-3", 4, -3, "Kraken", "Alice", 120, 8, from_lot_unique_id="2", cost_basis_day=2),
                         InTransactionDescriptor("5/-4", 5, -4, "Kraken", "Alice", 120, 12, from_lot_unique_id="2", cost_basis_day=2),
-                    ]
+                    ],
                 },
                 input_account_order=[Account("Kraken", "Alice"), Account("Coinbase", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {'1': 0, '2': 0},
-                    Account(exchange='Kraken', holder='Alice'): {},
+                    Account(exchange="Coinbase", holder="Bob"): {"1": 0, "2": 0},
+                    Account(exchange="Kraken", holder="Alice"): {},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Kraken", "Alice", "Kraken", "Alice", 1, 7, 7),
@@ -1044,8 +1040,8 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                 },
                 input_account_order=[Account("Kraken", "Bob"), Account("Coinbase", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {'1': 6},
-                    Account(exchange='Kraken', holder='Bob'): {'2': 3},
+                    Account(exchange="Coinbase", holder="Bob"): {"1": 6},
+                    Account(exchange="Kraken", holder="Bob"): {"2": 3},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Coinbase", "Bob", "Kraken", "Bob", 1, 6, 6),
@@ -1073,8 +1069,8 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
                 },
                 input_account_order=[Account("Kraken", "Bob"), Account("Coinbase", "Bob")],
                 input_actual_amounts={
-                    Account(exchange='Coinbase', holder='Bob'): {'1': 1},
-                    Account(exchange='Kraken', holder='Bob'): {'2': 5},
+                    Account(exchange="Coinbase", holder="Bob"): {"1": 1},
+                    Account(exchange="Kraken", holder="Bob"): {"2": 5},
                 },
                 want_intra_transactions=[
                     IntraTransactionDescriptor("ga/-1", 366, -1, "Coinbase", "Bob", "Kraken", "Bob", 1, 1, 1),
@@ -1089,6 +1085,7 @@ class TestGlobalAllocation(AbstractGlobalAllocation):
         for test in tests:
             with self.subTest(name=test.description):
                 self._run_test(test, AccountingMethodLOFO())
+
 
 if __name__ == "__main__":
     unittest.main()

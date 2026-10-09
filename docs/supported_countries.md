@@ -29,9 +29,9 @@ RP2 supports most countries each of which has different accounting methods and r
 
 ## Accounting Methods
 RP2 supports the following accounting methods (although not all countries support all accounting methods):
-  * [FIFO](https://www.investopedia.com/terms/f/fifo.asp): lots acquired first are disposed of first;
-  * [LIFO](https://www.investopedia.com/terms/l/lifo.asp): lots acquired last are disposed of first (opposite of FIFO);
-  * [HIFO](https://www.investopedia.com/terms/h/hifo.asp): highest priced lots are disposed of first;
+  * [FIFO](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting): lots acquired first are disposed of first;
+  * [LIFO](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting): lots acquired last are disposed of first (opposite of FIFO);
+  * [HIFO](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting): highest priced lots are disposed of first;
   * LOFO: lowest priced lots are disposed of first (opposite of HIFO).
 
 ## Countries
@@ -51,9 +51,9 @@ Set CURRENCY_CODE=eur LONG_TERM_CAPITAL_GAINS=1000000000 rp2_generic...
 RP2 Generic supports the following features:
 * Generic RP2 executable: `rp2_generic`.
 * Accounting methods (note that these methods use [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/), not per-wallet application):
-  * [FIFO](https://www.investopedia.com/terms/f/fifo.asp),
-  * [LIFO](https://www.investopedia.com/terms/l/lifo.asp),
-  * [HIFO](https://www.investopedia.com/terms/h/hifo.asp),
+  * [FIFO](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting),
+  * [LIFO](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting),
+  * [HIFO](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting),
   * LOFO.
 * [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
   * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
@@ -63,7 +63,7 @@ RP2 Generic supports the following features:
 RP2 support for Ireland includes the following features:
 * Ireland-specific RP2 executable: `rp2_ie`.
 * Accounting methods (note that in Ireland [specific](https://www.revenue.ie/en/tax-professionals/tdm/income-tax-capital-gains-tax-corporation-tax/part-19/19-04-03.pdf) [rules](https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/selling-or-disposing-of-shares.aspx) apply to assets bought and sold within a 4 week window: this is **NOT** yet supported by RP2):
-  * [FIFO](https://www.investopedia.com/terms/f/fifo.asp).
+  * [FIFO](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting).
 * [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
   * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
   * [tax_report_ie](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#tax-report-ie-advisor-friendly-report): tax report meant to be read by tax preparers;
@@ -73,7 +73,7 @@ RP2 support for Ireland includes the following features:
 RP2 support for Japan includes the following features:
 * Japan-specific RP2 executable: `rp2_jp`.
 * Accounting methods:
-  * [Total Average Method](https://www.investopedia.com/terms/a/averagecostmethod.asp).
+  * [Total Average Method](https://en.wikipedia.org/wiki/Average_cost_method).
 * [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
   * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
   * [tax_report_jp](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#tax-report-jp-advisor-friendly-report): Japan-specific tax report meant to be read by tax preparers;
@@ -83,17 +83,17 @@ RP2 support for Japan includes the following features:
 RP2 support for Spain includes the following features:
 * Spain-specific RP2 executable: `rp2_es`.
 * Accounting methods:
-  * [FIFO](https://www.investopedia.com/terms/f/fifo.asp).
+  * [FIFO](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting).
 * [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
   * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
   * [open_positions](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#open-positions-report-unrealized-gains): report on assets with non-zero crypto balance (valid for any country): unrealized gains / losses, portfolio weighting, and more.
 
 ### USA
 RP2 support for the US includes the following features:
-* Accounting methods (note that these methods use [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/), not per-wallet application):
-  * [FIFO](https://www.investopedia.com/terms/f/fifo.asp),
-  * [LIFO](https://www.investopedia.com/terms/l/lifo.asp),
-  * [HIFO](https://www.investopedia.com/terms/h/hifo.asp),
+* Accounting methods (these methods use [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/) until 2024; from 2025 per-wallet application is required: RP2 uses it automatically (experimentally) for transactions in 2025 or later, and it needs the `country.us` section of the config file: see the [FAQ](user_faq.md#how-do-i-use-per-wallet-application)):
+  * [FIFO](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting),
+  * [LIFO](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting),
+  * [HIFO](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting),
   * LOFO.
 * [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
   * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;

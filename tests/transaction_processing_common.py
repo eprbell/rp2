@@ -21,7 +21,8 @@ from typing import cast, Dict, List, Optional
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.configuration import Configuration
-from rp2.in_transaction import Account, InTransaction
+from rp2.account import Account
+from rp2.in_transaction import InTransaction
 from rp2.intra_transaction import IntraTransaction
 from rp2.input_data import InputData
 from rp2.out_transaction import OutTransaction
@@ -117,8 +118,9 @@ class AbstractTestTransactionProcessing(unittest.TestCase):
         )
         return result
 
-    def _create_universal_input_data_from_transaction_descriptors(self, configuration: Configuration,
-                                                                  descriptors: List[AbstractTransactionDescriptor]) -> InputData:
+    def _create_universal_input_data_from_transaction_descriptors(
+        self, configuration: Configuration, descriptors: List[AbstractTransactionDescriptor]
+    ) -> InputData:
         unique_id_2_in_transaction: Dict[str, InTransaction] = {}
         unique_id_2_out_transaction: Dict[str, OutTransaction] = {}
         unique_id_2_intra_transaction: Dict[str, IntraTransaction] = {}
@@ -126,25 +128,26 @@ class AbstractTestTransactionProcessing(unittest.TestCase):
 
         # Create transactions from transaction descriptors.
         self._create_transactions(
-            configuration, descriptors, unique_id_2_in_transaction, unique_id_2_out_transaction,
-            unique_id_2_intra_transaction, deferred_transactions
+            configuration, descriptors, unique_id_2_in_transaction, unique_id_2_out_transaction, unique_id_2_intra_transaction, deferred_transactions
         )
         if deferred_transactions:
             # Deferred transactions are not expected from test input.
             raise ValueError(f"Test data error: universal input data deferred transactions not empty: {deferred_transactions}")
 
         # Create universal InputData.
-        universal_input_data = self._create_input_data_from_unique_id_maps(configuration, unique_id_2_in_transaction,
-                                                                           unique_id_2_out_transaction, unique_id_2_intra_transaction)
+        universal_input_data = self._create_input_data_from_unique_id_maps(
+            configuration, unique_id_2_in_transaction, unique_id_2_out_transaction, unique_id_2_intra_transaction
+        )
 
         return universal_input_data
 
     # pylint: disable=too-many-branches
-    def _create_per_wallet_input_data_from_transaction_descriptors(self,
-                                                                   configuration: Configuration,
-                                                                   per_wallet_descriptors: Dict[Account, List[AbstractTransactionDescriptor]],
-                                                                   in_transaction_descriptor_2_actual_amount: Optional[Dict[Account, Dict[str, int]]] = None,
-                                                                   ) -> Dict[Account, InputData]:
+    def _create_per_wallet_input_data_from_transaction_descriptors(
+        self,
+        configuration: Configuration,
+        per_wallet_descriptors: Dict[Account, List[AbstractTransactionDescriptor]],
+        in_transaction_descriptor_2_actual_amount: Optional[Dict[Account, Dict[str, int]]] = None,
+    ) -> Dict[Account, InputData]:
         unique_id_2_in_transaction: Dict[str, InTransaction] = {}
         unique_id_2_out_transaction: Dict[str, OutTransaction] = {}
         unique_id_2_intra_transaction: Dict[str, IntraTransaction] = {}
@@ -184,8 +187,11 @@ class AbstractTestTransactionProcessing(unittest.TestCase):
                 if isinstance(transaction_descriptor, InTransactionDescriptor):
                     transaction = unique_id_2_in_transaction[transaction_descriptor.unique_id]
                     in_transaction_set.add_entry(transaction)
-                    if (in_transaction_descriptor_2_actual_amount is not None and account in in_transaction_descriptor_2_actual_amount
-                        and transaction.unique_id in in_transaction_descriptor_2_actual_amount[account]):
+                    if (
+                        in_transaction_descriptor_2_actual_amount is not None
+                        and account in in_transaction_descriptor_2_actual_amount
+                        and transaction.unique_id in in_transaction_descriptor_2_actual_amount[account]
+                    ):
                         in_transaction_2_actual_amount[transaction] = RP2Decimal(in_transaction_descriptor_2_actual_amount[account][transaction.unique_id])
                 elif isinstance(transaction_descriptor, OutTransactionDescriptor):
                     transaction = unique_id_2_out_transaction[transaction_descriptor.unique_id]
@@ -207,11 +213,7 @@ class AbstractTestTransactionProcessing(unittest.TestCase):
                             to_lots.append(unique_id_2_in_transaction[unique_id])
 
             want_wallet_2_per_wallet_input_data[account] = InputData(
-                self._asset,
-                in_transaction_set,
-                out_transaction_set,
-                intra_transaction_set,
-                in_transaction_2_actual_amount
+                self._asset, in_transaction_set, out_transaction_set, intra_transaction_set, in_transaction_2_actual_amount
             )
 
         return want_wallet_2_per_wallet_input_data

@@ -183,7 +183,7 @@
 * minor fixes
 
 ## v0.9.10
-* fixed [issue #6](https://github.com/eprbell/rp2/issues/6): OUT transaction fee is now a deduction as per https://www.irs.gov/publications/p544 and https://taxbit.com/cryptocurrency-tax-guide (previously it was considered part of proceeds and therefore taxed)
+* fixed [issue #6](https://github.com/eprbell/rp2/issues/6): OUT transaction fee is now a deduction as per https://www.irs.gov/publications/p544 and https://www.taxbit.com/blogs/cryptocurrency-tax-guide (previously it was considered part of proceeds and therefore taxed)
 * restructured User FAQ document
 * added several questions to User FAQ document (many of them DeFi-related)
 * various edits and improvements throughout entire documentation

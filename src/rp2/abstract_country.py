@@ -13,9 +13,12 @@
 # limitations under the License.
 
 
+from datetime import datetime
 from typing import List, Set
 
 from pycountry import countries, currencies
+
+from rp2.application_policy import UNIVERSAL_APPLICATION_POLICY, ApplicationPolicy
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
@@ -75,6 +78,11 @@ class AbstractCountry:
     def get_long_term_capital_gain_period(self) -> int:
         raise NotImplementedError("Abstract function")
 
+    # True if an asset acquired at acquisition_timestamp and disposed of at disposal_timestamp was held long enough to be long-term.
+    # The default counts whole days; countries whose law measures the holding period by calendar dates override it.
+    def is_long_term_capital_gain(self, acquisition_timestamp: datetime, disposal_timestamp: datetime) -> bool:
+        return (disposal_timestamp - acquisition_timestamp).days > self.get_long_term_capital_gain_period()
+
     # Default accounting method to use if the user doesn't specify one on the command line
     def get_default_accounting_method(self) -> str:
         raise NotImplementedError("Abstract function")
@@ -90,3 +98,8 @@ class AbstractCountry:
     # Default language to use at report generation if the user doesn't specify it on the command line (in ISO 639-1 format)
     def get_default_generation_language(self) -> str:
         raise NotImplementedError("Abstract function")
+
+    # Which application modes (universal, per-wallet) the country allows in each tax year, and the default one. The default policy is
+    # universal application in every year: countries that require per-wallet application override it.
+    def get_application_policy(self) -> ApplicationPolicy:
+        return UNIVERSAL_APPLICATION_POLICY

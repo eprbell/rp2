@@ -18,7 +18,7 @@ from typing import Dict, List
 
 from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.configuration import Configuration
-from rp2.in_transaction import Account
+from rp2.account import Account
 from rp2.plugin.country.us import US
 from rp2.rp2_error import RP2ValueError
 from rp2.transfer_analyzer import TransferAnalyzer

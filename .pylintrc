@@ -25,5 +25,7 @@ disable=
     R0914, # too-many-local-variables
     R0915, # too-many-statements
     R0917, # too-many-positional-arguments
+    W0222, # signature-differs: RP2Decimal intentionally narrows Decimal operator signatures
+    W0511, # fixme: TODO comments are intentional markers for known incomplete work
 ignore-patterns=.*\.pyi$
 max-line-length=160

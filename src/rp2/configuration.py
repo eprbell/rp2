@@ -18,13 +18,16 @@ from datetime import date, datetime
 from enum import Enum
 from pathlib import Path
 from threading import Lock
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from dateutil.parser import parse
 from jsonschema import validate
 
 from rp2.abstract_country import AbstractCountry
+from rp2.account import Account
+from rp2.application_policy import ApplicationMode
 from rp2.configuration_schema import CONFIGURATION_SCHEMA
+from rp2.per_wallet_configuration import PerWalletConfiguration
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
@@ -36,8 +39,10 @@ REPORT_GENERATOR_PACKAGE = "rp2.plugin.report"
 
 class Keyword(Enum):
     ACCOUNTING_METHODS = "accounting_methods"
+    APPLICATION_MODE = "application_mode"
     ASSET = "asset"
     ASSETS = "assets"
+    COUNTRY = "country"
     CRYPTO_FEE = "crypto_fee"
     CRYPTO_IN = "crypto_in"
     CRYPTO_OUT_NO_FEE = "crypto_out_no_fee"
@@ -60,12 +65,30 @@ class Keyword(Enum):
     INTRA_HEADER = "intra_header"
     NOTES = "notes"
     OUT_HEADER = "out_header"
+    PER_WALLET = "per_wallet"
     SPOT_PRICE = "spot_price"
     TIMESTAMP = "timestamp"
+    TIMEZONE = "timezone"
     TO_EXCHANGE = "to_exchange"
     TO_HOLDER = "to_holder"
     TRANSACTION_TYPE = "transaction_type"
     UNIQUE_ID = "unique_id"
+    UNUSED_BASIS_ALLOCATION_METHOD = "unused_basis_allocation_method"
+    UNUSED_BASIS_ALLOCATION_WALLET_ORDER = "unused_basis_allocation_wallet_order"
+
+
+# Fields of the country section ([country.<country code>], e.g. [country.us]) that configure per-wallet application: they are only valid
+# for countries whose application policy allows it.
+_PER_WALLET_FIELDS: Set[str] = {
+    Keyword.TIMEZONE.value,
+    Keyword.UNUSED_BASIS_ALLOCATION_METHOD.value,
+    Keyword.UNUSED_BASIS_ALLOCATION_WALLET_ORDER.value,
+}
+# Per-wallet fields that can be overridden for a single asset, as <field>.<asset> (e.g. unused_basis_allocation_wallet_order.BTC).
+_PER_WALLET_PER_ASSET_FIELDS: Set[str] = {
+    Keyword.UNUSED_BASIS_ALLOCATION_METHOD.value,
+    Keyword.UNUSED_BASIS_ALLOCATION_WALLET_ORDER.value,
+}
 
 
 _HEADER_COLUMNS: Dict[str, Set[str]] = {
@@ -151,6 +174,9 @@ class Configuration:  # pylint: disable=too-many-public-methods
         self.__holders: Set[str] = set()
         self.__generators: Set[str] = {f"{REPORT_GENERATOR_PACKAGE}.{generator}" for generator in country.get_report_generators()}
         self.__years_2_accounting_method_names: Dict[int, str] = {}
+        self.__country_section: Optional[SectionProxy] = None
+        self.__application_mode: Optional[ApplicationMode] = None
+        self.__per_wallet_configuration: Optional[PerWalletConfiguration] = None
         self.__artificial_id_counter: int = 0
         self.__lock = Lock()
 
@@ -199,6 +225,20 @@ class Configuration:  # pylint: disable=too-many-public-methods
                     if self.__years_2_accounting_method_names:
                         raise RP2ValueError(f"{configuration_path}: section '{normalized_section_name}' found multiple times in configuration file")
                     self.__years_2_accounting_method_names = self._validate_accounting_method_section(ini_configuration[section_name], configuration_path)
+                elif normalized_section_name == Keyword.PER_WALLET.value:
+                    raise RP2ValueError(
+                        f"{configuration_path}: section '{normalized_section_name}' has been replaced by '{self._country_section_name()}' "
+                        "(see docs/input_files.md)"
+                    )
+                elif normalized_section_name.partition(".")[0] == Keyword.COUNTRY.value:
+                    if normalized_section_name.lower() != self._country_section_name():
+                        raise RP2ValueError(
+                            f"{configuration_path}: section '{normalized_section_name}' is for another country: this is rp2_"
+                            f"{country.country_iso_code}, whose section is '{self._country_section_name()}'"
+                        )
+                    if self.__country_section is not None:
+                        raise RP2ValueError(f"{configuration_path}: section '{normalized_section_name}' found multiple times in configuration file")
+                    self.__country_section = ini_configuration[section_name]
                 else:
                     raise RP2ValueError(f"{configuration_path}: invalid section '{section_name}' found")
 
@@ -214,6 +254,10 @@ class Configuration:  # pylint: disable=too-many-public-methods
             raise RP2ValueError(f"{configuration_path}: empty '{Keyword.OUT_HEADER.value}' section")
         if not self.__intra_header:
             raise RP2ValueError(f"{configuration_path}: empty '{Keyword.INTRA_HEADER.value}' section")
+
+        # The country section refers to assets, exchanges and holders, so it's validated after the general section.
+        if self.__country_section is not None:
+            self._validate_country_section(self.__country_section, configuration_path)
 
         # Used by __repr__()
         self.__sorted_assets: List[str] = sorted(self.__assets)
@@ -289,6 +333,89 @@ class Configuration:  # pylint: disable=too-many-public-methods
                 raise RP2ValueError(f"{configuration_path}: invalid year type in accounting method section (integer was expected): {year}") from exc
         return result
 
+    # Name of the section with the country-specific choices of this country (e.g. country.us).
+    def _country_section_name(self) -> str:
+        return f"{Keyword.COUNTRY.value}.{self.__country.country_iso_code.lower()}"
+
+    # The country section has the user's choice of application mode (optional: the country's policy has a default for each year) and, for
+    # countries whose policy allows per-wallet application, the per-wallet settings. Settings for per-wallet application are rejected for
+    # countries that never use it, so that they can't be applied by accident.
+    def _validate_country_section(self, section: SectionProxy, configuration_path: str) -> None:
+        policy = self.__country.get_application_policy()
+        if Keyword.APPLICATION_MODE.value in section:
+            try:
+                application_mode = ApplicationMode.from_string(section[Keyword.APPLICATION_MODE.value])
+            except RP2ValueError as exc:
+                raise RP2ValueError(f"{configuration_path}: section '{section.name}': {exc}") from exc
+            if not any(application_mode in period.allowed_modes for period in policy.periods):
+                raise RP2ValueError(
+                    f"{configuration_path}: section '{section.name}': application mode '{application_mode.value}' is never allowed for country "
+                    f"'{self.__country.country_iso_code}'"
+                )
+            self.__application_mode = application_mode
+        per_wallet_field_names = [field_name for field_name in section if field_name != Keyword.APPLICATION_MODE.value]
+        if not per_wallet_field_names:
+            return
+        if not policy.allows_per_wallet:
+            raise RP2ValueError(
+                f"{configuration_path}: invalid field '{per_wallet_field_names[0]}' in section '{section.name}': country "
+                f"'{self.__country.country_iso_code}' always uses universal application"
+            )
+        self.__per_wallet_configuration = self._validate_per_wallet_fields(section, configuration_path)
+
+    def _validate_per_wallet_fields(self, section: SectionProxy, configuration_path: str) -> PerWalletConfiguration:
+        asset_2_allocation_method: Dict[str, str] = {}
+        asset_2_wallet_order: Dict[str, Tuple[Account, ...]] = {}
+        for field_name, value in section.items():
+            if field_name in _PER_WALLET_FIELDS or field_name == Keyword.APPLICATION_MODE.value:
+                continue
+            base_field_name, _, asset_name = field_name.partition(".")
+            if base_field_name not in _PER_WALLET_PER_ASSET_FIELDS or not asset_name:
+                raise RP2ValueError(f"{configuration_path}: invalid field '{field_name}' in section '{section.name}'")
+            asset = self._get_asset_from_field_suffix(asset_name, field_name, section.name, configuration_path)
+            if base_field_name == Keyword.UNUSED_BASIS_ALLOCATION_METHOD.value:
+                asset_2_allocation_method[asset] = value.strip()
+            else:
+                asset_2_wallet_order[asset] = self._parse_wallet_order(value, section.name, configuration_path)
+        if Keyword.TIMEZONE.value not in section:
+            raise RP2ValueError(f"{configuration_path}: section '{section.name}' doesn't contain mandatory field '{Keyword.TIMEZONE.value}'")
+        wallet_order: Tuple[Account, ...] = ()
+        if Keyword.UNUSED_BASIS_ALLOCATION_WALLET_ORDER.value in section:
+            wallet_order = self._parse_wallet_order(section[Keyword.UNUSED_BASIS_ALLOCATION_WALLET_ORDER.value], section.name, configuration_path)
+        try:
+            return PerWalletConfiguration(
+                timezone_name=section[Keyword.TIMEZONE.value].strip(),
+                unused_basis_allocation_method=section.get(Keyword.UNUSED_BASIS_ALLOCATION_METHOD.value, "").strip() or None,
+                unused_basis_allocation_wallet_order=wallet_order,
+                asset_2_unused_basis_allocation_method=asset_2_allocation_method,
+                asset_2_unused_basis_allocation_wallet_order=asset_2_wallet_order,
+            )
+        except RP2ValueError as exc:
+            raise RP2ValueError(f"{configuration_path}: {exc}") from exc
+
+    # The configuration parser lowercases field names, so the asset suffix of a per-asset field is matched case-insensitively.
+    def _get_asset_from_field_suffix(self, asset_name: str, field_name: str, section_name: str, configuration_path: str) -> str:
+        candidates = [asset for asset in self.__assets if asset.lower() == asset_name.lower()]
+        if len(candidates) != 1:
+            raise RP2ValueError(
+                f"{configuration_path}: field '{field_name}' in section '{section_name}' refers to "
+                f"{'an unknown' if not candidates else 'an ambiguous (differing only by case)'} asset '{asset_name}'"
+            )
+        return candidates[0]
+
+    def _parse_wallet_order(self, value: str, section_name: str, configuration_path: str) -> Tuple[Account, ...]:
+        return tuple(self._parse_account(wallet.strip(), section_name, configuration_path) for wallet in value.split(","))
+
+    # Accounts are written as <exchange>/<holder> (e.g. Coinbase Pro/Bob): exchange and holder must be defined in the general section.
+    def _parse_account(self, account_string: str, section_name: str, configuration_path: str) -> Account:
+        candidates = [Account(exchange, holder) for exchange in self.__exchanges for holder in self.__holders if account_string == f"{exchange}/{holder}"]
+        if len(candidates) != 1:
+            raise RP2ValueError(
+                f"{configuration_path}: invalid wallet '{account_string}' in section '{section_name}' (expected <exchange>/<holder>, using exchanges "
+                "and holders from the general section)"
+            )
+        return candidates[0]
+
     def __repr__(self) -> str:
         return (
             f"Configuration(configuration_path={self.configuration_path}, "
@@ -334,6 +461,15 @@ class Configuration:  # pylint: disable=too-many-public-methods
     @property
     def years_2_accounting_method_names(self) -> Dict[int, str]:
         return self.__years_2_accounting_method_names
+
+    @property
+    def per_wallet_configuration(self) -> Optional[PerWalletConfiguration]:
+        return self.__per_wallet_configuration
+
+    # The user's choice of application mode (application_mode in the country section), or None to use the country's default for each year.
+    @property
+    def application_mode(self) -> Optional[ApplicationMode]:
+        return self.__application_mode
 
     def __get_table_constructor_argument_pack(self, data: List[Any], table_type: str, header: Dict[str, int]) -> Dict[str, Any]:
         if not isinstance(data, List):

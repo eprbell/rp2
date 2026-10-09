@@ -21,7 +21,7 @@ from importlib import import_module
 from pathlib import Path
 from pkgutil import iter_modules
 from types import ModuleType
-from typing import Dict, List, Set
+from typing import Dict, List, Optional, Set
 
 from prezzemolo.avl_tree import AVLTree
 
@@ -40,7 +40,8 @@ from rp2.input_data import InputData
 from rp2.localization import set_generation_language
 from rp2.logger import LOG_FILE, LOGGER
 from rp2.ods_parser import open_ods, parse_ods
-from rp2.tax_engine import compute_tax
+from rp2.rp2_error import RP2RuntimeError, RP2ValueError
+from rp2.tax_engine import compute_tax, compute_tax_per_wallet
 
 _VERSION: str = "1.7.2"
 
@@ -105,17 +106,7 @@ def _rp2_main_internal(country: AbstractCountry) -> None:  # pylint: disable=too
         old_year: int = MIN_DATE.year
         years_2_accounting_methods: AVLTree[int, AbstractAccountingMethod] = AVLTree()
         for year, accounting_method_name in years_2_accounting_method_names.items():
-            try:
-                accounting_method_module: ModuleType = import_module(
-                    f"{_ACCOUNTING_METHOD_PACKAGE}.{accounting_method_name}", package=_ACCOUNTING_METHOD_PACKAGE
-                )
-            except ModuleNotFoundError:
-                LOGGER.error("Invalid/unsupported accounting method: %s", accounting_method_name)
-                sys.exit(1)
-            if not hasattr(accounting_method_module, "AccountingMethod"):
-                LOGGER.error("Accounting method plugin %s doesn't have an AccountingMethod class", accounting_method_name)
-                sys.exit(1)
-            accounting_method: AbstractAccountingMethod = accounting_method_module.AccountingMethod()
+            accounting_method: AbstractAccountingMethod = _load_accounting_method(accounting_method_name)
             if len(years_2_accounting_method_names) == 1:
                 LOGGER.info("Accounting method: %s", accounting_method_name)
             else:
@@ -127,6 +118,8 @@ def _rp2_main_internal(country: AbstractCountry) -> None:  # pylint: disable=too
             old_year = year
 
         accounting_engine: AccountingEngine = AccountingEngine(years_2_methods=years_2_accounting_methods)
+
+        allocation_method_name_2_method = _load_allocation_methods(configuration, country)
 
         LOGGER.info("Configuration file: %s", args.configuration_file)
 
@@ -145,13 +138,35 @@ def _rp2_main_internal(country: AbstractCountry) -> None:  # pylint: disable=too
 
         LOGGER.info("Input file: %s", args.input_file)
         input_file_handle: object = open_ods(configuration=configuration, input_file_path=args.input_file)
+        # The application mode of every asset is resolved (and the configuration checked against it) before any computation starts.
+        asset_2_input_data: Dict[str, InputData] = {}
+        asset_2_per_wallet_start_year: Dict[str, Optional[int]] = {}
         for asset in assets:
-            LOGGER.info("Processing %s", asset)
-
             input_data: InputData = parse_ods(configuration=configuration, asset=asset, input_file_handle=input_file_handle)
             LOGGER.debug("InputData object: %s", input_data)
+            asset_2_input_data[asset] = input_data
+            asset_2_per_wallet_start_year[asset] = _get_per_wallet_start_year(configuration, country, input_data)
 
-            computed_data: ComputedData = compute_tax(configuration=configuration, accounting_engine=accounting_engine, input_data=input_data)
+        for asset in assets:
+            LOGGER.info("Processing %s", asset)
+            input_data = asset_2_input_data[asset]
+            per_wallet_start_year = asset_2_per_wallet_start_year[asset]
+            computed_data: ComputedData
+            per_wallet_configuration = configuration.per_wallet_configuration
+            if per_wallet_start_year is not None:
+                if per_wallet_configuration is None:
+                    raise RP2RuntimeError(f"Internal error: per-wallet application of {asset} without per-wallet configuration")
+                allocation_method_name = per_wallet_configuration.get_unused_basis_allocation_method(asset)
+                computed_data = compute_tax_per_wallet(
+                    configuration=configuration,
+                    accounting_engine=accounting_engine,
+                    input_data=input_data,
+                    per_wallet_configuration=per_wallet_configuration,
+                    allocation_method=allocation_method_name_2_method[allocation_method_name] if allocation_method_name else None,
+                    per_wallet_start_year=per_wallet_start_year,
+                )
+            else:
+                computed_data = compute_tax(configuration=configuration, accounting_engine=accounting_engine, input_data=input_data)
             LOGGER.debug("ComputedData object: %s", computed_data)
 
             asset_to_computed_data[asset] = computed_data
@@ -174,6 +189,75 @@ def _rp2_main_internal(country: AbstractCountry) -> None:  # pylint: disable=too
     LOGGER.info("Log file: %s", LOG_FILE)
     LOGGER.info("Generated output directory: %s", args.output_dir)
     LOGGER.info("Done")
+
+
+# Loads the unused basis allocation methods of the per-wallet settings in the country section (by name, e.g. "fifo").
+def _load_allocation_methods(configuration: Configuration, country: AbstractCountry) -> Dict[str, AbstractAccountingMethod]:
+    result: Dict[str, AbstractAccountingMethod] = {}
+    if configuration.per_wallet_configuration is None:
+        return result
+    for method_name in sorted(configuration.per_wallet_configuration.unused_basis_allocation_method_names):
+        if method_name not in country.get_accounting_methods():
+            LOGGER.error("Invalid/unsupported unused basis allocation method: %s", method_name)
+            sys.exit(1)
+        result[method_name] = _load_accounting_method(method_name)
+    return result
+
+
+# First year of per-wallet application of an asset, or None if all its years use universal application. The application mode of each year
+# with transactions comes from the country's policy and the user's choice (application_mode in the country section, if any): a choice
+# that a year doesn't allow is an error. Per-wallet application needs the per-wallet settings of the country section (at least the
+# timezone): if they are missing it's an error, never a silent fallback to universal application.
+def _get_per_wallet_start_year(configuration: Configuration, country: AbstractCountry, input_data: InputData) -> Optional[int]:
+    policy = country.get_application_policy()
+    try:
+        year_2_mode = policy.get_year_2_mode(_get_transaction_years(input_data), configuration.application_mode)
+        result = policy.get_per_wallet_start_year(year_2_mode)
+    except RP2ValueError as exc:
+        raise RP2ValueError(f"{input_data.asset}: {exc}") from exc
+    if result is None:
+        return None
+    if configuration.per_wallet_configuration is None:
+        raise RP2ValueError(
+            f"{input_data.asset} has transactions in {result} or later, when {country.country_iso_code.upper()} requires per-wallet application: "
+            f"add a 'country.{country.country_iso_code}' section with at least the 'timezone' field to the configuration file "
+            "(see docs/input_files.md)"
+        )
+    LOGGER.info(
+        "%s: universal application before %d, per-wallet application from %d (timezone %s)",
+        input_data.asset,
+        result,
+        result,
+        configuration.per_wallet_configuration.timezone_name,
+    )
+    return result
+
+
+# Loads an accounting method plugin by name (e.g. "fifo"), exiting with an error if it doesn't exist.
+def _load_accounting_method(accounting_method_name: str) -> AbstractAccountingMethod:
+    try:
+        accounting_method_module: ModuleType = import_module(f"{_ACCOUNTING_METHOD_PACKAGE}.{accounting_method_name}", package=_ACCOUNTING_METHOD_PACKAGE)
+    except ModuleNotFoundError:
+        LOGGER.error("Invalid/unsupported accounting method: %s", accounting_method_name)
+        sys.exit(1)
+    if not hasattr(accounting_method_module, "AccountingMethod"):
+        LOGGER.error("Accounting method plugin %s doesn't have an AccountingMethod class", accounting_method_name)
+        sys.exit(1)
+    result: AbstractAccountingMethod = accounting_method_module.AccountingMethod()
+    return result
+
+
+# Tax years in which the input has transactions (the year of each timestamp, in its own timezone).
+def _get_transaction_years(input_data: InputData) -> Set[int]:
+    return {
+        transaction.timestamp.year
+        for transaction_set in (
+            input_data.unfiltered_in_transaction_set,
+            input_data.unfiltered_out_transaction_set,
+            input_data.unfiltered_intra_transaction_set,
+        )
+        for transaction in transaction_set
+    }
 
 
 def _find_and_run_report_generators(

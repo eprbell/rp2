@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import os
-
 from typing import Set
 
 from rp2.abstract_country import AbstractCountry

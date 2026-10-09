@@ -913,7 +913,7 @@ class Generator(AbstractODSGenerator):
                     sheet,
                     row_index,
                     12,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot.timestamp),
+                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot.cost_basis_timestamp),
                     visual_style=acquired_lot_style,
                 )
                 self._fill_cell(

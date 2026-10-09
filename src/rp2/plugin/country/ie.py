@@ -13,11 +13,11 @@
 # limitations under the License.
 
 
+import sys
 from typing import Set
 
 from rp2.abstract_country import AbstractCountry
 from rp2.rp2_main import rp2_main
-import sys
 
 
 # Ireland-specific class

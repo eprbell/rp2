@@ -14,10 +14,11 @@
 
 from dataclasses import dataclass
 from datetime import date
-from typing import Dict, List, Set, cast
+from typing import Dict, List, Optional, Set, cast
 
 from rp2.abstract_entry import AbstractEntry
-from rp2.balance import BalanceSet
+from rp2.account import Account
+from rp2.balance import CRYPTO_BALANCE_DECIMAL_MASK, BalanceSet
 from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.entry_types import EntrySetType, TransactionType
 from rp2.gain_loss import GainLoss
@@ -30,6 +31,7 @@ from rp2.out_transaction import OutTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 from rp2.transaction_set import TransactionSet
+from rp2.wallet_lot import WalletLot
 
 
 @dataclass(frozen=True, eq=True)
@@ -196,6 +198,7 @@ class ComputedData:
         input_data: InputData,
         from_date: date = MIN_DATE,
         to_date: date = MAX_DATE,
+        wallet_lots: Optional[List[WalletLot]] = None,
     ) -> None:
         # pylint: disable=too-many-branches
         InputData.type_check("input_data", input_data)
@@ -264,14 +267,18 @@ class ComputedData:
             crypto_running_sum += gain_loss.crypto_amount
             self.__crypto_gain_loss_running_sum[gain_loss] = crypto_running_sum
 
-        # Compute in lot sold percentages
+        # Compute in lot sold percentages. In per-wallet application gain/losses can refer to artificial lots (see TransferAnalyzer): their
+        # sales are attributed to the original lot, which is the one in the input.
         self.__in_lot_sold_percentage: Dict[InTransaction, RP2Decimal] = {}
         for entry in self.__filtered_gain_loss_set:
             gain_loss = cast(GainLoss, entry)
-            if not gain_loss.acquired_lot or gain_loss.acquired_lot.timestamp.date() < from_date or gain_loss.acquired_lot.timestamp.date() > to_date:
+            if not gain_loss.acquired_lot:
                 continue
-            self.__in_lot_sold_percentage[gain_loss.acquired_lot] = (
-                self.__in_lot_sold_percentage.setdefault(gain_loss.acquired_lot, ZERO) + gain_loss.acquired_lot_fraction_percentage
+            original_lot = gain_loss.acquired_lot.original_lot
+            if original_lot.timestamp.date() < from_date or original_lot.timestamp.date() > to_date:
+                continue
+            self.__in_lot_sold_percentage[original_lot] = (
+                self.__in_lot_sold_percentage.setdefault(original_lot, ZERO) + gain_loss.crypto_amount / original_lot.crypto_in
             )
 
         if self.__filtered_taxable_event_set.asset != self.__asset:
@@ -283,6 +290,41 @@ class ComputedData:
 
         if self.__asset != input_data.asset:
             raise RP2ValueError(f"Asset mismatch in 'input_data': expected {self.__asset}, found {input_data.asset}")
+
+        self.__wallet_lots: Optional[List[WalletLot]] = self._check_wallet_lots(wallet_lots) if wallet_lots is not None else None
+
+    # The wallet lots are what the wallets hold at to_date: for every wallet, their units should add up to its balance at to_date (shown in
+    # the Account Balances of the full report). They differ only if the input is inconsistent: the tax computation, and so the lots, use the
+    # crypto_out_with_fee of a sale, while balances use crypto_out_no_fee + crypto_fee, and the two can differ if both are in the input
+    # (e.g. because of exchange rounding). A difference is logged as a warning, not an error: reports still use the lots, which match the
+    # gain/loss computation.
+    # Example: buy 2 units, then sell with crypto_out_no_fee = 1, crypto_fee = 0.001 and crypto_out_with_fee = 1.00100001. The lots hold
+    # 0.99899999 units (2 - 1.00100001), while the balance is 0.999 (2 - 1 - 0.001).
+    def _check_wallet_lots(self, wallet_lots: List[WalletLot]) -> List[WalletLot]:
+        account_2_amount: Dict[Account, RP2Decimal] = {}
+        for wallet_lot in wallet_lots:
+            if not isinstance(wallet_lot, WalletLot):
+                raise RP2TypeError(f"Parameter 'wallet_lots' contains a non-WalletLot element: {wallet_lot}")
+            if wallet_lot.lot.asset != self.__asset:
+                raise RP2ValueError(f"Asset mismatch in 'wallet_lots': expected {self.__asset}, found {wallet_lot.lot.asset}")
+            account_2_amount[wallet_lot.account] = account_2_amount.get(wallet_lot.account, ZERO) + wallet_lot.amount
+        account_2_balance: Dict[Account, RP2Decimal] = {}
+        for balance in self.__filtered_balance_set:
+            account_2_balance[Account(balance.exchange, balance.holder)] = balance.final_balance
+        for account in sorted(set(account_2_amount) | set(account_2_balance)):
+            amount = account_2_amount.get(account, ZERO)
+            balance_amount = account_2_balance.get(account, ZERO)
+            if not RP2Decimal.is_equal_within_precision(amount, balance_amount, CRYPTO_BALANCE_DECIMAL_MASK):
+                LOGGER.warning(
+                    "%s: the lots of %s/%s add up to %s, but its balance is %s: check the input (e.g. a sale whose crypto_out_with_fee is not "
+                    "crypto_out_no_fee + crypto_fee). Open positions use the lots, which match the gain/loss computation.",
+                    self.__asset,
+                    account.exchange,
+                    account.holder,
+                    amount,
+                    balance_amount,
+                )
+        return list(wallet_lots)
 
     @property
     def asset(self) -> str:
@@ -328,6 +370,11 @@ class ComputedData:
     def price_per_unit(self) -> RP2Decimal:
         """Average price per asset unit."""
         return self.__filtered_price_per_unit
+
+    @property
+    def wallet_lots(self) -> Optional[List[WalletLot]]:
+        """What each wallet holds at to_date, lot by lot, in per-wallet application (None if to_date is in universal application)."""
+        return list(self.__wallet_lots) if self.__wallet_lots is not None else None
 
     def get_crypto_in_running_sum(self, in_transaction: InTransaction) -> RP2Decimal:
         """Crypto in running sum for a given InTransaction instance."""

@@ -15,7 +15,7 @@
 import logging
 from datetime import date
 from pathlib import Path
-from typing import Any, Dict, List, Set, cast
+from typing import Any, Dict, List, Optional, Set, cast
 
 from rp2.abstract_country import AbstractCountry
 from rp2.computed_data import ComputedData
@@ -25,6 +25,7 @@ from rp2.logger import create_logger
 from rp2.plugin.report.abstract_ods_generator import AbstractODSGenerator
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError
+from rp2.wallet_lot import WalletLot
 
 LOGGER: logging.Logger = create_logger("open_positions")
 
@@ -226,17 +227,38 @@ class Generator(AbstractODSGenerator):
         #  - holders: list of holders with non-zero balances.
         #  - asset_crypto_balance_holder: sum of crypto balance for each asset by holder
         #  - asset_crypto_balance_holder_exchange: sum of crypto balance for each asset by holder and exchange
+        #  - asset_cost_basis_holder_exchange: actual cost basis for each asset by holder and exchange (per-wallet application only)
         total_cost_basis = ZERO
         asset_cost_bases: Dict[str, RP2Decimal] = {}
         holders: List[str] = []
         asset_crypto_balance_holder: Dict[str, Dict[str, RP2Decimal]] = {}
         asset_crypto_balance_holder_exchange: Dict[str, Dict[str, Dict[str, RP2Decimal]]] = {}
+        asset_cost_basis_holder_exchange: Dict[str, Dict[str, Dict[str, RP2Decimal]]] = {}
 
         for asset, computed_data in asset_to_computed_data.items():
             if not isinstance(asset, str):
                 raise RP2TypeError(f"Parameter 'asset' has non-string value {asset}")
             ComputedData.type_check("computed_data", computed_data)
 
+            wallet_lots: Optional[List[WalletLot]] = computed_data.wallet_lots
+            if wallet_lots is not None:
+                # Per-wallet application: every wallet holds its own lots, with their own cost basis (Treas. Reg. §1.1012-1(j)), so the
+                # cost basis of a wallet is the cost basis of the lots it holds at to_date, and balances are their units.
+                # Example: buy 1 unit for $100 in wallet A and 1 unit for $1,000 in wallet B. A's cost basis is $100 and B's is $1,000 (the
+                # universal computation below would give each wallet half of the $1,100 total, $550).
+                total_cost_basis += self._collect_wallet_lots(
+                    asset,
+                    wallet_lots,
+                    asset_cost_bases,
+                    holders,
+                    asset_crypto_balance_holder,
+                    asset_crypto_balance_holder_exchange,
+                    asset_cost_basis_holder_exchange,
+                )
+                continue
+
+            # Universal application: the cost basis of an asset is the unsold part of its lots, and each holder and exchange gets a share
+            # of it proportional to its balance (see the second loop).
             # process in-flow transactions to collect the fiat cost basis data.
             for current_transaction in computed_data.in_transaction_set:
                 in_transaction = cast(InTransaction, current_transaction)
@@ -276,16 +298,10 @@ class Generator(AbstractODSGenerator):
                 total_crypto_balance += crypto_balance
 
             unit_cost_basis: RP2Decimal = asset_cost_basis / total_crypto_balance
-
-            # For report clarity, change how much precision is displayed in the output based on the unit price. The raw value is
-            # included in the output, so if the user desires they can change the cell format in the resulting file.
-            # The default windowing is set up to hopefully give a good user experience for high value cryptos like BTC
-            # all the way through cryptos with minute unit values like SHIB.
-            unit_data_style: str = "fiat"
-            if _FIAT_UNIT_DATA_STYLE_4_DECIMAL_MINIMUM <= unit_cost_basis < _FIAT_UNIT_DATA_STYLE_2_DECIMAL_MINIMUM:
-                unit_data_style = "fiat_unit_4"
-            elif unit_cost_basis < _FIAT_UNIT_DATA_STYLE_4_DECIMAL_MINIMUM:
-                unit_data_style = "fiat_unit_7"
+            unit_data_style: str = self._get_unit_data_style(unit_cost_basis)
+            # Actual cost basis of each holder's exchanges in per-wallet application (None in universal application, where every holder
+            # and exchange has the asset's average unit cost basis).
+            exchange_cost_bases: Optional[Dict[str, Dict[str, RP2Decimal]]] = asset_cost_basis_holder_exchange.get(asset)
 
             # Add this asset to the Input sheet where the user will enter pricing value for the calculations
             input_sheet.append_rows(1)
@@ -299,7 +315,14 @@ class Generator(AbstractODSGenerator):
 
             # Complete the asset table.
             for holder, holder_crypto_balance in asset_crypto_balance_holder[asset].items():
+                holder_unit_cost_basis: RP2Decimal = unit_cost_basis
                 holder_cost_basis: RP2Decimal = holder_crypto_balance * unit_cost_basis
+                if exchange_cost_bases is not None:
+                    # The holder's cost basis is the sum of the cost basis of its exchanges.
+                    holder_cost_basis = ZERO
+                    for cost_basis in exchange_cost_bases[holder].values():
+                        holder_cost_basis += cost_basis
+                    holder_unit_cost_basis = holder_cost_basis / holder_crypto_balance
 
                 asset_sheet.append_rows(1)
                 asset_row_index: int = row_indexes[_ASSET]
@@ -309,7 +332,7 @@ class Generator(AbstractODSGenerator):
                 self._fill_cell(asset_sheet, asset_row_index, 0, asset)
                 self._fill_cell(asset_sheet, asset_row_index, 1, holder)
                 self._fill_cell(asset_sheet, asset_row_index, 2, holder_crypto_balance, data_style="crypto")
-                self._fill_cell(asset_sheet, asset_row_index, 3, unit_cost_basis, data_style=unit_data_style)
+                self._fill_cell(asset_sheet, asset_row_index, 3, holder_unit_cost_basis, data_style=self._get_unit_data_style(holder_unit_cost_basis))
                 self._fill_cell(asset_sheet, asset_row_index, 4, holder_cost_basis, data_style="fiat")
                 self._fill_cell(asset_sheet, asset_row_index, 5, holder_cost_basis / total_cost_basis, data_style="percent")
                 self._fill_cell(asset_sheet, asset_row_index, 6, _lookup_field, data_style=unit_data_style)
@@ -321,7 +344,11 @@ class Generator(AbstractODSGenerator):
             # Generate the Asset/Exchange table which will calc vals that will feed the asset table.
             for holder, exchanges in asset_crypto_balance_holder_exchange[asset].items():
                 for exchange, crypto_exchange_balance in exchanges.items():
+                    exchange_unit_cost_basis: RP2Decimal = unit_cost_basis
                     exchange_cost_basis: RP2Decimal = crypto_exchange_balance * unit_cost_basis
+                    if exchange_cost_bases is not None:
+                        exchange_cost_basis = exchange_cost_bases[holder][exchange]
+                        exchange_unit_cost_basis = exchange_cost_basis / crypto_exchange_balance
 
                     asset_exchange_sheet.append_rows(1)
                     asset_exchange_row_index: int = row_indexes[_ASSET_EXCHANGE]
@@ -332,7 +359,13 @@ class Generator(AbstractODSGenerator):
                     self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 1, holder)
                     self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 2, exchange)
                     self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 3, crypto_exchange_balance, data_style="crypto")
-                    self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 4, unit_cost_basis, data_style=unit_data_style)
+                    self._fill_cell(
+                        asset_exchange_sheet,
+                        asset_exchange_row_index,
+                        4,
+                        exchange_unit_cost_basis,
+                        data_style=self._get_unit_data_style(exchange_unit_cost_basis),
+                    )
                     self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 5, exchange_cost_basis, data_style="fiat")
                     self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 6, exchange_cost_basis / total_cost_basis, data_style="percent")
                     self._fill_cell(asset_exchange_sheet, asset_exchange_row_index, 7, _lookup_field, data_style=unit_data_style)
@@ -542,3 +575,52 @@ class Generator(AbstractODSGenerator):
 
         output_file.save()
         LOGGER.info("Plugin '%s' output: %s", __name__, Path(output_file.docname).resolve())
+
+    # For report clarity, change how much precision is displayed in the output based on the unit price. The raw value is
+    # included in the output, so if the user desires they can change the cell format in the resulting file.
+    # The default windowing is set up to hopefully give a good user experience for high value cryptos like BTC
+    # all the way through cryptos with minute unit values like SHIB.
+    @staticmethod
+    def _get_unit_data_style(unit_cost_basis: RP2Decimal) -> str:
+        if _FIAT_UNIT_DATA_STYLE_4_DECIMAL_MINIMUM <= unit_cost_basis < _FIAT_UNIT_DATA_STYLE_2_DECIMAL_MINIMUM:
+            return "fiat_unit_4"
+        if unit_cost_basis < _FIAT_UNIT_DATA_STYLE_4_DECIMAL_MINIMUM:
+            return "fiat_unit_7"
+        return "fiat"
+
+    # Per-wallet application: collects balances and actual cost basis by holder and exchange from the lots the wallets hold at to_date
+    # (see ComputedData.wallet_lots) and returns the asset's cost basis (it's in asset_cost_bases only if positive, like in universal
+    # application).
+    @staticmethod
+    def _collect_wallet_lots(
+        asset: str,
+        wallet_lots: List[WalletLot],
+        asset_cost_bases: Dict[str, RP2Decimal],
+        holders: List[str],
+        asset_crypto_balance_holder: Dict[str, Dict[str, RP2Decimal]],
+        asset_crypto_balance_holder_exchange: Dict[str, Dict[str, Dict[str, RP2Decimal]]],
+        asset_cost_basis_holder_exchange: Dict[str, Dict[str, Dict[str, RP2Decimal]]],
+    ) -> RP2Decimal:
+        asset_cost_basis = ZERO
+        holder_2_balance: Dict[str, RP2Decimal] = {}
+        holder_2_exchange_2_balance: Dict[str, Dict[str, RP2Decimal]] = {}
+        holder_2_exchange_2_cost_basis: Dict[str, Dict[str, RP2Decimal]] = {}
+        for wallet_lot in wallet_lots:
+            holder = wallet_lot.account.holder
+            exchange = wallet_lot.account.exchange
+            holder_2_balance[holder] = holder_2_balance.get(holder, ZERO) + wallet_lot.amount
+            exchange_2_balance = holder_2_exchange_2_balance.setdefault(holder, {})
+            exchange_2_balance[exchange] = exchange_2_balance.get(exchange, ZERO) + wallet_lot.amount
+            exchange_2_cost_basis = holder_2_exchange_2_cost_basis.setdefault(holder, {})
+            exchange_2_cost_basis[exchange] = exchange_2_cost_basis.get(exchange, ZERO) + wallet_lot.cost_basis
+            asset_cost_basis += wallet_lot.cost_basis
+        if asset_cost_basis <= ZERO:
+            return ZERO
+        for holder in holder_2_balance:
+            if holder not in holders:
+                holders.append(holder)
+        asset_cost_bases[asset] = asset_cost_basis
+        asset_crypto_balance_holder[asset] = holder_2_balance
+        asset_crypto_balance_holder_exchange[asset] = holder_2_exchange_2_balance
+        asset_cost_basis_holder_exchange[asset] = holder_2_exchange_2_cost_basis
+        return asset_cost_basis

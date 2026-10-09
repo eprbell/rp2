@@ -17,7 +17,7 @@ from difflib import unified_diff
 from itertools import zip_longest
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, List
+from typing import Any, List, Optional
 
 import ezodf
 
@@ -65,6 +65,22 @@ def _parse_cell_value(cell: Any) -> Any:
         value = ""
 
     return value
+
+
+# The non-empty rows of a sheet, as lists of cell values converted to strings (numbers rounded like ods_diff() does, hyperlinks replaced by
+# their text). Returns None if the file has no sheet with that name. Used by tests that check specific report cells.
+def read_sheet_rows(file_path: Path, sheet_name: str) -> Optional[List[List[str]]]:
+    document: Any = ezodf.opendoc(str(file_path))
+    if sheet_name not in document.sheets.names():
+        return None
+    result: List[List[str]] = []
+    for row in document.sheets[sheet_name].rows():
+        values = [str(_parse_cell_value(cell)) for cell in row]
+        while values and not values[-1]:
+            values.pop()
+        if values:
+            result.append(values)
+    return result
 
 
 def ods_diff(file1_path: Path, file2_path: Path, generate_ascii_representation: bool) -> str:  # pylint: disable=too-many-branches

@@ -111,6 +111,11 @@ The config file is structured as described below. Note that:
 * the `holders` field of the `general` section typically contains only one name, unless multiple people are filing taxes jointly (in which case a comma-separated list is used);
 * the `generators` filed of the `general` section is optional and contains a comma-separated list of names of output generator plugins to use at generation time. If the section is not specified the default plugin set is used;
 * the `accounting_methods` section is optional and contains information on which accounting methods to use on any given year (see an [example](../config/test_data_multi_method.ini));
+* the country section is optional and contains the choices that depend on the country. Its name is `country.` followed by the country code of the RP2 program you run (e.g. `country.us` for `rp2_us`): a section for another country is an error. Its fields are:
+  * `application_mode` (optional): `universal` or `per_wallet`. Each country has a policy of the application modes it allows in each year and RP2 uses its default (in the US: universal application until 2024, per-wallet application from 2025, see the [FAQ](user_faq.md#how-do-i-use-per-wallet-application)). If this field is given, RP2 checks it against every year with transactions and stops with an error if a year doesn't allow it. In the US each year allows only one mode, so this field is never needed;
+  * the remaining fields configure per-wallet application, and are rejected for countries that always use universal application (e.g. Japan). They are needed if the input has transactions in a year that uses per-wallet application (2025 or later in the US): RP2 stops with an error if they are missing;
+  * `timezone` (mandatory if any of the following fields is given): your local [IANA time zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) (e.g. `America/New_York`), in which January 1st of the first per-wallet year starts (2025 in the US: [Rev. Proc. 2024-28](https://www.irs.gov/pub/irs-drop/rp-24-28.pdf), [section 3.10](https://www.irs.gov/pub/irs-drop/rp-24-28.pdf#page=8), places the switch "immediately after the close of the taxpayer's day on December 31, 2024"). RP2 stops with an error if a transaction's own timestamp puts it in a different tax year than this timezone does (e.g. `2025-01-01T03:00:00+09:00` with `America/New_York`): fix the timestamp or the timezone;
+  * `unused_basis_allocation_method` and `unused_basis_allocation_wallet_order`: the [Rev. Proc. 2024-28](https://www.irs.gov/pub/irs-drop/rp-24-28.pdf) "global allocation" rule used to assign the lots that are still unused on January 1st of the first per-wallet year to the wallets that hold funds at that moment. The lots are sorted with the given accounting method (e.g. `fifo`) and the wallets, written as `<exchange>/<holder>` (e.g. `Coinbase/Bob, Kraken/Bob`), are filled in the given order, each up to its balance. These fields are mandatory if more than one wallet holds funds at the switch. [Rev. Proc. 2024-28](https://www.irs.gov/pub/irs-drop/rp-24-28.pdf) applies to each type of digital asset separately, so either field can be overridden for a single asset by appending `.<asset>` to its name (e.g. `unused_basis_allocation_wallet_order.BTC = Kraken/Bob, Coinbase/Bob`): useful when, for example, the rule orders wallets by their balance of each asset. An asset without overrides uses the default fields;
 * *`<...>`* must be substituted with user-provided values (e.g. *`<column_number>`* must be substituted with 0 for column A in the input spreadsheet, 1 for B, etc).
 <pre>
 [in_header]
@@ -163,4 +168,12 @@ generators&#x1F537; = <em>&lt;"generator_1_in_quotes"&gt;</em>, ...&#x1F537; <em
 <em>&lt;"from_year_1"&gt;</em> = <em>&lt;"accounting_method_1"&gt;</em>
 ...&#x1F537;
 <em>&lt;"from_year_n"&gt;</em> = <em>&lt;"accounting_method_n"&gt;</em>&#x1F537;
+
+[country.<em>&lt;country_code&gt;</em>]&#x1F537;
+application_mode&#x1F537; = <em>&lt;universal_or_per_wallet&gt;</em>
+timezone&#x1F537; = <em>&lt;IANA_time_zone&gt;</em>
+unused_basis_allocation_method&#x1F537; = <em>&lt;accounting_method&gt;</em>
+unused_basis_allocation_wallet_order&#x1F537; = <em>&lt;exchange_1/holder_1&gt;</em>, ...&#x1F537; <em>&lt;exchange_n/holder_n&gt;</em>&#x1F537;
+unused_basis_allocation_method.<em>&lt;asset&gt;</em>&#x1F537; = <em>&lt;accounting_method&gt;</em>
+unused_basis_allocation_wallet_order.<em>&lt;asset&gt;</em>&#x1F537; = <em>&lt;exchange_1/holder_1&gt;</em>, ...&#x1F537; <em>&lt;exchange_n/holder_n&gt;</em>&#x1F537;
 </pre>

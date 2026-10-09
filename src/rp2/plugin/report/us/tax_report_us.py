@@ -187,7 +187,7 @@ class Generator(AbstractODSGenerator):
                     f"{gain_loss.acquired_lot.crypto_balance_change:.8f} "
                     f"{asset}"
                 )
-                self._fill_cell(sheet, row_index, 2, gain_loss.acquired_lot.timestamp.strftime("%m/%d/%Y"), visual_style=acquired_lot_note_vs)
+                self._fill_cell(sheet, row_index, 2, gain_loss.acquired_lot.cost_basis_timestamp.strftime("%m/%d/%Y"), visual_style=acquired_lot_note_vs)
                 self._fill_cell(sheet, row_index, 5, gain_loss.fiat_cost_basis, visual_style=acquired_lot_note_vs, data_style="fiat")
                 self._fill_cell(sheet, row_index, 10, acquired_lot_note, visual_style=acquired_lot_note_vs)
                 self._fill_cell(sheet, row_index, 11, gain_loss.acquired_lot.unique_id, visual_style=acquired_lot_note_vs)

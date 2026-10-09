@@ -58,6 +58,10 @@ The report contains:
 * the Asset sheet which among other things shows the crypto balance, cost basis information (by unit and in whole) and portfolio weighting of each asset as well as the unrealized / market value and the gains / loss data in fiat and percentage terms in addition to further breakdowns. This tab summarizes the information by asset and holder. ![Open Positions asset tab example](images/open_positions_asset.png)
 * The Asset - Exchange sheet provides the same information as the asset tab, but further breaks the information down by exchange. ![Open Positions asset exchange tab example](images/open_positions_asset_exchange.png)
 
+The cost basis of each exchange depends on how the asset is computed at the end of the report period (see [universal and per-wallet application](user_faq.md#do-accounting-methods-use-universal-or-per-wallet-application)):
+* universal application: the asset's remaining cost basis is shared among its exchanges in proportion to their balances, so all exchanges have the same per-unit cost basis (with a from date, lots acquired before it are left out);
+* per-wallet application (only for assets with transactions in a year that uses it): each exchange shows the actual cost basis of the units it holds at the end of the report period (the to date), and the Asset sheet adds up the exchanges of each holder. Example: 1 unit bought for 100 on exchange A and 1 unit bought for 1,000 on exchange B: A shows 100 and B 1,000 (universal application would show 550 for each).
+
 ## Country-specific Reports
 
 The following reports are country-specific.

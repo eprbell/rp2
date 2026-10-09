@@ -137,7 +137,9 @@ class AbstractAcquiredLotCandidates:
         self.set_partial_amount(acquired_lot, ZERO)
 
     # Reset partial amounts to their original values and from index to zero.
-    def reset_partial_amounts(self, accounting_method: "AbstractAccountingMethod", original_partial_amounts: Dict[InTransaction, RP2Decimal]) -> None:  # pylint: disable=unused-argument
+    def reset_partial_amounts(  # pylint: disable=unused-argument
+        self, accounting_method: "AbstractAccountingMethod", original_partial_amounts: Dict[InTransaction, RP2Decimal]
+    ) -> None:
         for current_transaction, original_partial_amount in original_partial_amounts.items():
             self.set_partial_amount(current_transaction, original_partial_amount)
         self.set_from_index(0)
@@ -316,7 +318,6 @@ class AbstractFeatureBasedAccountingMethod(AbstractAccountingMethod):
 
         if selected_acquired_lot_amount > ZERO and selected_acquired_lot:
             lot_candidates.clear_partial_amount(selected_acquired_lot)
-            if selected_acquired_lot_amount > taxable_event_amount:
-                self.add_selected_lot_to_heap(lot_candidates.acquired_lot_heap, selected_acquired_lot)
+            self.add_selected_lot_to_heap(lot_candidates.acquired_lot_heap, selected_acquired_lot)
             return AcquiredLotAndAmount(acquired_lot=selected_acquired_lot, amount=selected_acquired_lot_amount)
         return None
