@@ -364,6 +364,10 @@ def _validate_accounting_methods(country: AbstractCountry) -> List[str]:
 
 def _setup_argument_parser(country: AbstractCountry) -> ArgumentParser:
     accounting_methods = _validate_accounting_methods(country)
+    # Per-wallet application and its time zone (the timezone field of the country section) exist only in countries whose policy allows
+    # per-wallet application (e.g. the US): the help of the other countries doesn't mention them.
+    allows_per_wallet = country.get_application_policy().allows_per_wallet
+    time_zone_help = ", in the time zone of the country section of\nthe configuration file, if it has one" if allows_per_wallet else ""
 
     parser: ArgumentParser = ArgumentParser(
         description=(
@@ -388,7 +392,7 @@ def _setup_argument_parser(country: AbstractCountry) -> ArgumentParser:
         "--from_date",
         action="store",
         default=MIN_DATE,
-        help="Generate report from the given date (in ISO 8601 format: e.g. YYYY-MM-DD)",
+        help=f"Generate report from the given date (in ISO 8601 format: e.g. YYYY-MM-DD){time_zone_help}",
         metavar="DATE",
         type=date.fromisoformat,
     )
@@ -414,7 +418,10 @@ def _setup_argument_parser(country: AbstractCountry) -> ArgumentParser:
         "--method",
         default="",
         choices=accounting_methods,
-        help=f"accounting method (default: '%(default)s'). Supported values: {', '.join(accounting_methods)}",
+        help=f"accounting method (default: '{country.get_default_accounting_method()}'; alternatively use the 'accounting_methods' section of\n"
+        "the configuration file to change it by year)."
+        + (" In per-wallet application it applies to both sales and transfers." if allows_per_wallet else "")
+        + f"\nSupported values: {', '.join(accounting_methods)}",
         metavar="METHOD",
         type=str,
     )
@@ -422,7 +429,8 @@ def _setup_argument_parser(country: AbstractCountry) -> ArgumentParser:
         "-n",
         "--allow_negative_balances",
         action="store_true",
-        help="allow exchange balances to be negative (default: '%(default)s').",
+        help="allow exchange balances to be negative (default: '%(default)s')."
+        + (" Not applied to the years with per-wallet application:\nthere a wallet can't sell or send more than it holds." if allows_per_wallet else ""),
     )
     parser.add_argument(
         "-o",
@@ -447,7 +455,9 @@ def _setup_argument_parser(country: AbstractCountry) -> ArgumentParser:
         "--to_date",
         action="store",
         default=MAX_DATE,
-        help="Generate report up to the given date (in ISO 8601 format: e.g. YYYY-MM-DD)",
+        help=f"Generate report up to the given date (in ISO 8601 format: e.g. YYYY-MM-DD){time_zone_help}.\n"
+        "Without this option the report ends on the date of its last transaction."
+        + ("\nThe end of the report decides whether it needs per-wallet application." if allows_per_wallet else ""),
         metavar="DATE",
         type=date.fromisoformat,
     )
