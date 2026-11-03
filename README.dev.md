@@ -286,7 +286,9 @@ The RP2 accounting engine automatically provides the following common functional
 * lot disambiguation: this occurs when lots have the same timestamp;
 * accounting method change year over year: this occurs when the user changes accounting method with the `-m` option.
 
-Note that the RP2 accounting engine uses [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/), not per-wallet application: this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
+Accounting method plugins are used in both application modes (see [universal and per-wallet application](docs/user_faq.md#do-accounting-methods-use-universal-or-per-wallet-application)). The application policy of the country chooses the mode of each year:
+* universal application (`compute_tax()` in [tax_engine.py](src/rp2/tax_engine.py), with [AccountingEngine](src/rp2/accounting_engine.py)): there is one queue for each coin across every wallet and exchange, and the accounting method is applied to each such queue;
+* per-wallet application (`compute_tax_per_wallet()` in [tax_engine.py](src/rp2/tax_engine.py)): universal application until the first per-wallet year (the switch); at the switch [UnusedBasisAllocator](src/rp2/unused_basis_allocator.py) assigns the lots that are still unused to the wallets that hold the coin; after the switch [TransferAnalyzer](src/rp2/transfer_analyzer.py) processes the transactions in one chronological pass, with one queue for each coin in each wallet (a wallet is an exchange/holder pair, see [Account](src/rp2/account.py)), and the method of each year applies to both sales and transfers. Transferred lots keep their original acquisition date, so chronological methods are replaced by feature-based equivalents that sort lots by that date (e.g. [AcquisitionDateFifo](src/rp2/acquisition_date_fifo.py) for FIFO); feature-based methods are used as they are.
 
 Accounting method plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * add a new Python file to the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
@@ -333,10 +335,11 @@ Accounting method plugins are discovered by RP2 at runtime and they must adhere 
 RP2 has built-in support for the US but it also has infrastructure to support other countries. The abstract superclass of country plugins is [AbstractCountry](src/rp2/abstract_country.py), which captures the following:
 * country code (2-letter string in [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format);
 * currency code (3-letter string in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format);
-* long term capital gain period in days (e.g. for the US it's 365);
+* long term capital gain period in days (e.g. for the US it's 365), used by the default holding period rule (`is_long_term_capital_gain()`, which counts days: the US overrides it to compare calendar dates);
 * accepted accounting methods;
 * accepted report generators;
-* default language for the country.
+* default language for the country;
+* application policy (`get_application_policy()`): the application modes (universal, per-wallet) allowed in each year and the default one. The default policy is universal application in every year; the US uses per-wallet application from 2025, configured in the `country.us` section of the config file (see [supported countries](docs/supported_countries.md#usa)).
 
  To add a new plugin follow this procedure:
 * add a new Python file to the `src/rp2/plugin/country/` directory and name it after the ISO 3166-1 alpha-2, 2-letter code for the country (e.g. us.py or jp.py);
@@ -347,6 +350,7 @@ RP2 has built-in support for the US but it also has infrastructure to support ot
 * `get_accounting_methods()` method returning a set of accounting methods that are accepted in the country (e.g. `{"fifo", "lifo", "hifo"}`);
 * `get_report_generators()`: method returning a set of report generators to use if the user doesn't specify them on the command line;
 * `get_default_generation_language()`: method returning the default language (in [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format) to use at report generation if the user doesn't specify it on the command line;
+* optionally, `is_long_term_capital_gain()` if the country measures the holding period differently from the default, and `get_application_policy()` if the country requires per-wallet application in some years (see the US plugin);
 * `rp2_entry()` global function calling `rp2_main()` and passing it an instance of the new country class (in fact technically subclasses of `AbstractCountry` are entry points, not plugins).
 
 As an example see the [us.py](src/rp2/plugin/country/us.py) file.

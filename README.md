@@ -17,7 +17,7 @@
 # RP2 v1.7.2
 Privacy-focused, free, powerful crypto tax calculator
 
-**IMPORTANT NOTICE FOR USA TAXPAYERS**: Starting in 2025, the USA has transitioned from [Universal Application to Per-Wallet Application](https://github.com/eprbell/rp2/issues/135#issuecomment-2454959334). Support for Per-Wallet Application in RP2 is still under development — see [issue #135](https://github.com/eprbell/rp2/issues/135). Do not use RP2 for 2025 (and later) USA tax reporting until this issue is fully resolved. An experimental implementation is used automatically for reports that reach 2025 and later, and needs a `country.us` section in the config file: see the [FAQ](docs/user_faq.md#how-do-i-use-per-wallet-application).
+**IMPORTANT NOTICE FOR USA TAXPAYERS**: Starting in 2025, the USA has transitioned from [Universal Application to Per-Wallet Application](https://github.com/eprbell/rp2/issues/135#issuecomment-2454959334). Support for Per-Wallet Application in RP2 is still under development — see [issue #135](https://github.com/eprbell/rp2/issues/135). Do not use RP2 for 2025 (and later) USA tax reporting until this issue is fully resolved. An experimental implementation is used automatically for reports that reach 2025 and later, and needs a `country.us` section in the config file: see the [FAQ](docs/user_faq.md#how-do-i-use-per-wallet-application) and the [US documentation](docs/supported_countries.md#usa).
 
 **IMPORTANT NOTICE FOR TAXPAYERS WORLDWIDE**: Support for Per-Wallet Application in RP2 is still in development - see [issue 135 for details](https://github.com/eprbell/rp2/issues/135#issuecomment-2454959334). If your country mandates Per-Wallet Application, do not use RP2 for tax reporting until that issue is resolved. If your country permits Universal Application (already supported by RP2), you may safely use RP2.
 
@@ -176,7 +176,7 @@ To generate US tax output for the example files open a terminal window (or Power
   ```
 Results are generated in the `output` directory and logs are stored in the `log` directory.
 
-The `-m` option is particularly important, because is selects the accounting method: `rp2_us` supports FIFO, LIFO and HIFO (if `-m` is not specified it defaults to FIFO).
+The `-m` option is particularly important, because is selects the accounting method: `rp2_us` supports FIFO, LIFO, HIFO and LOFO (if `-m` is not specified it defaults to FIFO).
 
 To print full command usage information for the `rp2_us` command:
   ```
