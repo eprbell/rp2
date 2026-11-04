@@ -24,9 +24,9 @@ from rp2.abstract_accounting_method import (
     AcquiredLotAndAmount,
 )
 from rp2.abstract_transaction import AbstractTransaction
-from rp2.configuration import Configuration
 from rp2.in_transaction import InTransaction
-from rp2.rp2_decimal import ZERO, RP2Decimal
+from rp2.lot_consumption import TakeResult, take_lots
+from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2RuntimeError, RP2TypeError
 
 
@@ -76,17 +76,17 @@ class AcquiredLotAndAmounts(NamedTuple):
     acquired_lot_amount: RP2Decimal
 
 
-class TaxableEventAndAcquiredLot(NamedTuple):
-    taxable_event: AbstractTransaction
-    acquired_lot: Optional[InTransaction]
-    taxable_event_amount: RP2Decimal
-    acquired_lot_amount: RP2Decimal
-
-
 @dataclass(frozen=True, eq=True)
 class _AcquiredLotAndIndex:
     acquired_lot: InTransaction
     index: int
+
+
+# The lot pool of universal application at a given time: the lots acquired up to that time, in any wallet (lot_candidates), and the
+# accounting method of the year (see AccountingEngine._get_lot_pool()).
+class _LotPool(NamedTuple):
+    accounting_method: AbstractAccountingMethod
+    lot_candidates: AbstractAcquiredLotCandidates
 
 
 class _LotExhaustedException(Exception):
@@ -102,16 +102,14 @@ class _LotExhaustedException(Exception):
         return self.__message
 
 
-class TaxableEventsExhaustedException(_LotExhaustedException):
-    pass
-
-
 class AcquiredLotsExhaustedException(_LotExhaustedException):
     pass
 
 
+# The lots of universal application: it keeps every acquired lot (in any wallet), the coins each one has left and the accounting method of
+# each year. take() takes the coins of a taxable event from the lots acquired up to it, with the rules shared with per-wallet application
+# (see lot_consumption.take_lots()).
 class AccountingEngine:
-    __taxable_event_iterator: Iterator[AbstractTransaction]
     __acquired_lot_list: List[InTransaction]
     __acquired_lot_avl: AVLTree[str, _AcquiredLotAndIndex]
     __acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal]
@@ -134,17 +132,15 @@ class AccountingEngine:
         self.__years_2_methods: AVLTree[int, AbstractAccountingMethod] = _copy_years_2_methods(years_2_methods)
         self.__years_2_lot_candidates: AVLTree[int, AbstractAcquiredLotCandidates] = AVLTree()
 
-    # Iterators yield transactions in ascending chronological order. acquired_lot_to_partial_amount (if given) is the amount still available
-    # in some lots (e.g. InputData.in_transaction_2_actual_amount): the engine works on a copy, because it updates the amounts while pairing
-    # lots, and the caller's data (e.g. the input data) must not change. Before this copy, computing taxes on the same input data twice
-    # could give different results.
+    # acquired_lot_iterator yields the lots in ascending chronological order. acquired_lot_to_partial_amount (if given) is the amount still
+    # available in some lots (e.g. InputData.in_transaction_2_actual_amount): the engine works on a copy, because it updates the amounts while
+    # pairing lots, and the caller's data (e.g. the input data) must not change. Before this copy, computing taxes on the same input data
+    # twice could give different results.
     def initialize(
         self,
-        taxable_event_iterator: Iterator[AbstractTransaction],
         acquired_lot_iterator: Iterator[InTransaction],
         acquired_lot_to_partial_amount: Optional[Mapping[InTransaction, RP2Decimal]] = None,
     ) -> None:
-        self.__taxable_event_iterator = taxable_event_iterator
         self.__acquired_lot_list = []
         self.__acquired_lot_avl: AVLTree[str, _AcquiredLotAndIndex] = AVLTree()
         self.__acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal] = (
@@ -201,81 +197,15 @@ class AccountingEngine:
             raise RP2RuntimeError(f"Internal error: accounting method assigned for year {year} is not of type AbstractAccountingMethod: {method}")
         return method
 
-    def _set_partial_amount(self, acquired_lot: InTransaction, amount: RP2Decimal) -> None:
-        self.__acquired_lot_2_partial_amount[acquired_lot] = amount
-
-    def get_next_taxable_event_and_amount(
-        self,
-        taxable_event: Optional[AbstractTransaction],
-        acquired_lot: Optional[InTransaction],
-        taxable_event_amount: RP2Decimal,
-        acquired_lot_amount: RP2Decimal,
-    ) -> TaxableEventAndAcquiredLot:
-        new_acquired_lot: Optional[InTransaction] = acquired_lot
-        new_acquired_lot_amount: RP2Decimal = acquired_lot_amount - taxable_event_amount if acquired_lot is not None else ZERO
-
-        try:
-            new_taxable_event: AbstractTransaction = next(self.__taxable_event_iterator)
-        except StopIteration:
-            raise TaxableEventsExhaustedException() from None
-        # The amount is checked before looking for lots, so that a non-positive amount (e.g. a negative STAKING) is reported as such: before,
-        # methods that select the event's own lot first (e.g. LIFO, with the negative STAKING lot) reported "Total in-transaction crypto
-        # value < total taxable crypto value" instead.
-        new_taxable_event_amount: RP2Decimal = Configuration.type_check_positive_decimal("taxable_event_amount", new_taxable_event.crypto_balance_change)
-
-        # If the new taxable event is newer than the old one (and it's not earn-typed) check if there is a newer acquired lot that
-        # meets the accounting method criteria (but it's still older than the new taxable event).
-        if taxable_event and taxable_event.timestamp < new_taxable_event.timestamp:
-            if acquired_lot:
-                self._set_partial_amount(acquired_lot, new_acquired_lot_amount)
-            _, new_acquired_lot, _, new_acquired_lot_amount = self.get_acquired_lot_for_taxable_event(
-                new_taxable_event, acquired_lot, new_taxable_event_amount, new_acquired_lot_amount
-            )
-
-        return TaxableEventAndAcquiredLot(
-            taxable_event=new_taxable_event,
-            acquired_lot=new_acquired_lot,
-            taxable_event_amount=new_taxable_event_amount,
-            acquired_lot_amount=new_acquired_lot_amount,
-        )
-
-    # After selecting the taxable event, RP2 calls this function to find the acquired_lot to pair with it.
-    def get_acquired_lot_for_taxable_event(
-        self,
-        taxable_event: AbstractTransaction,
-        acquired_lot: Optional[InTransaction],
-        taxable_event_amount: RP2Decimal,
-        acquired_lot_amount: RP2Decimal,
-    ) -> TaxableEventAndAcquiredLot:
-        # The accounting method is the one of the taxable event's tax year: its timestamp is converted to the tax time zone (see
-        # Configuration.tax_timezone). It's the same instant, so the search of lots acquired before it is unaffected.
-        tax_timestamp = taxable_event.configuration.get_tax_timestamp(taxable_event.timestamp)
-        acquired_lot_and_amounts = self.get_acquired_lot_for_timestamp(tax_timestamp, acquired_lot, taxable_event_amount, acquired_lot_amount)
-        return TaxableEventAndAcquiredLot(
-            taxable_event=taxable_event,
-            acquired_lot=acquired_lot_and_amounts.acquired_lot,
-            taxable_event_amount=acquired_lot_and_amounts.taxable_event_amount,
-            acquired_lot_amount=acquired_lot_and_amounts.acquired_lot_amount,
-        )
-
-    # timestamp is the time of the taxable event in the tax time zone (see Configuration.tax_timezone): its year selects the accounting method.
-    # acquired_lot (the lot paired last) isn't needed to find the next lot: it's accepted to keep the parameters of
-    # get_acquired_lot_for_taxable_event(), which passes them on.
-    def get_acquired_lot_for_timestamp(
-        self,
-        timestamp: datetime,
-        acquired_lot: Optional[InTransaction],  # pylint: disable=unused-argument
-        taxable_event_amount: RP2Decimal,
-        acquired_lot_amount: RP2Decimal,
-    ) -> AcquiredLotAndAmounts:
-        new_taxable_event_amount: RP2Decimal = taxable_event_amount - acquired_lot_amount
-        # Find the acquired_lot and index just before the taxable event: the index is used as an upper bound
-        # in the search of acquired lot candidates (see set_to_index() below).
+    # The lot pool of universal application at timestamp (in the tax time zone, see Configuration.tax_timezone): the lots acquired up to
+    # timestamp, in any wallet, with the accounting method of its year. None if no lot was acquired by then.
+    def _get_lot_pool(self, timestamp: datetime) -> Optional[_LotPool]:
+        # The last lot acquired up to timestamp (lots acquired at timestamp included): its index is the upper bound of the lot candidates.
         acquired_lot_and_index: Optional[_AcquiredLotAndIndex] = self.__acquired_lot_avl.find_max_value_less_than(
             self._get_avl_node_key_with_max_disambiguator(timestamp)
         )
         if acquired_lot_and_index is None:
-            raise AcquiredLotsExhaustedException()
+            return None
         if acquired_lot_and_index.acquired_lot != self.__acquired_lot_list[acquired_lot_and_index.index]:
             raise RP2RuntimeError("Internal error: acquired_lot incongruence in accounting logic")
         method = self._get_accounting_method(timestamp.year)
@@ -284,7 +214,36 @@ class AccountingEngine:
         if not lot_candidates:
             raise RP2RuntimeError("Internal error: no lot candidates found for year")
         lot_candidates.set_to_index(acquired_lot_and_index.index)
-        acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = method.seek_non_exhausted_acquired_lot(lot_candidates, new_taxable_event_amount)
+        return _LotPool(method, lot_candidates)
+
+    # Takes amount coins for taxable_event (a disposal or a fee) from the lots acquired up to it, in any wallet, in the order of the
+    # accounting method of its tax year (see lot_consumption.take_lots()). The tax year comes from the taxable event's timestamp in the tax
+    # time zone (see Configuration.tax_timezone): it's the same instant, so the lots acquired before it are the same.
+    # Example: lots bought on Coinbase in 2023 and on Kraken in 2024, FIFO: a sale on Kraken in 2024 takes the Coinbase lot first.
+    def take(self, taxable_event: AbstractTransaction, amount: RP2Decimal) -> TakeResult:
+        AbstractTransaction.type_check("taxable_event", taxable_event)
+        tax_timestamp = taxable_event.configuration.get_tax_timestamp(taxable_event.timestamp)
+        lot_pool = self._get_lot_pool(tax_timestamp)
+        if lot_pool is None:
+            return TakeResult([], amount)
+        return take_lots(lot_pool.accounting_method, lot_pool.lot_candidates, amount)
+
+    # Selects the next lot to use at timestamp (in the tax time zone, see Configuration.tax_timezone), with the accounting method of its year.
+    # Only GlobalAllocator uses it. acquired_lot (the lot paired last) isn't needed to find the next lot.
+    def get_acquired_lot_for_timestamp(
+        self,
+        timestamp: datetime,
+        acquired_lot: Optional[InTransaction],  # pylint: disable=unused-argument
+        taxable_event_amount: RP2Decimal,
+        acquired_lot_amount: RP2Decimal,
+    ) -> AcquiredLotAndAmounts:
+        new_taxable_event_amount: RP2Decimal = taxable_event_amount - acquired_lot_amount
+        lot_pool = self._get_lot_pool(timestamp)
+        if lot_pool is None:
+            raise AcquiredLotsExhaustedException()
+        acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = lot_pool.accounting_method.seek_non_exhausted_acquired_lot(
+            lot_pool.lot_candidates, new_taxable_event_amount
+        )
         if not acquired_lot_and_amount:
             raise AcquiredLotsExhaustedException()
 

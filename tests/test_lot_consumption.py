@@ -12,24 +12,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# How universal and per-wallet application take coins from lots (R13 of the review of eprbell/rp2#155): they must follow the same rules, so
-# they give the same results when they can choose from the same lots, and the wallet restriction must change the results when they can't.
+# How universal and per-wallet application take coins from lots (R13 of the review of eprbell/rp2#155): they follow the same rules, the
+# shared take_lots() and pair_with_lots() of lot_consumption.py, so they give the same results when they can choose from the same lots, and
+# the wallet restriction must change the results when they can't. The tests check the rules themselves, that both applications use them,
+# and their results through both applications.
 
 import unittest
+from types import ModuleType
 from typing import Dict, List, NamedTuple, Optional, cast
 
 from per_wallet_common import AbstractPerWalletTest, _create_configuration, _In, _Intra, _Out
 
-from rp2.abstract_accounting_method import AbstractAccountingMethod
+import rp2.accounting_engine
+import rp2.per_wallet_transactions
+import rp2.tax_engine
+import rp2.transfer_analyzer
+from rp2.abstract_accounting_method import AbstractAccountingMethod, AbstractAcquiredLotCandidates
+from rp2.abstract_transaction import AbstractTransaction
 from rp2.computed_data import ComputedData
+from rp2.configuration import Configuration
 from rp2.gain_loss import GainLoss
 from rp2.in_transaction import InTransaction
+from rp2.lot_consumption import LotPiece, TakeResult, pair_with_lots, take_lots
 from rp2.plugin.accounting_method.fifo import AccountingMethod as AccountingMethodFIFO
 from rp2.plugin.accounting_method.hifo import AccountingMethod as AccountingMethodHIFO
 from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMethodLIFO
 from rp2.plugin.accounting_method.lofo import AccountingMethod as AccountingMethodLOFO
 from rp2.rp2_decimal import ZERO, RP2Decimal
-from rp2.rp2_error import RP2ValueError
+from rp2.rp2_error import RP2RuntimeError, RP2ValueError
 from rp2.tax_engine import compute_tax, compute_tax_per_wallet
 
 
@@ -76,6 +86,10 @@ def _per_wallet_remaining(computed_data: ComputedData) -> Dict[str, RP2Decimal]:
     return result
 
 
+def _get_unique_id(lot: InTransaction) -> str:
+    return lot.unique_id
+
+
 # What the wallets hold at the end, by wallet and original lot ("Coinbase/A": coins).
 def _holdings(computed_data: ComputedData) -> Dict[str, RP2Decimal]:
     result: Dict[str, RP2Decimal] = {}
@@ -86,6 +100,158 @@ def _holdings(computed_data: ComputedData) -> Dict[str, RP2Decimal]:
 
 
 class TestLotConsumption(AbstractPerWalletTest):
+    # Replaces take_lots() in module (which imported it) with a spy that counts its calls: the original is put back when the test ends.
+    def _spy_take_lots(self, module: ModuleType) -> List[int]:
+        calls: List[int] = []
+
+        def spy(accounting_method: AbstractAccountingMethod, lot_candidates: AbstractAcquiredLotCandidates, amount: RP2Decimal) -> TakeResult:
+            calls.append(1)
+            return take_lots(accounting_method, lot_candidates, amount)
+
+        def restore() -> None:
+            setattr(module, "take_lots", take_lots)
+
+        setattr(module, "take_lots", spy)
+        self.addCleanup(restore)
+        return calls
+
+    # Same as _spy_take_lots(), for pair_with_lots().
+    def _spy_pair_with_lots(self, module: ModuleType) -> List[int]:
+        calls: List[int] = []
+
+        def spy(configuration: Configuration, taxable_event: AbstractTransaction, pieces: List[LotPiece]) -> List[GainLoss]:
+            calls.append(1)
+            return pair_with_lots(configuration, taxable_event, pieces)
+
+        def restore() -> None:
+            setattr(module, "pair_with_lots", pair_with_lots)
+
+        setattr(module, "pair_with_lots", spy)
+        self.addCleanup(restore)
+        return calls
+
+    # Lots of one wallet, all in 2025: A (2 coins at $100), B (5 coins at $300) and C (1 coin at $200).
+    def _create_lots(self, configuration: Configuration) -> List[InTransaction]:
+        input_data = self._create_input_data(
+            configuration,
+            [
+                _In("A", "2025-01-01T00:00:00+00:00", "Coinbase", "Buy", "100", "2"),
+                _In("B", "2025-02-01T00:00:00+00:00", "Coinbase", "Buy", "300", "5"),
+                _In("C", "2025-03-01T00:00:00+00:00", "Coinbase", "Buy", "200", "1"),
+            ],
+        )
+        return sorted((cast(InTransaction, lot) for lot in input_data.unfiltered_in_transaction_set), key=_get_unique_id)
+
+    @staticmethod
+    def _create_lot_candidates(method: AbstractAccountingMethod, lots: List[InTransaction]) -> AbstractAcquiredLotCandidates:
+        result = method.create_lot_candidates(list(lots), {})
+        result.set_to_index(len(lots) - 1)
+        return result
+
+    # The rules of take_lots(), on FIFO lot candidates of lots A (2 coins), B (5) and C (1).
+    def test_take_lots(self) -> None:
+        configuration = _create_configuration()
+        lot_a, lot_b, lot_c = self._create_lots(configuration)
+        fifo = AccountingMethodFIFO()
+        lot_candidates = self._create_lot_candidates(fifo, [lot_a, lot_b, lot_c])
+
+        # Partial consumption: 1 coin of A, which keeps the other.
+        want: TakeResult = TakeResult([LotPiece(lot_a, RP2Decimal("1"))], ZERO)
+        self.assertEqual(take_lots(fifo, lot_candidates, RP2Decimal("1")), want)
+        self.assertEqual(lot_candidates.get_partial_amount(lot_a), RP2Decimal("1"))
+
+        # Exhausted lot and multiple lots: the last coin of A (now exhausted), then 2 coins of B, which keeps 3.
+        want = TakeResult([LotPiece(lot_a, RP2Decimal("1")), LotPiece(lot_b, RP2Decimal("2"))], ZERO)
+        self.assertEqual(take_lots(fifo, lot_candidates, RP2Decimal("3")), want)
+        self.assertEqual(lot_candidates.get_partial_amount(lot_a), ZERO)
+        self.assertEqual(lot_candidates.get_partial_amount(lot_b), RP2Decimal("3"))
+
+        # Nothing to take: no pieces, nothing missing.
+        want = TakeResult([], ZERO)
+        self.assertEqual(take_lots(fifo, lot_candidates, ZERO), want)
+
+        # Not enough coins: everything left is taken (3 of B, 1 of C) and the rest is missing.
+        want = TakeResult([LotPiece(lot_b, RP2Decimal("3")), LotPiece(lot_c, RP2Decimal("1"))], RP2Decimal("6"))
+        self.assertEqual(take_lots(fifo, lot_candidates, RP2Decimal("10")), want)
+        want = TakeResult([], RP2Decimal("1"))
+        self.assertEqual(take_lots(fifo, lot_candidates, RP2Decimal("1")), want)
+
+    # Coins are compared with RP2Decimal's precision (13 decimals): a lot with 2 coins covers a need of 2.00000000000001 coins, the piece is
+    # the amount needed and the lot keeps the difference, which counts as zero.
+    def test_take_lots_within_precision(self) -> None:
+        configuration = _create_configuration()
+        lot_a, lot_b, lot_c = self._create_lots(configuration)
+        fifo = AccountingMethodFIFO()
+        lot_candidates = self._create_lot_candidates(fifo, [lot_a, lot_b, lot_c])
+        pieces, missing_amount = take_lots(fifo, lot_candidates, RP2Decimal("2.00000000000001"))
+        # The amounts are compared as text: RP2Decimal's == would also accept the lot's 2 coins.
+        got: List[str] = [f"{piece.acquired_lot.unique_id}: {piece.amount}" for piece in pieces]
+        want: List[str] = ["A: 2.00000000000001"]
+        self.assertEqual(got, want)
+        self.assertEqual(missing_amount, ZERO)
+        # A is exhausted: the next coin comes from B.
+        want_result: TakeResult = TakeResult([LotPiece(lot_b, RP2Decimal("1"))], ZERO)
+        self.assertEqual(take_lots(fifo, lot_candidates, RP2Decimal("1")), want_result)
+
+    # The lot candidates are ordered by the method that created them: taking from them with a method of another class is an internal error.
+    def test_take_lots_checks_its_parameters(self) -> None:
+        configuration = _create_configuration()
+        lot_candidates = self._create_lot_candidates(AccountingMethodFIFO(), self._create_lots(configuration))
+        with self.assertRaisesRegex(RP2RuntimeError, "lot candidates of fifo used with accounting method hifo"):
+            take_lots(AccountingMethodHIFO(), lot_candidates, RP2Decimal("1"))
+        with self.assertRaisesRegex(RP2ValueError, "Parameter 'amount' has non-positive value"):
+            take_lots(AccountingMethodFIFO(), lot_candidates, RP2Decimal("-1"))
+
+    # Each piece becomes a gain/loss with the piece's coins and lot.
+    def test_pair_with_lots(self) -> None:
+        configuration = _create_configuration()
+        input_data = self._create_input_data(
+            configuration,
+            [
+                _In("A", "2025-01-01T00:00:00+00:00", "Coinbase", "Buy", "100", "2"),
+                _In("B", "2025-02-01T00:00:00+00:00", "Coinbase", "Buy", "300", "5"),
+                _Out("o1", "2025-04-01T00:00:00+00:00", "Coinbase", "400", "3"),
+            ],
+        )
+        lot_a, lot_b = sorted((cast(InTransaction, lot) for lot in input_data.unfiltered_in_transaction_set), key=_get_unique_id)
+        sale = cast(AbstractTransaction, next(iter(input_data.unfiltered_out_transaction_set)))
+        gain_losses = pair_with_lots(configuration, sale, [LotPiece(lot_a, RP2Decimal("2")), LotPiece(lot_b, RP2Decimal("1"))])
+        got: List[_Pairing] = [
+            _Pairing(
+                gain_loss.taxable_event.unique_id,
+                gain_loss.acquired_lot.unique_id if gain_loss.acquired_lot else None,
+                gain_loss.crypto_amount,
+                gain_loss.fiat_cost_basis,
+            )
+            for gain_loss in gain_losses
+        ]
+        want: List[_Pairing] = [_Pairing("o1", "A", RP2Decimal("2"), RP2Decimal("200")), _Pairing("o1", "B", RP2Decimal("1"), RP2Decimal("300"))]
+        self.assertEqual(got, want)
+
+    # Both applications go through the shared rules: universal application takes lots with take_lots() via AccountingEngine and pairs them
+    # with pair_with_lots() in the tax engine, per-wallet application via PerWalletTransactions and TransferAnalyzer.
+    def test_both_applications_use_the_shared_rules(self) -> None:
+        configuration = _create_configuration()
+        transactions: List[object] = [
+            _In("A", "2025-01-01T00:00:00+00:00", "Coinbase", "Buy", "100", "2"),
+            _Out("o1", "2025-04-01T00:00:00+00:00", "Coinbase", "400", "1"),
+        ]
+        calls: Dict[str, List[int]] = {
+            "universal take_lots": self._spy_take_lots(rp2.accounting_engine),
+            "universal pair_with_lots": self._spy_pair_with_lots(rp2.tax_engine),
+            "per-wallet take_lots": self._spy_take_lots(rp2.per_wallet_transactions),
+            "per-wallet pair_with_lots": self._spy_pair_with_lots(rp2.transfer_analyzer),
+        }
+
+        compute_tax(configuration, self._create_accounting_engine(None), self._create_input_data(configuration, transactions))
+        got: Dict[str, int] = {name: len(call_list) for name, call_list in calls.items()}
+        want: Dict[str, int] = {"universal take_lots": 1, "universal pair_with_lots": 1, "per-wallet take_lots": 0, "per-wallet pair_with_lots": 0}
+        self.assertEqual(got, want)
+        compute_tax_per_wallet(configuration, self._create_accounting_engine(None), self._create_input_data(configuration, transactions))
+        got = {name: len(call_list) for name, call_list in calls.items()}
+        want = {"universal take_lots": 1, "universal pair_with_lots": 1, "per-wallet take_lots": 1, "per-wallet pair_with_lots": 1}
+        self.assertEqual(got, want)
+
     # When all lots are in one wallet, both applications can choose from the same lots: they must take the same coins with the same basis
     # and leave the same coins in each lot. The history covers partial lots, exhausted lots, multiple lots, fees (of a sale and of a
     # transfer) and a method change (FIFO in 2025, HIFO in 2026).

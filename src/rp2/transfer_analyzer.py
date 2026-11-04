@@ -29,9 +29,10 @@ from rp2.gain_loss import GainLoss
 from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData
 from rp2.intra_transaction import IntraTransaction
+from rp2.lot_consumption import LotPiece, pair_earning, pair_with_lots
 from rp2.out_transaction import OutTransaction
 from rp2.per_wallet_accounting_method import get_per_wallet_accounting_method
-from rp2.per_wallet_transactions import LotPiece, PerWalletTransactions
+from rp2.per_wallet_transactions import PerWalletTransactions
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2RuntimeError, RP2TypeError, RP2ValueError
 from rp2.wallet_lot import WalletLot
@@ -213,8 +214,7 @@ class TransferAnalyzer:
                 f"Insufficient balance on {account} to cover out transaction "
                 f"(missing {missing_amount} of {transaction.crypto_balance_change} {transaction.asset}): {transaction}"
             )
-        for piece in pieces:
-            gain_loss_list.append(GainLoss(self.__configuration, piece.amount, transaction, piece.acquired_lot))
+        gain_loss_list.extend(pair_with_lots(self.__configuration, transaction, pieces))
 
     # A transfer between wallets: the sent units are taken from the source wallet; the fee (sent - received) is paid with the first of them,
     # the rest arrive in the destination wallet. The destination wallet gets lots (and, if it's new, is created) only when units arrive: a
@@ -243,8 +243,7 @@ class TransferAnalyzer:
                 f"(missing {missing_amount} of {transaction.crypto_sent} {transaction.asset}): {transaction}"
             )
         # The fee is disposed of: each fee piece is paired with its lot.
-        for piece in fee_pieces:
-            gain_loss_list.append(GainLoss(self.__configuration, piece.amount, transaction, piece.acquired_lot))
+        gain_loss_list.extend(pair_with_lots(self.__configuration, transaction, fee_pieces))
         for piece in received_pieces:
             if transaction.is_self_transfer():
                 # Self transfer (loop): the received units stay where they were.
@@ -312,7 +311,7 @@ class TransferAnalyzer:
                 account = Account(transaction.exchange, transaction.holder)
                 self._get_or_create_per_wallet_transactions(wallet_2_per_wallet_transactions, account).add_acquired_lot(transaction)
                 if transaction.is_earning():
-                    gain_loss_list.append(GainLoss(self.__configuration, transaction.crypto_balance_change, transaction, None))
+                    gain_loss_list.append(pair_earning(self.__configuration, transaction))
             elif isinstance(transaction, OutTransaction):
                 self._process_out_transaction(wallet_2_per_wallet_transactions, transaction, gain_loss_list)
             elif isinstance(transaction, IntraTransaction):

@@ -26,8 +26,9 @@ from rp2.abstract_accounting_method import (
 )
 from rp2.acquisition_date_fifo import AcquisitionDateFifo
 from rp2.in_transaction import InTransaction
+from rp2.lot_consumption import LotPiece
 from rp2.out_transaction import OutTransaction
-from rp2.per_wallet_transactions import LotPiece, PerWalletTransactions
+from rp2.per_wallet_transactions import PerWalletTransactions
 from rp2.plugin.accounting_method.hifo import AccountingMethod as AccountingMethodHIFO
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2RuntimeError, RP2TypeError, RP2ValueError

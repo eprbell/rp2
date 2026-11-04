@@ -14,33 +14,21 @@
 
 from datetime import date
 from types import MappingProxyType
-from typing import Dict, List, Mapping, NamedTuple, Optional, Sequence, Tuple
+from typing import Dict, List, Mapping, Sequence, Tuple
 
 from rp2.abstract_accounting_method import (
     AbstractFeatureBasedAccountingMethod,
-    AcquiredLotAndAmount,
     FeatureBasedAcquiredLotCandidates,
 )
 from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData
 from rp2.intra_transaction import IntraTransaction
+from rp2.lot_consumption import TakeResult, take_lots
 from rp2.out_transaction import OutTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2RuntimeError, RP2TypeError, RP2ValueError
 from rp2.transaction_set import TransactionSet
-
-
-# A piece of an acquired lot consumed by a disposal or transfer.
-class LotPiece(NamedTuple):
-    acquired_lot: InTransaction
-    amount: RP2Decimal
-
-
-# Result of taking funds from a wallet: missing_amount is > 0 if the wallet didn't have enough funds.
-class TakeResult(NamedTuple):
-    pieces: List[LotPiece]
-    missing_amount: RP2Decimal
 
 
 # The lots and transactions of a single wallet during transfer analysis (see TransferAnalyzer).
@@ -124,29 +112,13 @@ class PerWalletTransactions:
         self.__set_actual_amount(acquired_lot, amount)
         self.__push_to_heaps(acquired_lot)
 
-    # Removes amount from the wallet, lot by lot, in the order given by accounting_method, and returns the lot pieces taken. If the wallet
+    # Removes amount from the wallet, lot by lot, in the order given by accounting_method, and returns the lot pieces taken. The lot pool is
+    # this wallet's lots only, and the rules are the ones universal application uses (see lot_consumption.take_lots()). If the wallet
     # doesn't hold enough funds, missing_amount in the result is the part that couldn't be taken (the caller raises an error).
     def take(self, accounting_method: AbstractFeatureBasedAccountingMethod, amount: RP2Decimal) -> TakeResult:
         lot_candidates = self.__get_lot_candidates(accounting_method)
-        result: List[LotPiece] = []
-        amount_left = amount
-        while amount_left > ZERO:
-            lot_and_amount: Optional[AcquiredLotAndAmount] = accounting_method.seek_non_exhausted_acquired_lot(lot_candidates, amount_left)
-            if lot_and_amount is None:
-                return TakeResult(result, amount_left)
-            # seek_non_exhausted_acquired_lot() zeroes the lot's actual amount: set it to what's left after taking the piece. The rule is the one
-            # of universal application: amounts are compared with RP2Decimal's precision (13 decimals), and if the lot covers what's left the
-            # piece is what's left and the lot keeps the difference. Example: a lot of 2 coins and 2.00000000000001 coins to take: the piece
-            # is 2.00000000000001 coins and the lot keeps -0.00000000000001, which counts as zero. Before, the piece was the lot's 2 coins.
-            if amount_left > lot_and_amount.amount:
-                piece_amount = lot_and_amount.amount
-                self.__set_actual_amount(lot_and_amount.acquired_lot, ZERO)
-            else:
-                piece_amount = amount_left
-                self.__set_actual_amount(lot_and_amount.acquired_lot, lot_and_amount.amount - amount_left)
-            result.append(LotPiece(lot_and_amount.acquired_lot, piece_amount))
-            amount_left -= piece_amount
-        return TakeResult(result, ZERO)
+        # The lots are taken with the method object that orders this wallet's heap (it has the same class as accounting_method).
+        return take_lots(lot_candidates.accounting_method, lot_candidates, amount)
 
     # The wallet as input data: its lots (including the artificial ones of transfers and of the opening allocation), disposals, outgoing
     # transfers and the actual amounts of its lots. It's a snapshot: new transaction sets and a copy of the amounts, which don't change if

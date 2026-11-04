@@ -101,8 +101,7 @@ class GlobalAllocator:
         # Process wallets in the order specified by the user. For each wallet, create intra transactions that model the global allocation.
         for account in self.__account_order:
             accounting_engine = AccountingEngine(years_2_accounting_methods)
-            # Taxable events are not relevant for the global allocation, so pass an empty iterator.
-            accounting_engine.initialize(iter([]), iter(cast(Iterable[InTransaction], acquired_lots)), in_transaction_2_actual_amount)
+            accounting_engine.initialize(iter(cast(Iterable[InTransaction], acquired_lots)), in_transaction_2_actual_amount)
             intra_transactions = self.__process_wallet(accounting_engine, account)
             global_allocation_intra_transactions.extend(intra_transactions)
             # The next wallet starts from the amounts this one left: the engine works on its own copy of the amounts it receives.

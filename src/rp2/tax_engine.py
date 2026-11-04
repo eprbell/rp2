@@ -18,13 +18,8 @@ from typing import Container, Dict, Iterable, Iterator, List, NamedTuple, Option
 from rp2.abstract_country import AbstractCountry
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.account import Account
+from rp2.accounting_engine import AccountingEngine
 from rp2.accounting_method_loader import load_accounting_method
-from rp2.accounting_engine import (
-    AccountingEngine,
-    AcquiredLotsExhaustedException,
-    TaxableEventAndAcquiredLot,
-    TaxableEventsExhaustedException,
-)
 from rp2.application_policy import ApplicationMode, ApplicationPolicy
 from rp2.balance import CRYPTO_BALANCE_DECIMAL_MASK, BalanceSet
 from rp2.computed_data import ComputedData
@@ -35,6 +30,7 @@ from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData
 from rp2.intra_transaction import IntraTransaction
 from rp2.logger import LOGGER
+from rp2.lot_consumption import pair_earning, pair_with_lots
 from rp2.opening_allocation import OpeningAllocation, UnusedLot
 from rp2.out_transaction import OutTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
@@ -65,132 +61,37 @@ def compute_tax(configuration: Configuration, accounting_engine: AccountingEngin
     )
 
 
-def _get_next_taxable_event_and_acquired_lot(
-    accounting_engine: AccountingEngine,
-    taxable_event: Optional[AbstractTransaction],
-    acquired_lot: Optional[InTransaction],
-    taxable_event_amount: RP2Decimal,
-    acquired_lot_amount: RP2Decimal,
-) -> TaxableEventAndAcquiredLot:
-    new_taxable_event: AbstractTransaction
-    new_acquired_lot: Optional[InTransaction]
-    new_taxable_event_amount: RP2Decimal
-    new_acquired_lot_amount: RP2Decimal
-    new_taxable_event, new_acquired_lot, new_taxable_event_amount, new_acquired_lot_amount = accounting_engine.get_next_taxable_event_and_amount(
-        taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount
-    )
-    if acquired_lot == new_acquired_lot:
-        _, new_acquired_lot, _, new_acquired_lot_amount = accounting_engine.get_acquired_lot_for_taxable_event(
-            new_taxable_event, new_acquired_lot, new_taxable_event_amount, new_acquired_lot_amount
-        )
-    return TaxableEventAndAcquiredLot(new_taxable_event, new_acquired_lot, new_taxable_event_amount, new_acquired_lot_amount)
-
-
+# Universal application: each taxable event, in chronological order, takes its coins from the lots acquired up to it in any wallet, with the
+# accounting method of its tax year (see AccountingEngine.take()), and each piece it takes becomes a gain/loss (see lot_consumption, whose
+# rules per-wallet application shares). Income takes no lot.
+# Example: buy 2 coins (lot A), then 2 coins (lot B), then sell 3 coins with FIFO: the sale takes A's 2 coins and 1 of B's, so it has two
+# gain/losses: 2 coins with A's basis and 1 coin with B's.
 def _create_unfiltered_gain_and_loss_set(
     configuration: Configuration, accounting_engine: AccountingEngine, input_data: InputData, unfiltered_taxable_event_set: TransactionSet
 ) -> GainLossSet:
     gain_loss_set: GainLossSet = GainLossSet(configuration, input_data.asset, MIN_DATE, MAX_DATE)
     # Create a fresh instance of accounting engine
     new_accounting_engine: AccountingEngine = accounting_engine.__class__(accounting_engine.years_2_methods)
-    taxable_event_iterator: Iterator[AbstractTransaction] = iter(cast(Iterable[AbstractTransaction], unfiltered_taxable_event_set))
     acquired_lot_iterator: Iterator[InTransaction] = iter(cast(Iterable[InTransaction], input_data.unfiltered_in_transaction_set))
 
     partial_amounts = input_data.in_transaction_2_actual_amount
-    new_accounting_engine.initialize(taxable_event_iterator, acquired_lot_iterator, partial_amounts if partial_amounts else None)
+    new_accounting_engine.initialize(acquired_lot_iterator, partial_amounts if partial_amounts else None)
 
-    try:
-        gain_loss: GainLoss
-        taxable_event: AbstractTransaction
-        acquired_lot: Optional[InTransaction]
-        taxable_event_amount: RP2Decimal
-        acquired_lot_amount: RP2Decimal
-        total_amount: RP2Decimal = ZERO
-
-        # Retrieve first taxable event and acquired lot
-        taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount = _get_next_taxable_event_and_acquired_lot(
-            new_accounting_engine, None, None, ZERO, ZERO
-        )
-
-        while taxable_event:
-            # Type check values returned by accounting method plugin
-            AbstractTransaction.type_check("taxable_event", taxable_event)
-            if acquired_lot is None:
-                # There must always be at least one acquired_lot
-                raise RP2RuntimeError("Parameter 'acquired_lot' is None")
-            InTransaction.type_check("acquired_lot", acquired_lot)
-            Configuration.type_check_positive_decimal("taxable_event_amount", taxable_event_amount)
-            Configuration.type_check_positive_decimal("acquired_lot_amount", acquired_lot_amount)
-
-            if taxable_event.is_earning():
-                # Handle earnings first: they have no acquired-lot
-                gain_loss = GainLoss(configuration, taxable_event_amount, taxable_event, None)
-                LOGGER.debug(
-                    "tax_engine: taxable is earn: %s / %s + %s = %s: %s",
-                    taxable_event_amount,
-                    total_amount,
-                    taxable_event_amount,
-                    total_amount + taxable_event_amount,
-                    gain_loss,
-                )
-                total_amount += taxable_event_amount
-                gain_loss_set.add_entry(gain_loss)
-                taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount = new_accounting_engine.get_next_taxable_event_and_amount(
-                    taxable_event, acquired_lot, ZERO, acquired_lot_amount
-                )
-                continue
-            if taxable_event_amount == acquired_lot_amount:
-                gain_loss = GainLoss(configuration, taxable_event_amount, taxable_event, acquired_lot)
-                LOGGER.debug(
-                    "tax_engine: taxable == acquired: %s == %s / %s + %s = %s: %s",
-                    taxable_event_amount,
-                    acquired_lot_amount,
-                    total_amount,
-                    taxable_event_amount,
-                    total_amount + taxable_event_amount,
-                    gain_loss,
-                )
-                total_amount += taxable_event_amount
-                gain_loss_set.add_entry(gain_loss)
-                taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount = _get_next_taxable_event_and_acquired_lot(
-                    new_accounting_engine, taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount
-                )
-            elif taxable_event_amount < acquired_lot_amount:
-                gain_loss = GainLoss(configuration, taxable_event_amount, taxable_event, acquired_lot)
-                LOGGER.debug(
-                    "tax_engine: taxable < acquired: %s < %s / %s + %s = %s: %s",
-                    taxable_event_amount,
-                    acquired_lot_amount,
-                    total_amount,
-                    taxable_event_amount,
-                    total_amount + taxable_event_amount,
-                    gain_loss,
-                )
-                total_amount += taxable_event_amount
-                gain_loss_set.add_entry(gain_loss)
-                taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount = new_accounting_engine.get_next_taxable_event_and_amount(
-                    taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount
-                )
-            else:  # taxable_amount > acquired_lot_amount
-                gain_loss = GainLoss(configuration, acquired_lot_amount, taxable_event, acquired_lot)
-                LOGGER.debug(
-                    "tax_engine: taxable > acquired: %s > %s / %s + %s = %s: %s",
-                    taxable_event_amount,
-                    acquired_lot_amount,
-                    total_amount,
-                    acquired_lot_amount,
-                    total_amount + acquired_lot_amount,
-                    gain_loss,
-                )
-                total_amount += acquired_lot_amount
-                gain_loss_set.add_entry(gain_loss)
-                taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount = new_accounting_engine.get_acquired_lot_for_taxable_event(
-                    taxable_event, acquired_lot, taxable_event_amount, acquired_lot_amount
-                )
-
-    except AcquiredLotsExhaustedException:
-        raise RP2ValueError("Total in-transaction crypto value < total taxable crypto value") from None
-    except TaxableEventsExhaustedException:
-        pass
+    total_amount: RP2Decimal = ZERO
+    for taxable_event in cast(Iterable[AbstractTransaction], unfiltered_taxable_event_set):
+        AbstractTransaction.type_check("taxable_event", taxable_event)
+        taxable_event_amount: RP2Decimal = Configuration.type_check_positive_decimal("taxable_event_amount", taxable_event.crypto_balance_change)
+        if taxable_event.is_earning():
+            gain_losses: List[GainLoss] = [pair_earning(configuration, taxable_event)]
+        else:
+            pieces, missing_amount = new_accounting_engine.take(taxable_event, taxable_event_amount)
+            if missing_amount > ZERO:
+                raise RP2ValueError("Total in-transaction crypto value < total taxable crypto value")
+            gain_losses = pair_with_lots(configuration, taxable_event, pieces)
+        for gain_loss in gain_losses:
+            total_amount += gain_loss.crypto_amount
+            LOGGER.debug("tax_engine: paired %s (total %s): %s", gain_loss.crypto_amount, total_amount, gain_loss)
+            gain_loss_set.add_entry(gain_loss)
 
     return gain_loss_set
 
