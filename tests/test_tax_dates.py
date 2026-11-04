@@ -78,7 +78,6 @@ class _Case(NamedTuple):
     # None means no country section (no time zone): then only universal application (compute_tax()) can run.
     per_wallet_configuration: Optional[PerWalletConfiguration] = _NEW_YORK
     years_2_methods: Optional[Dict[int, AbstractAccountingMethod]] = None
-    allocation_method: Optional[AbstractAccountingMethod] = None
     # True if universal application (compute_tax()) must give the same result: a single wallet, or all transactions before the switch.
     same_as_universal: bool = True
 
@@ -89,7 +88,7 @@ class TestTaxDates(AbstractPerWalletTest):
         input_data = self._create_input_data(configuration, case.transactions)
         want = _sorted(self._want_tuples(case.want))
         if case.per_wallet_configuration is not None:
-            computed_data = compute_tax_per_wallet(configuration, self._create_accounting_engine(case.years_2_methods), input_data, case.allocation_method)
+            computed_data = compute_tax_per_wallet(configuration, self._create_accounting_engine(case.years_2_methods), input_data)
             self.assertEqual(_sorted(self._get_gain_losses(computed_data)), want, msg="per-wallet application")
         if case.same_as_universal or case.per_wallet_configuration is None:
             computed_data = compute_tax(configuration, self._create_accounting_engine(case.years_2_methods), input_data)
@@ -174,7 +173,7 @@ class TestTaxDates(AbstractPerWalletTest):
                 _Out("o1", timestamp, "Kraken", "500", "1"),
             ]
             with self.subTest(name=description):
-                self._run(_Case(description, transactions, want, allocation, allocation_method=AccountingMethodFIFO(), same_as_universal=False))
+                self._run(_Case(description, transactions, want, allocation, same_as_universal=False))
 
     # Holding period (IRC §1222, IRS Publication 544): in the US a sale is long-term if its date is after the first anniversary of the
     # purchase date, and both are tax dates. The same UTC time of day can fall on different dates in New York, which is at UTC-5 in winter and

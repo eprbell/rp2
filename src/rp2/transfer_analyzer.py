@@ -19,23 +19,20 @@ from prezzemolo.avl_tree import AVLTree
 
 from rp2.abstract_accounting_method import (
     AbstractAccountingMethod,
-    AbstractChronologicalAccountingMethod,
     AbstractFeatureBasedAccountingMethod,
     AcquiredLotAndAmount,
-    AcquiredLotCandidatesOrder,
     FeatureBasedAcquiredLotCandidates,
 )
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.account import Account
 from rp2.accounting_engine import get_years_and_accounting_methods
-from rp2.acquisition_date_fifo import AcquisitionDateFifo
 from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.gain_loss import GainLoss
 from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData
 from rp2.intra_transaction import IntraTransaction
 from rp2.out_transaction import OutTransaction
-from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMethodLIFO
+from rp2.per_wallet_accounting_method import get_per_wallet_accounting_method
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2RuntimeError, RP2TypeError, RP2ValueError
 from rp2.transaction_set import TransactionSet
@@ -190,7 +187,7 @@ class TransferAnalyzer:
         self.__accounting_methods: List[AbstractFeatureBasedAccountingMethod] = []
         method_name_2_per_wallet_method: Dict[str, AbstractFeatureBasedAccountingMethod] = {}
         for year, method in get_years_and_accounting_methods(years_2_accounting_methods):
-            per_wallet_method = method_name_2_per_wallet_method.setdefault(method.name, self.get_per_wallet_accounting_method(method))
+            per_wallet_method = method_name_2_per_wallet_method.setdefault(method.name, get_per_wallet_accounting_method(method))
             self.__years_2_accounting_methods.insert_node(year, per_wallet_method)
             if per_wallet_method not in self.__accounting_methods:
                 self.__accounting_methods.append(per_wallet_method)
@@ -202,18 +199,6 @@ class TransferAnalyzer:
         # the local transfer analysis (which is a throwaway operation).
         self.__use_local_artificial_ids = Configuration.type_check_bool("use_local_artificial_ids", use_local_artificial_ids)
         self.__local_artificial_id_counter = -1
-
-    # Chronological methods select lots by position in the lot list, which in a wallet is the arrival order, not the acquisition order:
-    # replace them with feature-based equivalents that sort by cost_basis_timestamp. Also used by UnusedBasisAllocator to sort unused lots.
-    @staticmethod
-    def get_per_wallet_accounting_method(accounting_method: AbstractAccountingMethod) -> AbstractFeatureBasedAccountingMethod:
-        if isinstance(accounting_method, AbstractFeatureBasedAccountingMethod):
-            return accounting_method
-        if isinstance(accounting_method, AbstractChronologicalAccountingMethod):
-            if accounting_method.lot_candidates_order() == AcquiredLotCandidatesOrder.OLDER_TO_NEWER:
-                return AcquisitionDateFifo()
-            return AccountingMethodLIFO()
-        raise RP2TypeError(f"Unsupported accounting method for per-wallet application: {accounting_method}")
 
     def _get_accounting_method(self, transaction: AbstractTransaction) -> AbstractFeatureBasedAccountingMethod:
         method = self.__years_2_accounting_methods.find_max_value_less_than(transaction.tax_year)

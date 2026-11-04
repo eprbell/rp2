@@ -40,17 +40,12 @@ from per_wallet_common import (
     _sorted,
 )
 
-from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.computed_data import ComputedData
 from rp2.configuration import MAX_DATE, MIN_DATE
 from rp2.gain_loss import GainLoss
 from rp2.in_transaction import InTransaction
 from rp2.localization import set_generation_language
 from rp2.per_wallet_configuration import PerWalletConfiguration
-from rp2.plugin.accounting_method.fifo import AccountingMethod as AccountingMethodFIFO
-from rp2.plugin.accounting_method.hifo import AccountingMethod as AccountingMethodHIFO
-from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMethodLIFO
-from rp2.plugin.accounting_method.lofo import AccountingMethod as AccountingMethodLOFO
 from rp2.plugin.country.us import US
 from rp2.plugin.report.open_positions import Generator as OpenPositionsGenerator
 from rp2.plugin.report.opening_allocation import Generator as OpeningAllocationGenerator
@@ -77,7 +72,7 @@ class TestPerWalletReports(AbstractPerWalletTest):
                 _Out("o1", "2025-08-01T00:00:00+00:00", "Kraken", "300", "2.5"),
             ],
         )
-        computed_data = compute_tax_per_wallet(configuration, self._create_accounting_engine(None), input_data, AccountingMethodFIFO())
+        computed_data = compute_tax_per_wallet(configuration, self._create_accounting_engine(None), input_data)
         gain_losses = [gain_loss for gain_loss in computed_data.gain_loss_set if isinstance(gain_loss, GainLoss)]
         self.assertTrue(any(gain_loss.acquired_lot is not None and gain_loss.acquired_lot.from_lot is not None for gain_loss in gain_losses))
         for gain_loss in gain_losses:
@@ -413,7 +408,7 @@ class TestPerWalletReports(AbstractPerWalletTest):
                 if case.universal:
                     computed_data = compute_tax(configuration, engine, input_data)
                 else:
-                    computed_data = compute_tax_per_wallet(configuration, engine, input_data, AccountingMethodFIFO())
+                    computed_data = compute_tax_per_wallet(configuration, engine, input_data)
                 wallet_lots = computed_data.wallet_lots
                 if case.universal or case.to_date < date(2025, 1, 1):
                     self.assertIsNone(wallet_lots)
@@ -538,12 +533,8 @@ class TestPerWalletReports(AbstractPerWalletTest):
         }
         b2_lots_and_pieces: Tuple[List[str], List[Tuple[str, str, str]]] = (["j2", "j1"], [("Coinbase", "j2", "2"), ("Kraken", "j1", "2")])
         b3_lots_and_pieces: Tuple[List[str], List[Tuple[str, str, str]]] = (["k1"], [("Coinbase", "k1", "1")])
-        methods: Dict[str, AbstractAccountingMethod] = {
-            "fifo": AccountingMethodFIFO(),
-            "lifo": AccountingMethodLIFO(),
-            "hifo": AccountingMethodHIFO(),
-            "lofo": AccountingMethodLOFO(),
-        }
+        # The allocation method of each run is set by name in the configuration (see PerWalletConfiguration below).
+        method_names: List[str] = ["fifo", "lifo", "hifo", "lofo"]
 
         def number(value: RP2Decimal) -> str:
             return str(float(value))
@@ -589,7 +580,7 @@ class TestPerWalletReports(AbstractPerWalletTest):
         output_dir.mkdir(parents=True)
         report_path = output_dir / Path("r10_fifo_opening_allocation.ods")
         switch = "2025-01-01T00:00:00+00:00"
-        for method_name, method in methods.items():
+        for method_name in method_names:
             per_wallet_configuration = PerWalletConfiguration(
                 timezone_name="UTC",
                 unused_basis_allocation_method=method_name,
@@ -624,10 +615,8 @@ class TestPerWalletReports(AbstractPerWalletTest):
                         input_data = self._create_input_data(
                             configuration, transactions[asset] + (later_transactions[asset] if with_later_transactions else []), asset
                         )
-                        allocation_method = AccountingMethodLIFO() if asset == "B2" else method
-                        asset_to_computed_data[asset] = compute_tax_per_wallet(
-                            configuration, self._create_accounting_engine(None), input_data, allocation_method
-                        )
+                        # The allocation method of each asset comes from the configuration: B2's override is lifo.
+                        asset_to_computed_data[asset] = compute_tax_per_wallet(configuration, self._create_accounting_engine(None), input_data)
                     OpeningAllocationGenerator().generate(US(), {1970: "fifo"}, asset_to_computed_data, str(output_dir), "r10_", MIN_DATE, MAX_DATE, "en")
                     for sheet_name, want_rows in want_sheets.items():
                         # The first three rows are the title and the two header rows.
@@ -638,7 +627,7 @@ class TestPerWalletReports(AbstractPerWalletTest):
         self.assertTrue(report_path.exists())
         configuration = _create_configuration(per_wallet_configuration, to_date=date(2024, 12, 31))
         input_data = self._create_input_data(configuration, transactions["B1"] + later_transactions["B1"], "B1")
-        computed_data = compute_tax_per_wallet(configuration, self._create_accounting_engine(None), input_data, AccountingMethodFIFO())
+        computed_data = compute_tax_per_wallet(configuration, self._create_accounting_engine(None), input_data)
         self.assertIsNone(computed_data.opening_allocation)
         OpeningAllocationGenerator().generate(US(), {1970: "fifo"}, {"B1": computed_data}, str(output_dir), "r10_", MIN_DATE, date(2024, 12, 31), "en")
         self.assertFalse(report_path.exists())

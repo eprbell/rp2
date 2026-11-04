@@ -72,7 +72,6 @@ class _Test:
     want: List[_GainLoss] = field(default_factory=list)
     want_error: str = ""
     per_wallet_configuration: Optional[PerWalletConfiguration] = _UTC
-    allocation_method: Optional[AbstractAccountingMethod] = None
     years_2_methods: Optional[Dict[int, AbstractAccountingMethod]] = None
     # With a single wallet per-wallet and universal application must produce the same result.
     same_as_universal: bool = False
@@ -85,9 +84,9 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
         engine = self._create_accounting_engine(test.years_2_methods)
         if test.want_error:
             with self.assertRaisesRegex(RP2ValueError, test.want_error):
-                compute_tax_per_wallet(configuration, engine, input_data, test.allocation_method)
+                compute_tax_per_wallet(configuration, engine, input_data)
             return
-        computed_data = compute_tax_per_wallet(configuration, engine, input_data, test.allocation_method)
+        computed_data = compute_tax_per_wallet(configuration, engine, input_data)
         got: List[_GainLossTuple] = self._to_tuples([gain_loss for gain_loss in computed_data.gain_loss_set if isinstance(gain_loss, GainLoss)])
         self.assertEqual(_sorted(got), _sorted(self._want_tuples(test.want)))
         if test.same_as_universal:
@@ -279,7 +278,6 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
                     _Out("o1", "2025-02-01T00:00:00+00:00", "Kraken", "300", "5"),
                 ],
                 per_wallet_configuration=_allocation_config((_KRAKEN, _COINBASE)),
-                allocation_method=AccountingMethodFIFO(),
                 want=[_GainLoss("o1", "i1", "5", "500", "1000", True)],
             ),
             _Test(
@@ -289,8 +287,7 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
                     _In("i2", "2024-01-03T00:00:00+00:00", "Kraken", "Buy", "200", "10"),
                     _Out("o1", "2025-02-01T00:00:00+00:00", "Kraken", "300", "5"),
                 ],
-                per_wallet_configuration=_allocation_config((_KRAKEN, _COINBASE)),
-                allocation_method=AccountingMethodHIFO(),
+                per_wallet_configuration=_allocation_config((_KRAKEN, _COINBASE), "hifo"),
                 want=[_GainLoss("o1", "i2", "5", "1000", "500", True)],
             ),
             _Test(
@@ -303,8 +300,7 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
                     _In("i2", "2024-06-01T00:00:00+00:00", "Kraken", "Buy", "200", "10"),
                     _Out("o1", "2025-02-01T00:00:00+00:00", "Kraken", "300", "5"),
                 ],
-                per_wallet_configuration=_allocation_config((_KRAKEN, _COINBASE)),
-                allocation_method=AccountingMethodHIFO(),
+                per_wallet_configuration=_allocation_config((_KRAKEN, _COINBASE), "hifo"),
                 want=[_GainLoss("o1", "i2", "5", "1000", "500", False)],
             ),
             _Test(
@@ -320,7 +316,6 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
                     unused_basis_allocation_wallet_order=(_KRAKEN, _COINBASE),
                     asset_2_unused_basis_allocation_wallet_order={_ASSET: (_COINBASE, _KRAKEN)},
                 ),
-                allocation_method=AccountingMethodFIFO(),
                 # Coinbase is filled first with the oldest lot (i1), so Kraken gets i2.
                 want=[_GainLoss("o1", "i2", "5", "1000", "500", True)],
             ),
@@ -337,7 +332,6 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
                     unused_basis_allocation_wallet_order=(_KRAKEN, _COINBASE),
                     asset_2_unused_basis_allocation_wallet_order={"B2": (_COINBASE, _KRAKEN)},
                 ),
-                allocation_method=AccountingMethodFIFO(),
                 want=[_GainLoss("o1", "i1", "5", "500", "1000", True)],
             ),
             _Test(
@@ -349,7 +343,6 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
                     _Out("o2", "2025-06-01T00:00:00+00:00", "Kraken", "400", "1"),
                 ],
                 per_wallet_configuration=_allocation_config((_COINBASE, _KRAKEN)),
-                allocation_method=AccountingMethodFIFO(),
                 # At the switch: unused i1 = 1, i2 = 2; Coinbase (balance 2) gets i1 (1) + i2 (1), Kraken (balance 1) gets i2 (1).
                 want=[_GainLoss("o1", "i1", "1", "100", "100", False), _GainLoss("o2", "i2", "1", "300", "100", True)],
             ),
@@ -372,7 +365,6 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
                 per_wallet_configuration=PerWalletConfiguration(
                     timezone_name="America/New_York", unused_basis_allocation_method="fifo", unused_basis_allocation_wallet_order=(_COINBASE, _KRAKEN)
                 ),
-                allocation_method=AccountingMethodFIFO(),
                 want=[_GainLoss("o1", "i1", "1", "100", "400", False)],
             ),
             _Test(
@@ -385,7 +377,6 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
                 per_wallet_configuration=PerWalletConfiguration(
                     timezone_name="Asia/Tokyo", unused_basis_allocation_method="fifo", unused_basis_allocation_wallet_order=(_COINBASE, _KRAKEN)
                 ),
-                allocation_method=AccountingMethodFIFO(),
                 want=[_GainLoss("o1", "i2", "1", "300", "200", False)],
             ),
             _Test(
@@ -461,7 +452,6 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
             configuration,
             self._create_accounting_engine({1970: method}),
             self._create_input_data(configuration, transactions),
-            AccountingMethodFIFO(),
         )
         gain_losses = self._to_tuples([gain_loss for gain_loss in computed_data.gain_loss_set if isinstance(gain_loss, GainLoss)])
         wallet_lots = computed_data.wallet_lots
@@ -722,7 +712,6 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
             description: str
             transactions: List[object]
             per_wallet_configuration: Optional[PerWalletConfiguration] = _UTC
-            allocation_method: Optional[AbstractAccountingMethod] = None
             to_date: date = MAX_DATE
             # What the wallets hold at the to date: (wallet, original lot, amount, cost basis, acquisition date). None: the report ends before
             # the switch, so it uses universal application, which doesn't track wallets (see ComputedData.wallet_lots).
@@ -753,7 +742,6 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
                 description="two wallets: the configured rule decides (FIFO lots, Kraken filled first, so Kraken gets the oldest lot)",
                 transactions=[buy_coinbase, buy_kraken],
                 per_wallet_configuration=_allocation_config((_KRAKEN, _COINBASE)),
-                allocation_method=AccountingMethodFIFO(),
                 want_holdings=[("Coinbase", "i2", "10", "2000", "2024-01-03"), ("Kraken", "i1", "10", "1000", "2024-01-02")],
             ),
             _Case(
@@ -775,9 +763,9 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
                 input_data = self._create_input_data(configuration, case.transactions)
                 if case.want_error:
                     with self.assertRaisesRegex(RP2ValueError, case.want_error):
-                        compute_tax_per_wallet(configuration, self._create_accounting_engine(None), input_data, case.allocation_method)
+                        compute_tax_per_wallet(configuration, self._create_accounting_engine(None), input_data)
                     continue
-                computed_data = compute_tax_per_wallet(configuration, self._create_accounting_engine(None), input_data, case.allocation_method)
+                computed_data = compute_tax_per_wallet(configuration, self._create_accounting_engine(None), input_data)
                 # Nothing after the switch is reported, so the reported gain/losses are those of universal application.
                 got = self._to_tuples([gain_loss for gain_loss in computed_data.gain_loss_set if isinstance(gain_loss, GainLoss)])
                 universal_computed_data = compute_tax(configuration, self._create_accounting_engine(None), input_data)

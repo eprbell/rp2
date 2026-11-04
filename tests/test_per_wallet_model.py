@@ -419,7 +419,7 @@ def _compute(history: _History) -> Tuple[Configuration, ComputedData]:
     for year, method in ((1970, history.year_2_method[2024]), (2025, history.year_2_method[2025]), (2026, history.year_2_method[2026])):
         tree.insert_node(year, _METHODS[method])
     input_data = _create_input_data(configuration, history.steps)
-    return configuration, compute_tax_per_wallet(configuration, AccountingEngine(tree), input_data, _METHODS[history.allocation_method])
+    return configuration, compute_tax_per_wallet(configuration, AccountingEngine(tree), input_data)
 
 
 def _close(first: RP2Decimal, second: RP2Decimal) -> bool:

@@ -15,10 +15,10 @@
 from datetime import date, datetime
 from typing import Container, Dict, Iterable, Iterator, List, NamedTuple, Optional, cast
 
-from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.abstract_country import AbstractCountry
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.account import Account
+from rp2.accounting_method_loader import load_accounting_method
 from rp2.accounting_engine import (
     AccountingEngine,
     AcquiredLotsExhaustedException,
@@ -218,7 +218,9 @@ class _TaxResult(NamedTuple):
 # report with to_date 2024-12-31 doesn't need them, even if the input has transactions in 2025.
 # Otherwise the per-wallet settings (time zone and unused basis allocation rule) come from the country section of the configuration (e.g.
 # [country.us]): it's an error if the configuration doesn't have them.
-# allocation_method is the unused basis allocation method of this asset (see PerWalletConfiguration.get_unused_basis_allocation_method()).
+# The unused basis allocation rule of the asset (method and wallet order) comes only from the per-wallet settings of the configuration (see
+# PerWalletConfiguration.get_unused_basis_allocation_method()): the method name is turned into a method here, once per asset, so the method
+# that sorts the unused lots is always the one named in the configuration and in the opening allocation report.
 # per_wallet_start_year is the first year of per-wallet application: it must be the start of a period of the country's application policy
 # that allows per-wallet application. If it's None, the first such period whose default mode is per-wallet is used.
 # The returned ComputedData refers to the original (universal) input data, so that reports show the user's transactions.
@@ -226,7 +228,6 @@ def compute_tax_per_wallet(
     configuration: Configuration,
     accounting_engine: AccountingEngine,
     input_data: InputData,
-    allocation_method: Optional[AbstractAccountingMethod] = None,
     per_wallet_start_year: Optional[int] = None,
 ) -> ComputedData:
     Configuration.type_check("configuration", configuration)
@@ -269,13 +270,14 @@ def compute_tax_per_wallet(
         unused_lots = _get_unused_lots(universal_input_data, universal_result.gain_loss_list)
         account_2_balance = _get_account_balances(universal_transactions)
         _check_balances_match_unused_lots(account_2_balance, unused_lots)
+        allocation_method_name = per_wallet_configuration.get_unused_basis_allocation_method(input_data.asset)
         opening_allocation = UnusedBasisAllocator(
             configuration,
             input_data.asset,
             switch_timestamp,
             unused_lots,
             account_2_balance,
-            allocation_method,
+            load_accounting_method(allocation_method_name) if allocation_method_name else None,
             list(per_wallet_configuration.get_unused_basis_allocation_wallet_order(input_data.asset)),
             allocation_method_field=_get_allocation_field(
                 Keyword.UNUSED_BASIS_ALLOCATION_METHOD,

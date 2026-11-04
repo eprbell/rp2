@@ -387,7 +387,7 @@ class Configuration:  # pylint: disable=too-many-public-methods
         if Keyword.UNUSED_BASIS_ALLOCATION_WALLET_ORDER.value in section:
             wallet_order = self._parse_wallet_order(section[Keyword.UNUSED_BASIS_ALLOCATION_WALLET_ORDER.value], section.name, configuration_path)
         try:
-            return PerWalletConfiguration(
+            result = PerWalletConfiguration(
                 timezone_name=section[Keyword.TIMEZONE.value].strip(),
                 unused_basis_allocation_method=section.get(Keyword.UNUSED_BASIS_ALLOCATION_METHOD.value, "").strip() or None,
                 unused_basis_allocation_wallet_order=wallet_order,
@@ -396,6 +396,16 @@ class Configuration:  # pylint: disable=too-many-public-methods
             )
         except RP2ValueError as exc:
             raise RP2ValueError(f"{configuration_path}: {exc}") from exc
+        # Allocation methods must be accounting methods of the country (e.g. fifo, hifo, lifo or lofo in the US): checked here, before any
+        # computation starts, so that a typo (e.g. "fifi") is reported at once, even for an asset that is processed last.
+        accounting_methods = self.__country.get_accounting_methods()
+        for method_name in sorted(result.unused_basis_allocation_method_names):
+            if method_name not in accounting_methods:
+                raise RP2ValueError(
+                    f"{configuration_path}: invalid unused basis allocation method '{method_name}' in section '{section.name}': valid values "
+                    f"for country '{self.__country.country_iso_code}' are {', '.join(sorted(accounting_methods))}"
+                )
+        return result
 
     # The configuration parser lowercases field names, so the asset suffix of a per-asset field is matched case-insensitively.
     def _get_asset_from_field_suffix(self, asset_name: str, field_name: str, section_name: str, configuration_path: str) -> str:

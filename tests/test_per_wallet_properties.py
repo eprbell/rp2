@@ -312,7 +312,7 @@ class TestPerWalletProperties(unittest.TestCase):
         )
         configuration = _create_configuration(per_wallet_configuration, to_date=to_date)
         input_data = _create_input_data(configuration, steps, steps_before_switch)
-        computed_data = compute_tax_per_wallet(configuration, _accounting_engine(_METHODS[method_name]), input_data, AccountingMethodFIFO())
+        computed_data = compute_tax_per_wallet(configuration, _accounting_engine(_METHODS[method_name]), input_data)
         wallet_lots = computed_data.wallet_lots
         if to_date < _START.date():
             # The report date is before the switch: there are no per-wallet holdings yet (reports use universal application).

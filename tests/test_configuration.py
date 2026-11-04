@@ -142,6 +142,16 @@ class TestConfiguration(unittest.TestCase):  # pylint: disable=too-many-public-m
             self._test_config(self._per_wallet_config({"unused_basis_allocation_method.B1": "fifo"}))
         with self.assertRaisesRegex(RP2ValueError, "invalid wallet 'Binance/Bob'"):
             self._test_config(self._per_wallet_config({"unused_basis_allocation_method.B1": "fifo", "unused_basis_allocation_wallet_order.B1": "Binance/Bob"}))
+        # Allocation methods are checked when the file is read, against the accounting methods of the country (R13): before, an unknown name
+        # was only caught by the command line, and the tax engine received a method object separately from the name in the file.
+        with self.assertRaisesRegex(
+            RP2ValueError, "invalid unused basis allocation method 'fifi' in section 'country.us': valid values for country 'us' are fifo"
+        ):
+            self._test_config(self._per_wallet_config({"unused_basis_allocation_method": "fifi", "unused_basis_allocation_wallet_order": "Coinbase/Bob"}))
+        with self.assertRaisesRegex(RP2ValueError, "invalid unused basis allocation method 'average'"):
+            self._test_config(
+                self._per_wallet_config({"unused_basis_allocation_method.B2": "average", "unused_basis_allocation_wallet_order.B2": "Coinbase/Bob"})
+            )
         # The timezone is mandatory as soon as the section has a per-wallet setting.
         config = self._per_wallet_config({"unused_basis_allocation_method": "fifo", "unused_basis_allocation_wallet_order": "Coinbase/Bob"})
         del config["country.us"]["timezone"]

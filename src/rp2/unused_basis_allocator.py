@@ -21,10 +21,10 @@ from rp2.configuration import Configuration
 from rp2.in_transaction import InTransaction
 from rp2.logger import LOGGER
 from rp2.opening_allocation import OpeningAllocation, UnusedLot
+from rp2.per_wallet_accounting_method import get_per_wallet_accounting_method
 from rp2.plugin.accounting_method.fifo import AccountingMethod as AccountingMethodFIFO
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
-from rp2.transfer_analyzer import TransferAnalyzer
 
 
 # The allocation method and wallet order actually applied (see UnusedBasisAllocator._get_allocation_rule()): the wallets that hold nothing
@@ -91,7 +91,7 @@ class UnusedBasisAllocator:
         if not funded_accounts:
             return None
         rule = self._get_allocation_rule(funded_accounts)
-        per_wallet_method = TransferAnalyzer.get_per_wallet_accounting_method(rule.allocation_method)
+        per_wallet_method = get_per_wallet_accounting_method(rule.allocation_method)
 
         def unused_lot_sort_key(unused_lot: UnusedLot) -> AcquiredLotSortKey:
             return per_wallet_method.sort_key(unused_lot.acquired_lot)

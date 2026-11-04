@@ -113,8 +113,10 @@ def _holdings(wallet_lots: List[WalletLot]) -> List[_Holding]:
     return sorted((key[0], key[1], amount, basis, key[2]) for key, (amount, basis) in holdings.items())
 
 
-def _allocation_config(order: Tuple[Account, ...]) -> PerWalletConfiguration:
-    return PerWalletConfiguration(timezone_name="UTC", unused_basis_allocation_method="fifo", unused_basis_allocation_wallet_order=order)
+# Per-wallet settings in UTC with an unused basis allocation rule: the allocation method (by name, as in the configuration file) and the
+# wallet order.
+def _allocation_config(order: Tuple[Account, ...], method_name: str = "fifo") -> PerWalletConfiguration:
+    return PerWalletConfiguration(timezone_name="UTC", unused_basis_allocation_method=method_name, unused_basis_allocation_wallet_order=order)
 
 
 # Configuration of the per-wallet tests: the test configuration file plus, if per_wallet_configuration isn't None, a country section with its

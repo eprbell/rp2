@@ -326,7 +326,7 @@ class TestOpeningAllocationMatrix(AbstractPerWalletTest):
         configuration = _create_configuration(_per_wallet_configuration(method_name, wallet_order))
         input_data = self._create_input_data(configuration, transactions)
         method = _METHODS[method_name]
-        computed_data = compute_tax_per_wallet(configuration, self._create_accounting_engine({1970: method}), input_data, method)
+        computed_data = compute_tax_per_wallet(configuration, self._create_accounting_engine({1970: method}), input_data)
         # What each wallet holds at the end, merged by original lot: (coins, cost basis, acquisition date).
         holdings: Dict[Tuple[Account, str], Tuple[RP2Decimal, RP2Decimal, str]] = {}
         for wallet_lot in computed_data.wallet_lots or []:
@@ -447,7 +447,7 @@ class TestOpeningAllocationMatrix(AbstractPerWalletTest):
                 input_data = self._create_input_data(configuration, simple)
                 engine = self._create_accounting_engine({1970: method})
                 with self.assertRaisesRegex(RP2ValueError, "Unused basis allocation is needed at 2025-01-01 00:00:00\\+00:00 \\(3 wallets hold B1 funds"):
-                    compute_tax_per_wallet(configuration, engine, input_data, None)
+                    compute_tax_per_wallet(configuration, engine, input_data)
             with self.subTest(name="a negative wallet balance at the switch", method=method_name):
                 # Kraken sells 5 coins it never received: universal application accepts it (the coins come from Coinbase's lot), but a wallet
                 # can't hold a negative balance at the switch.
