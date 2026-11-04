@@ -166,6 +166,7 @@ RP2 code adheres to these principles:
 * type hints: all variables and functions have Python type hints (with the exception of local variables, for which type hints are optional);
 * no id-based hashing: classes that are added to dictionaries and sets redefine `__eq__()`, `__neq__()` and `__hash__()`;
 * encapsulated math: all high-precision math is done via `RP2Decimal` (a subclass of Decimal), to ensure the correct precision is used throughout the code. `RP2Decimal` instances are never mixed with other types in expressions;
+* tax dates: the dates and years used by tax logic (tax years, the accounting method of each year, holding periods, the `-f` and `-t` filters, the per-wallet switch, report dates) come from `AbstractEntry.tax_date` and `tax_year`, or from `Configuration.get_tax_date()` and `get_tax_year()` for other timestamps. They use the time zone of the country section, if any: never use `timestamp.date()` or `timestamp.year` for tax logic (e.g. with `America/New_York`, `2025-01-01T03:00:00Z` is on December 31st, 2024). Timestamps themselves are never modified, and transactions are ordered by instant;
 * f-strings only: every time string interpolation is needed, f-strings are used;
 * no raw strings (unless they occur only once): use global constants instead;
 * logging: logging is done via the `logger` module;

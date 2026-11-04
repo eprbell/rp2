@@ -60,6 +60,7 @@
   * [How to Handle Crypto Interest?](#how-to-handle-crypto-interest)
   * [How to Handle Income from Mining?](#how-to-handle-income-from-mining)
   * [How to Handle Income from Staking?](#how-to-handle-income-from-staking)
+  * [How to Handle Locked or Delayed Staking Rewards?](#how-to-handle-locked-or-delayed-staking-rewards)
   * [How to Handle Losses from Staking?](#how-to-handle-losses-from-staking)
   * [How to Handle Income from Crypto Wages?](#how-to-handle-income-from-crypto-wages)
   * [How to Handle Crypto Rewards?](#how-to-handle-crypto-rewards)
@@ -77,7 +78,7 @@
 In rp2_full_report.ods check the Account Balances table in the tax sheets, and make sure they match the actual balances of your accounts. If not, you probably have an error in the input file or missed some transactions.
 
 ### How to Verify that Tax Computation is Correct?
-RP2 features [transparent computation](output_files.md#rp2-full-report-transparent-computation) and generates full computation details for every lot fraction, so that it's possible to verify step-by-step how RP2 reaches the final result.
+RP2 features [transparent computation](output_files.md#rp2-full-report-transparent-computation) and generates full computation details for every lot and lot fraction (a *lot* is a batch of crypto acquired at a specific price and time, e.g. a purchase; a *lot fraction* is the portion of a lot matched against a particular sale or other disposal), so that it's possible to verify step-by-step how RP2 reaches the final result.
 
 ### What Is the Timestamp Format?
 Timestamp format is [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) (see [examples](https://en.wikipedia.org/wiki/ISO_8601#Combined_date_and_time_representations) of timestamps in this format). Note that RP2 requires full timestamps, including date, time and timezone.
@@ -138,7 +139,7 @@ Yes, for countries that support more than one accounting method, you can select 
 RP2 can be used in most countries: see the [supported countries](supported_countries.md) document for details.
 
 ### How to Switch from Another Tax Software to RP2?
-In other words, how does RP2 handle transactions that were managed by other software in previous years? In this case the user can just leave out from the RP2 input spreadsheet the transactions/lots that were already sold in previous years.
+In other words, how does RP2 handle transactions that were managed by other software in previous years? In this case the user can just leave out from the RP2 input spreadsheet the transactions and lots (individual acquisitions, such as purchases) that were already sold in previous years.
 
 E.g. suppose the user's first year of trading BTC was 2020 and these were their transactions:
 
@@ -172,7 +173,7 @@ This means that with RP2 there are no transaction limits, no premium versions, n
 
 Additionally RP2 offers [transparent computation](output_files.md#rp2-full-report-transparent-computation) and generates full computation details for every lot fraction, so that it's possible to:
 * verify step-by-step how RP2 reaches the final result;
-* track down every lot fraction and its accounting details, in case of an audit.
+* track down every lot fraction and its cost basis, gain/loss, and other accounting details, in case of an audit.
 
 ### What's the Difference Between Rotki and RP2?
 One difference is that RP2 is 100% free and non-commercial, whereas Rotki is a commercial product: their free offering has transaction limits and other constraints that can be lifted by purchasing the premium product. Another difference relates to privacy protection: to access premium features in Rotki the user needs to open an account on the Rotki web site and pay them (thus disclosing some personal information to them), whereas on RP2 no personal information ever leaves the user's computer. See also the question on [what differentiates RP2 from other crypto tax software](#why-should-i-use-rp2-instead-on-another-software).
@@ -223,7 +224,7 @@ No. The IRS has made it clear that [crypto taxes must be paid](https://www.irs.g
 A good starting point is the <!-- markdown-link-check-disable -->[Cryptocurrency Tax FAQ](https://www.reddit.com/r/CryptoTax/comments/re6jal/cryptocurrency_tax_faq/)<!-- markdown-link-check-enable--> on Reddit. Also read the question on [which tax forms to file](#which-crypto-tax-forms-to-file) and consult with your tax professional.
 
 ### Which Crypto Tax Forms to File?
-RP2 keeps track of in/out lot relationship, lot fractioning and it computes capital gains and losses, but it doesn't generate the final tax forms. The computed information is written to the tax_report_us output, which is intended for tax professionals: all taxable events are grouped in different tabs by type (mining, staking, selling, donating, etc.). Each tax event type has a specific tax treatment: your tax professional can transfer the information from the tax_report_us output tabs to the appropriate forms in any given year.
+RP2 tracks which lots are matched against which sales, how those lots are split when only part of a lot is sold, and it computes capital gains and losses, but it doesn't generate the final tax forms. The computed information is written to the tax_report_us output, which is intended for tax professionals: all taxable events are grouped in different tabs by type (mining, staking, selling, donating, etc.). Each tax event type has a specific tax treatment: your tax professional can transfer the information from the tax_report_us output tabs to the appropriate forms in any given year.
 
 For additional information on which forms to file read:
 <!-- markdown-link-check-disable -->
@@ -260,10 +261,12 @@ Converting from one cryptocurrency to another can be captured in RP2 by splittin
 * a SELL-type out-transaction that describes selling the initial cryptocurrency into fiat, and
 * a BUY-type in-transaction that describes buying the final cryptocurrency using fiat.
 
+The holding period of the final cryptocurrency starts at the BUY-type in-transaction (for the US see [Income and Conversions](supported_countries.md#income-and-conversions)).
+
 If there was a conversion fee and it was paid in crypto, choose one (and only one) applicable option among the following:
-* if the crypto fee was paid with the out-currency, assign it to the `crypto_fee` field of the out-transaction, or
-* if the crypto fee was paid with the in-currency, assign it to the `crypto_fee` field of the in-transaction, or
-* if the crypto fee was paid with a third crypto currency (neither the in-currency nor the out-currency), create a new [fee-only transaction](#how-to-handle-fee-only-defi-transactions) ( (`transaction_type` set to FEE)) denominated in the third currency.
+* if the crypto fee was paid with the crypto you are giving up (the *out-currency*), assign it to the `crypto_fee` field of the out-transaction, or
+* if the crypto fee was paid with the crypto you are receiving (the *in-currency*), assign it to the `crypto_fee` field of the in-transaction, or
+* if the crypto fee was paid with a third cryptocurrency (neither the one you gave up nor the one you received), create a new [fee-only transaction](#how-to-handle-fee-only-defi-transactions) (`transaction_type` set to FEE) denominated in that third currency.
 
 If there was a conversion fee and it was paid in fiat, choose one (and only one) of these options:
 * assign it to the `fiat_fee` of the in-transaction, or
@@ -272,7 +275,7 @@ If there was a conversion fee and it was paid in fiat, choose one (and only one)
 See the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle Airdrops?
-Use an in-transaction and mark the transaction type as AIRDROP. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
+Use an in-transaction and mark the transaction type as AIRDROP. RP2 records the income at the timestamp and spot price you enter (for the moment to use in the US, see [Income and Conversions](supported_countries.md#income-and-conversions)). RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle Donations?
 Use an in-transaction (if receiving crypto) or out-transaction (if giving crypto) and mark the transaction type as DONATION. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
@@ -281,7 +284,7 @@ Use an in-transaction (if receiving crypto) or out-transaction (if giving crypto
 Use an in-transaction (if receiving crypto) or out-transaction (if giving crypto) and mark the transaction type as GIFT. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle Hard Forks?
-Use an in-transaction and mark the transaction type as HARDFORK. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
+Use an in-transaction and mark the transaction type as HARDFORK. RP2 records the income at the timestamp and spot price you enter (for the moment to use in the US, see [Income and Conversions](supported_countries.md#income-and-conversions)). RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle Miscellaneous Crypto Income?
 Miscellaneous income covers gains from reward programs like Coinbase Earn, etc. Use an in-transaction and mark the transaction type as INCOME. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
@@ -290,10 +293,13 @@ Miscellaneous income covers gains from reward programs like Coinbase Earn, etc. 
 Use an in-transaction and mark the transaction type as INTEREST. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle Income from Mining?
-Use an in-transaction and mark the transaction type as MINING. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
+Use an in-transaction and mark the transaction type as MINING. RP2 records the income at the timestamp and spot price you enter (for the moment to use in the US, see [Income and Conversions](supported_countries.md#income-and-conversions)). RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle Income from Staking?
-Use an in-transaction and mark the transaction type as STAKING. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
+Use an in-transaction and mark the transaction type as STAKING. RP2 records the income at the timestamp and spot price you enter (for the moment to use in the US, see [Income and Conversions](supported_countries.md#income-and-conversions)). RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
+
+### How to Handle Locked or Delayed Staking Rewards?
+RP2 records staking income at the timestamp of the in-transaction, valued at its spot price, so the timestamp you enter decides when the income is taxed. For rewards that are locked or can't be withdrawn right away (e.g. rewards that accrue in a staking contract and become available later), the right moment depends on the rules of your country, which may not settle it. RP2 doesn't choose: pick one moment (e.g. when the rewards become available, or when they accrue), use it consistently, and enter each reward with the timestamp and spot price of that moment. For the US see [Income and Conversions](supported_countries.md#income-and-conversions). If in doubt, ask a tax professional.
 
 ### How to Handle Losses from Staking?
 This is useful to capture situations where the protocol penalizes users (e.g. when their node is offline for too long, etc.). Use an out-transaction and mark the transaction type as STAKING. Don't use a STAKING in-transaction with a negative `crypto_in` instead: RP2 reads it, but the tax computation doesn't support it and stops with an error. RP2 will collect gain/loss computations for all such transactions in a tab in the tax_report_us output. Also read question on [which tax forms to file](#which-crypto-tax-forms-to-file) and see the [input files](input_files.md) section of the documentation for format details.
@@ -308,30 +314,30 @@ This applies to governance and incentive tokens (e.g. COMP) as well as other cry
 DeFi opens up new scenarios that have their own tax implications. For example:
 * a transaction calls a smart contract function that executes and costs some ETH or BNB;
 * investment in a DEFI project where a percentage of invested tokens are "burned";
-* send 100 CAKE from one BSC wallet to another then the fees are paid in BNB not CAKE.
+* send 100 CAKE from one BNB Smart Chain (BSC, formerly Binance Smart Chain) wallet to another: the fees are paid in BNB (the chain's native token), not in CAKE.
 
 In RP2 such native crypto costs can be captured via an [OUT/FEE transaction](input_files.md#out-transaction-table-format).
 
 Remember to use the Notes field to provide context about the nature of the transaction. See the [input files](input_files.md) section of the documentation for format details.
 
 ### How to Handle DeFi Bridging?
-There is an ongoing debate on how to manage DeFi bridging from a tax perspective. I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Read the the [RP2 Defi Wiki](https://github.com/eprbell/rp2/wiki/DEFI-Brainstorming), the [RP2 Defi Brainstorming](https://github.com/eprbell/rp2/issues/4), and always double-check with your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
+DeFi bridging is the process of moving cryptocurrency from one blockchain network to another (e.g. from Ethereum to Polygon) using a *bridge* protocol, typically by locking tokens on the source chain and receiving equivalent wrapped tokens on the destination chain. There is an ongoing debate on how to manage DeFi bridging from a tax perspective. I don't have a definitive answer to the question, but RP2's basic transaction types (BUY, SELL, FEE, etc.) can be used to describe many tax scenarios in different ways. Read the the [RP2 Defi Wiki](https://github.com/eprbell/rp2/wiki/DEFI-Brainstorming), the [RP2 Defi Brainstorming](https://github.com/eprbell/rp2/issues/4), and always double-check with your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
 
 ### How to Handle DeFi Reflexive Tokens?
-There is an ongoing debate on how to manage DeFi reflexive tokens from a tax perspective. I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Read the the [RP2 Defi Wiki](https://github.com/eprbell/rp2/wiki/DEFI-Brainstorming), the [RP2 Defi Brainstorming](https://github.com/eprbell/rp2/issues/4), and always double-check with your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
+There is an ongoing debate on how to manage DeFi reflexive tokens from a tax perspective. I don't have a definitive answer to the question, but RP2's basic transaction types (BUY, SELL, FEE, etc.) can be used to describe many tax scenarios in different ways. Read the the [RP2 Defi Wiki](https://github.com/eprbell/rp2/wiki/DEFI-Brainstorming), the [RP2 Defi Brainstorming](https://github.com/eprbell/rp2/issues/4), and always double-check with your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
 
 ### How to Handle DeFi Yield from Liquidity Pools?
 DeFi opens up new scenarios, like liquidity pools, that have their own tax implications. For example:
 * lock 100 DRIP forever and then get 1 DRIP per day back for a max of 365 days;
 * buy a "node" that consumes 10 STRONG, but after that the node produces 0.1 STRONG per day, forever.
 
-There is an ongoing debate on how to capture this scenario from a tax perspective: how is the locked-forever crypto handled? Are the first yields considered "recovered" capital and the following ones staking? I don't have a definitive answer to the question, but RP2 has expressive primitives that can be used to describe many tax scenarios in different ways. Read the the [RP2 Defi Wiki](https://github.com/eprbell/rp2/wiki/DEFI-Brainstorming), the [RP2 Defi Brainstorming](https://github.com/eprbell/rp2/issues/4), and always double-check with your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
+There is an ongoing debate on how to capture this scenario from a tax perspective: how is the locked-forever crypto handled? Are the first yields considered "recovered" capital and the following ones staking? I don't have a definitive answer to the question, but RP2's basic transaction types (BUY, SELL, FEE, etc.) can be used to describe many tax scenarios in different ways. Read the the [RP2 Defi Wiki](https://github.com/eprbell/rp2/wiki/DEFI-Brainstorming), the [RP2 Defi Brainstorming](https://github.com/eprbell/rp2/issues/4), and always double-check with your tax professional. If you have additional insight on this, feel free to contribute to the issue or open a new one.
 
 ### How to Handle NFTs?
 RP2 treats NFTs like cryptocurrencies, that is as property. Use a unique asset type for each NFT, both in the config file and in the input spreadsheet (see the [input files](input_files.md) section of the documentation for format details): e.g. ETH_BORED_APE_4363. There is debate on whether NFTs should be treated as collectibles instead, but this has not been clarified officially by the IRS yet, to the best of my knowledge. Ask a tax professional for the correct answer in any given year.
 
 ### How to Handle Margin Trading?
-Margin trading generates normal capital gains and losses, so it can be modeled using normal RP2 primitives. For more information on this topic check https://www.cointracker.io/blog/margin or ask a tax professional.
+Margin trading generates normal capital gains and losses, so it can be recorded using RP2's standard transaction types. For more information on this topic check <!-- markdown-link-check-disable -->[CoinTracker's guide to margin trading taxes](https://www.cointracker.io/blog/taxes-on-margin-trading-ultimate-guide)<!-- markdown-link-check-enable --> or ask a tax professional.
 
 ### How to Handle Futures and Options?
 Calling for help on this question: if you have insight on this please open an issue or a PR.
