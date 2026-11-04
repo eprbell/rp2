@@ -20,8 +20,6 @@ from prezzemolo.avl_tree import AVLTree
 from rp2.abstract_accounting_method import (
     AbstractAccountingMethod,
     AbstractFeatureBasedAccountingMethod,
-    AcquiredLotAndAmount,
-    FeatureBasedAcquiredLotCandidates,
 )
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.account import Account
@@ -33,9 +31,9 @@ from rp2.input_data import InputData
 from rp2.intra_transaction import IntraTransaction
 from rp2.out_transaction import OutTransaction
 from rp2.per_wallet_accounting_method import get_per_wallet_accounting_method
+from rp2.per_wallet_transactions import LotPiece, PerWalletTransactions
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2RuntimeError, RP2TypeError, RP2ValueError
-from rp2.transaction_set import TransactionSet
 from rp2.wallet_lot import WalletLot
 
 # Transactions with the same timestamp are processed in this order (then by row): funds that arrive at a given instant (acquisitions
@@ -47,109 +45,12 @@ def _transaction_processing_order(transaction: AbstractTransaction) -> Tuple[flo
     return (transaction.timestamp.timestamp(), _TRANSACTION_CLASS_2_RANK[type(transaction)], transaction.row)
 
 
-# A piece of an acquired lot consumed by a disposal or transfer.
-class _LotPiece(NamedTuple):
-    acquired_lot: InTransaction
-    amount: RP2Decimal
-
-
-# Result of taking funds from a wallet: missing_amount is > 0 if the wallet didn't have enough funds.
-class _TakeResult(NamedTuple):
-    pieces: List[_LotPiece]
-    missing_amount: RP2Decimal
-
-
 class TransferAnalysisResult(NamedTuple):
     wallet_2_input_data: Dict[Account, InputData]
     # Gain/loss pairings of all taxable events, computed per wallet.
     gain_loss_list: List[GainLoss]
     # What each wallet holds at the end of the holdings date passed to analyze_and_pair() (by default, after all transactions).
     wallet_lots: List[WalletLot]
-
-
-# The lots and transactions of a single wallet during transfer analysis.
-# - The "actual amount" of a lot is how many of its units are still in this wallet. Lots that have never been touched have no entry in
-#   acquired_lot_2_actual_amount: their actual amount is their whole crypto_in.
-# - Lots are selected with the accounting methods' heaps (one heap per method, see FeatureBasedAcquiredLotCandidates). Heaps use lazy
-#   deletion: a lot whose actual amount drops to zero stays in the heap and is skipped when popped. A lot whose units come back (e.g. at the
-#   end of a round trip A->B->A) must be pushed again: that's what restore_actual_amount() is for.
-class PerWalletTransactions:
-    def __init__(
-        self,
-        configuration: Configuration,
-        asset: str,
-        accounting_methods: List[AbstractFeatureBasedAccountingMethod],
-        from_date: date,
-        to_date: date,
-    ):
-        self.__asset = asset
-        self.__acquired_lot_2_actual_amount: Dict[InTransaction, RP2Decimal] = {}
-        self.__acquired_lot_list: List[InTransaction] = []
-        # One set of lot candidates per accounting method: they share the lot list and the actual amounts, so that the accounting method can
-        # change year over year.
-        self.__method_2_lot_candidates: Dict[AbstractFeatureBasedAccountingMethod, FeatureBasedAcquiredLotCandidates] = {
-            method: method.create_lot_candidates(self.__acquired_lot_list, self.__acquired_lot_2_actual_amount) for method in accounting_methods
-        }
-        self.__out_transactions: TransactionSet = TransactionSet(configuration, "OUT", asset, from_date, to_date)
-        self.__intra_transactions: TransactionSet = TransactionSet(configuration, "INTRA", asset, from_date, to_date)
-
-    @property
-    def asset(self) -> str:
-        return self.__asset
-
-    @property
-    def acquired_lot_2_actual_amount(self) -> Dict[InTransaction, RP2Decimal]:
-        return self.__acquired_lot_2_actual_amount
-
-    @property
-    def acquired_lot_list(self) -> List[InTransaction]:
-        return self.__acquired_lot_list
-
-    @property
-    def out_transactions(self) -> TransactionSet:
-        return self.__out_transactions
-
-    @property
-    def intra_transactions(self) -> TransactionSet:
-        return self.__intra_transactions
-
-    def add_acquired_lot(self, acquired_lot: InTransaction) -> None:
-        self.__acquired_lot_list.append(acquired_lot)
-        self.__push_to_heaps(acquired_lot)
-
-    def get_actual_amount(self, acquired_lot: InTransaction) -> RP2Decimal:
-        return self.__acquired_lot_2_actual_amount.get(acquired_lot, acquired_lot.crypto_in)
-
-    def set_actual_amount(self, acquired_lot: InTransaction, amount: RP2Decimal) -> None:
-        if amount < ZERO:
-            raise RP2RuntimeError(f"Internal error: negative actual amount {amount} for {acquired_lot}")
-        self.__acquired_lot_2_actual_amount[acquired_lot] = amount
-
-    # Sets the actual amount of a lot whose units come back to this wallet: the lot may have been exhausted (and dropped from the heaps).
-    def restore_actual_amount(self, acquired_lot: InTransaction, amount: RP2Decimal) -> None:
-        self.set_actual_amount(acquired_lot, amount)
-        self.__push_to_heaps(acquired_lot)
-
-    # Removes amount from the wallet, lot by lot, in the order given by accounting_method, and returns the lot pieces taken. If the wallet
-    # doesn't hold enough funds, missing_amount in the result is the part that couldn't be taken (the caller raises an error).
-    def take(self, accounting_method: AbstractFeatureBasedAccountingMethod, amount: RP2Decimal) -> _TakeResult:
-        lot_candidates = self.__method_2_lot_candidates[accounting_method]
-        result: List[_LotPiece] = []
-        amount_left = amount
-        while amount_left > ZERO:
-            lot_and_amount: Optional[AcquiredLotAndAmount] = accounting_method.seek_non_exhausted_acquired_lot(lot_candidates, amount_left)
-            if lot_and_amount is None:
-                return _TakeResult(result, amount_left)
-            piece_amount = min(lot_and_amount.amount, amount_left)
-            # seek_non_exhausted_acquired_lot() zeroes the lot's actual amount: set it to what's left after taking the piece.
-            self.set_actual_amount(lot_and_amount.acquired_lot, lot_and_amount.amount - piece_amount)
-            result.append(_LotPiece(lot_and_amount.acquired_lot, piece_amount))
-            amount_left -= piece_amount
-        return _TakeResult(result, ZERO)
-
-    def __push_to_heaps(self, acquired_lot: InTransaction) -> None:
-        for method, lot_candidates in self.__method_2_lot_candidates.items():
-            method.add_selected_lot_to_heap(lot_candidates.acquired_lot_heap, acquired_lot)
 
 
 # TransferAnalyzer processes all transactions of an asset chronologically, tracking which lots are in which wallet (per-wallet application):
@@ -182,15 +83,13 @@ class TransferAnalyzer:
         if years_2_accounting_methods is None:
             years_2_accounting_methods = AVLTree()
             years_2_accounting_methods.insert_node(MIN_DATE.year, transfer_semantics)
-        # Map each (user-facing) accounting method to its per-wallet equivalent (see get_per_wallet_accounting_method()).
+        # Map each (user-facing) accounting method to its per-wallet equivalent (see get_per_wallet_accounting_method()). Methods are identified
+        # by name (e.g. "fifo"): a year that uses the same method as an earlier one gets the same per-wallet method.
         self.__years_2_accounting_methods: AVLTree[int, AbstractFeatureBasedAccountingMethod] = AVLTree()
-        self.__accounting_methods: List[AbstractFeatureBasedAccountingMethod] = []
-        method_name_2_per_wallet_method: Dict[str, AbstractFeatureBasedAccountingMethod] = {}
+        self.__method_name_2_per_wallet_method: Dict[str, AbstractFeatureBasedAccountingMethod] = {}
         for year, method in get_years_and_accounting_methods(years_2_accounting_methods):
-            per_wallet_method = method_name_2_per_wallet_method.setdefault(method.name, get_per_wallet_accounting_method(method))
+            per_wallet_method = self.__method_name_2_per_wallet_method.setdefault(method.name, get_per_wallet_accounting_method(method))
             self.__years_2_accounting_methods.insert_node(year, per_wallet_method)
-            if per_wallet_method not in self.__accounting_methods:
-                self.__accounting_methods.append(per_wallet_method)
         self.__universal_input_data = InputData.type_check("universal_input_data", universal_input_data)
         # skip_transfer_pointers is used in global allocation, where the artificial transactions are used only as guides
         # and are replaced by new ones decided by the allocation method.
@@ -267,24 +166,6 @@ class TransferAnalyzer:
 
         return result
 
-    def _convert_per_wallet_transactions_to_input_data(self, universal_input_data: InputData, per_wallet_transactions: PerWalletTransactions) -> InputData:
-        in_transaction_set = TransactionSet(
-            self.__configuration, "IN", universal_input_data.asset, universal_input_data.from_date, universal_input_data.to_date
-        )
-        for in_transaction in per_wallet_transactions.acquired_lot_list:
-            in_transaction_set.add_entry(in_transaction)
-
-        result: InputData = InputData(
-            universal_input_data.asset,
-            in_transaction_set,
-            per_wallet_transactions.out_transactions,
-            per_wallet_transactions.intra_transactions,
-            in_transaction_2_actual_amount=per_wallet_transactions.acquired_lot_2_actual_amount,
-            from_date=universal_input_data.from_date,
-            to_date=universal_input_data.to_date,
-        )
-        return result
-
     # True if the lot's units have already been in the transfer's destination wallet (i.e. the transfer closes a round trip).
     def _is_transaction_cycle(self, acquired_lot: InTransaction, transfer: IntraTransaction) -> bool:
         to_account = Account(transfer.to_exchange, transfer.to_holder)
@@ -297,7 +178,7 @@ class TransferAnalyzer:
             wallet_2_per_wallet_transactions[account] = PerWalletTransactions(
                 self.__configuration,
                 self.__universal_input_data.asset,
-                self.__accounting_methods,
+                list(self.__method_name_2_per_wallet_method.values()),
                 self.__universal_input_data.from_date,
                 self.__universal_input_data.to_date,
             )
@@ -317,7 +198,7 @@ class TransferAnalyzer:
     ) -> None:
         account = Account(transaction.exchange, transaction.holder)
         per_wallet_transactions = self._get_existing_per_wallet_transactions(wallet_2_per_wallet_transactions, account, transaction)
-        per_wallet_transactions.out_transactions.add_entry(transaction)
+        per_wallet_transactions.add_out_transaction(transaction)
         pieces, missing_amount = per_wallet_transactions.take(self._get_accounting_method(transaction), transaction.crypto_balance_change)
         if missing_amount > ZERO:
             raise RP2ValueError(
@@ -338,7 +219,7 @@ class TransferAnalyzer:
         to_account = Account(transaction.to_exchange, transaction.to_holder)
         from_per_wallet_transactions = self._get_existing_per_wallet_transactions(wallet_2_per_wallet_transactions, from_account, transaction)
         # IntraTransactions are added to from_per_wallet_transactions.
-        from_per_wallet_transactions.intra_transactions.add_entry(transaction)
+        from_per_wallet_transactions.add_intra_transaction(transaction)
 
         pieces, missing_amount = from_per_wallet_transactions.take(self._get_accounting_method(transaction), transaction.crypto_sent)
         if missing_amount > ZERO:
@@ -363,17 +244,17 @@ class TransferAnalyzer:
     # Splits the lot pieces taken for a transfer into fee pieces and received pieces. The fee is taken from the first pieces, like universal
     # application does (it disposes of the first units selected by the accounting method to pay the fee).
     @staticmethod
-    def _split_fee_and_received_pieces(pieces: List[_LotPiece], fee: RP2Decimal) -> Tuple[List[_LotPiece], List[_LotPiece]]:
-        fee_pieces: List[_LotPiece] = []
-        received_pieces: List[_LotPiece] = []
+    def _split_fee_and_received_pieces(pieces: List[LotPiece], fee: RP2Decimal) -> Tuple[List[LotPiece], List[LotPiece]]:
+        fee_pieces: List[LotPiece] = []
+        received_pieces: List[LotPiece] = []
         fee_amount_left = fee
         for piece in pieces:
             fee_part = min(piece.amount, fee_amount_left)
             fee_amount_left -= fee_part
             if fee_part > ZERO:
-                fee_pieces.append(_LotPiece(piece.acquired_lot, fee_part))
+                fee_pieces.append(LotPiece(piece.acquired_lot, fee_part))
             if piece.amount - fee_part > ZERO:
-                received_pieces.append(_LotPiece(piece.acquired_lot, piece.amount - fee_part))
+                received_pieces.append(LotPiece(piece.acquired_lot, piece.amount - fee_part))
         return fee_pieces, received_pieces
 
     # Adds a received lot piece to the destination wallet: normally as a new artificial InTransaction; at the end of a round trip
@@ -383,7 +264,7 @@ class TransferAnalyzer:
         to_per_wallet_transactions: PerWalletTransactions,
         to_account: Account,
         transaction: IntraTransaction,
-        piece: _LotPiece,
+        piece: LotPiece,
     ) -> None:
         if self._is_transaction_cycle(piece.acquired_lot, transaction):
             # Transaction cycle detected: the to_account has already been visited. Return the amount to the start-of-cycle lot (which has the
@@ -447,8 +328,7 @@ class TransferAnalyzer:
 
         # Convert per-wallet transactions to input_data.
         wallet_2_input_data: Dict[Account, InputData] = {
-            wallet: self._convert_per_wallet_transactions_to_input_data(self.__universal_input_data, per_wallet_transactions)
-            for wallet, per_wallet_transactions in wallet_2_per_wallet_transactions.items()
+            wallet: per_wallet_transactions.to_input_data() for wallet, per_wallet_transactions in wallet_2_per_wallet_transactions.items()
         }
         return TransferAnalysisResult(wallet_2_input_data, gain_loss_list, wallet_lots)
 
