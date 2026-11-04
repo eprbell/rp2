@@ -13,7 +13,8 @@
 # limitations under the License.
 
 from datetime import date
-from typing import Dict, Optional, cast
+from types import MappingProxyType
+from typing import Dict, Mapping, Optional, cast
 
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
@@ -39,7 +40,7 @@ class InputData:
         unfiltered_in_transaction_set: TransactionSet,
         unfiltered_out_transaction_set: TransactionSet,
         unfiltered_intra_transaction_set: TransactionSet,
-        in_transaction_2_actual_amount: Optional[Dict[InTransaction, RP2Decimal]] = None,
+        in_transaction_2_actual_amount: Optional[Mapping[InTransaction, RP2Decimal]] = None,
         from_date: date = MIN_DATE,
         to_date: date = MAX_DATE,
     ):
@@ -53,9 +54,15 @@ class InputData:
         self.__unfiltered_intra_transaction_set: TransactionSet = TransactionSet.type_check(
             "intra_transaction_set", unfiltered_intra_transaction_set, EntrySetType.INTRA, self.asset, True
         )
-        self.__in_transaction_2_actual_amount: Dict[InTransaction, RP2Decimal] = (
-            in_transaction_2_actual_amount if in_transaction_2_actual_amount is not None else {}
-        )
+        # A private copy, checked here: the caller (e.g. the transfer analyzer, which keeps updating its own amounts) may change its dictionary
+        # later, and that must not change this input data.
+        self.__in_transaction_2_actual_amount: Dict[InTransaction, RP2Decimal] = {}
+        if in_transaction_2_actual_amount is not None:
+            if not isinstance(in_transaction_2_actual_amount, Mapping):
+                raise RP2TypeError(f"Parameter 'in_transaction_2_actual_amount' is not a mapping: {in_transaction_2_actual_amount}")
+            for in_transaction, actual_amount in in_transaction_2_actual_amount.items():
+                InTransaction.type_check("in_transaction", in_transaction)
+                self.__in_transaction_2_actual_amount[in_transaction] = Configuration.type_check_positive_decimal("actual_amount", actual_amount)
         if not isinstance(from_date, date):
             raise RP2TypeError("Parameter 'from_date' is not of type date")
         if not isinstance(to_date, date):
@@ -146,10 +153,10 @@ class InputData:
 
     # This is non-empty only in per-wallet application: InputData can contain artificial InTransactions that overlap with other InTransactions
     # (artificial or not). To understand which of these InTransactions actually contain funds and how much this Dict can be used. With universal
-    # application this is always empty.
+    # application this is always empty. It's a read-only view: users that need to update amounts (e.g. AccountingEngine) work on a copy.
     @property
-    def in_transaction_2_actual_amount(self) -> Dict[InTransaction, RP2Decimal]:
-        return self.__in_transaction_2_actual_amount
+    def in_transaction_2_actual_amount(self) -> Mapping[InTransaction, RP2Decimal]:
+        return MappingProxyType(self.__in_transaction_2_actual_amount)
 
     @property
     def from_date(self) -> date:

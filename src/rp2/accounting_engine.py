@@ -14,7 +14,7 @@
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Dict, Iterator, List, NamedTuple, Optional
+from typing import Dict, Iterator, List, Mapping, NamedTuple, Optional
 
 from prezzemolo.avl_tree import AVLTree
 
@@ -27,6 +27,46 @@ from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2RuntimeError, RP2TypeError
+
+
+# A year of a year-to-method map and the accounting method used from that year on.
+class YearAndAccountingMethod(NamedTuple):
+    year: int
+    accounting_method: AbstractAccountingMethod
+
+
+def _get_year(year_and_accounting_method: YearAndAccountingMethod) -> int:
+    return year_and_accounting_method.year
+
+
+# The entries of a year-to-method map (e.g. 2024: fifo, 2026: hifo), sorted by year. AVLTree has no iterator, so its nodes are visited
+# explicitly. Raises if the map is empty, or if a key isn't a year or a value isn't an accounting method.
+def get_years_and_accounting_methods(years_2_methods: AVLTree[int, AbstractAccountingMethod]) -> List[YearAndAccountingMethod]:
+    if not isinstance(years_2_methods, AVLTree):
+        raise RP2TypeError(f"Parameter 'years_2_methods' is not of type AVLTree: {years_2_methods}")
+    result: List[YearAndAccountingMethod] = []
+    to_visit = [years_2_methods.root]
+    while to_visit:
+        node = to_visit.pop()
+        if node is None:
+            continue
+        if not isinstance(node.key, int) or isinstance(node.key, bool):
+            raise RP2TypeError(f"Parameter 'years_2_methods' has a non-integer year: {repr(node.key)}")
+        if not isinstance(node.value, AbstractAccountingMethod):
+            raise RP2TypeError(f"Parameter 'years_2_methods' has a value that is not an accounting method: {node.value}")
+        result.append(YearAndAccountingMethod(node.key, node.value))
+        to_visit.extend([node.left, node.right])
+    if not result:
+        raise RP2RuntimeError("Internal error: no accounting method defined")
+    return sorted(result, key=_get_year)
+
+
+# A private copy of a year-to-method map: the caller can't change it afterwards (e.g. by inserting a year).
+def _copy_years_2_methods(years_2_methods: AVLTree[int, AbstractAccountingMethod]) -> AVLTree[int, AbstractAccountingMethod]:
+    result: AVLTree[int, AbstractAccountingMethod] = AVLTree()
+    for year, accounting_method in get_years_and_accounting_methods(years_2_methods):
+        result.insert_node(year, accounting_method)
+    return result
 
 
 class AcquiredLotAndAmounts(NamedTuple):
@@ -88,23 +128,27 @@ class AccountingEngine:
             raise RP2TypeError(f"Parameter '{name}' is not of type {cls.__name__}: {instance}")
         return instance
 
+    # years_2_methods is copied (and checked): changing the caller's map later doesn't change this engine.
     def __init__(self, years_2_methods: AVLTree[int, AbstractAccountingMethod]) -> None:
-        self.__years_2_methods: AVLTree[int, AbstractAccountingMethod] = years_2_methods
+        self.__years_2_methods: AVLTree[int, AbstractAccountingMethod] = _copy_years_2_methods(years_2_methods)
         self.__years_2_lot_candidates: AVLTree[int, AbstractAcquiredLotCandidates] = AVLTree()
-        if not self.__years_2_methods:
-            raise RP2RuntimeError("Internal error: no accounting method defined")
 
-    # Iterators yield transactions in ascending chronological order
+    # Iterators yield transactions in ascending chronological order. acquired_lot_to_partial_amount (if given) is the amount still available
+    # in some lots (e.g. InputData.in_transaction_2_actual_amount): the engine works on a copy, because it updates the amounts while pairing
+    # lots, and the caller's data (e.g. the input data) must not change. Before this copy, computing taxes on the same input data twice
+    # could give different results.
     def initialize(
         self,
         taxable_event_iterator: Iterator[AbstractTransaction],
         acquired_lot_iterator: Iterator[InTransaction],
-        acquired_lot_to_partial_amount: Optional[Dict[InTransaction, RP2Decimal]] = None,
+        acquired_lot_to_partial_amount: Optional[Mapping[InTransaction, RP2Decimal]] = None,
     ) -> None:
         self.__taxable_event_iterator = taxable_event_iterator
         self.__acquired_lot_list = []
         self.__acquired_lot_avl: AVLTree[str, _AcquiredLotAndIndex] = AVLTree()
-        self.__acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal] = {} if acquired_lot_to_partial_amount is None else acquired_lot_to_partial_amount
+        self.__acquired_lot_2_partial_amount: Dict[InTransaction, RP2Decimal] = (
+            {} if acquired_lot_to_partial_amount is None else dict(acquired_lot_to_partial_amount)
+        )
 
         index: int = 0
         try:
@@ -122,22 +166,11 @@ class AccountingEngine:
         if not self.__acquired_lot_avl.root:
             raise RP2RuntimeError("Internal error: AVL tree has no root node")
 
-        to_visit = []
-        node = self.__years_2_methods.root
-        while node is not None:
+        for year, accounting_method in get_years_and_accounting_methods(self.__years_2_methods):
             # Pass __acquired_lot_2_partial_amount to all lot candidates so that they share the partial amount cache even across different accounting methods.
             self.__years_2_lot_candidates.insert_node(
-                node.key, node.value.create_lot_candidates(self.__acquired_lot_list, self.__acquired_lot_2_partial_amount)
+                year, accounting_method.create_lot_candidates(self.__acquired_lot_list, self.__acquired_lot_2_partial_amount)
             )
-            if node.left:
-                to_visit.append(node.left)
-            if node.right:
-                to_visit.append(node.right)
-
-            if len(to_visit) > 0:
-                node = to_visit.pop()
-            else:
-                break
 
     # AVL tree node keys have this format: <timestamp>_<internal_id>. The internal_id part is needed to disambiguate transactions
     # that have the same timestamp. Timestamp is in format "YYYYmmddHHMMSS.ffffff" and internal_id is padded right in a string of fixed
@@ -154,9 +187,10 @@ class AccountingEngine:
     def acquired_lot_2_partial_amount(self) -> Dict[InTransaction, RP2Decimal]:
         return self.__acquired_lot_2_partial_amount.copy()
 
+    # A copy: changing it doesn't change this engine.
     @property
     def years_2_methods(self) -> AVLTree[int, AbstractAccountingMethod]:
-        return self.__years_2_methods
+        return _copy_years_2_methods(self.__years_2_methods)
 
     def _get_accounting_method(self, year: int) -> AbstractAccountingMethod:
         method = self.__years_2_methods.find_max_value_less_than(year)

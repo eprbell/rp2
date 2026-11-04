@@ -13,7 +13,8 @@
 # limitations under the License.
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Set, Tuple
+from types import MappingProxyType
+from typing import Mapping, Optional, Sequence, Set, Tuple
 from zoneinfo import ZoneInfo, available_timezones
 
 from rp2.account import Account
@@ -70,8 +71,9 @@ class PerWalletConfiguration:
     unused_basis_allocation_wallet_order: Tuple[Account, ...] = ()
     # Per-asset overrides of the two fields above: Rev. Proc. 2024-28 (sections 4.01(4) and 5.02(6)) applies the safe harbor to each type
     # of digital asset separately, so each asset can have its own allocation rule (e.g. a wallet order based on its own balances).
-    asset_2_unused_basis_allocation_method: Dict[str, str] = field(default_factory=dict)
-    asset_2_unused_basis_allocation_wallet_order: Dict[str, Tuple[Account, ...]] = field(default_factory=dict)
+    # They are read-only views of private copies (see __post_init__()).
+    asset_2_unused_basis_allocation_method: Mapping[str, str] = field(default_factory=dict)
+    asset_2_unused_basis_allocation_wallet_order: Mapping[str, Tuple[Account, ...]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if not isinstance(self.timezone_name, str) or not self.timezone_name.strip():
@@ -80,12 +82,17 @@ class PerWalletConfiguration:
             _get_iana_timezone(self.timezone_name)
         except RP2ValueError as exc:
             raise RP2ValueError(f"Per-wallet configuration: invalid 'timezone': {exc}") from exc
-        for wallet_order in [self.unused_basis_allocation_wallet_order, *self.asset_2_unused_basis_allocation_wallet_order.values()]:
-            for account in wallet_order:
-                if not isinstance(account, Account):
-                    raise RP2TypeError(f"Per-wallet configuration: wallet order contains a non-Account element: {account}")
-            if len(set(wallet_order)) != len(wallet_order):
-                raise RP2ValueError(f"Per-wallet configuration: wallet order contains duplicates: {wallet_order}")
+        if self.unused_basis_allocation_method is not None:
+            _check_method_name("unused_basis_allocation_method", self.unused_basis_allocation_method)
+        # frozen=True only prevents assigning the fields: a list or dictionary passed by the caller could still be changed afterwards, and the
+        # configuration would change with it, skipping these checks. So the wallet orders are copied into tuples, and the per-asset maps into
+        # private dictionaries exposed as read-only views. Example: with overrides = {"BTC": "hifo"} passed as
+        # asset_2_unused_basis_allocation_method, a later overrides["BTC"] = "lifo" leaves this configuration with hifo for BTC.
+        object.__setattr__(self, "unused_basis_allocation_wallet_order", _copy_wallet_order(self.unused_basis_allocation_wallet_order))
+        object.__setattr__(self, "asset_2_unused_basis_allocation_method", _copy_method_overrides(self.asset_2_unused_basis_allocation_method))
+        object.__setattr__(
+            self, "asset_2_unused_basis_allocation_wallet_order", _copy_wallet_order_overrides(self.asset_2_unused_basis_allocation_wallet_order)
+        )
         # The effective rule of each asset (default or override) needs both a method and a wallet order, or neither.
         if bool(self.unused_basis_allocation_method) != bool(self.unused_basis_allocation_wallet_order):
             raise RP2ValueError(
@@ -124,3 +131,49 @@ class PerWalletConfiguration:
     @property
     def timezone(self) -> ZoneInfo:
         return ZoneInfo(self.timezone_name)
+
+
+def _check_asset(asset: str) -> str:
+    if not isinstance(asset, str) or not asset.strip():
+        raise RP2TypeError(f"Per-wallet configuration: invalid asset name: {repr(asset)}")
+    return asset
+
+
+def _check_method_name(name: str, method_name: str) -> str:
+    if not isinstance(method_name, str) or not method_name.strip():
+        raise RP2ValueError(f"Per-wallet configuration: '{name}' must be the name of an accounting method: {repr(method_name)}")
+    return method_name
+
+
+# True for a tuple or a list. It's a separate function so that the caller's variable keeps its declared type (isinstance() would narrow it).
+def _is_tuple_or_list(value: object) -> bool:
+    return isinstance(value, (tuple, list))
+
+
+# Copies a wallet order (a tuple or a list of Account) into a tuple, rejecting other elements and duplicates. Other sequences are rejected:
+# e.g. the string "Kraken/Bob" instead of (Account("Kraken", "Bob"),).
+def _copy_wallet_order(wallet_order: Sequence[Account]) -> Tuple[Account, ...]:
+    if not _is_tuple_or_list(wallet_order):
+        raise RP2TypeError(f"Per-wallet configuration: wallet order is not a sequence of wallets: {repr(wallet_order)}")
+    for account in wallet_order:
+        if not isinstance(account, Account):
+            raise RP2TypeError(f"Per-wallet configuration: wallet order contains a non-Account element: {account}")
+    if len(set(wallet_order)) != len(wallet_order):
+        raise RP2ValueError(f"Per-wallet configuration: wallet order contains duplicates: {wallet_order}")
+    return tuple(wallet_order)
+
+
+# Copies the per-asset allocation methods into a private dictionary and returns a read-only view of it.
+def _copy_method_overrides(asset_2_method_name: Mapping[str, str]) -> Mapping[str, str]:
+    if not isinstance(asset_2_method_name, Mapping):
+        raise RP2TypeError(f"Per-wallet configuration: 'asset_2_unused_basis_allocation_method' is not a mapping: {asset_2_method_name}")
+    return MappingProxyType(
+        {_check_asset(asset): _check_method_name(f"unused_basis_allocation_method.{asset}", method_name) for asset, method_name in asset_2_method_name.items()}
+    )
+
+
+# Copies the per-asset wallet orders into a private dictionary of tuples and returns a read-only view of it.
+def _copy_wallet_order_overrides(asset_2_wallet_order: Mapping[str, Sequence[Account]]) -> Mapping[str, Tuple[Account, ...]]:
+    if not isinstance(asset_2_wallet_order, Mapping):
+        raise RP2TypeError(f"Per-wallet configuration: 'asset_2_unused_basis_allocation_wallet_order' is not a mapping: {asset_2_wallet_order}")
+    return MappingProxyType({_check_asset(asset): _copy_wallet_order(wallet_order) for asset, wallet_order in asset_2_wallet_order.items()})

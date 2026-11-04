@@ -66,15 +66,23 @@ class UnusedBasisAllocator:
         if not isinstance(switch_timestamp, datetime) or switch_timestamp.tzinfo is None:
             raise RP2TypeError(f"Parameter 'switch_timestamp' is not a timezone-aware datetime: {switch_timestamp}")
         self.__switch_timestamp = switch_timestamp
-        self.__unused_lots = unused_lots
-        self.__all_account_2_balance = dict(account_2_balance)
-        self.__account_2_balance = {account: balance for account, balance in account_2_balance.items() if balance > ZERO}
+        # The lists and the dictionary are copied (and checked): changing the caller's ones later doesn't change the allocation.
+        for unused_lot in unused_lots:
+            if not isinstance(unused_lot, UnusedLot):
+                raise RP2TypeError(f"Parameter 'unused_lots' contains an element that is not an UnusedLot: {unused_lot}")
+        self.__unused_lots: List[UnusedLot] = list(unused_lots)
+        self.__all_account_2_balance: Dict[Account, RP2Decimal] = {
+            Account.type_check("account", account): Configuration.type_check_decimal("balance", balance) for account, balance in account_2_balance.items()
+        }
+        self.__account_2_balance = {account: balance for account, balance in self.__all_account_2_balance.items() if balance > ZERO}
         if allocation_method is not None and not isinstance(allocation_method, AbstractAccountingMethod):
             raise RP2TypeError(f"Parameter 'allocation_method' is not of type AbstractAccountingMethod: {allocation_method}")
         self.__allocation_method = allocation_method
-        self.__wallet_order = wallet_order
-        self.__allocation_method_field = allocation_method_field
-        self.__wallet_order_field = wallet_order_field
+        self.__wallet_order: List[Account] = [Account.type_check("wallet_order", account) for account in wallet_order]
+        self.__allocation_method_field = (
+            Configuration.type_check_string("allocation_method_field", allocation_method_field) if allocation_method_field else None
+        )
+        self.__wallet_order_field = Configuration.type_check_string("wallet_order_field", wallet_order_field) if wallet_order_field else None
 
     # Returns the opening allocation, whose allocated lots are artificial InTransactions at the switch instant, one per (wallet, lot piece),
     # or None if no wallet holds units at the switch (there is nothing to allocate).

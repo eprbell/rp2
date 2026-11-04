@@ -27,6 +27,7 @@ from rp2.abstract_accounting_method import (
 )
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.account import Account
+from rp2.accounting_engine import get_years_and_accounting_methods
 from rp2.acquisition_date_fifo import AcquisitionDateFifo
 from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.gain_loss import GainLoss
@@ -43,10 +44,6 @@ from rp2.wallet_lot import WalletLot
 # Transactions with the same timestamp are processed in this order (then by row): funds that arrive at a given instant (acquisitions
 # and transfers) are available to disposals that occur at the same instant.
 _TRANSACTION_CLASS_2_RANK: Dict[type, int] = {InTransaction: 0, IntraTransaction: 1, OutTransaction: 2}
-
-
-def _get_year(year_and_method: Tuple[int, AbstractAccountingMethod]) -> int:
-    return year_and_method[0]
 
 
 def _transaction_processing_order(transaction: AbstractTransaction) -> Tuple[float, int, int]:
@@ -192,7 +189,7 @@ class TransferAnalyzer:
         self.__years_2_accounting_methods: AVLTree[int, AbstractFeatureBasedAccountingMethod] = AVLTree()
         self.__accounting_methods: List[AbstractFeatureBasedAccountingMethod] = []
         method_name_2_per_wallet_method: Dict[str, AbstractFeatureBasedAccountingMethod] = {}
-        for year, method in self._get_years_and_methods(years_2_accounting_methods):
+        for year, method in get_years_and_accounting_methods(years_2_accounting_methods):
             per_wallet_method = method_name_2_per_wallet_method.setdefault(method.name, self.get_per_wallet_accounting_method(method))
             self.__years_2_accounting_methods.insert_node(year, per_wallet_method)
             if per_wallet_method not in self.__accounting_methods:
@@ -205,21 +202,6 @@ class TransferAnalyzer:
         # the local transfer analysis (which is a throwaway operation).
         self.__use_local_artificial_ids = Configuration.type_check_bool("use_local_artificial_ids", use_local_artificial_ids)
         self.__local_artificial_id_counter = -1
-
-    # Returns the (year, method) pairs of the map, sorted by year (AVLTree has no iterator, so its nodes are visited explicitly).
-    @staticmethod
-    def _get_years_and_methods(years_2_accounting_methods: AVLTree[int, AbstractAccountingMethod]) -> List[Tuple[int, AbstractAccountingMethod]]:
-        result: List[Tuple[int, AbstractAccountingMethod]] = []
-        to_visit = [years_2_accounting_methods.root]
-        while to_visit:
-            node = to_visit.pop()
-            if node is None:
-                continue
-            result.append((node.key, node.value))
-            to_visit.extend([node.left, node.right])
-        if not result:
-            raise RP2ValueError("Parameter 'years_2_accounting_methods' is empty")
-        return sorted(result, key=_get_year)
 
     # Chronological methods select lots by position in the lot list, which in a wallet is the arrival order, not the acquisition order:
     # replace them with feature-based equivalents that sort by cost_basis_timestamp. Also used by UnusedBasisAllocator to sort unused lots.

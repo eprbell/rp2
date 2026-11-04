@@ -105,6 +105,8 @@ class GlobalAllocator:
             accounting_engine.initialize(iter([]), iter(cast(Iterable[InTransaction], acquired_lots)), in_transaction_2_actual_amount)
             intra_transactions = self.__process_wallet(accounting_engine, account)
             global_allocation_intra_transactions.extend(intra_transactions)
+            # The next wallet starts from the amounts this one left: the engine works on its own copy of the amounts it receives.
+            in_transaction_2_actual_amount = accounting_engine.acquired_lot_2_partial_amount
 
         LOGGER.info("Global allocation of %s: created %d intra transactions.", self.__year, len(global_allocation_intra_transactions))
 
