@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from datetime import date, datetime
-from typing import Dict, List, NamedTuple, Optional, Tuple
+from typing import Dict, List, NamedTuple, Optional
 
 from prezzemolo.avl_tree import AVLTree
 
@@ -41,8 +41,22 @@ from rp2.wallet_lot import WalletLot
 _TRANSACTION_CLASS_2_RANK: Dict[type, int] = {InTransaction: 0, IntraTransaction: 1, OutTransaction: 2}
 
 
-def _transaction_processing_order(transaction: AbstractTransaction) -> Tuple[float, int, int]:
-    return (transaction.timestamp.timestamp(), _TRANSACTION_CLASS_2_RANK[type(transaction)], transaction.row)
+# Sort key of a transaction: transactions are processed by time, then by class (see _TRANSACTION_CLASS_2_RANK), then by row. Example: a
+# buy and a sale at 10:00 are processed buy first, so the sale can use the coins just bought.
+class _TransactionProcessingKey(NamedTuple):
+    timestamp: float
+    class_rank: int
+    row: int
+
+
+def _transaction_processing_order(transaction: AbstractTransaction) -> _TransactionProcessingKey:
+    return _TransactionProcessingKey(transaction.timestamp.timestamp(), _TRANSACTION_CLASS_2_RANK[type(transaction)], transaction.row)
+
+
+# The lot pieces taken for a transfer, split into the ones that pay the fee and the ones that arrive in the destination wallet.
+class _FeeAndReceivedPieces(NamedTuple):
+    fee_pieces: List[LotPiece]
+    received_pieces: List[LotPiece]
 
 
 class TransferAnalysisResult(NamedTuple):
@@ -244,7 +258,7 @@ class TransferAnalyzer:
     # Splits the lot pieces taken for a transfer into fee pieces and received pieces. The fee is taken from the first pieces, like universal
     # application does (it disposes of the first units selected by the accounting method to pay the fee).
     @staticmethod
-    def _split_fee_and_received_pieces(pieces: List[LotPiece], fee: RP2Decimal) -> Tuple[List[LotPiece], List[LotPiece]]:
+    def _split_fee_and_received_pieces(pieces: List[LotPiece], fee: RP2Decimal) -> _FeeAndReceivedPieces:
         fee_pieces: List[LotPiece] = []
         received_pieces: List[LotPiece] = []
         fee_amount_left = fee
@@ -255,7 +269,7 @@ class TransferAnalyzer:
                 fee_pieces.append(LotPiece(piece.acquired_lot, fee_part))
             if piece.amount - fee_part > ZERO:
                 received_pieces.append(LotPiece(piece.acquired_lot, piece.amount - fee_part))
-        return fee_pieces, received_pieces
+        return _FeeAndReceivedPieces(fee_pieces, received_pieces)
 
     # Adds a received lot piece to the destination wallet: normally as a new artificial InTransaction; at the end of a round trip
     # (e.g. A->B->A) by returning the units to the lot they left from.

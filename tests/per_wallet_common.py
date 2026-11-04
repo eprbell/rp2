@@ -93,24 +93,45 @@ class _GainLoss(NamedTuple):
     is_long_term: bool
 
 
-_GainLossTuple = Tuple[str, Optional[str], RP2Decimal, RP2Decimal, RP2Decimal, bool]
-# What a wallet holds at the end: (wallet, original lot, amount, cost basis, acquisition date).
-_Holding = Tuple[str, str, RP2Decimal, RP2Decimal, str]
+# A gain/loss reduced to values that can be compared: computed ones (see _to_tuples()) and expected ones (see _want_tuples()).
+class _GainLossTuple(NamedTuple):
+    taxable_event_unique_id: str
+    acquired_lot_unique_id: Optional[str]
+    crypto_amount: RP2Decimal
+    fiat_cost_basis: RP2Decimal
+    fiat_gain: RP2Decimal
+    is_long_term: bool
+
+
+# What a wallet holds at the end, for an original lot and acquisition date. Example: _Holding("Kraken", "i1", RP2Decimal("2"),
+# RP2Decimal("200"), "2024-01-01") means Kraken holds 2 coins of lot i1, with $200 of basis, acquired on January 1st, 2024.
+class _Holding(NamedTuple):
+    wallet: str
+    original_lot: str
+    amount: RP2Decimal
+    cost_basis: RP2Decimal
+    acquisition_date: str
+
+
+# The holdings of a wallet are merged by original lot and acquisition date (see _holdings()).
+class _HoldingKey(NamedTuple):
+    wallet: str
+    original_lot: str
+    acquisition_date: str
 
 
 def _sorted(gain_losses: List[_GainLossTuple]) -> List[_GainLossTuple]:
     return sorted(gain_losses, key=str)
 
 
-# What the wallets hold (ComputedData.wallet_lots), merged by wallet and original lot: (wallet, original lot, amount, cost basis, acquisition
-# date), sorted.
+# What the wallets hold (ComputedData.wallet_lots), merged by wallet, original lot and acquisition date, sorted.
 def _holdings(wallet_lots: List[WalletLot]) -> List[_Holding]:
-    holdings: Dict[Tuple[str, str, str], Tuple[RP2Decimal, RP2Decimal]] = {}
+    key_2_holding: Dict[_HoldingKey, _Holding] = {}
     for wallet_lot in wallet_lots:
-        key = (wallet_lot.account.exchange, wallet_lot.original_lot.unique_id, str(wallet_lot.acquisition_timestamp.date()))
-        held_amount, held_basis = holdings.get(key, (ZERO, ZERO))
-        holdings[key] = (held_amount + wallet_lot.amount, held_basis + wallet_lot.cost_basis)
-    return sorted((key[0], key[1], amount, basis, key[2]) for key, (amount, basis) in holdings.items())
+        key = _HoldingKey(wallet_lot.account.exchange, wallet_lot.original_lot.unique_id, str(wallet_lot.acquisition_timestamp.date()))
+        held = key_2_holding.get(key, _Holding(key.wallet, key.original_lot, ZERO, ZERO, key.acquisition_date))
+        key_2_holding[key] = held._replace(amount=held.amount + wallet_lot.amount, cost_basis=held.cost_basis + wallet_lot.cost_basis)
+    return sorted(key_2_holding.values())
 
 
 # Per-wallet settings in UTC with an unused basis allocation rule: the allocation method (by name, as in the configuration file) and the
@@ -238,7 +259,7 @@ class AbstractPerWalletTest(unittest.TestCase):
     @staticmethod
     def _to_tuples(gain_losses: List[GainLoss]) -> List[_GainLossTuple]:
         return [
-            (
+            _GainLossTuple(
                 gain_loss.taxable_event.unique_id,
                 gain_loss.acquired_lot.original_lot.unique_id if gain_loss.acquired_lot else None,
                 gain_loss.crypto_amount,
@@ -252,7 +273,7 @@ class AbstractPerWalletTest(unittest.TestCase):
     @staticmethod
     def _want_tuples(want: List[_GainLoss]) -> List[_GainLossTuple]:
         return [
-            (
+            _GainLossTuple(
                 w.taxable_event_unique_id,
                 w.acquired_lot_unique_id,
                 RP2Decimal(w.crypto_amount),

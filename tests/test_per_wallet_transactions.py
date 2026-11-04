@@ -16,7 +16,7 @@
 # by object identity, and it doesn't hand out its internal collections.
 
 import unittest
-from typing import Dict, List, Tuple, cast
+from typing import Dict, List, NamedTuple, cast
 
 from per_wallet_common import AbstractPerWalletTest, _In, _Out, _create_configuration
 
@@ -27,7 +27,7 @@ from rp2.abstract_accounting_method import (
 from rp2.acquisition_date_fifo import AcquisitionDateFifo
 from rp2.in_transaction import InTransaction
 from rp2.out_transaction import OutTransaction
-from rp2.per_wallet_transactions import PerWalletTransactions
+from rp2.per_wallet_transactions import LotPiece, PerWalletTransactions
 from rp2.plugin.accounting_method.hifo import AccountingMethod as AccountingMethodHIFO
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2RuntimeError, RP2TypeError, RP2ValueError
@@ -52,8 +52,15 @@ class _OldestFirst(AbstractFeatureBasedAccountingMethod):
         return "by_date"
 
 
+# A wallet with lots i1 (10 coins at $100) and i2 (10 coins at $300), and a sale o1 of 3 coins not yet added to the wallet.
+class _Wallet(NamedTuple):
+    wallet: PerWalletTransactions
+    lots: List[InTransaction]
+    out_transaction: OutTransaction
+
+
 class TestPerWalletTransactions(AbstractPerWalletTest):
-    def _create(self) -> Tuple[PerWalletTransactions, List[InTransaction], OutTransaction]:
+    def _create(self) -> _Wallet:
         configuration = _create_configuration()
         input_data = self._create_input_data(
             configuration,
@@ -68,7 +75,7 @@ class TestPerWalletTransactions(AbstractPerWalletTest):
         wallet = PerWalletTransactions(configuration, "B1", [AcquisitionDateFifo(), AccountingMethodHIFO()])
         for lot in lots:
             wallet.add_acquired_lot(lot)
-        return wallet, lots, out_transaction
+        return _Wallet(wallet, lots, out_transaction)
 
     # Before R13 the lot candidates were keyed by the method object: taking funds with another object of the same method failed (KeyError).
     # Example: the wallet was created with one HIFO object, and a sale used a new one.
@@ -76,14 +83,12 @@ class TestPerWalletTransactions(AbstractPerWalletTest):
         wallet, lots, _ = self._create()
         pieces, missing_amount = wallet.take(AccountingMethodHIFO(), RP2Decimal("3"))
         self.assertEqual(missing_amount, ZERO)
-        got: List[Tuple[InTransaction, RP2Decimal]] = [(piece.acquired_lot, piece.amount) for piece in pieces]
-        want: List[Tuple[InTransaction, RP2Decimal]] = [(lots[1], RP2Decimal("3"))]
-        self.assertEqual(got, want)
+        want: List[LotPiece] = [LotPiece(lots[1], RP2Decimal("3"))]
+        self.assertEqual(pieces, want)
         # Per-wallet FIFO and HIFO share the amounts left in each lot: FIFO now takes from i1, untouched, then from what's left of i2.
         pieces, _ = wallet.take(AcquisitionDateFifo(), RP2Decimal("11"))
-        got = [(piece.acquired_lot, piece.amount) for piece in pieces]
-        want = [(lots[0], RP2Decimal("10")), (lots[1], RP2Decimal("1"))]
-        self.assertEqual(got, want)
+        want = [LotPiece(lots[0], RP2Decimal("10")), LotPiece(lots[1], RP2Decimal("1"))]
+        self.assertEqual(pieces, want)
 
     # A method with the same name but a different class orders lots differently: it's rejected rather than given the other method's lots.
     def test_same_name_different_class_is_rejected(self) -> None:

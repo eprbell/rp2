@@ -15,7 +15,7 @@
 import logging
 from datetime import date
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, NamedTuple, Optional, Set, Union
 
 from rp2.abstract_country import AbstractCountry
 from rp2.account import Account
@@ -36,6 +36,15 @@ _UNUSED_LOTS: str = "Unused Lots"
 _ALLOCATION: str = "Allocation"
 _TEMPLATE_SHEETS: Set[str] = {_SUMMARY, _WALLETS, _UNUSED_LOTS, _ALLOCATION}
 _TEMPLATE_SHEETS_TO_KEEP: Set[str] = {"__" + sheet_name for sheet_name in _TEMPLATE_SHEETS}
+
+
+# A cell of a total row: its value and its data style (the number format: "crypto", "fiat" or "default").
+class _TotalCell(NamedTuple):
+    value: Union[RP2Decimal, int, str]
+    data_style: str
+
+
+_EMPTY_TOTAL_CELL: _TotalCell = _TotalCell("", "default")
 
 
 # The opening allocation report: how the cost basis of the units held at the switch to per-wallet application was assigned to the wallets
@@ -360,10 +369,10 @@ class Generator(AbstractODSGenerator):
             opening_allocation.asset,
             8,
             {
-                4: (opening_allocation.opening_balance, "crypto"),
-                5: (opening_allocation.allocated_crypto, "crypto"),
-                6: (opening_allocation.allocated_cost_basis, "fiat"),
-                7: (len(opening_allocation.allocated_lots), "default"),
+                4: _TotalCell(opening_allocation.opening_balance, "crypto"),
+                5: _TotalCell(opening_allocation.allocated_crypto, "crypto"),
+                6: _TotalCell(opening_allocation.allocated_cost_basis, "fiat"),
+                7: _TotalCell(len(opening_allocation.allocated_lots), "default"),
             },
         )
         return row_index + 1
@@ -392,7 +401,7 @@ class Generator(AbstractODSGenerator):
             row_index,
             opening_allocation.asset,
             13,
-            {10: (opening_allocation.unused_crypto, "crypto"), 12: (opening_allocation.unused_cost_basis, "fiat")},
+            {10: _TotalCell(opening_allocation.unused_crypto, "crypto"), 12: _TotalCell(opening_allocation.unused_cost_basis, "fiat")},
         )
         return row_index + 1
 
@@ -416,17 +425,17 @@ class Generator(AbstractODSGenerator):
             row_index,
             opening_allocation.asset,
             9,
-            {6: (opening_allocation.allocated_crypto, "crypto"), 8: (opening_allocation.allocated_cost_basis, "fiat")},
+            {6: _TotalCell(opening_allocation.allocated_crypto, "crypto"), 8: _TotalCell(opening_allocation.allocated_cost_basis, "fiat")},
         )
         return row_index + 1
 
-    # The total row of an asset: "Total" and the asset, then the given (value, data style) by column, in bold.
-    def __fill_total_row(self, sheet: Any, row_index: int, asset: str, column_count: int, column_2_value: Dict[int, Tuple[Any, str]]) -> None:
+    # The total row of an asset, in bold: "Total" and the asset in the first column, then the given cells by column (the other columns are
+    # empty). Example: {4: _TotalCell(RP2Decimal("1.5"), "crypto")} writes 1.5 with the crypto format in column 4.
+    def __fill_total_row(self, sheet: Any, row_index: int, asset: str, column_count: int, column_2_cell: Dict[int, _TotalCell]) -> None:
         for column in range(column_count):
-            value, data_style = column_2_value.get(column, ("", "default"))
-            if column == 0:
-                value = f"{_('Total')} {asset}"
-            self._fill_cell(sheet, row_index, column, value, visual_style="bold_border", data_style=data_style)
+            cell: _TotalCell = column_2_cell.get(column, _EMPTY_TOTAL_CELL)
+            value: Union[RP2Decimal, int, str] = f"{_('Total')} {asset}" if column == 0 else cell.value
+            self._fill_cell(sheet, row_index, column, value, visual_style="bold_border", data_style=cell.data_style)
 
 
 # Original acquisition date of a lot: the date of its cost_basis_timestamp in the tax time zone (see Configuration.tax_timezone).

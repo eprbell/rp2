@@ -105,8 +105,33 @@ class _Scenario(NamedTuple):
     automatic: bool = False
 
 
-# Expected allocated piece: (wallet, lot, coins, cost basis, acquisition date).
-_Piece = Tuple[Account, str, RP2Decimal, RP2Decimal, str]
+# An allocated piece: the wallet it went to, its lot, coins, cost basis and acquisition date.
+class _Piece(NamedTuple):
+    wallet: Account
+    lot: str
+    coins: RP2Decimal
+    cost_basis: RP2Decimal
+    acquisition_date: str
+
+
+# What a wallet holds of a lot at the end.
+class _Held(NamedTuple):
+    coins: RP2Decimal
+    cost_basis: RP2Decimal
+    acquisition_date: str
+
+
+# A wallet and one of the original lots it holds.
+class _HeldLot(NamedTuple):
+    wallet: Account
+    lot: str
+
+
+# Result of an allocation run (see TestOpeningAllocationMatrix._allocate()).
+class _AllocationRun(NamedTuple):
+    opening_allocation: Optional[OpeningAllocation]
+    holdings: Dict[_HeldLot, _Held]
+
 
 _SCENARIOS: List[_Scenario] = [
     _Scenario(
@@ -320,20 +345,18 @@ def _per_wallet_configuration(method_name: str, wallet_order: Tuple[Account, ...
 
 
 class TestOpeningAllocationMatrix(AbstractPerWalletTest):
-    def _allocate(
-        self, transactions: List[object], method_name: str, wallet_order: Tuple[Account, ...]
-    ) -> Tuple[Optional[OpeningAllocation], Dict[Tuple[Account, str], Tuple[RP2Decimal, RP2Decimal, str]]]:
+    def _allocate(self, transactions: List[object], method_name: str, wallet_order: Tuple[Account, ...]) -> _AllocationRun:
         configuration = _create_configuration(_per_wallet_configuration(method_name, wallet_order))
         input_data = self._create_input_data(configuration, transactions)
         method = _METHODS[method_name]
         computed_data = compute_tax_per_wallet(configuration, self._create_accounting_engine({1970: method}), input_data)
-        # What each wallet holds at the end, merged by original lot: (coins, cost basis, acquisition date).
-        holdings: Dict[Tuple[Account, str], Tuple[RP2Decimal, RP2Decimal, str]] = {}
+        # What each wallet holds at the end, merged by original lot.
+        holdings: Dict[_HeldLot, _Held] = {}
         for wallet_lot in computed_data.wallet_lots or []:
-            key = (wallet_lot.account, wallet_lot.original_lot.unique_id)
-            amount, basis, _ = holdings.get(key, (ZERO, ZERO, ""))
-            holdings[key] = (amount + wallet_lot.amount, basis + wallet_lot.cost_basis, str(wallet_lot.acquisition_timestamp.date()))
-        return computed_data.opening_allocation, holdings
+            key = _HeldLot(wallet_lot.account, wallet_lot.original_lot.unique_id)
+            held = holdings.get(key, _Held(ZERO, ZERO, ""))
+            holdings[key] = _Held(held.coins + wallet_lot.amount, held.cost_basis + wallet_lot.cost_basis, str(wallet_lot.acquisition_timestamp.date()))
+        return _AllocationRun(computed_data.opening_allocation, holdings)
 
     # Each scenario with each method: the unused lots (in the order of the method), the allocated pieces (in the order they are allocated,
     # with the cost basis and acquisition date of their lot), whether the allocation is automatic, and what the wallets hold afterwards.
@@ -354,7 +377,7 @@ class TestOpeningAllocationMatrix(AbstractPerWalletTest):
                     self.assertEqual(got_unused_lots, want_unused_lots)
 
                     got_pieces: List[_Piece] = [
-                        (
+                        _Piece(
                             Account(piece.exchange, piece.holder),
                             piece.original_lot.unique_id,
                             piece.crypto_in,
@@ -364,7 +387,7 @@ class TestOpeningAllocationMatrix(AbstractPerWalletTest):
                         for piece in opening_allocation.allocated_lots
                     ]
                     want_pieces: List[_Piece] = [
-                        (wallet, lot, RP2Decimal(coins), lot_2_price_and_date[lot][0] * RP2Decimal(coins), lot_2_price_and_date[lot][1])
+                        _Piece(wallet, lot, RP2Decimal(coins), lot_2_price_and_date[lot][0] * RP2Decimal(coins), lot_2_price_and_date[lot][1])
                         for wallet, lot, coins in scenario.method_2_pieces[method_name]
                     ]
                     self.assertEqual(got_pieces, want_pieces)
@@ -381,10 +404,11 @@ class TestOpeningAllocationMatrix(AbstractPerWalletTest):
                         self.assertEqual(opening_allocation.get_opening_balance(wallet), received, msg=f"{wallet}")
 
                     # Without transactions after the switch, the wallets hold their pieces, merged by lot.
-                    want_holdings: Dict[Tuple[Account, str], Tuple[RP2Decimal, RP2Decimal, str]] = {}
-                    for wallet, lot, amount, basis, day in want_pieces:
-                        held_amount, held_basis, _ = want_holdings.get((wallet, lot), (ZERO, ZERO, ""))
-                        want_holdings[(wallet, lot)] = (held_amount + amount, held_basis + basis, day)
+                    want_holdings: Dict[_HeldLot, _Held] = {}
+                    for piece in want_pieces:
+                        key = _HeldLot(piece.wallet, piece.lot)
+                        held = want_holdings.get(key, _Held(ZERO, ZERO, ""))
+                        want_holdings[key] = _Held(held.coins + piece.coins, held.cost_basis + piece.cost_basis, piece.acquisition_date)
                     self.assertEqual(holdings, want_holdings)
 
     # The prototype rejected an empty input. RP2 has no such input: an asset without transactions before the switch has nothing to allocate.

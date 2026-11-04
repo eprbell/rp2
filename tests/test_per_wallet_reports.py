@@ -55,6 +55,13 @@ from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.tax_engine import compute_tax, compute_tax_per_wallet
 
 
+# The expected rows of an asset in the Wallets, Unused Lots and Allocation sheets of the opening allocation report.
+class _OpeningAllocationRows(NamedTuple):
+    wallets: List[List[str]]
+    unused_lots: List[List[str]]
+    allocation: List[List[str]]
+
+
 class TestPerWalletReports(AbstractPerWalletTest):
     def test_reports_with_artificial_lots(self) -> None:
         # Gain/losses on artificial lots (transfer destinations, unused basis allocation) must not break report generation, and Form 8949
@@ -416,7 +423,7 @@ class TestPerWalletReports(AbstractPerWalletTest):
                     assert wallet_lots is not None
                     if case.want_holdings is not None:
                         want_holdings: List[_Holding] = [
-                            (wallet, lot, RP2Decimal(amount), RP2Decimal(basis), day) for wallet, lot, amount, basis, day in case.want_holdings
+                            _Holding(wallet, lot, RP2Decimal(amount), RP2Decimal(basis), day) for wallet, lot, amount, basis, day in case.want_holdings
                         ]
                         self.assertEqual(_holdings(wallet_lots), want_holdings)
 
@@ -464,7 +471,7 @@ class TestPerWalletReports(AbstractPerWalletTest):
         self.assertTrue(any("the lots of Coinbase/Bob add up to 0.99899999" in message for message in logs.output), msg=str(logs.output))
         wallet_lots = computed_data.wallet_lots
         assert wallet_lots is not None
-        want_holdings: List[_Holding] = [("Coinbase", "i1", RP2Decimal("0.99899999"), RP2Decimal("99.899999"), "2025-01-02")]
+        want_holdings: List[_Holding] = [_Holding("Coinbase", "i1", RP2Decimal("0.99899999"), RP2Decimal("99.899999"), "2025-01-02")]
         self.assertEqual(_holdings(wallet_lots), want_holdings)
 
         output_dir = Path("output") / Path("test_per_wallet_reports_inconsistent_sale")
@@ -540,9 +547,7 @@ class TestPerWalletReports(AbstractPerWalletTest):
             return str(float(value))
 
         # The expected rows of an asset in the Wallets, Unused Lots and Allocation sheets.
-        def want_asset_rows(
-            asset: str, wallet_order: List[str], allocation: Tuple[List[str], List[Tuple[str, str, str]]]
-        ) -> Tuple[List[List[str]], List[List[str]], List[List[str]]]:
+        def want_asset_rows(asset: str, wallet_order: List[str], allocation: Tuple[List[str], List[Tuple[str, str, str]]]) -> _OpeningAllocationRows:
             lot_order, pieces = allocation
             unused_rows: List[List[str]] = []
             for order, lot in enumerate(lot_order, start=1):
@@ -572,7 +577,7 @@ class TestPerWalletReports(AbstractPerWalletTest):
                     [asset, number(RP2Decimal(order)), wallet, "Bob", number(crypto), number(crypto), number(basis), number(RP2Decimal(len(wallet_pieces)))]
                 )
             wallet_rows.append([f"Total {asset}", "", "", "", number(total_crypto), number(total_crypto), number(total_basis), number(RP2Decimal(len(pieces)))])
-            return wallet_rows, unused_rows, allocation_rows
+            return _OpeningAllocationRows(wallet_rows, unused_rows, allocation_rows)
 
         set_generation_language("en")
         output_dir = Path("output") / Path("test_per_wallet_reports_opening_allocation")

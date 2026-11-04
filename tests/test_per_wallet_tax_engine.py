@@ -77,6 +77,12 @@ class _Test:
     same_as_universal: bool = False
 
 
+# Result of a per-wallet run with an unused basis allocation (see TestPerWalletTaxEngine._run_with_allocation()).
+class _AllocationRun(NamedTuple):
+    gain_losses: List[_GainLossTuple]
+    holdings: List[_Holding]
+
+
 class TestPerWalletTaxEngine(AbstractPerWalletTest):
     def _run_test(self, test: _Test, country: Optional[AbstractCountry] = None) -> None:
         configuration = _create_configuration(test.per_wallet_configuration, country)
@@ -446,7 +452,7 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
 
     # Runs per-wallet application with an unused basis allocation at the switch (wallet order: Coinbase, Kraken, BlockFi) and returns its
     # gain/losses and what each wallet holds at the end (see _holdings()).
-    def _run_with_allocation(self, transactions: List[object], method: AbstractAccountingMethod) -> Tuple[List[_GainLossTuple], List[_Holding]]:
+    def _run_with_allocation(self, transactions: List[object], method: AbstractAccountingMethod) -> _AllocationRun:
         configuration = _create_configuration(_allocation_config((_COINBASE, _KRAKEN, _BLOCKFI)))
         computed_data = compute_tax_per_wallet(
             configuration,
@@ -456,7 +462,7 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
         gain_losses = self._to_tuples([gain_loss for gain_loss in computed_data.gain_loss_set if isinstance(gain_loss, GainLoss)])
         wallet_lots = computed_data.wallet_lots
         assert wallet_lots is not None
-        return gain_losses, _holdings(wallet_lots)
+        return _AllocationRun(gain_losses, _holdings(wallet_lots))
 
     # R03 from the review of eprbell/rp2#155: lots allocated at the switch must survive round trips between wallets.
     #
@@ -593,7 +599,7 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
                     got_gain_losses, got_holdings = self._run_with_allocation(case.transactions, method)
                     self.assertEqual(_sorted(got_gain_losses), _sorted(self._want_tuples(case.want_gain_losses)))
                     want_holdings: List[_Holding] = [
-                        (wallet, lot, RP2Decimal(amount), RP2Decimal(basis), date) for wallet, lot, amount, basis, date in case.want_holdings
+                        _Holding(wallet, lot, RP2Decimal(amount), RP2Decimal(basis), date) for wallet, lot, amount, basis, date in case.want_holdings
                     ]
                     self.assertEqual(got_holdings, want_holdings)
 
@@ -649,7 +655,7 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
                 wallet_lots = computed_data.wallet_lots
                 assert wallet_lots is not None
                 want_holdings: List[_Holding] = [
-                    (wallet, lot, RP2Decimal(amount), RP2Decimal(basis), day) for wallet, lot, amount, basis, day in case.want_holdings
+                    _Holding(wallet, lot, RP2Decimal(amount), RP2Decimal(basis), day) for wallet, lot, amount, basis, day in case.want_holdings
                 ]
                 self.assertEqual(_holdings(wallet_lots), want_holdings)
                 wallets = sorted(
@@ -777,7 +783,7 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
                     continue
                 assert wallet_lots is not None
                 want_holdings: List[_Holding] = [
-                    (wallet, lot, RP2Decimal(amount), RP2Decimal(basis), day) for wallet, lot, amount, basis, day in case.want_holdings
+                    _Holding(wallet, lot, RP2Decimal(amount), RP2Decimal(basis), day) for wallet, lot, amount, basis, day in case.want_holdings
                 ]
                 self.assertEqual(_holdings(wallet_lots), want_holdings)
 

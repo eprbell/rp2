@@ -214,34 +214,59 @@ class _Lot(NamedTuple):
     cost_per_coin: RP2Decimal
 
 
-# Disposal and income of the model: (taxable event unique id, lot unique id or "" for income) -> coins.
-_Pairings = Dict[Tuple[str, str], RP2Decimal]
-# What the wallets hold: (wallet, lot unique id) -> coins.
-_Holdings = Dict[Tuple[Account, str], RP2Decimal]
+# A taxable event of the model and the lot it used: the lot unique id is "" for income, which uses no lot.
+class _PairingKey(NamedTuple):
+    taxable_event_id: str
+    lot_id: str
+
+
+# A wallet of the model and a lot it holds.
+class _HoldingKey(NamedTuple):
+    wallet: Account
+    lot_id: str
+
+
+# Coins taken from a lot (see _take()), or the coins of a lot left unused at the switch.
+class _ModelPiece(NamedTuple):
+    lot_id: str
+    coins: RP2Decimal
+
+
+# Coins of an unused lot allocated to a wallet at the switch.
+class _ModelAllocatedPiece(NamedTuple):
+    wallet: Account
+    lot_id: str
+    coins: RP2Decimal
+
+
+# Disposal and income of the model: coins of each lot used by each taxable event.
+_Pairings = Dict[_PairingKey, RP2Decimal]
+# What the wallets hold: coins of each lot in each wallet.
+_Holdings = Dict[_HoldingKey, RP2Decimal]
 
 
 class _ModelResult(NamedTuple):
     lots: Dict[str, _Lot]
     pairings: _Pairings
     holdings: Optional[_Holdings]
-    # Unused lots in the order of the allocation method, (lot unique id, coins), and allocated pieces (wallet, lot unique id, coins), if
-    # there is an opening allocation.
-    unused_lots: Optional[List[Tuple[str, RP2Decimal]]]
-    pieces: Optional[List[Tuple[Account, str, RP2Decimal]]]
+    # Unused lots in the order of the allocation method and allocated pieces in the order they are allocated, if there is an opening
+    # allocation.
+    unused_lots: Optional[List[_ModelPiece]]
+    pieces: Optional[List[_ModelAllocatedPiece]]
     automatic: bool
     wallet_balances: Dict[Account, RP2Decimal]
 
 
-# Order of lots for a method: the first lot is used first.
-def _lot_order(method: str, lot: _Lot) -> Tuple[RP2Decimal, ...]:
+# Order of lots for a method: the lot with the smallest key is used first (lots with the same key keep their order).
+def _lot_order(method: str, lot: _Lot) -> RP2Decimal:
     instant = RP2Decimal(repr(lot.timestamp.timestamp()))
     if method == "fifo":
-        return (instant,)
+        return instant
     if method == "lifo":
-        return (-instant,)
+        return -instant
     if method == "hifo":
-        return (-lot.price,)
-    return (lot.price,)
+        return -lot.price
+    return lot.price
 
 
 def _unique_id(row: int) -> str:
@@ -249,23 +274,24 @@ def _unique_id(row: int) -> str:
 
 
 # Takes coins from lots (lot unique id -> coins), in the order of the method: returns the pieces taken, in order.
-def _take(lots: Dict[str, _Lot], available: Dict[str, RP2Decimal], method: str, amount: RP2Decimal) -> List[Tuple[str, RP2Decimal]]:
-    result: List[Tuple[str, RP2Decimal]] = []
+def _take(lots: Dict[str, _Lot], available: Dict[str, RP2Decimal], method: str, amount: RP2Decimal) -> List[_ModelPiece]:
+    result: List[_ModelPiece] = []
     for unique_id in sorted((unique_id for unique_id, coins in available.items() if coins > ZERO), key=lambda unique_id: _lot_order(method, lots[unique_id])):
         if amount <= ZERO:
             break
         piece = min(amount, available[unique_id])
         available[unique_id] -= piece
         amount -= piece
-        result.append((unique_id, piece))
+        result.append(_ModelPiece(unique_id, piece))
     if amount > ZERO:
         raise ValueError(f"Model error: {amount} coins missing")
     return result
 
 
-def _add_pairings(pairings: _Pairings, event_id: str, pieces: List[Tuple[str, RP2Decimal]]) -> None:
-    for unique_id, coins in pieces:
-        pairings[(event_id, unique_id)] = pairings.get((event_id, unique_id), ZERO) + coins
+def _add_pairings(pairings: _Pairings, event_id: str, pieces: List[_ModelPiece]) -> None:
+    for piece in pieces:
+        key = _PairingKey(event_id, piece.lot_id)
+        pairings[key] = pairings.get(key, ZERO) + piece.coins
 
 
 def _run_model(history: _History) -> _ModelResult:  # pylint: disable=too-many-locals,too-many-branches
@@ -293,7 +319,7 @@ def _run_model(history: _History) -> _ModelResult:  # pylint: disable=too-many-l
             pool[event_id] = step.amount
             balances[step.account] = balances.get(step.account, ZERO) + step.amount
             if step.transaction_type in _EARN_TYPES:
-                pairings[(event_id, "")] = step.amount
+                pairings[_PairingKey(event_id, "")] = step.amount
         elif step.kind == "out":
             _add_pairings(pairings, event_id, _take(lots, pool, method, step.amount + step.fee))
             # Balances only matter at the switch: in this order a sale can come before the transfer that funded it at the same instant.
@@ -308,19 +334,20 @@ def _run_model(history: _History) -> _ModelResult:  # pylint: disable=too-many-l
 
     # At the switch: the unused lots go to the wallets that hold coins, in the wallet order (or all to the only one).
     wallets: Dict[Account, Dict[str, RP2Decimal]] = {}
-    unused_lots: Optional[List[Tuple[str, RP2Decimal]]] = None
-    pieces: Optional[List[Tuple[Account, str, RP2Decimal]]] = None
+    unused_lots: Optional[List[_ModelPiece]] = None
+    pieces: Optional[List[_ModelAllocatedPiece]] = None
     funded = [account for account in history.wallet_order if balances.get(account, ZERO) > ZERO]
     automatic = len(funded) == 1
     if funded:
         unused = {unique_id: coins for unique_id, coins in pool.items() if coins > ZERO}
         unused_lots = [
-            (unique_id, unused[unique_id]) for unique_id in sorted(unused, key=lambda unique_id: _lot_order(history.allocation_method, lots[unique_id]))
+            _ModelPiece(unique_id, unused[unique_id])
+            for unique_id in sorted(unused, key=lambda unique_id: _lot_order(history.allocation_method, lots[unique_id]))
         ]
         pieces = []
         for account in funded:
             for unique_id, coins in _take(lots, unused, history.allocation_method, balances[account]):
-                pieces.append((account, unique_id, coins))
+                pieces.append(_ModelAllocatedPiece(account, unique_id, coins))
                 wallets.setdefault(account, {})[unique_id] = wallets.get(account, {}).get(unique_id, ZERO) + coins
 
     # After the switch: each wallet has its own lots.
@@ -332,7 +359,7 @@ def _run_model(history: _History) -> _ModelResult:  # pylint: disable=too-many-l
         if step.kind == "in":
             wallets.setdefault(step.account, {})[event_id] = step.amount
             if step.transaction_type in _EARN_TYPES:
-                pairings[(event_id, "")] = step.amount
+                pairings[_PairingKey(event_id, "")] = step.amount
         elif step.kind == "out":
             _add_pairings(pairings, event_id, _take(lots, wallets[step.account], method, step.amount + step.fee))
         else:
@@ -341,12 +368,14 @@ def _run_model(history: _History) -> _ModelResult:  # pylint: disable=too-many-l
             for unique_id, coins in taken:
                 fee_piece = min(fee_left, coins)
                 if fee_piece > ZERO:
-                    _add_pairings(pairings, event_id, [(unique_id, fee_piece)])
+                    _add_pairings(pairings, event_id, [_ModelPiece(unique_id, fee_piece)])
                     fee_left -= fee_piece
                 if coins > fee_piece:
                     destination = wallets.setdefault(step.to_account, {})
                     destination[unique_id] = destination.get(unique_id, ZERO) + coins - fee_piece
-    holdings: _Holdings = {(account, unique_id): coins for account, lot_coins in wallets.items() for unique_id, coins in lot_coins.items() if coins > ZERO}
+    holdings: _Holdings = {
+        _HoldingKey(account, unique_id): coins for account, lot_coins in wallets.items() for unique_id, coins in lot_coins.items() if coins > ZERO
+    }
     return _ModelResult(lots, pairings, holdings, unused_lots, pieces, automatic, balances)
 
 
@@ -410,7 +439,13 @@ def _create_input_data(configuration: Configuration, steps: List[_Step]) -> Inpu
     return InputData(_ASSET, sets["IN"], sets["OUT"], sets["INTRA"], from_date=configuration.from_date, to_date=configuration.to_date)
 
 
-def _compute(history: _History) -> Tuple[Configuration, ComputedData]:
+# RP2's results for a history, and the configuration they were computed with.
+class _ComputedHistory(NamedTuple):
+    configuration: Configuration
+    computed_data: ComputedData
+
+
+def _compute(history: _History) -> _ComputedHistory:
     per_wallet_configuration = PerWalletConfiguration(
         timezone_name=history.zone, unused_basis_allocation_method=history.allocation_method, unused_basis_allocation_wallet_order=history.wallet_order
     )
@@ -419,7 +454,7 @@ def _compute(history: _History) -> Tuple[Configuration, ComputedData]:
     for year, method in ((1970, history.year_2_method[2024]), (2025, history.year_2_method[2025]), (2026, history.year_2_method[2026])):
         tree.insert_node(year, _METHODS[method])
     input_data = _create_input_data(configuration, history.steps)
-    return configuration, compute_tax_per_wallet(configuration, AccountingEngine(tree), input_data)
+    return _ComputedHistory(configuration, compute_tax_per_wallet(configuration, AccountingEngine(tree), input_data))
 
 
 def _close(first: RP2Decimal, second: RP2Decimal) -> bool:
@@ -443,15 +478,15 @@ class TestPerWalletModel(unittest.TestCase):
 
         # Disposals and income: coins and cost basis of each lot used by each taxable event.
         got_coins: _Pairings = {}
-        got_basis: Dict[Tuple[str, str], RP2Decimal] = {}
+        got_basis: Dict[_PairingKey, RP2Decimal] = {}
         for gain_loss in computed_data.gain_loss_set:
             assert isinstance(gain_loss, GainLoss)
-            key = (gain_loss.taxable_event.unique_id, gain_loss.acquired_lot.original_lot.unique_id if gain_loss.acquired_lot else "")
+            key = _PairingKey(gain_loss.taxable_event.unique_id, gain_loss.acquired_lot.original_lot.unique_id if gain_loss.acquired_lot else "")
             got_coins[key] = got_coins.get(key, ZERO) + gain_loss.crypto_amount
             got_basis[key] = got_basis.get(key, ZERO) + (gain_loss.fiat_cost_basis if gain_loss.acquired_lot else ZERO)
         self.assertEqual(got_coins, model.pairings)
         for key, coins in model.pairings.items():
-            want_basis = coins * model.lots[key[1]].cost_per_coin if key[1] else ZERO
+            want_basis = coins * model.lots[key.lot_id].cost_per_coin if key.lot_id else ZERO
             self.assertTrue(_close(got_basis[key], want_basis), msg=f"{key}: {got_basis[key]} != {want_basis}")
 
         # Holdings: RP2 has none (universal application) if the report ends before the switch.
@@ -463,7 +498,7 @@ class TestPerWalletModel(unittest.TestCase):
         assert wallet_lots is not None
         got_holdings: _Holdings = {}
         for wallet_lot in wallet_lots:
-            key2 = (wallet_lot.account, wallet_lot.original_lot.unique_id)
+            key2 = _HoldingKey(wallet_lot.account, wallet_lot.original_lot.unique_id)
             got_holdings[key2] = got_holdings.get(key2, ZERO) + wallet_lot.amount
             # A held piece keeps the cost per coin and the acquisition date of its lot.
             lot = model.lots[wallet_lot.original_lot.unique_id]
@@ -477,10 +512,11 @@ class TestPerWalletModel(unittest.TestCase):
             self.assertIsNone(opening_allocation)
             return
         assert opening_allocation is not None
-        got_unused_lots: List[Tuple[str, RP2Decimal]] = [(lot.acquired_lot.unique_id, lot.amount) for lot in opening_allocation.unused_lots]
+        got_unused_lots: List[_ModelPiece] = [_ModelPiece(lot.acquired_lot.unique_id, lot.amount) for lot in opening_allocation.unused_lots]
         self.assertEqual(got_unused_lots, model.unused_lots)
-        got_pieces: List[Tuple[Account, str, RP2Decimal]] = [
-            (Account(piece.exchange, piece.holder), piece.original_lot.unique_id, piece.crypto_in) for piece in opening_allocation.allocated_lots
+        got_pieces: List[_ModelAllocatedPiece] = [
+            _ModelAllocatedPiece(Account(piece.exchange, piece.holder), piece.original_lot.unique_id, piece.crypto_in)
+            for piece in opening_allocation.allocated_lots
         ]
         self.assertEqual(got_pieces, model.pieces)
         self.assertEqual(opening_allocation.is_automatic, model.automatic)

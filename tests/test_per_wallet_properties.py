@@ -25,7 +25,7 @@
 
 import unittest
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, NamedTuple, Optional, Set, Tuple
+from typing import Dict, List, NamedTuple, Optional, Set
 
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
@@ -212,27 +212,44 @@ def _get_actual_amount(input_data: InputData, lot: object) -> RP2Decimal:
     return input_data.in_transaction_2_actual_amount.get(lot, lot.crypto_in)
 
 
-def _universal_gain_losses(configuration: Configuration, input_data: InputData) -> List[Tuple[str, str, RP2Decimal, RP2Decimal]]:
+# A pairing: the taxable event and the original (input) lot it was paired with ("" for income, which has no lot).
+class _Pairing(NamedTuple):
+    taxable_event_id: str
+    original_lot_id: str
+
+
+def _get_pairing(gain_loss: GainLoss) -> _Pairing:
+    return _Pairing(gain_loss.taxable_event.internal_id, gain_loss.acquired_lot.original_lot.internal_id if gain_loss.acquired_lot else "")
+
+
+# The coins and the cost basis of a pairing.
+class _PairedAmounts(NamedTuple):
+    crypto_amount: RP2Decimal
+    fiat_cost_basis: RP2Decimal
+
+
+# A gain/loss of universal application, reduced to values that can be compared.
+class _UniversalGainLoss(NamedTuple):
+    pairing: _Pairing
+    amounts: _PairedAmounts
+
+
+def _universal_gain_losses(configuration: Configuration, input_data: InputData) -> List[_UniversalGainLoss]:
     computed_data = compute_tax(configuration, _accounting_engine(AccountingMethodFIFO()), input_data)
-    return sorted(_gain_loss_key(gain_loss) for gain_loss in computed_data.gain_loss_set if isinstance(gain_loss, GainLoss))
-
-
-def _gain_loss_key(gain_loss: GainLoss) -> Tuple[str, str, RP2Decimal, RP2Decimal]:
-    return (
-        gain_loss.taxable_event.internal_id,
-        gain_loss.acquired_lot.original_lot.internal_id if gain_loss.acquired_lot else "",
-        gain_loss.crypto_amount,
-        gain_loss.fiat_cost_basis,
+    return sorted(
+        _UniversalGainLoss(_get_pairing(gain_loss), _PairedAmounts(gain_loss.crypto_amount, gain_loss.fiat_cost_basis))
+        for gain_loss in computed_data.gain_loss_set
+        if isinstance(gain_loss, GainLoss)
     )
 
 
-def _merge_gain_losses(gain_losses: List[GainLoss]) -> Dict[Tuple[str, str], Tuple[RP2Decimal, RP2Decimal]]:
-    # Per-wallet may split a pairing in several pieces (one per artificial lot): merge them by (taxable event, original lot).
-    result: Dict[Tuple[str, str], Tuple[RP2Decimal, RP2Decimal]] = {}
+def _merge_gain_losses(gain_losses: List[GainLoss]) -> Dict[_Pairing, _PairedAmounts]:
+    # Per-wallet may split a pairing in several pieces (one per artificial lot): merge them by pairing (taxable event, original lot).
+    result: Dict[_Pairing, _PairedAmounts] = {}
     for gain_loss in gain_losses:
-        key = (gain_loss.taxable_event.internal_id, gain_loss.acquired_lot.original_lot.internal_id if gain_loss.acquired_lot else "")
-        amount, basis = result.get(key, (ZERO, ZERO))
-        result[key] = (amount + gain_loss.crypto_amount, basis + gain_loss.fiat_cost_basis)
+        pairing = _get_pairing(gain_loss)
+        merged = result.get(pairing, _PairedAmounts(ZERO, ZERO))
+        result[pairing] = _PairedAmounts(merged.crypto_amount + gain_loss.crypto_amount, merged.fiat_cost_basis + gain_loss.fiat_cost_basis)
     return result
 
 
