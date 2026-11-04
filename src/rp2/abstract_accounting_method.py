@@ -19,7 +19,7 @@
 
 from enum import Enum
 from heapq import heappop, heappush
-from typing import cast, Dict, List, NamedTuple, Optional, Tuple, Union
+from typing import Dict, List, NamedTuple, Optional, Tuple, Union, cast
 
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal

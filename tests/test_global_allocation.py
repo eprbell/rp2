@@ -15,17 +15,16 @@
 # pylint: disable=too-many-lines
 
 import unittest
-
 from typing import List
 
-from global_allocation_common import _Test, AbstractGlobalAllocation
+from global_allocation_common import AbstractGlobalAllocation, _Test
+from transaction_processing_common import InTransactionDescriptor, IntraTransactionDescriptor, OutTransactionDescriptor
+
 from rp2.account import Account
 from rp2.plugin.accounting_method.fifo import AccountingMethod as AccountingMethodFIFO
-from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMethodLIFO
 from rp2.plugin.accounting_method.hifo import AccountingMethod as AccountingMethodHIFO
+from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMethodLIFO
 from rp2.plugin.accounting_method.lofo import AccountingMethod as AccountingMethodLOFO
-
-from transaction_processing_common import InTransactionDescriptor, IntraTransactionDescriptor, OutTransactionDescriptor
 
 
 # These tests are independent of the accounting method, so they are repeated for all accounting methods.

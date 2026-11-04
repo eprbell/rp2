@@ -24,10 +24,7 @@
 
 from typing import List, NamedTuple
 
-from rp2.abstract_accounting_method import (
-    AbstractAccountingMethod,
-    AbstractAcquiredLotCandidates,
-)
+from rp2.abstract_accounting_method import AbstractAccountingMethod, AbstractAcquiredLotCandidates
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.configuration import Configuration
 from rp2.gain_loss import GainLoss

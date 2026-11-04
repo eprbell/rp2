@@ -20,7 +20,7 @@ import unittest
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple, cast
 
-from per_wallet_common import AbstractPerWalletTest, _In, _Out, _create_configuration
+from per_wallet_common import AbstractPerWalletTest, _create_configuration, _In, _Out
 from prezzemolo.avl_tree import AVLTree
 
 from rp2.abstract_accounting_method import AbstractAccountingMethod

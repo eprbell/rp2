@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from rp2.abstract_accounting_method import (
-    AbstractFeatureBasedAccountingMethod,
-    AcquiredLotSortKey,
-)
+from rp2.abstract_accounting_method import AbstractFeatureBasedAccountingMethod, AcquiredLotSortKey
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO
 

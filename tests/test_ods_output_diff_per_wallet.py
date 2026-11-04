@@ -20,13 +20,7 @@ from subprocess import CompletedProcess, run
 from typing import Any, Dict, List, NamedTuple, Optional, Tuple
 
 import ezodf
-
-from abstract_test_ods_output_diff import (
-    CONFIG_PATH,
-    INPUT_PATH,
-    AbstractTestODSOutputDiff,
-    OutputPlugins,
-)
+from abstract_test_ods_output_diff import CONFIG_PATH, INPUT_PATH, AbstractTestODSOutputDiff, OutputPlugins
 from ods_diff import ods_diff, read_sheet_rows
 
 ROOT_PATH: Path = Path(os.path.dirname(__file__)).parent.absolute()

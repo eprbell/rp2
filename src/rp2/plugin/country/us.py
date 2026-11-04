@@ -19,11 +19,7 @@ from typing import Set
 from dateutil.relativedelta import relativedelta
 
 from rp2.abstract_country import AbstractCountry
-from rp2.application_policy import (
-    ApplicationMode,
-    ApplicationPeriod,
-    ApplicationPolicy,
-)
+from rp2.application_policy import ApplicationMode, ApplicationPeriod, ApplicationPolicy
 from rp2.rp2_main import rp2_main
 
 # Universal application until 2024, per-wallet application from 2025 (see US.get_application_policy()).

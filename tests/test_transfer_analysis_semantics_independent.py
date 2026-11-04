@@ -13,13 +13,12 @@
 # limitations under the License.
 
 import unittest
-
 from typing import List
 
-from rp2.account import Account
+from transaction_processing_common import InTransactionDescriptor, IntraTransactionDescriptor, OutTransactionDescriptor
+from transfer_analysis_common import AbstractTransferAnalysis, _Test
 
-from transaction_processing_common import InTransactionDescriptor, OutTransactionDescriptor, IntraTransactionDescriptor
-from transfer_analysis_common import _Test, AbstractTransferAnalysis
+from rp2.account import Account
 
 
 # These tests are independent of the accounting method, so they are repeated for all accounting methods.

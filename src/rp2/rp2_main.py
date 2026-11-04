@@ -33,12 +33,7 @@ from rp2.accounting_engine import AccountingEngine
 from rp2.accounting_method_loader import ACCOUNTING_METHOD_PACKAGE, load_accounting_method
 from rp2.balance import CRYPTO_BALANCE_DECIMAL_MASK, BalanceSet
 from rp2.computed_data import ComputedData
-from rp2.configuration import (
-    MAX_DATE,
-    MIN_DATE,
-    REPORT_GENERATOR_PACKAGE,
-    Configuration,
-)
+from rp2.configuration import MAX_DATE, MIN_DATE, REPORT_GENERATOR_PACKAGE, Configuration
 from rp2.input_data import InputData
 from rp2.localization import set_generation_language
 from rp2.logger import LOG_FILE, LOGGER

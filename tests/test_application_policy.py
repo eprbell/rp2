@@ -17,12 +17,7 @@ import unittest
 from typing import Dict, Tuple
 from unittest.mock import patch
 
-from rp2.application_policy import (
-    UNIVERSAL_APPLICATION_POLICY,
-    ApplicationMode,
-    ApplicationPeriod,
-    ApplicationPolicy,
-)
+from rp2.application_policy import UNIVERSAL_APPLICATION_POLICY, ApplicationMode, ApplicationPeriod, ApplicationPolicy
 from rp2.plugin.country.es import ES
 from rp2.plugin.country.generic import Generic
 from rp2.plugin.country.ie import IE

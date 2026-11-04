@@ -18,12 +18,9 @@
 import unittest
 from typing import Dict, List, NamedTuple, cast
 
-from per_wallet_common import AbstractPerWalletTest, _In, _Out, _create_configuration
+from per_wallet_common import AbstractPerWalletTest, _create_configuration, _In, _Out
 
-from rp2.abstract_accounting_method import (
-    AbstractFeatureBasedAccountingMethod,
-    AcquiredLotSortKey,
-)
+from rp2.abstract_accounting_method import AbstractFeatureBasedAccountingMethod, AcquiredLotSortKey
 from rp2.acquisition_date_fifo import AcquisitionDateFifo
 from rp2.in_transaction import InTransaction
 from rp2.lot_consumption import LotPiece

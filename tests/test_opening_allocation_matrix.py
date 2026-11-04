@@ -50,17 +50,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Dict, List, NamedTuple, Optional, Tuple
 
-from per_wallet_common import (
-    _BLOCKFI,
-    _COINBASE,
-    _CONFIGURATION_PATH,
-    _KRAKEN,
-    AbstractPerWalletTest,
-    _create_configuration,
-    _In,
-    _Intra,
-    _Out,
-)
+from per_wallet_common import _BLOCKFI, _COINBASE, _CONFIGURATION_PATH, _KRAKEN, AbstractPerWalletTest, _create_configuration, _In, _Intra, _Out
 
 from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.account import Account

@@ -16,10 +16,7 @@ from datetime import date
 from types import MappingProxyType
 from typing import Dict, List, Mapping, Sequence, Tuple
 
-from rp2.abstract_accounting_method import (
-    AbstractFeatureBasedAccountingMethod,
-    FeatureBasedAcquiredLotCandidates,
-)
+from rp2.abstract_accounting_method import AbstractFeatureBasedAccountingMethod, FeatureBasedAcquiredLotCandidates
 from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
 from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData

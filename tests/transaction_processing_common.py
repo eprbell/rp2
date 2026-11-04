@@ -13,22 +13,21 @@
 # limitations under the License.
 
 import unittest
-
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import cast, Dict, List, Optional
+from typing import Dict, List, Optional, cast
 
-from rp2.abstract_transaction import AbstractTransaction
 from rp2.abstract_accounting_method import AbstractAccountingMethod
-from rp2.configuration import Configuration
+from rp2.abstract_transaction import AbstractTransaction
 from rp2.account import Account
+from rp2.configuration import Configuration
 from rp2.in_transaction import InTransaction
-from rp2.intra_transaction import IntraTransaction
 from rp2.input_data import InputData
+from rp2.intra_transaction import IntraTransaction
 from rp2.out_transaction import OutTransaction
 from rp2.plugin.accounting_method.fifo import AccountingMethod as AccountingMethodFIFO
-from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMethodLIFO
 from rp2.plugin.accounting_method.hifo import AccountingMethod as AccountingMethodHIFO
+from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMethodLIFO
 from rp2.plugin.accounting_method.lofo import AccountingMethod as AccountingMethodLOFO
 from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError

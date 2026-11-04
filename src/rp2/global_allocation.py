@@ -13,21 +13,21 @@
 # limitations under the License.
 
 from datetime import datetime
-from typing import Iterable, cast, Dict, List, Optional
+from typing import Dict, Iterable, List, Optional, cast
 
-from rp2.configuration import Configuration
+from prezzemolo.avl_tree import AVLTree
+
 from rp2.abstract_accounting_method import AbstractAccountingMethod
-from rp2.accounting_engine import AccountingEngine, AcquiredLotsExhaustedException
 from rp2.account import Account
+from rp2.accounting_engine import AccountingEngine, AcquiredLotsExhaustedException
+from rp2.configuration import Configuration
 from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData
 from rp2.intra_transaction import IntraTransaction
 from rp2.logger import LOGGER
 from rp2.rp2_decimal import ZERO, RP2Decimal
-from rp2.rp2_error import RP2RuntimeError, RP2ValueError, RP2TypeError
+from rp2.rp2_error import RP2RuntimeError, RP2TypeError, RP2ValueError
 from rp2.transaction_set import TransactionSet
-
-from prezzemolo.avl_tree import AVLTree
 
 
 class GlobalAllocator:

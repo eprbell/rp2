@@ -32,18 +32,7 @@ from pathlib import Path
 from typing import Dict, List, NamedTuple, Optional
 
 from ods_diff import read_sheet_rows
-from per_wallet_common import (
-    _ASSET,
-    _COINBASE,
-    _KRAKEN,
-    AbstractPerWalletTest,
-    _create_configuration,
-    _GainLoss,
-    _GainLossTuple,
-    _In,
-    _Out,
-    _sorted,
-)
+from per_wallet_common import _ASSET, _COINBASE, _KRAKEN, AbstractPerWalletTest, _create_configuration, _GainLoss, _GainLossTuple, _In, _Out, _sorted
 
 from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.abstract_transaction import AbstractTransaction

@@ -17,10 +17,7 @@ from typing import Dict, List, NamedTuple, Optional
 
 from prezzemolo.avl_tree import AVLTree
 
-from rp2.abstract_accounting_method import (
-    AbstractAccountingMethod,
-    AbstractFeatureBasedAccountingMethod,
-)
+from rp2.abstract_accounting_method import AbstractAccountingMethod, AbstractFeatureBasedAccountingMethod
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.account import Account
 from rp2.accounting_engine import get_years_and_accounting_methods

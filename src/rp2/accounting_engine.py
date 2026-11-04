@@ -18,11 +18,7 @@ from typing import Dict, Iterator, List, Mapping, NamedTuple, Optional
 
 from prezzemolo.avl_tree import AVLTree
 
-from rp2.abstract_accounting_method import (
-    AbstractAccountingMethod,
-    AbstractAcquiredLotCandidates,
-    AcquiredLotAndAmount,
-)
+from rp2.abstract_accounting_method import AbstractAccountingMethod, AbstractAcquiredLotCandidates, AcquiredLotAndAmount
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
 from rp2.lot_consumption import TakeResult, take_lots
