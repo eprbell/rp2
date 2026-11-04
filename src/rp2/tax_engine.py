@@ -26,7 +26,7 @@ from rp2.accounting_engine import (
     TaxableEventsExhaustedException,
 )
 from rp2.application_policy import ApplicationMode, ApplicationPolicy
-from rp2.balance import CRYPTO_BALANCE_DECIMAL_MASK
+from rp2.balance import CRYPTO_BALANCE_DECIMAL_MASK, BalanceSet
 from rp2.computed_data import ComputedData
 from rp2.configuration import MAX_DATE, MIN_DATE, Configuration, Keyword
 from rp2.gain_loss import GainLoss
@@ -268,7 +268,10 @@ def compute_tax_per_wallet(
     opening_allocation: Optional[OpeningAllocation] = None
     if universal_input_data is not None:
         unused_lots = _get_unused_lots(universal_input_data, universal_result.gain_loss_list)
-        account_2_balance = _get_account_balances(universal_transactions)
+        # The balance of each wallet at the switch (the end of the last day before it, in the tax time zone), computed by BalanceSet like the
+        # balances of the reports: same arithmetic, same date limit, and the same check that no wallet goes negative (unless -n allows it).
+        balance_set = BalanceSet(configuration, universal_input_data, date(start_year - 1, 12, 31))
+        account_2_balance = {Account(balance.exchange, balance.holder): balance.final_balance for balance in balance_set}
         _check_balances_match_unused_lots(account_2_balance, unused_lots)
         allocation_method_name = per_wallet_configuration.get_unused_basis_allocation_method(input_data.asset)
         opening_allocation = UnusedBasisAllocator(
@@ -416,26 +419,9 @@ def _get_unused_lots(universal_input_data: InputData, gain_loss_list: List[GainL
     return result
 
 
-# Balance of each wallet after the given transactions.
-def _get_account_balances(transactions: List[AbstractTransaction]) -> Dict[Account, RP2Decimal]:
-    result: Dict[Account, RP2Decimal] = {}
-    for transaction in transactions:
-        if isinstance(transaction, InTransaction):
-            account = Account(transaction.exchange, transaction.holder)
-            result[account] = result.get(account, ZERO) + transaction.crypto_in
-        elif isinstance(transaction, OutTransaction):
-            account = Account(transaction.exchange, transaction.holder)
-            result[account] = result.get(account, ZERO) - transaction.crypto_out_with_fee
-        elif isinstance(transaction, IntraTransaction):
-            from_account = Account(transaction.from_exchange, transaction.from_holder)
-            to_account = Account(transaction.to_exchange, transaction.to_holder)
-            result[from_account] = result.get(from_account, ZERO) - transaction.crypto_sent
-            result[to_account] = result.get(to_account, ZERO) + transaction.crypto_received
-    return result
-
-
 # At the switch the wallets must hold exactly the units of the unused lots (Rev. Proc. 2024-28 allocates unused basis to "the same number of
-# remaining digital asset units"): a mismatch means the input is inconsistent (e.g. a wallet with a negative balance).
+# remaining digital asset units"): a mismatch means the input is inconsistent. A negative balance is also an error here, even when -n allows
+# negative balances: per-wallet application can't start from a wallet that holds less than nothing.
 def _check_balances_match_unused_lots(account_2_balance: Dict[Account, RP2Decimal], unused_lots: List[UnusedLot]) -> None:
     for account, balance in account_2_balance.items():
         if balance < ZERO and not RP2Decimal.is_equal_within_precision(balance, ZERO, CRYPTO_BALANCE_DECIMAL_MASK):

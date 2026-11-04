@@ -450,10 +450,15 @@ class TestOpeningAllocationMatrix(AbstractPerWalletTest):
                     compute_tax_per_wallet(configuration, engine, input_data)
             with self.subTest(name="a negative wallet balance at the switch", method=method_name):
                 # Kraken sells 5 coins it never received: universal application accepts it (the coins come from Coinbase's lot), but a wallet
-                # can't hold a negative balance at the switch.
+                # can't hold a negative balance. The balances at the switch come from BalanceSet (R13), which reports the transaction that makes
+                # the balance negative, like the balances of the reports do.
                 transactions: List[object] = [_In("1", _day(1), "Coinbase", "Buy", "110", "10"), _Out("2", _day(2), "Kraken", "120", "5")]
-                with self.assertRaisesRegex(RP2ValueError, "Balance of Kraken/Bob is negative \\(-5"):
+                with self.assertRaisesRegex(RP2ValueError, 'B1 balance of account "Kraken" \\(holder "Bob"\\) went negative \\(-5'):
                     self._allocate(transactions, method_name, (_COINBASE, _KRAKEN))
+                # -n allows negative balances in universal application, but per-wallet application can't start from a negative wallet.
+                configuration = _create_configuration(_per_wallet_configuration(method_name, (_COINBASE, _KRAKEN)), allow_negative_balances=True)
+                with self.assertRaisesRegex(RP2ValueError, "Balance of Kraken/Bob is negative \\(-5"):
+                    compute_tax_per_wallet(configuration, self._create_accounting_engine({1970: method}), self._create_input_data(configuration, transactions))
 
         # Wallets that aren't in the configuration, and duplicates, are rejected when the configuration file is read.
         for name, wallet_order, error in [

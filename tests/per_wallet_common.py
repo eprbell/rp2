@@ -127,6 +127,7 @@ def _create_configuration(
     country: Optional[AbstractCountry] = None,
     from_date: date = MIN_DATE,
     to_date: date = MAX_DATE,
+    allow_negative_balances: bool = False,
 ) -> Configuration:
     country = country or US()
     text = Path(_CONFIGURATION_PATH).read_text(encoding="utf-8")
@@ -135,7 +136,7 @@ def _create_configuration(
     _CONFIGURATION_DIR.mkdir(parents=True, exist_ok=True)
     path = _CONFIGURATION_DIR / Path(f"{hashlib.sha256(text.encode('utf-8')).hexdigest()[:16]}.ini")
     path.write_text(text, encoding="utf-8")
-    result = Configuration(str(path), country, from_date=from_date, to_date=to_date)
+    result = Configuration(str(path), country, from_date=from_date, to_date=to_date, allow_negative_balances=allow_negative_balances)
     if result.per_wallet_configuration != per_wallet_configuration:
         raise ValueError(f"The configuration file changed the per-wallet settings: {per_wallet_configuration} -> {result.per_wallet_configuration}")
     return result
