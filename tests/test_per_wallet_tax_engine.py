@@ -100,7 +100,7 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
             universal = self._to_tuples([gain_loss for gain_loss in universal_computed_data.gain_loss_set if isinstance(gain_loss, GainLoss)])
             self.assertEqual(_sorted(got), _sorted(universal))
 
-    def test_per_wallet(self) -> None:  # pylint: disable=too-many-statements
+    def test_per_wallet(self) -> None:
         tests: List[_Test] = [
             _Test(
                 description="Single wallet: a sale that exhausts a lot (this failed before the fix)",

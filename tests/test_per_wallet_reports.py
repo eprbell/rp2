@@ -297,7 +297,7 @@ class TestPerWalletReports(AbstractPerWalletTest):
     # Exchange" sheet), that the per-unit cost basis is cost basis / balance, and that the wallets add up to the holder's row. The report shows
     # the holdings at the end of the report's to date (not the final ones), whatever its from date. If the to date is before 2025, the report
     # shows them like universal application always did (each wallet gets the average cost), and so do assets in universal application.
-    def test_open_positions_show_each_wallet_actual_cost_basis(self) -> None:  # pylint: disable=too-many-locals
+    def test_open_positions_show_each_wallet_actual_cost_basis(self) -> None:
         class _Case(NamedTuple):
             description: str
             transactions: List[object]
@@ -498,7 +498,7 @@ class TestPerWalletReports(AbstractPerWalletTest):
     # 2 of i2 and the 4 of i3. LIFO, HIFO and LOFO sort them differently and split another lot.
     # B2 has its own rule (LIFO, Coinbase first) and B3 is held by one wallet only, so its allocation is automatic. Each method is checked
     # with and without transactions after the switch: the report must be the same.
-    def test_opening_allocation_report(self) -> None:  # pylint: disable=too-many-locals
+    def test_opening_allocation_report(self) -> None:
         # Lots: unique id -> (input row, acquisition date, exchange, price, coins bought, coins unused at the switch).
         lots: Dict[str, Tuple[str, str, str, str, str, str]] = {
             "i1": ("1", "2024-01-02", "Coinbase", "100", "4", "3"),

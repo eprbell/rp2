@@ -239,7 +239,7 @@ class AccountingEngine:
     def get_acquired_lot_for_taxable_event(
         self,
         taxable_event: AbstractTransaction,
-        acquired_lot: Optional[InTransaction],  # pylint: disable=unused-argument
+        acquired_lot: Optional[InTransaction],
         taxable_event_amount: RP2Decimal,
         acquired_lot_amount: RP2Decimal,
     ) -> TaxableEventAndAcquiredLot:
@@ -255,6 +255,8 @@ class AccountingEngine:
         )
 
     # timestamp is the time of the taxable event in the tax time zone (see Configuration.tax_timezone): its year selects the accounting method.
+    # acquired_lot (the lot paired last) isn't needed to find the next lot: it's accepted to keep the parameters of
+    # get_acquired_lot_for_taxable_event(), which passes them on.
     def get_acquired_lot_for_timestamp(
         self,
         timestamp: datetime,

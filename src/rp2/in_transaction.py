@@ -25,8 +25,9 @@ from rp2.rp2_decimal import FIAT_DECIMAL_MASK, ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
-# pylint: disable=too-many-public-methods
-class InTransaction(AbstractTransaction):
+# The design guidelines give each field a read-only property: with the 3 per-wallet ones (originates_from, original_lot and
+# cost_basis_timestamp, for the lots created by transfers) InTransaction has 23 public methods, more than pylint's default maximum of 20.
+class InTransaction(AbstractTransaction):  # pylint: disable=too-many-public-methods
     @classmethod
     def type_check(cls, name: str, instance: AbstractEntry) -> "InTransaction":
         Configuration.type_check_parameter_name(name)

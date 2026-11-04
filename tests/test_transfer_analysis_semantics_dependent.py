@@ -1242,7 +1242,9 @@ class TestTransferAnalysis(AbstractTransferAnalysis):
                     ],
                 },
                 want_amounts={
-                    # TODO: why is transaction 1 at 0 and the other at 6? Shouldn't the first 3 be at 6 and the last at 0?
+                    # Coinbase gets back 6 coins of each of lots 1, 2 and 3, and none of lot 4: with HIFO, the 24 coins go Coinbase -> Kraken -> BlockFi
+                    # and BlockFi sells first the 6 with the highest cost basis ($140, lot 4), then sends the other 18 back to Coinbase (transaction
+                    # 15), where they go back to the lots they left from.
                     Account(exchange="BlockFi", holder="Bob"): {
                         "11/-10": 0,
                         "11/-11": 0,

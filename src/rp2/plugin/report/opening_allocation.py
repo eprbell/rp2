@@ -76,6 +76,8 @@ class Generator(AbstractODSGenerator):
     __allocation_header_names_row_1: List[str] = []
     __allocation_header_names_row_2: List[str] = []
 
+    # The legend and the headers have one entry per line, as in the other report generators, and some translatable texts are long: long lines
+    # are allowed in this method only (see the enable comment after it).
     # pylint: disable=line-too-long
     def _setup_text_data(self, country: AbstractCountry) -> None:
         currency_code: str = country.currency_iso_code.upper()
@@ -238,6 +240,8 @@ class Generator(AbstractODSGenerator):
             _("Cost Basis"),
             _("Cost Basis"),
         ]
+
+    # pylint: enable=line-too-long
 
     def generate(
         self,

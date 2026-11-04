@@ -151,7 +151,8 @@ class AbstractAcquiredLotCandidates:
     def clear_partial_amount(self, acquired_lot: InTransaction) -> None:
         self.set_partial_amount(acquired_lot, ZERO)
 
-    # Reset partial amounts to their original values and from index to zero.
+    # Reset partial amounts to their original values and from index to zero. accounting_method is unused here: the feature-based override
+    # (FeatureBasedAcquiredLotCandidates) uses it to put the lots back in its heap.
     def reset_partial_amounts(  # pylint: disable=unused-argument
         self, accounting_method: "AbstractAccountingMethod", original_partial_amounts: Dict[InTransaction, RP2Decimal]
     ) -> None:

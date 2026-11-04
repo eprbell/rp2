@@ -122,7 +122,8 @@ class GlobalAllocator:
             from_holder=acquired_lot.holder,
             to_exchange=account.exchange,
             to_holder=account.holder,
-            spot_price=RP2Decimal(1),  # TODO: can this be improved? It's not relevant for global allocation, but 1 as spot price may be misleading to users.
+            # TODO: can this be improved? It's not relevant for global allocation, but 1 as spot price may be misleading to users.  # pylint: disable=fixme
+            spot_price=RP2Decimal(1),
             crypto_sent=amount,
             crypto_received=amount,
             row=artificial_id,

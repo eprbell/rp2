@@ -141,7 +141,7 @@ def _amount(draw: st.DrawFn, maximum: RP2Decimal) -> RP2Decimal:
 # it in the per-wallet order (e.g. a purchase and a sale, a transfer and a sale): so generation order and processing order are the same.
 # Purchases always have their own instant and a distinct price, so that no two lots tie in the order of any method.
 @st.composite
-def _histories(draw: st.DrawFn, report_after_switch: bool = False) -> _History:  # pylint: disable=too-many-locals,too-many-statements
+def _histories(draw: st.DrawFn, report_after_switch: bool = False) -> _History:
     step_count = draw(st.integers(min_value=3, max_value=20))
     hours = (_LAST_INSTANT - _FIRST_INSTANT) // timedelta(hours=1)
     offsets = sorted(draw(st.lists(st.integers(min_value=0, max_value=hours), min_size=step_count, max_size=step_count, unique=True)))
@@ -294,7 +294,10 @@ def _add_pairings(pairings: _Pairings, event_id: str, pieces: List[_ModelPiece])
         pairings[key] = pairings.get(key, ZERO) + piece.coins
 
 
-def _run_model(history: _History) -> _ModelResult:  # pylint: disable=too-many-locals,too-many-branches
+# The model applies the rules in their order: universal application before the switch, the allocation at the switch and per-wallet
+# application after it, with a branch for each kind of step (in, out, intra). It's kept in one function so that it reads top to bottom like
+# the rules, hence the branches.
+def _run_model(history: _History) -> _ModelResult:  # pylint: disable=too-many-branches
     zone = ZoneInfo(history.zone)
     switch = datetime(_SWITCH_YEAR, 1, 1, tzinfo=zone)
     to_date = history.to_date or MAX_DATE
@@ -472,7 +475,7 @@ class TestPerWalletModel(unittest.TestCase):
     # Disposals, income, holdings and the opening allocation computed by RP2 are the ones of the model.
     @_SETTINGS
     @given(history=_histories())
-    def test_engine_matches_the_model(self, history: _History) -> None:  # pylint: disable=too-many-locals
+    def test_engine_matches_the_model(self, history: _History) -> None:
         model = _run_model(history)
         _, computed_data = _compute(history)
 
@@ -527,7 +530,7 @@ class TestPerWalletModel(unittest.TestCase):
     # with its coins, cost basis, acquisition date and holding period (US tax report).
     @_REPORT_SETTINGS
     @given(history=_histories(report_after_switch=True))
-    def test_reports_match_the_model(self, history: _History) -> None:  # pylint: disable=too-many-locals
+    def test_reports_match_the_model(self, history: _History) -> None:
         model = _run_model(history)
         configuration, computed_data = _compute(history)
         assert model.holdings is not None

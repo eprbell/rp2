@@ -217,7 +217,7 @@ class TestODSOutputDiffPerWallet(AbstractTestODSOutputDiff):
             with self.subTest(plugin=plugin.value):
                 self._compare(self.output_dir, test_name=_GOLDEN_DATASET, method="mixed", output_plugin=plugin)
 
-    def test_per_wallet_golden_cells(self) -> None:  # pylint: disable=too-many-locals
+    def test_per_wallet_golden_cells(self) -> None:
         prefix = self.output_dir / Path(f"{_GOLDEN_DATASET}_mixed_")
 
         # US tax report: every disposal and income, merged by taxable event and lot (asset, event, date acquired, date sold, holding period):
