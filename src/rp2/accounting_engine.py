@@ -24,6 +24,7 @@ from rp2.abstract_accounting_method import (
     AcquiredLotAndAmount,
 )
 from rp2.abstract_transaction import AbstractTransaction
+from rp2.configuration import Configuration
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2RuntimeError, RP2TypeError
@@ -217,7 +218,10 @@ class AccountingEngine:
             new_taxable_event: AbstractTransaction = next(self.__taxable_event_iterator)
         except StopIteration:
             raise TaxableEventsExhaustedException() from None
-        new_taxable_event_amount: RP2Decimal = new_taxable_event.crypto_balance_change
+        # The amount is checked before looking for lots, so that a non-positive amount (e.g. a negative STAKING) is reported as such: before,
+        # methods that select the event's own lot first (e.g. LIFO, with the negative STAKING lot) reported "Total in-transaction crypto
+        # value < total taxable crypto value" instead.
+        new_taxable_event_amount: RP2Decimal = Configuration.type_check_positive_decimal("taxable_event_amount", new_taxable_event.crypto_balance_change)
 
         # If the new taxable event is newer than the old one (and it's not earn-typed) check if there is a newer acquired lot that
         # meets the accounting method criteria (but it's still older than the new taxable event).

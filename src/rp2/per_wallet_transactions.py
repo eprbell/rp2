@@ -134,9 +134,16 @@ class PerWalletTransactions:
             lot_and_amount: Optional[AcquiredLotAndAmount] = accounting_method.seek_non_exhausted_acquired_lot(lot_candidates, amount_left)
             if lot_and_amount is None:
                 return TakeResult(result, amount_left)
-            piece_amount = min(lot_and_amount.amount, amount_left)
-            # seek_non_exhausted_acquired_lot() zeroes the lot's actual amount: set it to what's left after taking the piece.
-            self.__set_actual_amount(lot_and_amount.acquired_lot, lot_and_amount.amount - piece_amount)
+            # seek_non_exhausted_acquired_lot() zeroes the lot's actual amount: set it to what's left after taking the piece. The rule is the one
+            # of universal application: amounts are compared with RP2Decimal's precision (13 decimals), and if the lot covers what's left the
+            # piece is what's left and the lot keeps the difference. Example: a lot of 2 coins and 2.00000000000001 coins to take: the piece
+            # is 2.00000000000001 coins and the lot keeps -0.00000000000001, which counts as zero. Before, the piece was the lot's 2 coins.
+            if amount_left > lot_and_amount.amount:
+                piece_amount = lot_and_amount.amount
+                self.__set_actual_amount(lot_and_amount.acquired_lot, ZERO)
+            else:
+                piece_amount = amount_left
+                self.__set_actual_amount(lot_and_amount.acquired_lot, lot_and_amount.amount - amount_left)
             result.append(LotPiece(lot_and_amount.acquired_lot, piece_amount))
             amount_left -= piece_amount
         return TakeResult(result, ZERO)

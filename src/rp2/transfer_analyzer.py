@@ -53,12 +53,6 @@ def _transaction_processing_order(transaction: AbstractTransaction) -> _Transact
     return _TransactionProcessingKey(transaction.timestamp.timestamp(), _TRANSACTION_CLASS_2_RANK[type(transaction)], transaction.row)
 
 
-# The lot pieces taken for a transfer, split into the ones that pay the fee and the ones that arrive in the destination wallet.
-class _FeeAndReceivedPieces(NamedTuple):
-    fee_pieces: List[LotPiece]
-    received_pieces: List[LotPiece]
-
-
 class TransferAnalysisResult(NamedTuple):
     wallet_2_input_data: Dict[Account, InputData]
     # Gain/loss pairings of all taxable events, computed per wallet.
@@ -235,13 +229,19 @@ class TransferAnalyzer:
         # IntraTransactions are added to from_per_wallet_transactions.
         from_per_wallet_transactions.add_intra_transaction(transaction)
 
-        pieces, missing_amount = from_per_wallet_transactions.take(self._get_accounting_method(transaction), transaction.crypto_sent)
+        # The fee is paid with the first units the accounting method selects, like in universal application, which takes the fee of a
+        # transfer as a taxable event of its own: the fee is taken first, then the received units. Example: send 3 coins and receive 2.5 with
+        # FIFO from a wallet holding lot A (1 coin) and lot B (5 coins): the 0.5 coin fee comes from A, the 2.5 coins received are A's other
+        # 0.5 coin and 2 coins of B.
+        accounting_method = self._get_accounting_method(transaction)
+        fee_pieces, missing_fee = from_per_wallet_transactions.take(accounting_method, transaction.crypto_fee)
+        received_pieces, missing_received = from_per_wallet_transactions.take(accounting_method, transaction.crypto_received)
+        missing_amount = missing_fee + missing_received
         if missing_amount > ZERO:
             raise RP2ValueError(
                 f"Insufficient balance on {from_account} to send funds "
                 f"(missing {missing_amount} of {transaction.crypto_sent} {transaction.asset}): {transaction}"
             )
-        fee_pieces, received_pieces = self._split_fee_and_received_pieces(pieces, transaction.crypto_fee)
         # The fee is disposed of: each fee piece is paired with its lot.
         for piece in fee_pieces:
             gain_loss_list.append(GainLoss(self.__configuration, piece.amount, transaction, piece.acquired_lot))
@@ -254,22 +254,6 @@ class TransferAnalyzer:
             else:
                 to_per_wallet_transactions = self._get_or_create_per_wallet_transactions(wallet_2_per_wallet_transactions, to_account)
                 self._deliver_received_piece(to_per_wallet_transactions, to_account, transaction, piece)
-
-    # Splits the lot pieces taken for a transfer into fee pieces and received pieces. The fee is taken from the first pieces, like universal
-    # application does (it disposes of the first units selected by the accounting method to pay the fee).
-    @staticmethod
-    def _split_fee_and_received_pieces(pieces: List[LotPiece], fee: RP2Decimal) -> _FeeAndReceivedPieces:
-        fee_pieces: List[LotPiece] = []
-        received_pieces: List[LotPiece] = []
-        fee_amount_left = fee
-        for piece in pieces:
-            fee_part = min(piece.amount, fee_amount_left)
-            fee_amount_left -= fee_part
-            if fee_part > ZERO:
-                fee_pieces.append(LotPiece(piece.acquired_lot, fee_part))
-            if piece.amount - fee_part > ZERO:
-                received_pieces.append(LotPiece(piece.acquired_lot, piece.amount - fee_part))
-        return _FeeAndReceivedPieces(fee_pieces, received_pieces)
 
     # Adds a received lot piece to the destination wallet: normally as a new artificial InTransaction; at the end of a round trip
     # (e.g. A->B->A) by returning the units to the lot they left from.
