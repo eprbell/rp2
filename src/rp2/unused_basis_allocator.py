@@ -15,7 +15,7 @@
 from datetime import datetime
 from typing import Dict, List, NamedTuple, Optional
 
-from rp2.abstract_accounting_method import AbstractAccountingMethod, AcquiredLotSortKey
+from rp2.abstract_accounting_method import AbstractAccountingMethod, LotSortKey
 from rp2.account import Account
 from rp2.configuration import Configuration
 from rp2.in_transaction import InTransaction
@@ -93,7 +93,7 @@ class UnusedBasisAllocator:
         rule = self._get_allocation_rule(funded_accounts)
         per_wallet_method = get_per_wallet_accounting_method(rule.allocation_method)
 
-        def unused_lot_sort_key(unused_lot: UnusedLot) -> AcquiredLotSortKey:
+        def unused_lot_sort_key(unused_lot: UnusedLot) -> LotSortKey:
             return per_wallet_method.sort_key(unused_lot.acquired_lot)
 
         sorted_unused_lots = sorted(self.__unused_lots, key=unused_lot_sort_key)

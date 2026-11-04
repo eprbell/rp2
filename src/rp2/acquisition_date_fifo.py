@@ -14,10 +14,9 @@
 
 from rp2.abstract_accounting_method import (
     AbstractFeatureBasedAccountingMethod,
-    AcquiredLotSortKey,
+    AcquisitionDateSortKey,
 )
 from rp2.in_transaction import InTransaction
-from rp2.rp2_decimal import RP2Decimal
 
 
 # FIFO variant used only in per-wallet application. The chronological FIFO plugin orders lots by their position in the lot list,
@@ -27,10 +26,8 @@ from rp2.rp2_decimal import RP2Decimal
 # (j)(3)(i)), so this variant orders lots by cost_basis_timestamp (the original acquisition date, preserved across transfers). Ties
 # are broken by arrival timestamp in the wallet, then by row, so that the order is deterministic.
 class AcquisitionDateFifo(AbstractFeatureBasedAccountingMethod):
-    def sort_key(self, lot: InTransaction) -> AcquiredLotSortKey:
-        # The first field of the key is the primary sort criterion (spot price for HIFO/LOFO): here it's the acquisition timestamp. RP2Decimal
-        # doesn't accept floats (to avoid precision loss in tax math), so the timestamp goes through its exact repr().
-        return AcquiredLotSortKey(RP2Decimal(repr(lot.cost_basis_timestamp.timestamp())), lot.timestamp.timestamp(), lot.row)
+    def sort_key(self, lot: InTransaction) -> AcquisitionDateSortKey:
+        return AcquisitionDateSortKey(acquisition_timestamp=lot.cost_basis_timestamp.timestamp(), arrival_timestamp=lot.timestamp.timestamp(), row=lot.row)
 
     @property
     def name(self) -> str:

@@ -19,7 +19,7 @@
 
 from enum import Enum
 from heapq import heappop, heappush
-from typing import cast, Dict, List, NamedTuple, Optional, Tuple
+from typing import cast, Dict, List, NamedTuple, Optional, Tuple, Union
 
 from rp2.in_transaction import InTransaction
 from rp2.rp2_decimal import ZERO, RP2Decimal
@@ -40,6 +40,21 @@ class AcquiredLotSortKey(NamedTuple):
     spot_price: RP2Decimal
     timestamp: float
     internal_id_int: int
+
+
+# Sort key of the methods that order lots by their original acquisition date (see AcquisitionDateFifo): the acquisition time first, then
+# the time the lot arrived in the wallet, then its row, so that the order is deterministic. Example: a coin bought on 2024-03-01 and moved
+# into this wallet on 2025-02-01 sorts before a coin bought in this wallet on 2025-01-15. The acquisition time has its own field: it used to
+# be stored in the spot_price field of AcquiredLotSortKey.
+class AcquisitionDateSortKey(NamedTuple):
+    acquisition_timestamp: float
+    arrival_timestamp: float
+    row: int
+
+
+# The sort keys that feature-based accounting methods can return. A heap only contains keys of one method, so keys of different types are
+# never compared.
+LotSortKey = Union[AcquiredLotSortKey, AcquisitionDateSortKey]
 
 
 class AbstractAccountingMethodIterator:
@@ -71,7 +86,7 @@ class ChronologicalAccountingMethodIterator(AbstractAccountingMethodIterator):
 
 
 class FeatureBasedAccountingMethodIterator(AbstractAccountingMethodIterator):
-    def __init__(self, acquired_lot_heap: List[Tuple[AcquiredLotSortKey, InTransaction]]) -> None:
+    def __init__(self, acquired_lot_heap: List[Tuple[LotSortKey, InTransaction]]) -> None:
         self.__acquired_lot_heap = acquired_lot_heap
 
     def __next__(self) -> InTransaction:
@@ -172,7 +187,7 @@ class FeatureBasedAcquiredLotCandidates(AbstractAcquiredLotCandidates):
         super().__init__(accounting_method, acquired_lot_list, acquired_lot_2_partial_amount)
         if not isinstance(accounting_method, AbstractFeatureBasedAccountingMethod):
             raise RP2TypeError(f"Internal error: accounting_method is not of type AbstractFeatureBasedAccountingMethod, but of type {type(accounting_method)}")
-        self.__acquired_lot_heap: List[Tuple[AcquiredLotSortKey, InTransaction]] = []
+        self.__acquired_lot_heap: List[Tuple[LotSortKey, InTransaction]] = []
 
     def set_to_index(self, to_index: int) -> None:
         # Control how far to advance the iterator, caller is responsible for updating
@@ -182,7 +197,7 @@ class FeatureBasedAcquiredLotCandidates(AbstractAcquiredLotCandidates):
         super().set_to_index(to_index)
 
     @property
-    def acquired_lot_heap(self) -> List[Tuple[AcquiredLotSortKey, InTransaction]]:
+    def acquired_lot_heap(self) -> List[Tuple[LotSortKey, InTransaction]]:
         return self.__acquired_lot_heap
 
     # CAUTION:
@@ -278,11 +293,11 @@ class AbstractFeatureBasedAccountingMethod(AbstractAccountingMethod):
     ) -> FeatureBasedAcquiredLotCandidates:
         return FeatureBasedAcquiredLotCandidates(self, acquired_lot_list, acquired_lot_2_partial_amount)
 
-    def add_selected_lot_to_heap(self, heap: List[Tuple[AcquiredLotSortKey, InTransaction]], lot: InTransaction) -> None:
+    def add_selected_lot_to_heap(self, heap: List[Tuple[LotSortKey, InTransaction]], lot: InTransaction) -> None:
         heap_item = (self.sort_key(lot), lot)
         heappush(heap, heap_item)
 
-    def sort_key(self, lot: InTransaction) -> AcquiredLotSortKey:
+    def sort_key(self, lot: InTransaction) -> LotSortKey:
         raise NotImplementedError("Abstract function")
 
     def _create_accounting_method_iterator(self, lot_candidates: AbstractAcquiredLotCandidates) -> FeatureBasedAccountingMethodIterator:

@@ -17,20 +17,26 @@
 # per-wallet tax engine).
 
 import unittest
-from typing import cast
+from typing import List, Optional, cast
+
+from per_wallet_common import _create_configuration
 
 from rp2.abstract_accounting_method import (
     AbstractAccountingMethod,
     AbstractChronologicalAccountingMethod,
     AcquiredLotCandidatesOrder,
+    AcquiredLotSortKey,
+    AcquisitionDateSortKey,
 )
 from rp2.accounting_method_loader import load_accounting_method
 from rp2.acquisition_date_fifo import AcquisitionDateFifo
+from rp2.in_transaction import InTransaction
 from rp2.per_wallet_accounting_method import get_per_wallet_accounting_method
 from rp2.plugin.accounting_method.fifo import AccountingMethod as AccountingMethodFIFO
 from rp2.plugin.accounting_method.hifo import AccountingMethod as AccountingMethodHIFO
 from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMethodLIFO
 from rp2.plugin.accounting_method.lofo import AccountingMethod as AccountingMethodLOFO
+from rp2.rp2_decimal import RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
@@ -54,6 +60,39 @@ class TestPerWalletAccountingMethod(unittest.TestCase):
                 self.assertIs(get_per_wallet_accounting_method(method), method)
         with self.assertRaisesRegex(RP2TypeError, "Unsupported accounting method for per-wallet application"):
             get_per_wallet_accounting_method(AbstractAccountingMethod())
+
+    # R13: the acquisition time has its own field in the key of per-wallet FIFO (it used to be stored in the spot_price field of
+    # AcquiredLotSortKey, as RP2Decimal(repr(timestamp))), and the order is the same as before: acquisition time, then arrival in the wallet,
+    # then row. Lots: a (bought 2024-03-01, arrived 2025-02-01, row 7), b (bought 2025-01-15, row 3), c and d (two pieces of the same
+    # 2024-03-01 lot that arrived together on 2025-02-01, rows -2 and -1).
+    def test_acquisition_date_sort_key(self) -> None:
+        configuration = _create_configuration()
+
+        def lot(timestamp: str, row: int, acquired: Optional[str] = None) -> InTransaction:
+            return InTransaction(
+                configuration, timestamp, "B1", "Kraken", "Bob", "Buy", RP2Decimal("100"), RP2Decimal("1"), row=row, cost_basis_timestamp=acquired
+            )
+
+        a = lot("2025-02-01T00:00:00+00:00", 7, "2024-03-01T00:00:00+00:00")
+        b = lot("2025-01-15T00:00:00+00:00", 3)
+        c = lot("2025-02-01T00:00:00+00:00", -2, "2024-03-01T00:00:00+00:00")
+        d = lot("2025-02-01T00:00:00+00:00", -1, "2024-03-01T00:00:00+00:00")
+        method = AcquisitionDateFifo()
+        key = method.sort_key(a)
+        self.assertIsInstance(key, AcquisitionDateSortKey)
+        self.assertEqual(key.acquisition_timestamp, a.cost_basis_timestamp.timestamp())
+        self.assertEqual(key.arrival_timestamp, a.timestamp.timestamp())
+        self.assertEqual(key.row, 7)
+
+        def old_key(lot: InTransaction) -> AcquiredLotSortKey:
+            return AcquiredLotSortKey(RP2Decimal(repr(lot.cost_basis_timestamp.timestamp())), lot.timestamp.timestamp(), lot.row)
+
+        lots: List[InTransaction] = [b, a, d, c]
+        want: List[InTransaction] = [c, d, a, b]
+        sorted_with_new_key: List[InTransaction] = sorted(lots, key=method.sort_key)
+        sorted_with_old_key: List[InTransaction] = sorted(lots, key=old_key)
+        self.assertEqual(sorted_with_new_key, want)
+        self.assertEqual(sorted_with_old_key, want)
 
     def test_load_accounting_method(self) -> None:
         for name, method_class in (
