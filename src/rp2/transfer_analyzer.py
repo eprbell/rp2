@@ -268,10 +268,17 @@ class TransferAnalyzer:
             # same per-unit basis and acquisition date, since transfers never change the basis of the units they move).
             start_of_cycle: InTransaction = piece.acquired_lot.originates_from[to_account]
             returned_amount = to_per_wallet_transactions.get_actual_amount(start_of_cycle) + piece.amount
+            # The lot can't get back more coins than it was acquired with. Each transfer can send up to 0.00000000000005 coins more than the
+            # wallet holds (amounts are compared with RP2Decimal's 13 decimals, see lot_consumption.take_lots()), and along a round trip the
+            # excess adds up: past the precision, the amounts of the transfers don't add up, an input error. Example: buy 1 coin, then send
+            # it Coinbase -> Kraken -> BlockFi -> Coinbase, each time 0.00000000000004 coins more than the wallet holds: the lot would get
+            # back 1.00000000000008 coins.
             if returned_amount > start_of_cycle.crypto_in:
-                raise RP2RuntimeError(
-                    f"Internal error: start-of-cycle transaction's returned amount exceeds its crypto_in: {returned_amount} > "
-                    f"{start_of_cycle.crypto_in}: {start_of_cycle}"
+                raise RP2ValueError(
+                    f"Transfer {transaction.unique_id} returns {piece.amount} {transaction.asset} to lot {start_of_cycle.unique_id} of "
+                    f"{to_account.exchange}/{to_account.holder}, which would then hold {returned_amount} {transaction.asset}: more than the "
+                    f"{start_of_cycle.crypto_in} {transaction.asset} it was acquired with. The transfers of these coins send more than their "
+                    f"wallets hold, by more than RP2's precision (13 decimals): check their amounts. {transaction}"
                 )
             to_per_wallet_transactions.restore_actual_amount(start_of_cycle, returned_amount)
             return

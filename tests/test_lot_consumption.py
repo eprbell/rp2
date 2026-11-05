@@ -331,6 +331,29 @@ class TestLotConsumption(AbstractPerWalletTest):
         want_holdings: Dict[str, RP2Decimal] = {"Coinbase/A": RP2Decimal("990"), "Kraken/A": RP2Decimal("9.99999999")}
         self.assertEqual(_holdings(per_wallet), want_holdings)
 
+    # Coins that come back to a wallet they were in return to their lot there, which can't end up with more coins than it was acquired
+    # with. Each transfer can send up to 0.00000000000005 coins more than the wallet holds (RP2Decimal's precision is 13 decimals): along a
+    # round trip the excess adds up, and past the precision the transfer amounts don't add up. That's an input error, which names the
+    # transfer (it was reported as an internal error before). Universal application doesn't move lots between wallets, so it accepts the
+    # history. Example: buy 1 coin, then send it Coinbase -> Kraken -> BlockFi -> Coinbase, each time 0.00000000000004 coins more than the
+    # wallet holds: the lot would get back 1.00000000000008 coins.
+    def test_round_trip_beyond_precision_is_an_input_error(self) -> None:
+        configuration = _create_configuration()
+        transactions: List[object] = [
+            _In("X", "2025-01-01T00:00:00+00:00", "Coinbase", "Buy", "100", "1"),
+            _Intra("t1", "2025-02-01T00:00:00+00:00", "Coinbase", "Kraken", "100", "1.00000000000004", "1.00000000000004"),
+            _Intra("t2", "2025-03-01T00:00:00+00:00", "Kraken", "BlockFi", "100", "1.00000000000008", "1.00000000000008"),
+            _Intra("t3", "2025-04-01T00:00:00+00:00", "BlockFi", "Coinbase", "100", "1.00000000000012", "1.00000000000012"),
+        ]
+        with self.assertRaisesRegex(
+            RP2ValueError,
+            r"^Transfer t3 returns 1\.00000000000012 B1 to lot X of Coinbase/Bob, which would then hold 1\.00000000000008 B1: more than the 1 B1 it was",
+        ):
+            compute_tax_per_wallet(configuration, self._create_accounting_engine(None), self._create_input_data(configuration, transactions))
+        universal = compute_tax(configuration, self._create_accounting_engine(None), self._create_input_data(configuration, transactions))
+        no_pairings: List[_Pairing] = []
+        self.assertEqual(_pairings(universal), no_pairings)
+
     # When the lots are in different wallets, per-wallet application can only take the lots of the wallet that sells or sends, so the
     # results differ from universal application, which takes from any wallet.
     def test_wallet_restriction_changes_the_results(self) -> None:
