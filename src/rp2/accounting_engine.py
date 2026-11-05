@@ -18,7 +18,7 @@ from typing import Dict, Iterator, List, Mapping, NamedTuple, Optional
 
 from prezzemolo.avl_tree import AVLTree
 
-from rp2.abstract_accounting_method import AbstractAccountingMethod, AbstractAcquiredLotCandidates, AcquiredLotAndAmount
+from rp2.abstract_accounting_method import AbstractAccountingMethod, AbstractAcquiredLotCandidates
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.in_transaction import InTransaction
 from rp2.lot_consumption import TakeResult, take_lots
@@ -66,12 +66,6 @@ def _copy_years_2_methods(years_2_methods: AVLTree[int, AbstractAccountingMethod
     return result
 
 
-class AcquiredLotAndAmounts(NamedTuple):
-    acquired_lot: Optional[InTransaction]
-    taxable_event_amount: RP2Decimal
-    acquired_lot_amount: RP2Decimal
-
-
 @dataclass(frozen=True, eq=True)
 class _AcquiredLotAndIndex:
     acquired_lot: InTransaction
@@ -83,23 +77,6 @@ class _AcquiredLotAndIndex:
 class _LotPool(NamedTuple):
     accounting_method: AbstractAccountingMethod
     lot_candidates: AbstractAcquiredLotCandidates
-
-
-class _LotExhaustedException(Exception):
-    def __init__(self, message: str = "") -> None:
-        self.__message = message
-        super().__init__(self.__message)
-
-    def __repr__(self) -> str:
-        return self.message
-
-    @property
-    def message(self) -> str:
-        return self.__message
-
-
-class AcquiredLotsExhaustedException(_LotExhaustedException):
-    pass
 
 
 # The lots of universal application: it keeps every acquired lot (in any wallet), the coins each one has left and the accounting method of
@@ -176,10 +153,6 @@ class AccountingEngine:
     def _get_avl_node_key_with_max_disambiguator(self, timestamp: datetime) -> str:
         return self._get_avl_node_key(timestamp, self.MAX_KEY_DISAMBIGUATOR)
 
-    @property
-    def acquired_lot_2_partial_amount(self) -> Dict[InTransaction, RP2Decimal]:
-        return self.__acquired_lot_2_partial_amount.copy()
-
     # A copy: changing it doesn't change this engine.
     @property
     def years_2_methods(self) -> AVLTree[int, AbstractAccountingMethod]:
@@ -223,28 +196,3 @@ class AccountingEngine:
         if lot_pool is None:
             return TakeResult([], amount)
         return take_lots(lot_pool.accounting_method, lot_pool.lot_candidates, amount)
-
-    # Selects the next lot to use at timestamp (in the tax time zone, see Configuration.tax_timezone), with the accounting method of its year.
-    # Only GlobalAllocator uses it. acquired_lot (the lot paired last) isn't needed to find the next lot.
-    def get_acquired_lot_for_timestamp(
-        self,
-        timestamp: datetime,
-        acquired_lot: Optional[InTransaction],  # pylint: disable=unused-argument
-        taxable_event_amount: RP2Decimal,
-        acquired_lot_amount: RP2Decimal,
-    ) -> AcquiredLotAndAmounts:
-        new_taxable_event_amount: RP2Decimal = taxable_event_amount - acquired_lot_amount
-        lot_pool = self._get_lot_pool(timestamp)
-        if lot_pool is None:
-            raise AcquiredLotsExhaustedException()
-        acquired_lot_and_amount: Optional[AcquiredLotAndAmount] = lot_pool.accounting_method.seek_non_exhausted_acquired_lot(
-            lot_pool.lot_candidates, new_taxable_event_amount
-        )
-        if not acquired_lot_and_amount:
-            raise AcquiredLotsExhaustedException()
-
-        return AcquiredLotAndAmounts(
-            acquired_lot=acquired_lot_and_amount.acquired_lot,
-            taxable_event_amount=new_taxable_event_amount,
-            acquired_lot_amount=acquired_lot_and_amount.amount,
-        )

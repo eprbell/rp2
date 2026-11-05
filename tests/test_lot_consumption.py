@@ -204,8 +204,8 @@ class TestLotConsumption(AbstractPerWalletTest):
             take_lots(AccountingMethodFIFO(), lot_candidates, RP2Decimal("-1"))
 
     # The lot pool of universal application, through AccountingEngine.take(): the lots acquired up to the taxable event (including the ones
-    # acquired at the same instant), in any wallet, with the coins each one has left, in the order of the accounting method. R14 of the
-    # review removes get_acquired_lot_for_timestamp(), which chose lots from the same pool for GlobalAllocator: universal application uses
+    # acquired at the same instant), in any wallet, with the coins each one has left, in the order of the accounting method. Until R14 of the
+    # review removed GlobalAllocator, get_acquired_lot_for_timestamp() chose lots from the same pool for it: universal application uses
     # take(), so the pool is checked here. test_tax_dates.py (test_accounting_method_of_the_tax_year) checks the method of each tax year.
     # Example, with LIFO: lots A (Coinbase, January), B (Kraken, March 1st at midnight) and C (Coinbase, June). A sale on Coinbase on March
     # 1st at midnight takes B and then A: B is in another wallet, and it's acquired at the instant of the sale. C is newer than both, but

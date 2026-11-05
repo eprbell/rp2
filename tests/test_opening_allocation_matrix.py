@@ -14,20 +14,20 @@
 
 # R11 from the review of eprbell/rp2#155: the opening-allocation scenarios of test_global_allocation.py, run through the production path.
 #
-# test_global_allocation.py tests GlobalAllocator, an earlier prototype that RP2 doesn't use: it received lots already tracked wallet by
-# wallet before 2025 and produced artificial transfers. RP2 instead uses universal application until the switch (January 1st, 2025), then
-# UnusedBasisAllocator assigns the lots that universal application left unused to the wallets that hold units (Rev. Proc. 2024-28 global
-# allocation). So the same scenarios are run here through compute_tax_per_wallet(): their transactions happen in 2024 (day N of the
-# prototype is January 1st, 2024 plus N days) and the expected allocation is recomputed by hand from the unused universal basis, for each
-# method (FIFO, LIFO, HIFO and LOFO, used both for 2024 and as the allocation method). The prototype's per-wallet remaining amounts, prices
-# of its artificial transfers, artificial transfers and artificial ids are not used: they don't exist in the production path.
+# test_global_allocation.py tested GlobalAllocator, an earlier prototype that RP2 didn't use (R14 removed both): it received lots already
+# tracked wallet by wallet before 2025 and produced artificial transfers. RP2 instead uses universal application until the switch (January
+# 1st, 2025), then UnusedBasisAllocator assigns the lots that universal application left unused to the wallets that hold units (Rev. Proc.
+# 2024-28 global allocation). So the same scenarios are run here through compute_tax_per_wallet(): their transactions happen in 2024 (day N
+# of the prototype is January 1st, 2024 plus N days) and the expected allocation is recomputed by hand from the unused universal basis, for
+# each method (FIFO, LIFO, HIFO and LOFO, used both for 2024 and as the allocation method). The prototype's per-wallet remaining amounts,
+# prices of its artificial transfers, artificial transfers and artificial ids are not used: they don't exist in the production path.
 #
 # Example ("Mixed" below): buy 10 coins for $110 each on Coinbase (lot 1) and 20 for $120 each on Kraken (lot 2), send 5 from Kraken to
 # BlockFi receiving 4 (1 coin of fee), and sell 2 on BlockFi. With FIFO, universal application pays the fee and the sale with lot 1, so the
 # unused lots are 7 coins of lot 1 and 20 of lot 2. At the switch BlockFi holds 2, Kraken 15 and Coinbase 10. With the wallet order BlockFi,
 # Kraken, Coinbase: BlockFi gets 2 coins of lot 1, Kraken the other 5 of lot 1 and 10 of lot 2, Coinbase the last 10 of lot 2.
 #
-# Migration map: what replaces each scenario of test_global_allocation.py (for R14, which removes the prototype).
+# Migration map: what replaces each scenario of test_global_allocation.py (R14 removed it with the prototype).
 # | Prototype scenario (x FIFO, LIFO, HIFO, LOFO)  | Disposition | Replacement                                                            |
 # |-----------------------------------------------|-------------|------------------------------------------------------------------------|
 # | Simple test                                   | adapted     | test_opening_allocation_matrix: "Simple"                               |
