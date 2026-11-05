@@ -151,15 +151,6 @@ class AbstractAcquiredLotCandidates:
     def clear_partial_amount(self, acquired_lot: InTransaction) -> None:
         self.set_partial_amount(acquired_lot, ZERO)
 
-    # Reset partial amounts to their original values and from index to zero. accounting_method is unused here: the feature-based override
-    # (FeatureBasedAcquiredLotCandidates) uses it to put the lots back in its heap.
-    def reset_partial_amounts(  # pylint: disable=unused-argument
-        self, accounting_method: "AbstractAccountingMethod", original_partial_amounts: Dict[InTransaction, RP2Decimal]
-    ) -> None:
-        for current_transaction, original_partial_amount in original_partial_amounts.items():
-            self.set_partial_amount(current_transaction, original_partial_amount)
-        self.set_from_index(0)
-
     def __iter__(self) -> AbstractAccountingMethodIterator:
         return self._accounting_method._create_accounting_method_iterator(self)
 
@@ -208,13 +199,6 @@ class FeatureBasedAcquiredLotCandidates(AbstractAcquiredLotCandidates):
         super().add_acquired_lot(acquired_lot)
         accounting_method = cast(AbstractFeatureBasedAccountingMethod, self.accounting_method)
         accounting_method.add_selected_lot_to_heap(self.__acquired_lot_heap, acquired_lot)
-
-    def reset_partial_amounts(self, accounting_method: "AbstractAccountingMethod", original_partial_amounts: Dict[InTransaction, RP2Decimal]) -> None:
-        if not isinstance(accounting_method, AbstractFeatureBasedAccountingMethod):
-            raise RP2TypeError(f"Internal error: accounting_method is not of type AbstractFeatureBasedAccountingMethod, but of type {type(accounting_method)}")
-        super().reset_partial_amounts(accounting_method, original_partial_amounts)
-        for current_transaction, _ in original_partial_amounts.items():
-            accounting_method.add_selected_lot_to_heap(self.__acquired_lot_heap, current_transaction)
 
 
 class AbstractAccountingMethod:
