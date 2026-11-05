@@ -19,7 +19,7 @@
 
 import unittest
 from types import ModuleType
-from typing import Dict, List, NamedTuple, Optional, cast
+from typing import Dict, Iterable, List, NamedTuple, Optional, cast
 
 from per_wallet_common import AbstractPerWalletTest, _create_configuration, _In, _Intra, _Out
 
@@ -29,6 +29,7 @@ import rp2.tax_engine
 import rp2.transfer_analyzer
 from rp2.abstract_accounting_method import AbstractAccountingMethod, AbstractAcquiredLotCandidates
 from rp2.abstract_transaction import AbstractTransaction
+from rp2.accounting_engine import AccountingEngine
 from rp2.computed_data import ComputedData
 from rp2.configuration import Configuration
 from rp2.gain_loss import GainLoss
@@ -201,6 +202,58 @@ class TestLotConsumption(AbstractPerWalletTest):
             take_lots(AccountingMethodHIFO(), lot_candidates, RP2Decimal("1"))
         with self.assertRaisesRegex(RP2ValueError, "Parameter 'amount' has non-positive value"):
             take_lots(AccountingMethodFIFO(), lot_candidates, RP2Decimal("-1"))
+
+    # The lot pool of universal application, through AccountingEngine.take(): the lots acquired up to the taxable event (including the ones
+    # acquired at the same instant), in any wallet, with the coins each one has left, in the order of the accounting method. R14 of the
+    # review removes get_acquired_lot_for_timestamp(), which chose lots from the same pool for GlobalAllocator: universal application uses
+    # take(), so the pool is checked here. test_tax_dates.py (test_accounting_method_of_the_tax_year) checks the method of each tax year.
+    # Example, with LIFO: lots A (Coinbase, January), B (Kraken, March 1st at midnight) and C (Coinbase, June). A sale on Coinbase on March
+    # 1st at midnight takes B and then A: B is in another wallet, and it's acquired at the instant of the sale. C is newer than both, but
+    # it's acquired after the sale, so it's not in the pool.
+    def test_universal_lot_pool(self) -> None:
+        configuration = _create_configuration()
+        input_data = self._create_input_data(
+            configuration,
+            [
+                _In("A", "2024-01-01T00:00:00+00:00", "Coinbase", "Buy", "100", "2"),
+                _In("B", "2024-03-01T00:00:00+00:00", "Kraken", "Buy", "200", "1"),
+                _In("C", "2024-06-01T00:00:00+00:00", "Coinbase", "Buy", "300", "4"),
+                _Out("before", "2023-12-31T00:00:00+00:00", "Coinbase", "400", "1"),
+                _Out("o1", "2024-03-01T00:00:00+00:00", "Coinbase", "400", "2"),
+                _Out("o2", "2024-03-02T00:00:00+00:00", "Coinbase", "400", "5"),
+            ],
+        )
+        lots: Dict[str, InTransaction] = {}
+        for entry in input_data.unfiltered_in_transaction_set:
+            lot = cast(InTransaction, entry)
+            lots[lot.unique_id] = lot
+        sales: Dict[str, AbstractTransaction] = {}
+        for entry in input_data.unfiltered_out_transaction_set:
+            sale = cast(AbstractTransaction, entry)
+            sales[sale.unique_id] = sale
+
+        # A universal application engine with one accounting method, and the coins each lot has left at the start, if given.
+        def create_engine(method: AbstractAccountingMethod, lot_2_coins_left: Optional[Dict[InTransaction, RP2Decimal]] = None) -> AccountingEngine:
+            engine = self._create_accounting_engine({1970: method})
+            engine.initialize(iter(cast(Iterable[InTransaction], input_data.unfiltered_in_transaction_set)), lot_2_coins_left)
+            return engine
+
+        engine = create_engine(AccountingMethodLIFO())
+        # No lot is acquired before the sale: nothing is taken and all the coins are missing.
+        want = TakeResult([], RP2Decimal("1"))
+        self.assertEqual(engine.take(sales["before"], RP2Decimal("1")), want)
+        # B (acquired at the instant of the sale, in another wallet), then A. C is acquired after the sale.
+        want = TakeResult([LotPiece(lots["B"], RP2Decimal("1")), LotPiece(lots["A"], RP2Decimal("1"))], ZERO)
+        self.assertEqual(engine.take(sales["o1"], RP2Decimal("2")), want)
+        # The coins left carry over to the next sale: B has none and A has 1. C is still acquired after the sale, so 4 coins are missing.
+        want = TakeResult([LotPiece(lots["A"], RP2Decimal("1"))], RP2Decimal("4"))
+        self.assertEqual(engine.take(sales["o2"], RP2Decimal("5")), want)
+
+        # The coins each lot has left at the start (e.g. InputData.in_transaction_2_actual_amount) are given to initialize(). With FIFO and
+        # 0.5 coins left in A, a sale of 2 coins takes those 0.5 coins and B's coin, and 0.5 coins are missing.
+        engine = create_engine(AccountingMethodFIFO(), {lots["A"]: RP2Decimal("0.5")})
+        want = TakeResult([LotPiece(lots["A"], RP2Decimal("0.5")), LotPiece(lots["B"], RP2Decimal("1"))], RP2Decimal("0.5"))
+        self.assertEqual(engine.take(sales["o1"], RP2Decimal("2")), want)
 
     # Each piece becomes a gain/loss with the piece's coins and lot.
     def test_pair_with_lots(self) -> None:
