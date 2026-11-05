@@ -267,13 +267,9 @@ class TransferAnalyzer:
             return
         to_per_wallet_transactions.add_acquired_lot(self._create_to_in_transaction(piece.acquired_lot, transaction, piece.amount))
 
-    # Performs transfer analysis on the universal InputData and returns one InputData per wallet.
-    def analyze(self) -> Dict[Account, InputData]:
-        return self.analyze_and_pair().wallet_2_input_data
-
-    # Same as analyze(), but also returns the per-wallet gain/loss pairings of all taxable events and what each wallet holds at the end of
-    # holdings_date. Transactions are processed in a single chronological pass (see _transaction_processing_order()), so every disposal or
-    # transfer sees exactly the lots its wallet holds at that moment.
+    # Performs transfer analysis on the universal InputData. Returns one InputData per wallet, the per-wallet gain/loss pairings of all
+    # taxable events and what each wallet holds at the end of holdings_date. Transactions are processed in a single chronological pass (see
+    # _transaction_processing_order()), so every disposal or transfer sees exactly the lots its wallet holds at that moment.
     # The holdings are recorded when the pass reaches the first transaction whose tax date (see Configuration.tax_timezone) is after
     # holdings_date, like BalanceSet does, so that they match the balances at that date. Example: buy in January, sell in May, holdings_date in April:
     # the holdings include the January lot, untouched by the May sale.
