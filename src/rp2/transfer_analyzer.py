@@ -77,8 +77,6 @@ class TransferAnalyzer:
         configuration: Configuration,
         transfer_semantics: AbstractAccountingMethod,
         universal_input_data: InputData,
-        skip_transfer_pointers: bool = False,
-        use_local_artificial_ids: bool = False,
         years_2_accounting_methods: Optional[AVLTree[int, AbstractAccountingMethod]] = None,
     ):
         self.__configuration = Configuration.type_check("configuration", configuration)
@@ -97,13 +95,6 @@ class TransferAnalyzer:
             per_wallet_method = self.__method_name_2_per_wallet_method.setdefault(method.name, get_per_wallet_accounting_method(method))
             self.__years_2_accounting_methods.insert_node(year, per_wallet_method)
         self.__universal_input_data = InputData.type_check("universal_input_data", universal_input_data)
-        # skip_transfer_pointers is used in global allocation, where the artificial transactions are used only as guides
-        # and are replaced by new ones decided by the allocation method.
-        self.__skip_transfer_pointers = Configuration.type_check_bool("skip_transfer_pointers", skip_transfer_pointers)
-        # use_local_artificial_ids is used in global allocation, to avoid increasing the artificial id counter when running
-        # the local transfer analysis (which is a throwaway operation).
-        self.__use_local_artificial_ids = Configuration.type_check_bool("use_local_artificial_ids", use_local_artificial_ids)
-        self.__local_artificial_id_counter = -1
 
     def _get_accounting_method(self, transaction: AbstractTransaction) -> AbstractFeatureBasedAccountingMethod:
         method = self.__years_2_accounting_methods.find_max_value_less_than(transaction.tax_year)
@@ -111,19 +102,12 @@ class TransferAnalyzer:
             raise RP2RuntimeError(f"Internal error: no accounting method assigned for year {transaction.tax_year}")
         return method
 
-    def _new_artificial_id(self) -> int:
-        if self.__use_local_artificial_ids:
-            result = self.__local_artificial_id_counter
-            self.__local_artificial_id_counter -= 1
-            return result
-        return self.__configuration.get_new_artificial_id()
-
     # Creates an artificial InTransaction modeling the "to" side of an IntraTransaction. The artificial transaction carries the same per-unit
     # cost basis (including purchase fees) as from_in_transaction.
     # Its timestamp is the transfer's (when the funds become available in the destination wallet) and its cost_basis_timestamp is the
     # acquisition date of the original lot (which determines FIFO order and holding period).
     def _create_to_in_transaction(self, from_in_transaction: InTransaction, transfer_transaction: IntraTransaction, amount: RP2Decimal) -> InTransaction:
-        artificial_id = self._new_artificial_id()
+        artificial_id = self.__configuration.get_new_artificial_id()
 
         fraction = amount / from_in_transaction.crypto_in
         fiat_fee = from_in_transaction.fiat_fee * fraction
@@ -149,26 +133,25 @@ class TransferAnalyzer:
             cost_basis_timestamp=from_in_transaction.original_lot.timestamp.isoformat(),
         )
 
-        if not self.__skip_transfer_pointers:
-            # originates_from (used to detect round trips) only contains lots that wallets actually hold during this analysis: the lot the
-            # units leave from, plus the wallets that lot's units were in before (its own originates_from). It doesn't follow from_lot: past
-            # a lot created by the unused basis allocation, from_lot leads to an input lot bought before the switch, which is not held by
-            # any wallet here. Returning units to it would count them twice.
-            # Example: 10 units bought in 2024 are allocated to wallet A at the switch as lot X. Move 4 units A -> B (lot Y), then B -> A:
-            # Y.originates_from is {A: X}, so the 4 units go back to X (6 + 4 = 10 units). Following from_lot instead would also reach the
-            # 2024 purchase in A: its 10 units plus the 4 returned make 14 units out of 10.
-            # When a wallet appears more than once, the most recent lot (the closest to this transfer) is the one that holds the units.
-            from_account = Account(from_in_transaction.exchange, from_in_transaction.holder)
-            result.originates_from[from_account] = from_in_transaction
-            for account, lot in from_in_transaction.originates_from.items():
-                result.originates_from.setdefault(account, lot)
+        # originates_from (used to detect round trips) only contains lots that wallets actually hold during this analysis: the lot the units
+        # leave from, plus the wallets that lot's units were in before (its own originates_from). It doesn't follow from_lot: past a lot
+        # created by the unused basis allocation, from_lot leads to an input lot bought before the switch, which is not held by any wallet
+        # here. Returning units to it would count them twice.
+        # Example: 10 units bought in 2024 are allocated to wallet A at the switch as lot X. Move 4 units A -> B (lot Y), then B -> A:
+        # Y.originates_from is {A: X}, so the 4 units go back to X (6 + 4 = 10 units). Following from_lot instead would also reach the 2024
+        # purchase in A: its 10 units plus the 4 returned make 14 units out of 10.
+        # When a wallet appears more than once, the most recent lot (the closest to this transfer) is the one that holds the units.
+        from_account = Account(from_in_transaction.exchange, from_in_transaction.holder)
+        result.originates_from[from_account] = from_in_transaction
+        for account, lot in from_in_transaction.originates_from.items():
+            result.originates_from.setdefault(account, lot)
 
-            # to_lots records where the units went, for every lot they come from (including input lots bought before the switch).
-            to_account = Account(transfer_transaction.to_exchange, transfer_transaction.to_holder)
-            current_transaction: Optional[InTransaction] = from_in_transaction
-            while current_transaction is not None:
-                current_transaction.to_lots.setdefault(to_account, []).append(result)
-                current_transaction = current_transaction.from_lot
+        # to_lots records where the units went, for every lot they come from (including input lots bought before the switch).
+        to_account = Account(transfer_transaction.to_exchange, transfer_transaction.to_holder)
+        current_transaction: Optional[InTransaction] = from_in_transaction
+        while current_transaction is not None:
+            current_transaction.to_lots.setdefault(to_account, []).append(result)
+            current_transaction = current_transaction.from_lot
 
         return result
 
