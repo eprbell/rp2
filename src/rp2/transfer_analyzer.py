@@ -239,8 +239,11 @@ class TransferAnalyzer:
                 f"Insufficient balance on {from_account} to send funds "
                 f"(missing {missing_amount} of {transaction.crypto_sent} {transaction.asset}): {transaction}"
             )
-        # The fee is disposed of: each fee piece is paired with its lot.
-        gain_loss_list.extend(pair_with_lots(self.__configuration, transaction, fee_pieces))
+        # The fee is disposed of: each fee piece is paired with its lot. A fee worth nothing (its fiat value rounds to zero with RP2Decimal's
+        # 13 decimals) makes the transfer non-taxable: its coins are spent, but it has no gain/loss, as in universal application, which only
+        # pairs taxable events. Example: a fee of 0.00000001 coins of a token priced at $0.000001 is worth $0.00000000000001.
+        if transaction.is_taxable():
+            gain_loss_list.extend(pair_with_lots(self.__configuration, transaction, fee_pieces))
         for piece in received_pieces:
             if transaction.is_self_transfer():
                 # Self transfer (loop): the received units stay where they were.

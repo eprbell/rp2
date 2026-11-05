@@ -312,6 +312,25 @@ class TestLotConsumption(AbstractPerWalletTest):
         want_remaining: Dict[str, RP2Decimal] = {"A": ZERO, "B": RP2Decimal("1")}
         self.assertEqual(_per_wallet_remaining(per_wallet), want_remaining)
 
+    # A transfer fee worth less than RP2Decimal's precision (13 decimals) in fiat counts as worth nothing, so the transfer isn't taxable:
+    # universal application doesn't pair the fee, and neither does per-wallet application, which still takes the fee coins out of the
+    # wallet. Example: a fee of 0.00000001 coins of a token priced at $0.000001 is worth $0.00000000000001. Per-wallet application stopped
+    # with "Parameter 'taxable_event' of class IntraTransaction is not taxable" before.
+    def test_fee_worth_nothing_is_not_paired(self) -> None:
+        configuration = _create_configuration()
+        transactions: List[object] = [
+            _In("A", "2025-01-01T00:00:00+00:00", "Coinbase", "Buy", "0.000001", "1000"),
+            _Intra("t1", "2025-02-01T00:00:00+00:00", "Coinbase", "Kraken", "0.000001", "10", "9.99999999"),
+        ]
+        universal = compute_tax(configuration, self._create_accounting_engine(None), self._create_input_data(configuration, transactions))
+        per_wallet = compute_tax_per_wallet(configuration, self._create_accounting_engine(None), self._create_input_data(configuration, transactions))
+        no_pairings: List[_Pairing] = []
+        self.assertEqual(_pairings(universal), no_pairings)
+        self.assertEqual(_pairings(per_wallet), no_pairings)
+        # The fee coins are spent: Coinbase sent 10 coins, Kraken received 9.99999999.
+        want_holdings: Dict[str, RP2Decimal] = {"Coinbase/A": RP2Decimal("990"), "Kraken/A": RP2Decimal("9.99999999")}
+        self.assertEqual(_holdings(per_wallet), want_holdings)
+
     # When the lots are in different wallets, per-wallet application can only take the lots of the wallet that sells or sends, so the
     # results differ from universal application, which takes from any wallet.
     def test_wallet_restriction_changes_the_results(self) -> None:
