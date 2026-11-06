@@ -14,6 +14,9 @@
 
 # RP2 Change Log
 
+# Unreleased
+* US holding period: a gain is long-term only if the coin is sold after the first anniversary of its purchase date (held more than 1 year, IRC §1222, counting from the day after the purchase and including the day of the sale, as in IRS Publication 544). RP2 1.7.2 counted 365 days of 24 hours instead, so some sales it reported as long-term are now short-term, also in years before 2025: sales on the anniversary date and, when February 29th is in between, on the day before it. E.g. a coin bought on March 1st, 2023 and sold on March 1st, 2024 is short-term. Other countries are unchanged.
+
 # 1.7.2
 * Added new LOST transaction type to model losses from bankruptcy, theft, etc.
 * Added LOFO accounting method (lowest in, first out)

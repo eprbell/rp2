@@ -278,7 +278,7 @@ class TestGainLoss(unittest.TestCase):
           The day you disposed of the property is part of your holding period"):
             https://www.irs.gov/publications/p544
         """
-        # Exactly 365 days must be short-term (IRS: "more than one year" means strictly > 365 days).
+        # A sale on the first anniversary of the purchase (365 days later here) is short-term: the US requires more than 1 year.
         buy_365 = InTransaction(
             self._configuration,
             "2021-01-01T00:00:00Z",
@@ -343,8 +343,8 @@ class TestGainLoss(unittest.TestCase):
         gl_366 = GainLoss(self._configuration, RP2Decimal("1.0"), sell_at_366, buy_365)
         gl_leap = GainLoss(self._configuration, RP2Decimal("1.0"), sell_leap_year_boundary, buy_leap)
 
-        self.assertFalse(gl_365.is_long_term_capital_gains(), "365-day holding should be short-term (IRS: more than 1 year required)")
-        self.assertTrue(gl_366.is_long_term_capital_gains(), "366-day holding should be long-term")
+        self.assertFalse(gl_365.is_long_term_capital_gains(), "A sale on the anniversary should be short-term (IRS: more than 1 year required)")
+        self.assertTrue(gl_366.is_long_term_capital_gains(), "A sale on the day after the anniversary should be long-term")
         self.assertFalse(gl_leap.is_long_term_capital_gains(), "Exactly one year (366 days across February 29th) should be short-term")
 
         def is_long_term(bought: str, sold: str) -> bool:

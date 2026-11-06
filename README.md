@@ -93,7 +93,7 @@ RP2 groups lot fractions into the following taxable event categories, each of wh
 * [MINING](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-handle-income-from-mining): gains from mining;
 * [MOVE](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-handle-a-transfer-of-funds-from-a-wallet-or-exchange-to-another): the fee for moving currency between two accounts controlled by the same owner;
 * SELL: specifically, sale and [conversion of a cryptocurrency to another](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-handle-conversion-of-a-cryptocurrency-to-another). RP2 splits them in two subcategories:
-  * long-term capital gains (if supported by the country plugin: e.g. in the US it's 1 year or more), or
+  * long-term capital gains (if supported by the country plugin: e.g. in the US it's more than 1 year), or
   * short-term capital gains otherwise;
 * [STAKING](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-handle-income-from-staking): gains from staking;
 * [WAGES](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#how-to-handle-income-from-crypto-wages): income from crypto wages.
