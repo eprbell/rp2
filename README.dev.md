@@ -338,7 +338,7 @@ Accounting method plugins are discovered by RP2 at runtime and they must adhere 
 RP2 has built-in support for the US but it also has infrastructure to support other countries. The abstract superclass of country plugins is [AbstractCountry](src/rp2/abstract_country.py), which captures the following:
 * country code (2-letter string in [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format);
 * currency code (3-letter string in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format);
-* long term capital gain period in days (e.g. for the US it's 365), used by the default holding period rule (`is_long_term_capital_gain()`, which counts days: the US overrides it to compare calendar dates);
+* long term capital gain period in days (e.g. for the US it's 365), used by the default holding period rule (`is_long_term_capital_gain()`): a gain is long-term if at least that many days (24-hour periods) passed between the acquisition and the disposal. The US overrides the rule to compare calendar dates;
 * accepted accounting methods;
 * accepted report generators;
 * default language for the country;
