@@ -18,6 +18,7 @@
 [![Unix Unit Tests / Main Branch](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/unix_unit_tests.yml)
 [![Windows Unit Tests / Main Branch](https://github.com/eprbell/rp2/actions/workflows/windows_unit_tests.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/windows_unit_tests.yml)
 [![CodeQL/Main Branch](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/eprbell/rp2/actions/workflows/codeql-analysis.yml)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/eprbell/rp2)
 
 ## Table of Contents
 * **[Introduction](#introduction)**
@@ -51,7 +52,7 @@ RP2 is released under the terms of Apache License Version 2.0. For more informat
 The latest RP2 source can be downloaded at: <https://github.com/eprbell/rp2>
 
 ## Setup
-RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.8.0 or greater. Virtualenv is recommended for RP2 development.
+RP2 has been tested on Ubuntu Linux, macOS and Windows 10 but it should work on all systems that have Python version 3.10.0 or greater. Virtualenv is recommended for RP2 development.
 
 ### Setup on Ubuntu Linux
 First make sure Python, pip and virtualenv are installed. If not, open a terminal window and enter the following commands:
@@ -82,7 +83,7 @@ virtualenv -p python3 .venv
 .venv/bin/pip3 install -e '.[dev]'
 ```
 ### Setup on Windows 10
-First make sure [Python](https://python.org) 3.8 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following commands:
+First make sure [Python](https://python.org) 3.10 or greater is installed (in the Python installer window be sure to click on "Add Python to PATH"), then open a PowerShell window and enter the following commands:
 ```
 python -m pip install virtualenv
 ```
@@ -97,7 +98,7 @@ python -m pip install -e ".[dev]"
 
 If `activate.ps1` cannot be loaded because running scripts is disabled on the system, run `activate.bat` instead or change the PowerShell execution policy `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`.
 ### Setup on Other Unix-like Systems
-* install python 3.8 or greater
+* install python 3.10 or greater
 * install pip3
 * install virtualenv
 
@@ -165,6 +166,7 @@ RP2 code adheres to these principles:
 * type hints: all variables and functions have Python type hints (with the exception of local variables, for which type hints are optional);
 * no id-based hashing: classes that are added to dictionaries and sets redefine `__eq__()`, `__neq__()` and `__hash__()`;
 * encapsulated math: all high-precision math is done via `RP2Decimal` (a subclass of Decimal), to ensure the correct precision is used throughout the code. `RP2Decimal` instances are never mixed with other types in expressions;
+* tax dates: the dates and years used by tax logic (tax years, the accounting method of each year, holding periods, the `-f` and `-t` filters, the per-wallet switch, report dates) come from `AbstractEntry.tax_date` and `tax_year`, or from `Configuration.get_tax_date()` and `get_tax_year()` for other timestamps. They use the time zone of the country section, if any: never use `timestamp.date()` or `timestamp.year` for tax logic (e.g. with `America/New_York`, `2025-01-01T03:00:00Z` is on December 31st, 2024). Timestamps themselves are never modified, and transactions are ordered by instant;
 * f-strings only: every time string interpolation is needed, f-strings are used;
 * no raw strings (unless they occur only once): use global constants instead;
 * logging: logging is done via the `logger` module;
@@ -184,6 +186,7 @@ While every commit and push is automatically tested as described, sometimes it's
 * security check: `bandit -r src`
 * reformat code: `black src tests`
 * sort imports: `isort .`
+* update local pre-commit repos: `pre-commit autoupdate; pre-commit install`
 * run pre-commit tests without committing: `pre-commit run --all-files`
 
 Logs are stored in the `log` directory. To generate debug logs, prepend the command line with `LOG_LEVEL=DEBUG`, e.g.:
@@ -284,7 +287,11 @@ The RP2 accounting engine automatically provides the following common functional
 * lot disambiguation: this occurs when lots have the same timestamp;
 * accounting method change year over year: this occurs when the user changes accounting method with the `-m` option.
 
-Note that the RP2 accounting engine uses [universal application](https://www.forbes.com/sites/shehanchandrasekera/2020/09/17/what-crypto-taxpayers-need-to-know-about-fifo-lifo-hifo-specific-id/), not per-wallet application: this means there is one queue for each coin across every wallet and exchange and the accounting method is applied to each such queue.
+Accounting method plugins are used in both application modes (see [universal and per-wallet application](docs/user_faq.md#do-accounting-methods-use-universal-or-per-wallet-application)). The application policy of the country chooses the mode of each year:
+* universal application (`compute_tax()` in [tax_engine.py](src/rp2/tax_engine.py), with [AccountingEngine](src/rp2/accounting_engine.py)): there is one queue for each coin across every wallet and exchange, and the accounting method is applied to each such queue;
+* per-wallet application (`compute_tax_per_wallet()` in [tax_engine.py](src/rp2/tax_engine.py)): universal application until the first per-wallet year (the switch); at the switch [UnusedBasisAllocator](src/rp2/unused_basis_allocator.py) assigns the lots that are still unused to the wallets that hold the coin; after the switch [TransferAnalyzer](src/rp2/transfer_analyzer.py) processes the transactions in one chronological pass, with one queue for each coin in each wallet (a wallet is an exchange/holder pair, see [Account](src/rp2/account.py)), and the method of each year applies to both sales and transfers. Transferred lots keep their original acquisition date, so chronological methods are replaced by feature-based equivalents that sort lots by that date (e.g. [AcquisitionDateFifo](src/rp2/acquisition_date_fifo.py) for FIFO); feature-based methods are used as they are. This rule is in [per_wallet_accounting_method.py](src/rp2/per_wallet_accounting_method.py), used by both the transfer analyzer and the allocator, and method names become methods only in [accounting_method_loader.py](src/rp2/accounting_method_loader.py).
+
+Both modes take coins from lots with the same rules, in [lot_consumption.py](src/rp2/lot_consumption.py): `take_lots()` selects the lots in the order of the accounting method, takes them partially or whole and records the coins left in each lot, and `pair_with_lots()` turns each piece taken into a gain/loss. The modes differ only in the lots they let `take_lots()` choose from: universal application passes the lots acquired up to the taxable event in any wallet (`AccountingEngine.take()`), per-wallet application only the lots of the wallet that sells or sends the coins (`PerWalletTransactions.take()`). Transfers between wallets (where the coins arrive and the return of coins at the end of round trips) are handled by the transfer analyzer.
 
 Accounting method plugins are discovered by RP2 at runtime and they must adhere to the conventions shown below. To add a new plugin follow this procedure:
 * add a new Python file to the `src/rp2/plugin/accounting_method/` directory and give it a meaningful name (like fifo.py)
@@ -331,10 +338,11 @@ Accounting method plugins are discovered by RP2 at runtime and they must adhere 
 RP2 has built-in support for the US but it also has infrastructure to support other countries. The abstract superclass of country plugins is [AbstractCountry](src/rp2/abstract_country.py), which captures the following:
 * country code (2-letter string in [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format);
 * currency code (3-letter string in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format);
-* long term capital gain period in days (e.g. for the US it's 365);
+* long term capital gain period in days (e.g. for the US it's 365), used by the default holding period rule (`is_long_term_capital_gain()`): a gain is long-term if at least that many days (24-hour periods) passed between the acquisition and the disposal. The US overrides the rule to compare calendar dates;
 * accepted accounting methods;
 * accepted report generators;
-* default language for the country.
+* default language for the country;
+* application policy (`get_application_policy()`): the application modes (universal, per-wallet) allowed in each year and the default one. The default policy is universal application in every year; the US uses per-wallet application from 2025, configured in the `country.us` section of the config file (see [supported countries](docs/supported_countries.md#usa)).
 
  To add a new plugin follow this procedure:
 * add a new Python file to the `src/rp2/plugin/country/` directory and name it after the ISO 3166-1 alpha-2, 2-letter code for the country (e.g. us.py or jp.py);
@@ -345,6 +353,7 @@ RP2 has built-in support for the US but it also has infrastructure to support ot
 * `get_accounting_methods()` method returning a set of accounting methods that are accepted in the country (e.g. `{"fifo", "lifo", "hifo"}`);
 * `get_report_generators()`: method returning a set of report generators to use if the user doesn't specify them on the command line;
 * `get_default_generation_language()`: method returning the default language (in [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format) to use at report generation if the user doesn't specify it on the command line;
+* optionally, `is_long_term_capital_gain()` if the country measures the holding period differently from the default, and `get_application_policy()` if the country requires per-wallet application in some years (see the US plugin);
 * `rp2_entry()` global function calling `rp2_main()` and passing it an instance of the new country class (in fact technically subclasses of `AbstractCountry` are entry points, not plugins).
 
 As an example see the [us.py](src/rp2/plugin/country/us.py) file.

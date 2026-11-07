@@ -180,9 +180,11 @@ class EntrySetIterator(Iterator[AbstractEntry]):
         while self.__index < self.__entry_set_size:
             result = self.__entry_set._entry_list[self.__index]  # pylint: disable=protected-access
             self.__index += 1
-            if result.timestamp.date() > self.__entry_set.to_date:
+            # Date filters use tax dates (see Configuration.tax_timezone).
+            tax_date = result.tax_date
+            if tax_date > self.__entry_set.to_date:
                 raise StopIteration(self)
-            if result.timestamp.date() >= self.__entry_set.from_date:
+            if tax_date >= self.__entry_set.from_date:
                 return result
         raise StopIteration(self)
 

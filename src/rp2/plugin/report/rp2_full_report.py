@@ -67,6 +67,10 @@ class Generator(AbstractODSGenerator):
 
     TEMPLATE_SHEETS_TO_KEEP: Set[str] = {"__Summary"}
 
+    # The rows of the transactions in the In-Out sheet of the asset being generated, and the first row of each year in the Tax sheets: the
+    # targets of the hyperlinks. generate() and __generate_asset() give each report and each asset new maps: transactions are equal when they
+    # have the same internal id (their row in the input), which repeats from asset to asset, so a shared map would link a transaction that a
+    # date filter leaves out of the In-Out sheet to the row of another asset's (or another report's) transaction.
     __in_out_sheet_transaction_2_row: Dict[AbstractTransaction, int] = {}
     __tax_sheet_year_2_row: Dict[_AssetAndYear, int] = {}
 
@@ -440,6 +444,7 @@ class Generator(AbstractODSGenerator):
             raise RP2TypeError(f"Parameter 'asset_to_computed_data' has non-Dict value {asset_to_computed_data}")
 
         self._setup_text_data(country)
+        self.__tax_sheet_year_2_row = {}
 
         template_path: str = self._get_template_path("rp2_full_report", country, generation_language)
 
@@ -512,6 +517,8 @@ class Generator(AbstractODSGenerator):
         if new_lines:
             summary_sheet.append_rows(new_lines)
 
+        # Only the rows of this asset's In-Out sheet (see __in_out_sheet_transaction_2_row).
+        self.__in_out_sheet_transaction_2_row = {}
         row_index: int = 0
         row_index = self.__generate_in_table(transaction_sheet, computed_data, row_index)
         row_index = self.__generate_out_table(transaction_sheet, computed_data, row_index + 2)
@@ -533,11 +540,11 @@ class Generator(AbstractODSGenerator):
             visual_style = "taxable_event"
             highlighted_style = "highlighted"
         if year == 0:
-            year = transaction.timestamp.year
-        if transaction.timestamp.year != year:
+            year = transaction.tax_year
+        if transaction.tax_year != year:
             visual_style = f"{visual_style}_border"
             highlighted_style = f"{highlighted_style}_border"
-            year = transaction.timestamp.year
+            year = transaction.tax_year
         return _TransactionVisualStyle(year, visual_style, highlighted_style)
 
     @staticmethod
@@ -565,7 +572,7 @@ class Generator(AbstractODSGenerator):
             highlighted_style: str
             transaction_visual_style: _TransactionVisualStyle = self.__get_transaction_visual_style(transaction, year)
             year = transaction_visual_style.year
-            border_style = self.__get_border_style(entry.timestamp.year, year)
+            border_style = self.__get_border_style(entry.tax_year, year)
             border_suffix = border_style.border_suffix
             visual_style = transaction_visual_style.visual_style
             highlighted_style = transaction_visual_style.highlighted_style
@@ -815,9 +822,9 @@ class Generator(AbstractODSGenerator):
         for entry in gain_loss_set:
             gain_loss: GainLoss = cast(GainLoss, entry)
             border_suffix: str = ""
-            border_style = self.__get_border_style(gain_loss.taxable_event.timestamp.year, year)
-            if gain_loss.taxable_event.timestamp.year != year:
-                self.__tax_sheet_year_2_row[_AssetAndYear(asset, gain_loss.taxable_event.timestamp.year)] = row_index + 1
+            border_style = self.__get_border_style(gain_loss.taxable_event.tax_year, year)
+            if gain_loss.taxable_event.tax_year != year:
+                self.__tax_sheet_year_2_row[_AssetAndYear(asset, gain_loss.taxable_event.tax_year)] = row_index + 1
             year = border_style.year
             border_suffix = border_style.border_suffix
             transparent_style: str = f"transparent{border_suffix}"
@@ -900,27 +907,25 @@ class Generator(AbstractODSGenerator):
                     # Last fraction: change color
                     acquired_lot_style_modifier = "" if acquired_lot_style_modifier == "_alt" else "_alt"
                 acquired_lot_style = f"acquired_lot{acquired_lot_style_modifier}{border_suffix}"
-                current_acquired_lot_fraction: int = gain_loss_set.get_acquired_lot_fraction(gain_loss) + 1
-                total_acquired_lot_fractions: int = gain_loss_set.get_acquired_lot_number_of_fractions(gain_loss.acquired_lot)
-                acquired_lot_note: str = (
-                    f"{current_acquired_lot_fraction}/"
-                    f"{total_acquired_lot_fractions}: "
-                    f"{gain_loss.crypto_amount:.8f} of "
-                    f"{gain_loss.acquired_lot.crypto_balance_change:.8f} "
-                    f"{asset}"
-                )
+                # The lot's cells link to the row of its original lot in the In-Out sheet, and the unique id is the original lot's: with
+                # per-wallet application, coins that came through transfers or the opening allocation are in a lot that RP2 created for their
+                # wallet, which has no row (see _get_acquired_lot_description()). The values are those of the coins taken from the wallet's
+                # lot. If a date filter (-f, -t) leaves the original lot out of the In-Out sheet, the cells have no link.
+                # Example: buy 2 coins on Coinbase (lot i1), send them to Kraken and sell 1: the sale's lot cells link to i1's row.
+                source_lot: InTransaction = gain_loss.acquired_lot.original_lot
+                acquired_lot_note: str = self._get_acquired_lot_description(gain_loss_set, gain_loss)
                 self._fill_cell(
                     sheet,
                     row_index,
                     12,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot.timestamp),
+                    self.__get_hyperlinked_transaction_value(source_lot, gain_loss.acquired_lot.cost_basis_timestamp),
                     visual_style=acquired_lot_style,
                 )
                 self._fill_cell(
                     sheet,
                     row_index,
                     13,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot_fraction_percentage),
+                    self.__get_hyperlinked_transaction_value(source_lot, gain_loss.acquired_lot_fraction_percentage),
                     visual_style=acquired_lot_style,
                     data_style="percent",
                 )
@@ -928,7 +933,7 @@ class Generator(AbstractODSGenerator):
                     sheet,
                     row_index,
                     14,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot_fiat_amount_with_fee_fraction),
+                    self.__get_hyperlinked_transaction_value(source_lot, gain_loss.acquired_lot_fiat_amount_with_fee_fraction),
                     visual_style=acquired_lot_style,
                     data_style="fiat",
                 )
@@ -937,7 +942,7 @@ class Generator(AbstractODSGenerator):
                     sheet,
                     row_index,
                     15,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, fiat_fee_fraction),
+                    self.__get_hyperlinked_transaction_value(source_lot, fiat_fee_fraction),
                     visual_style=acquired_lot_style,
                     data_style="fiat",
                 )
@@ -945,7 +950,7 @@ class Generator(AbstractODSGenerator):
                     sheet,
                     row_index,
                     16,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.fiat_cost_basis),
+                    self.__get_hyperlinked_transaction_value(source_lot, gain_loss.fiat_cost_basis),
                     visual_style=highlighted_style,
                     data_style="fiat",
                 )
@@ -953,7 +958,7 @@ class Generator(AbstractODSGenerator):
                     sheet,
                     row_index,
                     17,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot.spot_price),
+                    self.__get_hyperlinked_transaction_value(source_lot, gain_loss.acquired_lot.spot_price),
                     visual_style=acquired_lot_style,
                     data_style="fiat",
                 )
@@ -961,7 +966,7 @@ class Generator(AbstractODSGenerator):
                     sheet,
                     row_index,
                     18,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot.unique_id),
+                    self.__get_hyperlinked_transaction_value(source_lot, source_lot.unique_id),
                     visual_style=acquired_lot_style,
                     data_style="fiat",
                 )
@@ -969,7 +974,7 @@ class Generator(AbstractODSGenerator):
                     sheet,
                     row_index,
                     19,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, acquired_lot_note),
+                    self.__get_hyperlinked_transaction_value(source_lot, acquired_lot_note),
                     visual_style=f"acquired_lot_note{border_suffix}",
                 )
 

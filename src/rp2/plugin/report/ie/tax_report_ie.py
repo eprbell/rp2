@@ -164,7 +164,7 @@ class Generator(AbstractODSGenerator):
 
             self._fill_cell(sheet, row_index, 0, gain_loss.crypto_amount, visual_style=transparent_vs, data_style="crypto")
             self._fill_cell(sheet, row_index, 1, gain_loss.asset, visual_style=transparent_vs)
-            self._fill_cell(sheet, row_index, 3, gain_loss.taxable_event.timestamp.strftime("%Y/%m/%d"), visual_style=taxable_event_note_vs)
+            self._fill_cell(sheet, row_index, 3, gain_loss.taxable_event.tax_date.strftime("%Y/%m/%d"), visual_style=taxable_event_note_vs)
             self._fill_cell(sheet, row_index, 4, gain_loss.taxable_event_fiat_amount_with_fee_fraction, visual_style=taxable_event_note_vs, data_style="fiat")
             self._fill_cell(sheet, row_index, 6, "", visual_style=transparent_vs)
             self._fill_cell(sheet, row_index, 7, "", visual_style=transparent_vs)
@@ -185,7 +185,8 @@ class Generator(AbstractODSGenerator):
                     f"{gain_loss.acquired_lot.crypto_balance_change:.8f} "
                     f"{asset}"
                 )
-                self._fill_cell(sheet, row_index, 2, gain_loss.acquired_lot.timestamp.strftime("%Y/%m/%d"), visual_style=acquired_lot_note_vs)
+                acquisition_date = gain_loss.configuration.get_tax_date(gain_loss.acquired_lot.cost_basis_timestamp)
+                self._fill_cell(sheet, row_index, 2, acquisition_date.strftime("%Y/%m/%d"), visual_style=acquired_lot_note_vs)
                 self._fill_cell(sheet, row_index, 5, gain_loss.fiat_cost_basis, visual_style=acquired_lot_note_vs, data_style="fiat")
                 self._fill_cell(sheet, row_index, 10, acquired_lot_note, visual_style=acquired_lot_note_vs)
                 self._fill_cell(sheet, row_index, 11, gain_loss.acquired_lot.unique_id, visual_style=acquired_lot_note_vs)

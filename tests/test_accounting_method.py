@@ -13,20 +13,19 @@
 # limitations under the License.
 
 import unittest
-
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import List
 
 from rp2.abstract_accounting_method import AbstractAccountingMethod
 from rp2.configuration import Configuration
+from rp2.in_transaction import InTransaction
 from rp2.plugin.accounting_method.fifo import AccountingMethod as AccountingMethodFIFO
-from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMethodLIFO
 from rp2.plugin.accounting_method.hifo import AccountingMethod as AccountingMethodHIFO
+from rp2.plugin.accounting_method.lifo import AccountingMethod as AccountingMethodLIFO
 from rp2.plugin.accounting_method.lofo import AccountingMethod as AccountingMethodLOFO
 from rp2.plugin.country.us import US
 from rp2.rp2_decimal import RP2Decimal
-from rp2.in_transaction import InTransaction
 
 
 @dataclass(frozen=True, eq=True)

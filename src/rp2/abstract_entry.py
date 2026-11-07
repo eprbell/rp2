@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import List, Optional
 
 from prezzemolo.utility import to_string
@@ -84,6 +84,15 @@ class AbstractEntry:
     @property
     def timestamp(self) -> datetime:
         raise NotImplementedError("Abstract property")
+
+    # Date and year of the entry for tax purposes, e.g. for date filters and yearly totals (see Configuration.tax_timezone).
+    @property
+    def tax_date(self) -> date:
+        return self.configuration.get_tax_date(self.timestamp)
+
+    @property
+    def tax_year(self) -> int:
+        return self.configuration.get_tax_year(self.timestamp)
 
     # How much crypto was gained / lost with this entry
     @property

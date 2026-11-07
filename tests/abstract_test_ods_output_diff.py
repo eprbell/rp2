@@ -33,6 +33,7 @@ GOLDEN_PATH: Path = INPUT_PATH / Path("golden")
 
 class OutputPlugins(Enum):
     OPEN_POSITIONS = "open_positions"
+    OPENING_ALLOCATION = "opening_allocation"
     RP2_FULL_REPORT = "rp2_full_report"
     TAX_REPORT_JP = "tax_report_jp"
     TAX_REPORT_US = "tax_report_us"
@@ -71,6 +72,8 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
         generation_language: Optional[str] = None,
         country: str = "us",
         env: Optional[Dict[str, str]] = None,
+        extra_arguments: Optional[List[str]] = None,
+        config_dir: Path = CONFIG_PATH,
     ) -> None:
         config = test_name if config is None else config
         time_interval: str = cls.__get_time_interval(from_date, to_date)
@@ -92,9 +95,11 @@ class AbstractTestODSOutputDiff(unittest.TestCase):
             arguments.extend(["-t", str(to_date)])
         if allow_negative_balances:
             arguments.extend(["-n"])
+        if extra_arguments:
+            arguments.extend(extra_arguments)
         arguments.extend(
             [
-                str(CONFIG_PATH / Path(f"{config}.ini")),
+                str(config_dir / Path(f"{config}.ini")),
                 str(input_path / Path(f"{test_name}.ods")),
             ]
         )

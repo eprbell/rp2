@@ -16,13 +16,14 @@ from dataclasses import dataclass
 from difflib import unified_diff
 from typing import Dict, List
 
+from transaction_processing_common import AbstractTestTransactionProcessing, AbstractTransactionDescriptor
+
 from rp2.abstract_accounting_method import AbstractAccountingMethod
+from rp2.account import Account
 from rp2.configuration import Configuration
-from rp2.in_transaction import Account
 from rp2.plugin.country.us import US
 from rp2.rp2_error import RP2ValueError
 from rp2.transfer_analyzer import TransferAnalyzer
-from transaction_processing_common import AbstractTestTransactionProcessing, AbstractTransactionDescriptor
 
 
 @dataclass(frozen=True, eq=True)
@@ -57,12 +58,12 @@ class AbstractTransferAnalysis(AbstractTestTransactionProcessing):
                 raise ValueError(f"Test data error: both want and want_error are set: {test}")
             with self.assertRaisesRegex(RP2ValueError, test.want_error):
                 transfer_analyzer = TransferAnalyzer(configuration, transfer_semantics, universal_input_data)
-                transfer_analyzer.analyze()
+                transfer_analyzer.analyze_and_pair()
             return
 
-        # Create transfer analyzer, call analyze() on universal InputData and receive per-wallet InputData.
+        # Create transfer analyzer, call analyze_and_pair() on universal InputData (as the tax engine does) and receive per-wallet InputData.
         transfer_analyzer = TransferAnalyzer(configuration, transfer_semantics, universal_input_data)
-        got_wallet_2_per_wallet_input_data = transfer_analyzer.analyze()
+        got_wallet_2_per_wallet_input_data = transfer_analyzer.analyze_and_pair().wallet_2_input_data
 
         # Create expected per-wallet InputData, based on the want field of the test.
         want_wallet_2_per_wallet_input_data = self._create_per_wallet_input_data_from_transaction_descriptors(configuration, test.want_per_wallet_transactions)

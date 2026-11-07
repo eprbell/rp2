@@ -166,7 +166,8 @@ class Generator(AbstractODSGenerator):
 
             self._fill_cell(sheet, row_index, 0, gain_loss.crypto_amount, visual_style=transparent_vs, data_style="crypto")
             self._fill_cell(sheet, row_index, 1, gain_loss.asset, visual_style=transparent_vs)
-            self._fill_cell(sheet, row_index, 3, gain_loss.taxable_event.timestamp.strftime("%m/%d/%Y"), visual_style=taxable_event_note_vs)
+            # Form 8949 dates are tax dates (see Configuration.tax_timezone): column 15 shows the full timestamp, as it is in the input.
+            self._fill_cell(sheet, row_index, 3, gain_loss.taxable_event.tax_date.strftime("%m/%d/%Y"), visual_style=taxable_event_note_vs)
             self._fill_cell(sheet, row_index, 4, gain_loss.taxable_event_fiat_amount_with_fee_fraction, visual_style=taxable_event_note_vs, data_style="fiat")
             self._fill_cell(sheet, row_index, 6, "", visual_style=transparent_vs)
             self._fill_cell(sheet, row_index, 7, "", visual_style=transparent_vs)
@@ -178,19 +179,15 @@ class Generator(AbstractODSGenerator):
             self._fill_cell(sheet, row_index, 15, gain_loss.taxable_event.timestamp, visual_style=taxable_event_note_vs)
 
             if gain_loss.acquired_lot:
-                current_acquired_lot_fraction: int = gain_loss_set.get_acquired_lot_fraction(gain_loss) + 1
-                total_acquired_lot_fractions: int = gain_loss_set.get_acquired_lot_number_of_fractions(gain_loss.acquired_lot)
-                acquired_lot_note: str = (
-                    f"{current_acquired_lot_fraction}/"
-                    f"{total_acquired_lot_fractions}: "
-                    f"{gain_loss.crypto_amount:.8f} of "
-                    f"{gain_loss.acquired_lot.crypto_balance_change:.8f} "
-                    f"{asset}"
-                )
-                self._fill_cell(sheet, row_index, 2, gain_loss.acquired_lot.timestamp.strftime("%m/%d/%Y"), visual_style=acquired_lot_note_vs)
+                # The unique id is the one of the original lot, the input purchase the coins come from: with per-wallet application, coins
+                # that came through transfers or the opening allocation are in a lot that RP2 created for their wallet, which the description
+                # names together with the wallet (see _get_acquired_lot_description()).
+                acquired_lot_note: str = self._get_acquired_lot_description(gain_loss_set, gain_loss)
+                acquisition_date = gain_loss.configuration.get_tax_date(gain_loss.acquired_lot.cost_basis_timestamp)
+                self._fill_cell(sheet, row_index, 2, acquisition_date.strftime("%m/%d/%Y"), visual_style=acquired_lot_note_vs)
                 self._fill_cell(sheet, row_index, 5, gain_loss.fiat_cost_basis, visual_style=acquired_lot_note_vs, data_style="fiat")
                 self._fill_cell(sheet, row_index, 10, acquired_lot_note, visual_style=acquired_lot_note_vs)
-                self._fill_cell(sheet, row_index, 11, gain_loss.acquired_lot.unique_id, visual_style=acquired_lot_note_vs)
+                self._fill_cell(sheet, row_index, 11, gain_loss.acquired_lot.original_lot.unique_id, visual_style=acquired_lot_note_vs)
             else:
                 self._fill_cell(sheet, row_index, 2, "", visual_style=transparent_vs)
                 self._fill_cell(sheet, row_index, 5, "", visual_style=transparent_vs)

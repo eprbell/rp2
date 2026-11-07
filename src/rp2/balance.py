@@ -15,13 +15,14 @@
 from dataclasses import dataclass
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, Iterator, List, Optional
 
 from prezzemolo.utility import to_string
 
 from rp2.abstract_entry import AbstractEntry
+from rp2.account import Account
 from rp2.configuration import Configuration
-from rp2.in_transaction import Account, InTransaction
+from rp2.in_transaction import InTransaction
 from rp2.input_data import InputData
 from rp2.intra_transaction import IntraTransaction
 from rp2.logger import LOGGER
@@ -125,7 +126,7 @@ class BalanceSet:
 
         # Balances for bought and earned currency
         for transaction in transactions:
-            if transaction.timestamp.date() > to_date:
+            if transaction.tax_date > to_date:
                 break
             if isinstance(transaction, InTransaction):
                 in_transaction: InTransaction = transaction
@@ -183,7 +184,6 @@ class BalanceSet:
             self._balances.append(balance)
 
         self._balances.sort(key=_balance_sort_key)
-        self.__account_to_balances: Dict[Account, Balance] = {Account(balance.exchange, balance.holder): balance for balance in self._balances}
 
     def __str__(self) -> str:
         output: List[str] = []
@@ -220,12 +220,10 @@ class BalanceSet:
     def asset(self) -> str:
         return self.__asset
 
-    @property
-    def account_to_balance(self) -> Dict[Account, Balance]:
-        return self.__account_to_balances
 
-
-class BalanceSetIterator:
+# Like EntrySetIterator, it derives from Iterator, which adds the __iter__() method that the iterator protocol requires: without it,
+# comprehensions over a BalanceSet (e.g. [b for b in balance_set]) fail on Python 3.13+ with "'BalanceSetIterator' object is not iterable".
+class BalanceSetIterator(Iterator[Balance]):
     def __init__(self, balance_set: BalanceSet) -> None:
         self.__balance_set: BalanceSet = balance_set
         self.__balance_set_size: int = len(self.__balance_set._balances)

@@ -24,6 +24,8 @@ from rp2.abstract_report_generator import AbstractReportGenerator
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.computed_data import ComputedData
 from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
+from rp2.gain_loss import GainLoss
+from rp2.gain_loss_set import GainLossSet
 from rp2.in_transaction import InTransaction
 from rp2.localization import _
 from rp2.out_transaction import OutTransaction
@@ -52,8 +54,7 @@ class AbstractODSGenerator(AbstractReportGenerator):
         if not isinstance(template_sheets_to_keep, Set):
             raise RP2TypeError(f"Parameter 'template_sheets_to_keep' is not a Set: {template_sheets_to_keep}")
 
-        accounting_method: str = years_2_accounting_method_names[MIN_DATE.year] if len(years_2_accounting_method_names) == 1 else "mixed"
-        output_file_path: Path = Path(output_dir_path) / Path(f"{output_file_prefix}{accounting_method}_{output_file_name}")
+        output_file_path: Path = cls._get_output_file_path(years_2_accounting_method_names, output_dir_path, output_file_prefix, output_file_name)
         if Path(output_file_path).exists():
             output_file_path.unlink()
 
@@ -109,6 +110,13 @@ class AbstractODSGenerator(AbstractReportGenerator):
             del output_file.sheets[index]
 
         return output_file
+
+    # Path of an output file: <output_dir_path>/<output_file_prefix><accounting method>_<output_file_name>, where the accounting method is
+    # "mixed" if it changes over the years (e.g. output/crypto_example_fifo_open_positions.ods).
+    @staticmethod
+    def _get_output_file_path(years_2_accounting_method_names: Dict[int, str], output_dir_path: str, output_file_prefix: str, output_file_name: str) -> Path:
+        accounting_method: str = years_2_accounting_method_names[MIN_DATE.year] if len(years_2_accounting_method_names) == 1 else "mixed"
+        return Path(output_dir_path) / Path(f"{output_file_prefix}{accounting_method}_{output_file_name}")
 
     def _get_template_path(self, template_name: str, country: Optional[AbstractCountry], generation_language: str) -> str:
         country_path = f"{country.country_iso_code}/" if country else ""
@@ -234,3 +242,21 @@ class AbstractODSGenerator(AbstractReportGenerator):
         if isinstance(transaction, OutTransaction):
             return "OUT"
         return "INTRA"
+
+    # The description of the coins that a gain/loss took from its lot: their fraction number, their amount and the amount of the lot. With
+    # per-wallet application, coins that came to a wallet through transfers or the opening allocation are a lot of that wallet created by
+    # RP2 (an artificial lot), which has no row in the input: reports identify such coins by their original lot (the input purchase they come
+    # from, see InTransaction.original_lot), and the description adds the wallet and the id of the wallet's lot. The amounts stay those of the
+    # wallet's lot. Example: buy 2 coins on Coinbase (lot i1), send them to Kraken (Kraken's lot t1/-1) and sell 1 of them there: the sale's
+    # lot is i1, described as "1/1: 1.00000000 of 2.00000000 B1 in Kraken/Bob (lot t1/-1)".
+    @staticmethod
+    def _get_acquired_lot_description(gain_loss_set: GainLossSet, gain_loss: GainLoss) -> str:
+        acquired_lot = gain_loss.acquired_lot
+        if acquired_lot is None:
+            raise RP2RuntimeError(f"Internal error: gain/loss without an acquired lot: {gain_loss}")
+        fraction = gain_loss_set.get_acquired_lot_fraction(gain_loss) + 1
+        number_of_fractions = gain_loss_set.get_acquired_lot_number_of_fractions(acquired_lot)
+        result = f"{fraction}/{number_of_fractions}: {gain_loss.crypto_amount:.8f} of {acquired_lot.crypto_balance_change:.8f} {gain_loss.asset}"
+        if acquired_lot is not acquired_lot.original_lot:
+            result += f" in {acquired_lot.exchange}/{acquired_lot.holder} (lot {acquired_lot.unique_id})"
+        return result

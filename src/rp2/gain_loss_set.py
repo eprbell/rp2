@@ -115,7 +115,7 @@ class GainLossSet(AbstractEntrySet):
             # We're not using the iterator to avoid infinite recursion (we're looping over
             # _entry_list directly), so we need to check time filters manually: stop after
             # to_date so that number of fractions is not affected by lots outside the time filter
-            if gain_loss.timestamp.date() > self.to_date:
+            if gain_loss.tax_date > self.to_date:
                 break
 
             count: int = self.__transaction_type_2_count[gain_loss.taxable_event.transaction_type]

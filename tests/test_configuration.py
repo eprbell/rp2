@@ -13,22 +13,29 @@
 # limitations under the License.
 
 import os
+import re
+import subprocess
+import sys
+import time
 import unittest
 from configparser import ConfigParser
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from tempfile import NamedTemporaryFile
-from typing import Optional
+from typing import Dict, Optional
 
 from dateutil.tz import tzoffset, tzutc
 
 from rp2.abstract_country import AbstractCountry
+from rp2.account import Account
+from rp2.application_policy import ApplicationMode
 from rp2.configuration import Configuration, Keyword
+from rp2.plugin.country.jp import JP
 from rp2.plugin.country.us import US
 from rp2.rp2_decimal import ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
-class TestConfiguration(unittest.TestCase):
+class TestConfiguration(unittest.TestCase):  # pylint: disable=too-many-public-methods
     _country: AbstractCountry
     _configuration: Configuration
 
@@ -41,16 +48,186 @@ class TestConfiguration(unittest.TestCase):
         self.maxDiff = None  # pylint: disable=invalid-name
 
     @staticmethod
-    def _test_config(config: ConfigParser) -> Configuration:
+    def _test_config(config: ConfigParser, country: Optional[AbstractCountry] = None) -> Configuration:
         result: Optional[Configuration] = None
         with NamedTemporaryFile("w", delete=False) as temporary_file:
             config.write(temporary_file)
             temporary_file.flush()
 
-            result = Configuration(temporary_file.name, TestConfiguration._country)
+            result = Configuration(temporary_file.name, country or TestConfiguration._country)
         os.remove(temporary_file.name)
 
         return result
+
+    @staticmethod
+    def _country_config(section_name: str, fields: Dict[str, str]) -> ConfigParser:
+        config = ConfigParser()
+        config.read("./config/test_data.ini")
+        config[section_name] = fields
+        return config
+
+    @staticmethod
+    def _per_wallet_config(fields: Dict[str, str]) -> ConfigParser:
+        return TestConfiguration._country_config("country.us", {"timezone": "America/New_York", **fields})
+
+    # Country choices are in the section of the country ([country.us] for rp2_us): a section of another country, or per-wallet settings for a
+    # country that always uses universal application, are rejected so that they can't be applied by accident.
+    def test_country_section(self) -> None:
+        configuration = self._test_config(self._country_config("country.us", {"application_mode": "per_wallet"}))
+        self.assertEqual(configuration.application_mode, ApplicationMode.PER_WALLET)
+        self.assertIsNone(configuration.per_wallet_configuration)
+        self.assertIsNone(TestConfiguration._configuration.application_mode)
+
+        with self.assertRaisesRegex(RP2ValueError, "Invalid application mode 'wallet': valid values are universal, per_wallet"):
+            self._test_config(self._country_config("country.us", {"application_mode": "wallet"}))
+        with self.assertRaisesRegex(RP2ValueError, "section 'country.jp' is for another country: this is rp2_us, whose section is 'country.us'"):
+            self._test_config(self._country_config("country.jp", {"application_mode": "universal"}))
+        with self.assertRaisesRegex(RP2ValueError, "section 'per_wallet' has been replaced by 'country.us'"):
+            self._test_config(self._country_config("per_wallet", {"timezone": "UTC"}))
+        config = self._country_config("country.us", {"application_mode": "per_wallet"})
+        config["country.us 2"] = {"timezone": "UTC"}
+        with self.assertRaisesRegex(RP2ValueError, "section 'country.us' found multiple times"):
+            self._test_config(config)
+
+        # Japan always uses universal application.
+        japan = JP()
+        configuration = self._test_config(self._country_config("country.jp", {"application_mode": "universal"}), japan)
+        self.assertEqual(configuration.application_mode, ApplicationMode.UNIVERSAL)
+        with self.assertRaisesRegex(RP2ValueError, "application mode 'per_wallet' is never allowed for country 'jp'"):
+            self._test_config(self._country_config("country.jp", {"application_mode": "per_wallet"}), japan)
+        with self.assertRaisesRegex(RP2ValueError, "invalid field 'timezone' in section 'country.jp': country 'jp' always uses universal application"):
+            self._test_config(self._country_config("country.jp", {"timezone": "Asia/Tokyo"}), japan)
+        with self.assertRaisesRegex(RP2ValueError, "section 'country.us' is for another country: this is rp2_jp, whose section is 'country.jp'"):
+            self._test_config(self._per_wallet_config({}), japan)
+
+    def test_per_wallet_section(self) -> None:
+        # Default rule plus per-asset overrides (Rev. Proc. 2024-28 applies the safe harbor per type of digital asset). Asset suffixes are
+        # case-insensitive because the configuration parser lowercases field names.
+        configuration = self._test_config(
+            self._per_wallet_config(
+                {
+                    "unused_basis_allocation_method": "fifo",
+                    "unused_basis_allocation_wallet_order": "Coinbase/Bob, Coinbase Pro/Bob",
+                    "unused_basis_allocation_wallet_order.b1": "Coinbase Pro/Bob, Coinbase/Bob",
+                    "unused_basis_allocation_method.B2": "hifo",
+                }
+            )
+        )
+        per_wallet_configuration = configuration.per_wallet_configuration
+        assert per_wallet_configuration is not None
+        self.assertEqual(per_wallet_configuration.timezone_name, "America/New_York")
+        self.assertEqual(per_wallet_configuration.get_unused_basis_allocation_method("B1"), "fifo")
+        self.assertEqual(per_wallet_configuration.get_unused_basis_allocation_wallet_order("B1"), (Account("Coinbase Pro", "Bob"), Account("Coinbase", "Bob")))
+        self.assertEqual(per_wallet_configuration.get_unused_basis_allocation_method("B2"), "hifo")
+        self.assertEqual(per_wallet_configuration.get_unused_basis_allocation_wallet_order("B2"), (Account("Coinbase", "Bob"), Account("Coinbase Pro", "Bob")))
+        self.assertEqual(per_wallet_configuration.get_unused_basis_allocation_method("B3"), "fifo")
+        self.assertEqual(per_wallet_configuration.unused_basis_allocation_method_names, {"fifo", "hifo"})
+
+        # A per-asset override can define a complete rule without a default.
+        configuration = self._test_config(
+            self._per_wallet_config({"unused_basis_allocation_method.B1": "lifo", "unused_basis_allocation_wallet_order.B1": "Kraken/Alice"})
+        )
+        assert configuration.per_wallet_configuration is not None
+        self.assertEqual(configuration.per_wallet_configuration.get_unused_basis_allocation_method("B1"), "lifo")
+        self.assertIsNone(configuration.per_wallet_configuration.get_unused_basis_allocation_method("B2"))
+
+        with self.assertRaisesRegex(RP2ValueError, "refers to an unknown asset 'b9'"):
+            self._test_config(self._per_wallet_config({"unused_basis_allocation_method.B9": "fifo"}))
+        # Crypto fees on transfers between own wallets are always disposals (IRS FAQ A81 and A97): there is no setting for them anymore.
+        with self.assertRaisesRegex(RP2ValueError, "invalid field 'transfer_fee_treatment'"):
+            self._test_config(self._per_wallet_config({"transfer_fee_treatment": "disposal"}))
+        with self.assertRaisesRegex(RP2ValueError, "invalid field 'timezone.b1'"):
+            self._test_config(self._per_wallet_config({"timezone.B1": "UTC"}))
+        with self.assertRaisesRegex(RP2ValueError, "the unused basis allocation of B1 has a method or a wallet order, but not both"):
+            self._test_config(self._per_wallet_config({"unused_basis_allocation_method.B1": "fifo"}))
+        with self.assertRaisesRegex(RP2ValueError, "invalid wallet 'Binance/Bob'"):
+            self._test_config(self._per_wallet_config({"unused_basis_allocation_method.B1": "fifo", "unused_basis_allocation_wallet_order.B1": "Binance/Bob"}))
+        # Allocation methods are checked when the file is read, against the accounting methods of the country (R13): before, an unknown name
+        # was only caught by the command line, and the tax engine received a method object separately from the name in the file.
+        with self.assertRaisesRegex(
+            RP2ValueError, "invalid unused basis allocation method 'fifi' in section 'country.us': valid values for country 'us' are fifo"
+        ):
+            self._test_config(self._per_wallet_config({"unused_basis_allocation_method": "fifi", "unused_basis_allocation_wallet_order": "Coinbase/Bob"}))
+        with self.assertRaisesRegex(RP2ValueError, "invalid unused basis allocation method 'average'"):
+            self._test_config(
+                self._per_wallet_config({"unused_basis_allocation_method.B2": "average", "unused_basis_allocation_wallet_order.B2": "Coinbase/Bob"})
+            )
+        # The timezone is mandatory as soon as the section has a per-wallet setting.
+        config = self._per_wallet_config({"unused_basis_allocation_method": "fifo", "unused_basis_allocation_wallet_order": "Coinbase/Bob"})
+        del config["country.us"]["timezone"]
+        with self.assertRaisesRegex(RP2ValueError, "doesn't contain mandatory field 'timezone'"):
+            self._test_config(config)
+        config = self._per_wallet_config({})
+        del config["country.us"]["timezone"]
+        self.assertIsNone(self._test_config(config).per_wallet_configuration)
+
+    # The timezone must be an IANA identifier whose meaning doesn't depend on the computer: UTC or Area/Location (e.g. America/New_York).
+    # Abbreviations are rejected: python-dateutil, used before, resolved CST to UTC-6 on a computer set to Chicago time and to UTC+8 on one
+    # set to Shanghai time, so the same configuration file gave different results on different computers.
+    def test_per_wallet_timezone(self) -> None:
+        for name in ("America/New_York", "UTC", "Etc/UTC", "Europe/Rome", "America/Argentina/Buenos_Aires"):
+            with self.subTest(name=name):
+                configuration = self._test_config(self._per_wallet_config({"timezone": name}))
+                assert configuration.per_wallet_configuration is not None
+                self.assertEqual(configuration.per_wallet_configuration.timezone.key, name)
+        # Abbreviations (even those that IANA keeps for compatibility, like EST and GMT), old-style names and the computer's own time zone.
+        for name in ("PST", "CST", "EST", "GMT", "EST5EDT", "Japan", "localtime"):
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(
+                    RP2ValueError, re.escape(f"invalid 'timezone': '{name}' is not an IANA time zone identifier: use UTC or an Area/Location identifier")
+                ):
+                    self._test_config(self._per_wallet_config({"timezone": name}))
+        # Unknown identifiers, wrong case and the special posix/ and right/ variants of the database.
+        for name in ("America/New_Yrok", "america/new_york", "posix/America/New_York", "right/America/New_York"):
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(RP2ValueError, re.escape(f"invalid 'timezone': unknown IANA time zone '{name}': identifiers are case-sensitive")):
+                    self._test_config(self._per_wallet_config({"timezone": name}))
+
+    # The same configuration gives the same time zone on computers set to different time zones (the TZ environment variable sets the
+    # computer's time zone; it can be changed at run time only on Unix).
+    @unittest.skipUnless(hasattr(time, "tzset"), "time.tzset() is only available on Unix")
+    def test_per_wallet_timezone_on_computers_in_different_time_zones(self) -> None:
+        old_computer_timezone = os.environ.get("TZ")
+
+        def restore_computer_timezone() -> None:
+            if old_computer_timezone is None:
+                os.environ.pop("TZ", None)
+            else:
+                os.environ["TZ"] = old_computer_timezone
+            time.tzset()
+
+        self.addCleanup(restore_computer_timezone)
+        for computer_timezone in ("UTC", "America/Chicago", "Asia/Shanghai", "America/Los_Angeles"):
+            os.environ["TZ"] = computer_timezone
+            time.tzset()
+            with self.subTest(computer_timezone=computer_timezone):
+                configuration = self._test_config(self._per_wallet_config({}))
+                assert configuration.per_wallet_configuration is not None
+                # The start of 2025 in New York is 5 AM UTC.
+                start_of_2025 = datetime(2025, 1, 1, tzinfo=configuration.per_wallet_configuration.timezone)
+                self.assertEqual(start_of_2025, datetime(2025, 1, 1, 5, tzinfo=timezone.utc))
+                self.assertEqual(start_of_2025.utcoffset(), timedelta(hours=-5))
+                for name in ("CST", "PST", "localtime"):
+                    with self.assertRaisesRegex(RP2ValueError, re.escape(f"'{name}' is not an IANA time zone identifier")):
+                        self._test_config(self._per_wallet_config({"timezone": name}))
+
+    # The time zone data comes from the system or, where there is none (e.g. on Windows), from the tzdata package, which is a dependency of
+    # RP2. Both cases run in a separate Python process: PYTHONTZPATH="" makes it ignore the system data, like on Windows, and the second case
+    # also hides the tzdata package.
+    def test_per_wallet_timezone_data_sources(self) -> None:
+        script = "from rp2.per_wallet_configuration import PerWalletConfiguration\nprint(PerWalletConfiguration(timezone_name='America/New_York').timezone)\n"
+        environment = {**os.environ, "PYTHONTZPATH": ""}
+        result = subprocess.run([sys.executable, "-c", script], env=environment, capture_output=True, text=True, check=False)
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertEqual(result.stdout.strip(), "America/New_York")
+        hide_tzdata = "import sys\nsys.modules['tzdata'] = None\n"
+        result = subprocess.run([sys.executable, "-c", hide_tzdata + script], env=environment, capture_output=True, text=True, check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(
+            "Per-wallet configuration: invalid 'timezone': no IANA time zone data on this computer to look up 'America/New_York': install the "
+            "tzdata Python package (pip install tzdata)",
+            result.stderr,
+        )
 
     def test_config_file(self) -> None:
         config = ConfigParser()

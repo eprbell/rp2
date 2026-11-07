@@ -200,4 +200,10 @@ class GainLoss(AbstractEntry):
             if not self.taxable_event.is_earning():
                 raise RP2RuntimeError("Internal error: acquired lot is None but taxable event is not an earning")
             return False
-        return (self.taxable_event.timestamp - self.acquired_lot.cost_basis_timestamp).days >= self.configuration.country.get_long_term_capital_gain_period()
+        # The holding period starts at the original acquisition date (cost_basis_timestamp), which survives transfers between wallets. Both
+        # timestamps are converted to the tax time zone, so that countries measuring it by calendar dates use tax dates (see
+        # Configuration.tax_timezone). Example with America/New_York: a coin bought at 2024-03-01T12:00:00-05:00 and sold at
+        # 2025-03-02T03:00:00+00:00 (10 PM of March 1st in New York) is sold on the anniversary of its purchase, so it's short-term in the US.
+        acquisition_timestamp = self.configuration.get_tax_timestamp(self.acquired_lot.cost_basis_timestamp)
+        disposal_timestamp = self.configuration.get_tax_timestamp(self.taxable_event.timestamp)
+        return self.configuration.country.is_long_term_capital_gain(acquisition_timestamp, disposal_timestamp)

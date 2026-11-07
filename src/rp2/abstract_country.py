@@ -13,9 +13,12 @@
 # limitations under the License.
 
 
+from datetime import datetime
 from typing import List, Set
 
 from pycountry import countries, currencies
+
+from rp2.application_policy import UNIVERSAL_APPLICATION_POLICY, ApplicationPolicy
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
@@ -71,9 +74,17 @@ class AbstractCountry:
     def currency_iso_code(self) -> str:
         return self.__currency_iso_code
 
-    # Measured in days
+    # Measured in days: see is_long_term_capital_gain()
     def get_long_term_capital_gain_period(self) -> int:
         raise NotImplementedError("Abstract function")
+
+    # True if an asset acquired at acquisition_timestamp and disposed of at disposal_timestamp was held long enough to be long-term. The
+    # default counts whole days (24-hour periods, so the time zone doesn't change them): the gain is long-term if at least
+    # get_long_term_capital_gain_period() days passed, as in RP2 1.7.2. Example with 365 days: bought on 2021-03-01 at noon, sold on
+    # 2022-03-01 at noon (365 days) is long-term, and sold at 11:59 AM (1 minute less) is short-term. Countries whose law measures the holding
+    # period by calendar dates override it (see the US plugin). The timestamps are in the tax time zone (see Configuration.tax_timezone).
+    def is_long_term_capital_gain(self, acquisition_timestamp: datetime, disposal_timestamp: datetime) -> bool:
+        return (disposal_timestamp - acquisition_timestamp).days >= self.get_long_term_capital_gain_period()
 
     # Default accounting method to use if the user doesn't specify one on the command line
     def get_default_accounting_method(self) -> str:
@@ -90,3 +101,8 @@ class AbstractCountry:
     # Default language to use at report generation if the user doesn't specify it on the command line (in ISO 639-1 format)
     def get_default_generation_language(self) -> str:
         raise NotImplementedError("Abstract function")
+
+    # Which application modes (universal, per-wallet) the country allows in each tax year, and the default one. The default policy is
+    # universal application in every year: countries that require per-wallet application override it.
+    def get_application_policy(self) -> ApplicationPolicy:
+        return UNIVERSAL_APPLICATION_POLICY

@@ -13,11 +13,11 @@
 # limitations under the License.
 
 from datetime import datetime
-from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional
 
 from rp2.abstract_entry import AbstractEntry
 from rp2.abstract_transaction import AbstractTransaction
+from rp2.account import Account
 from rp2.configuration import Configuration
 from rp2.entry_types import TransactionType
 from rp2.logger import LOGGER
@@ -25,14 +25,9 @@ from rp2.rp2_decimal import FIAT_DECIMAL_MASK, ZERO, RP2Decimal
 from rp2.rp2_error import RP2TypeError, RP2ValueError
 
 
-@dataclass(frozen=True, eq=True)
-class Account:
-    exchange: str
-    holder: str
-
-
-# pylint: disable=too-many-public-methods
-class InTransaction(AbstractTransaction):
+# The design guidelines give each field a read-only property: with the 3 per-wallet ones (originates_from, original_lot and
+# cost_basis_timestamp, for the lots created by transfers) InTransaction has 23 public methods, more than pylint's default maximum of 20.
+class InTransaction(AbstractTransaction):  # pylint: disable=too-many-public-methods
     @classmethod
     def type_check(cls, name: str, instance: AbstractEntry) -> "InTransaction":
         Configuration.type_check_parameter_name(name)
@@ -75,15 +70,16 @@ class InTransaction(AbstractTransaction):
         self.__fiat_fee: RP2Decimal = configuration.type_check_positive_decimal("fiat_fee", fiat_fee) if fiat_fee else ZERO
 
         # After a transfer, the per-wallet application model is populated with artificial InTransactions that model the "to" part
-        # of the transfer (these artificial InTransactions are not present in the universal application model). These fields are
-        # only populated in the artificial InTransactions of the per-wallet application model field and describes where the funds
-        # come from (due to the transfer) and go to (after the transfer).
+        # of the transfer (these artificial InTransactions are not present in the universal application model). from_lot is only
+        # populated in these artificial InTransactions and describes where the funds come from (due to the transfer). to_lots
+        # describes where the funds go to (after the transfer), in every lot they come from, input lots included (see to_lots below).
         self.__from_lot: Optional[InTransaction] = InTransaction.type_check("from_lot", from_lot) if from_lot is not None else None
         self.__to_lots: Dict[Account, List[InTransaction]] = {}
 
-        # This field is also used only in the artificial InTransactions of the per-wallet application model. It captures all the
-        # upstream InTransactions that the funds came from and it is used for loop detection (it's a map from
-        # wallet -> InTransaction).
+        # This field is also used only in the artificial InTransactions created for transfers in the per-wallet application model. For
+        # each wallet these units were in before, it holds the lot they were part of there (a map from wallet -> InTransaction): when
+        # the units come back to that wallet, they are returned to that lot (loop detection). Unlike from_lot, it never goes past a lot
+        # created by the unused basis allocation: see originates_from below.
         self.__originates_from: Dict[Account, InTransaction] = {}
 
         self.__cost_basis_timestamp: Optional[datetime] = (
@@ -247,24 +243,43 @@ class InTransaction(AbstractTransaction):
     def from_lot(self) -> Optional["InTransaction"]:
         return self.__from_lot
 
-    # This is only populated in artificial InTransactions of the per-wallet application model and describes where the funds go to after
-    # transfers.
+    # Where the funds of this lot go to after transfers, in the last transfer analysis of its asset (per-wallet application): for each
+    # wallet, the artificial InTransactions created there with funds of this lot, directly or through other wallets. Unlike from_lot, it's
+    # populated in input lots too, and each analysis starts by emptying it (see TransferAnalyzer._clear_to_lots()). Example: buy 2 coins on
+    # Coinbase (lot i1), send them to Kraken (lot t1/-1 there) and then to BlockFi (lot t2/-2 there): i1.to_lots is
+    # {Kraken: [t1/-1], BlockFi: [t2/-2]} and t1/-1.to_lots is {BlockFi: [t2/-2]}.
     @property
     def to_lots(self) -> Dict[Account, List["InTransaction"]]:
         return self.__to_lots
 
-    # This is only populated in artificial InTransactions of the per-wallet application model and describes the upstream chain of
-    # transfers that ended up in these funds being moved here.
+    # This is only populated in artificial InTransactions created for transfers in the per-wallet application model. For every wallet the
+    # funds were in during per-wallet application, it gives the lot they were part of in that wallet: always a lot that was actually held
+    # in that wallet, so that the funds can be returned to it when they come back.
+    # from_lot is a different kind of link: it leads back to where the cost basis came from, and it continues past the allocation of
+    # unused basis to the input lot bought before the switch. That input lot is history, not something a wallet holds after the switch.
+    # Example: buy 10 units in wallet A in 2024; at the switch they are allocated to A as lot X (from_lot = the 2024 purchase). In 2025 move
+    # 4 units A -> B (lot Y in B, from_lot = X) and then back B -> A: originates_from of Y is {A: X}, so the 4 units go back to X, which
+    # holds 10 units again. Following from_lot instead would reach the 2024 purchase, which no wallet holds after the switch.
     @property
     def originates_from(self) -> Dict[Account, "InTransaction"]:
         return self.__originates_from
+
+    # The lot this lot originates from via transfers or allocations (itself, if it's not artificial).
+    @property
+    def original_lot(self) -> "InTransaction":
+        result: InTransaction = self
+        while result.from_lot is not None:
+            result = result.from_lot
+        return result
 
     @property
     def cost_basis_timestamp(self) -> datetime:
         return self.__cost_basis_timestamp if self.__cost_basis_timestamp else self.timestamp
 
+    # Artificial InTransactions (from_lot is not None) model funds moving between the taxpayer's own wallets: they are never income, even if
+    # the lot they come from was earned.
     def is_taxable(self) -> bool:
-        return self.transaction_type.is_earn_type()
+        return self.transaction_type.is_earn_type() and self.from_lot is None
 
     def is_earning(self) -> bool:
         return self.is_taxable()

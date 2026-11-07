@@ -175,7 +175,7 @@ class Generator(AbstractODSGenerator):
 
         # Sort all in and out transactions by year, the fee from intra transactions must be reported
         for entry in chain(in_transaction_set, out_transaction_set, intra_transaction_set):  # type: ignore
-            years_2_transaction_sets.setdefault(entry.timestamp.year, []).append(entry)
+            years_2_transaction_sets.setdefault(entry.tax_year, []).append(entry)
 
         for year, transaction_set in years_2_transaction_sets.items():
             # Sort the transactions by timestamp and generate sheet by year
@@ -225,8 +225,8 @@ class Generator(AbstractODSGenerator):
             transaction_type=transaction.transaction_type.value.upper(),
             purchase_crypto_amount=transaction.crypto_in,
             purchase_amount_in_yen=purchase_amount_in_yen,
-            transaction_month=transaction.timestamp.month,
-            transaction_day=transaction.timestamp.day,
+            transaction_month=transaction.tax_date.month,
+            transaction_day=transaction.tax_date.day,
             transaction_client=transaction.exchange,
             sales_crypto_amount=sales_crypto_amount,
             sales_amount_in_yen=sales_amount_in_yen,
@@ -243,8 +243,8 @@ class Generator(AbstractODSGenerator):
 
         return _TransactionRow(
             transaction_type=TransactionType.FEE.value.upper(),
-            transaction_month=transaction.timestamp.month,
-            transaction_day=transaction.timestamp.day,
+            transaction_month=transaction.tax_date.month,
+            transaction_day=transaction.tax_date.day,
             transaction_client=_(self.TRANSFER),
             sales_crypto_amount=transaction_fee_in_crypto if transaction_fee_in_crypto > ZERO else None,
             sales_amount_in_yen=transaction_fee_in_yen if transaction_fee_in_yen > ZERO else None,
@@ -271,8 +271,8 @@ class Generator(AbstractODSGenerator):
 
         return _TransactionRow(
             transaction_type=transaction.transaction_type.value.upper(),
-            transaction_month=transaction.timestamp.month,
-            transaction_day=transaction.timestamp.day,
+            transaction_month=transaction.tax_date.month,
+            transaction_day=transaction.tax_date.day,
             transaction_client=transaction.exchange,
             sales_crypto_amount=transaction.crypto_out_with_fee,
             sales_amount_in_yen=sales_amount_in_yen,

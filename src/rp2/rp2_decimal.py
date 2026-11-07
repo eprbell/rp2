@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# RP2Decimal overrides Decimal's operators, whose C implementation also accepts an optional context argument: pylint reports the overrides
+# (which never receive a context when used as operators) as signature-differs and, since pylint 4.1, arguments-differ.
+# pylint: disable=signature-differs,arguments-differ
+
 from decimal import Decimal, FloatOperation, getcontext
 
 from rp2.rp2_error import RP2TypeError
