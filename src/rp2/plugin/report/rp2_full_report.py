@@ -67,6 +67,10 @@ class Generator(AbstractODSGenerator):
 
     TEMPLATE_SHEETS_TO_KEEP: Set[str] = {"__Summary"}
 
+    # The rows of the transactions in the In-Out sheet of the asset being generated, and the first row of each year in the Tax sheets: the
+    # targets of the hyperlinks. generate() and __generate_asset() give each report and each asset new maps: transactions are equal when they
+    # have the same internal id (their row in the input), which repeats from asset to asset, so a shared map would link a transaction that a
+    # date filter leaves out of the In-Out sheet to the row of another asset's (or another report's) transaction.
     __in_out_sheet_transaction_2_row: Dict[AbstractTransaction, int] = {}
     __tax_sheet_year_2_row: Dict[_AssetAndYear, int] = {}
 
@@ -440,6 +444,7 @@ class Generator(AbstractODSGenerator):
             raise RP2TypeError(f"Parameter 'asset_to_computed_data' has non-Dict value {asset_to_computed_data}")
 
         self._setup_text_data(country)
+        self.__tax_sheet_year_2_row = {}
 
         template_path: str = self._get_template_path("rp2_full_report", country, generation_language)
 
@@ -512,6 +517,8 @@ class Generator(AbstractODSGenerator):
         if new_lines:
             summary_sheet.append_rows(new_lines)
 
+        # Only the rows of this asset's In-Out sheet (see __in_out_sheet_transaction_2_row).
+        self.__in_out_sheet_transaction_2_row = {}
         row_index: int = 0
         row_index = self.__generate_in_table(transaction_sheet, computed_data, row_index)
         row_index = self.__generate_out_table(transaction_sheet, computed_data, row_index + 2)

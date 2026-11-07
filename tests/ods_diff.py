@@ -12,18 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 from argparse import ArgumentParser, Namespace
 from difflib import unified_diff
 from itertools import zip_longest
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, List, Optional
+from typing import Any, List, NamedTuple, Optional
 
 import ezodf
 
 from rp2.rp2_decimal import CRYPTO_DECIMALS
 
 _PURGE_HYPERLIKS = True
+# A hyperlink to a row of a sheet, as the reports write it: =HYPERLINK("#B1 In-Out.a4:z4"; "1") or =HYPERLINK("#B1 In-Out.a4:z4"; 0.5).
+_ROW_HYPERLINK = re.compile(r'^=HYPERLINK\("#(?P<sheet>[^"]+)\.a(?P<row>\d+):z(?P=row)"; *(?P<text>.*)\)$')
+
+
+# A cell of a report: its text and, if it's a hyperlink to a row of a sheet, that sheet and row (1-based, as in the formula).
+class ReportCell(NamedTuple):
+    text: str
+    link_sheet: Optional[str] = None
+    link_row: Optional[int] = None
 
 
 def _row_as_string(row: Any) -> str:
@@ -80,6 +90,26 @@ def read_sheet_rows(file_path: Path, sheet_name: str) -> Optional[List[List[str]
             values.pop()
         if values:
             result.append(values)
+    return result
+
+
+# All the rows of a sheet (row i of the list is row i + 1 of the sheet, as in the reports' hyperlinks), as ReportCells: unlike
+# read_sheet_rows(), it keeps the target of each hyperlink. Returns None if the file has no sheet with that name. Example: the cell
+# =HYPERLINK("#B1 In-Out.a4:z4"; "1") is ReportCell("1", "B1 In-Out", 4).
+def read_sheet_cells(file_path: Path, sheet_name: str) -> Optional[List[List[ReportCell]]]:
+    document: Any = ezodf.opendoc(str(file_path))
+    if sheet_name not in document.sheets.names():
+        return None
+    result: List[List[ReportCell]] = []
+    for row in document.sheets[sheet_name].rows():
+        cells: List[ReportCell] = []
+        for cell in row:
+            match = _ROW_HYPERLINK.match(cell.formula) if cell.formula else None
+            if match:
+                cells.append(ReportCell(match.group("text").strip('"'), match.group("sheet"), int(match.group("row"))))
+            else:
+                cells.append(ReportCell(str(_parse_cell_value(cell))))
+        result.append(cells)
     return result
 
 
