@@ -907,27 +907,25 @@ class Generator(AbstractODSGenerator):
                     # Last fraction: change color
                     acquired_lot_style_modifier = "" if acquired_lot_style_modifier == "_alt" else "_alt"
                 acquired_lot_style = f"acquired_lot{acquired_lot_style_modifier}{border_suffix}"
-                current_acquired_lot_fraction: int = gain_loss_set.get_acquired_lot_fraction(gain_loss) + 1
-                total_acquired_lot_fractions: int = gain_loss_set.get_acquired_lot_number_of_fractions(gain_loss.acquired_lot)
-                acquired_lot_note: str = (
-                    f"{current_acquired_lot_fraction}/"
-                    f"{total_acquired_lot_fractions}: "
-                    f"{gain_loss.crypto_amount:.8f} of "
-                    f"{gain_loss.acquired_lot.crypto_balance_change:.8f} "
-                    f"{asset}"
-                )
+                # The lot's cells link to the row of its original lot in the In-Out sheet, and the unique id is the original lot's: with
+                # per-wallet application, coins that came through transfers or the opening allocation are in a lot that RP2 created for their
+                # wallet, which has no row (see _get_acquired_lot_description()). The values are those of the coins taken from the wallet's
+                # lot. If a date filter (-f, -t) leaves the original lot out of the In-Out sheet, the cells have no link.
+                # Example: buy 2 coins on Coinbase (lot i1), send them to Kraken and sell 1: the sale's lot cells link to i1's row.
+                source_lot: InTransaction = gain_loss.acquired_lot.original_lot
+                acquired_lot_note: str = self._get_acquired_lot_description(gain_loss_set, gain_loss)
                 self._fill_cell(
                     sheet,
                     row_index,
                     12,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot.cost_basis_timestamp),
+                    self.__get_hyperlinked_transaction_value(source_lot, gain_loss.acquired_lot.cost_basis_timestamp),
                     visual_style=acquired_lot_style,
                 )
                 self._fill_cell(
                     sheet,
                     row_index,
                     13,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot_fraction_percentage),
+                    self.__get_hyperlinked_transaction_value(source_lot, gain_loss.acquired_lot_fraction_percentage),
                     visual_style=acquired_lot_style,
                     data_style="percent",
                 )
@@ -935,7 +933,7 @@ class Generator(AbstractODSGenerator):
                     sheet,
                     row_index,
                     14,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot_fiat_amount_with_fee_fraction),
+                    self.__get_hyperlinked_transaction_value(source_lot, gain_loss.acquired_lot_fiat_amount_with_fee_fraction),
                     visual_style=acquired_lot_style,
                     data_style="fiat",
                 )
@@ -944,7 +942,7 @@ class Generator(AbstractODSGenerator):
                     sheet,
                     row_index,
                     15,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, fiat_fee_fraction),
+                    self.__get_hyperlinked_transaction_value(source_lot, fiat_fee_fraction),
                     visual_style=acquired_lot_style,
                     data_style="fiat",
                 )
@@ -952,7 +950,7 @@ class Generator(AbstractODSGenerator):
                     sheet,
                     row_index,
                     16,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.fiat_cost_basis),
+                    self.__get_hyperlinked_transaction_value(source_lot, gain_loss.fiat_cost_basis),
                     visual_style=highlighted_style,
                     data_style="fiat",
                 )
@@ -960,7 +958,7 @@ class Generator(AbstractODSGenerator):
                     sheet,
                     row_index,
                     17,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot.spot_price),
+                    self.__get_hyperlinked_transaction_value(source_lot, gain_loss.acquired_lot.spot_price),
                     visual_style=acquired_lot_style,
                     data_style="fiat",
                 )
@@ -968,7 +966,7 @@ class Generator(AbstractODSGenerator):
                     sheet,
                     row_index,
                     18,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, gain_loss.acquired_lot.unique_id),
+                    self.__get_hyperlinked_transaction_value(source_lot, source_lot.unique_id),
                     visual_style=acquired_lot_style,
                     data_style="fiat",
                 )
@@ -976,7 +974,7 @@ class Generator(AbstractODSGenerator):
                     sheet,
                     row_index,
                     19,
-                    self.__get_hyperlinked_transaction_value(gain_loss.acquired_lot, acquired_lot_note),
+                    self.__get_hyperlinked_transaction_value(source_lot, acquired_lot_note),
                     visual_style=f"acquired_lot_note{border_suffix}",
                 )
 

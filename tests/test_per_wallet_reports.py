@@ -21,7 +21,7 @@ from datetime import date
 from pathlib import Path
 from typing import Dict, List, NamedTuple, Optional, Tuple
 
-from ods_diff import read_sheet_rows
+from ods_diff import read_sheet_cells, read_sheet_rows
 from per_wallet_common import (
     _ASSET,
     _BLOCKFI,
@@ -62,7 +62,160 @@ class _OpeningAllocationRows(NamedTuple):
     allocation: List[List[str]]
 
 
+# A lot of the Gain / Loss Detail table of the full report: the taxable event, the lot's unique id, the unique id of the In-Out row that
+# the lot's cells link to (None without a link) and the lot's description.
+class _ReportedLot(NamedTuple):
+    taxable_event: str
+    lot: str
+    linked_row: Optional[str]
+    description: str
+
+
 class TestPerWalletReports(AbstractPerWalletTest):
+    # Generates the full report of a history and returns the lots of its Gain / Loss Detail table (see _ReportedLot). Also checks that the
+    # cells of a lot all link to the same row, or are all without a link.
+    def _get_reported_lots(self, name: str, transactions: List[object], from_date: date = MIN_DATE) -> List[_ReportedLot]:
+        configuration = _create_configuration(from_date=from_date)
+        computed_data = compute_tax_per_wallet(configuration, self._create_accounting_engine(None), self._create_input_data(configuration, transactions))
+        output_dir = Path("output") / Path("test_per_wallet_reports") / Path(name)
+        shutil.rmtree(output_dir, ignore_errors=True)
+        output_dir.mkdir(parents=True)
+        set_generation_language("en")
+        FullReportGenerator().generate(US(), {1970: "fifo"}, {_ASSET: computed_data}, str(output_dir), f"{name}_", from_date, MAX_DATE, "en")
+        TaxReportUSGenerator().generate(US(), {1970: "fifo"}, {_ASSET: computed_data}, str(output_dir), f"{name}_", from_date, MAX_DATE, "en")
+        path = output_dir / Path(f"{name}_fifo_rp2_full_report.ods")
+        in_out_rows = read_sheet_cells(path, f"{_ASSET} In-Out") or []
+        result: List[_ReportedLot] = []
+        for cells in read_sheet_cells(path, f"{_ASSET} Tax") or []:
+            # Gain / Loss Detail rows: the taxable event's unique id (column 10) links to its row; income has no lot (column 18 is empty).
+            if len(cells) < 20 or cells[10].link_sheet != f"{_ASSET} In-Out" or not cells[18].text:
+                continue
+            link_rows = {(cell.link_sheet, cell.link_row) for cell in cells[12:20]}
+            self.assertEqual(len(link_rows), 1, msg=f"{name}: the cells of lot {cells[18].text} link to different rows: {link_rows}")
+            link_sheet, link_row = link_rows.pop()
+            linked_row = in_out_rows[link_row - 1][14].text if link_sheet == f"{_ASSET} In-Out" and link_row is not None else None
+            result.append(_ReportedLot(cells[10].text, cells[18].text, linked_row, cells[19].text))
+        return result
+
+    # R17 of the review of eprbell/rp2#155: the full report identifies the lot of every gain/loss by its original lot, the input purchase its
+    # coins come from, and links all the lot's cells to that purchase's row of the In-Out sheet. With per-wallet application, coins that came
+    # through transfers or the opening allocation are in a lot that RP2 created for their wallet (e.g. t1/-1), which has no row: the lot's
+    # description names that lot and its wallet, and the amounts stay those of the coins taken from it. Example (the review's): buy 2 coins on
+    # Coinbase (i1), send both to Kraken and sell 1: the lot is i1, linked to i1's row, described as 1 of the 2 coins of Kraken's lot t1/-1.
+    def test_lots_link_to_their_original_purchase(self) -> None:
+        cases: List[Tuple[str, List[object], date, List[_ReportedLot]]] = [
+            (
+                "direct",
+                [
+                    _In("i1", "2025-01-10T00:00:00+00:00", "Coinbase", "Buy", "100", "2"),
+                    _Out("o1", "2025-03-01T00:00:00+00:00", "Coinbase", "200", "1"),
+                ],
+                MIN_DATE,
+                [_ReportedLot("o1", "i1", "i1", "1/1: 1.00000000 of 2.00000000 B1")],
+            ),
+            (
+                "review_example",
+                [
+                    _In("i1", "2025-01-10T00:00:00+00:00", "Coinbase", "Buy", "100", "2"),
+                    _Intra("t1", "2025-02-01T00:00:00+00:00", "Coinbase", "Kraken", "150", "2", "2"),
+                    _Out("o1", "2025-03-01T00:00:00+00:00", "Kraken", "200", "1"),
+                ],
+                MIN_DATE,
+                [_ReportedLot("o1", "i1", "i1", "1/1: 1.00000000 of 2.00000000 B1 in Kraken/Bob (lot t1/-1)")],
+            ),
+            (
+                # Bought before the switch: at the switch the allocation gives Coinbase, the only wallet with funds, the lot i1/-1.
+                "allocated",
+                [
+                    _In("i1", "2024-06-01T00:00:00+00:00", "Coinbase", "Buy", "100", "2"),
+                    _Out("o1", "2025-03-01T00:00:00+00:00", "Coinbase", "200", "1"),
+                ],
+                MIN_DATE,
+                [_ReportedLot("o1", "i1", "i1", "1/1: 1.00000000 of 2.00000000 B1 in Coinbase/Bob (lot i1/-1)")],
+            ),
+            (
+                # One transfer takes coins from two lots: Kraken gets a lot for each (t1/-1 from i1 and t1/-2 from i2), and the sale takes
+                # 1 coin of the first and 0.5 of the second (FIFO).
+                "split_transfer",
+                [
+                    _In("i1", "2025-01-10T00:00:00+00:00", "Coinbase", "Buy", "100", "1"),
+                    _In("i2", "2025-01-20T00:00:00+00:00", "Coinbase", "Buy", "200", "1"),
+                    _Intra("t1", "2025-02-01T00:00:00+00:00", "Coinbase", "Kraken", "300", "2", "2"),
+                    _Out("o1", "2025-03-01T00:00:00+00:00", "Kraken", "400", "1.5"),
+                ],
+                MIN_DATE,
+                [
+                    _ReportedLot("o1", "i1", "i1", "1/1: 1.00000000 of 1.00000000 B1 in Kraken/Bob (lot t1/-1)"),
+                    _ReportedLot("o1", "i2", "i2", "1/1: 0.50000000 of 1.00000000 B1 in Kraken/Bob (lot t1/-2)"),
+                ],
+            ),
+            (
+                # A lot split between two wallets, and two hops: 2 of i1's 3 coins go to Kraken (t1/-1) and then to BlockFi (t2/-2). The sale
+                # on BlockFi and the one of the coin left on Coinbase both come from i1.
+                "multiple_hops",
+                [
+                    _In("i1", "2025-01-10T00:00:00+00:00", "Coinbase", "Buy", "100", "3"),
+                    _Intra("t1", "2025-02-01T00:00:00+00:00", "Coinbase", "Kraken", "150", "2", "2"),
+                    _Intra("t2", "2025-02-10T00:00:00+00:00", "Kraken", "BlockFi", "150", "2", "2"),
+                    _Out("o1", "2025-03-01T00:00:00+00:00", "BlockFi", "200", "1"),
+                    _Out("o2", "2025-03-02T00:00:00+00:00", "Coinbase", "200", "1"),
+                ],
+                MIN_DATE,
+                [
+                    _ReportedLot("o1", "i1", "i1", "1/1: 1.00000000 of 2.00000000 B1 in BlockFi/Bob (lot t2/-2)"),
+                    _ReportedLot("o2", "i1", "i1", "1/1: 1.00000000 of 3.00000000 B1"),
+                ],
+            ),
+            (
+                # A round trip: the coins go back to i1, so the sale takes them from i1 itself.
+                "cycle",
+                [
+                    _In("i1", "2025-01-10T00:00:00+00:00", "Coinbase", "Buy", "100", "2"),
+                    _Intra("t1", "2025-02-01T00:00:00+00:00", "Coinbase", "Kraken", "150", "2", "2"),
+                    _Intra("t2", "2025-02-10T00:00:00+00:00", "Kraken", "Coinbase", "150", "2", "2"),
+                    _Out("o1", "2025-03-01T00:00:00+00:00", "Coinbase", "200", "1"),
+                ],
+                MIN_DATE,
+                [_ReportedLot("o1", "i1", "i1", "1/1: 1.00000000 of 2.00000000 B1")],
+            ),
+            (
+                # A round trip after the allocation: the coins go back to Coinbase's allocated lot i1/-1.
+                "cycle_after_allocation",
+                [
+                    _In("i1", "2024-06-01T00:00:00+00:00", "Coinbase", "Buy", "100", "2"),
+                    _Intra("t1", "2025-02-01T00:00:00+00:00", "Coinbase", "Kraken", "150", "2", "2"),
+                    _Intra("t2", "2025-02-10T00:00:00+00:00", "Kraken", "Coinbase", "150", "2", "2"),
+                    _Out("o1", "2025-03-01T00:00:00+00:00", "Coinbase", "200", "1"),
+                ],
+                MIN_DATE,
+                [_ReportedLot("o1", "i1", "i1", "1/1: 1.00000000 of 2.00000000 B1 in Coinbase/Bob (lot i1/-1)")],
+            ),
+            (
+                # A report from 2025 (-f 2025-01-01) leaves the 2024 purchase out of the In-Out sheet: the lot is still i1, without a link.
+                "filtered",
+                [
+                    _In("i1", "2024-06-01T00:00:00+00:00", "Coinbase", "Buy", "100", "2"),
+                    _Out("o1", "2025-03-01T00:00:00+00:00", "Coinbase", "200", "1"),
+                ],
+                date(2025, 1, 1),
+                [_ReportedLot("o1", "i1", None, "1/1: 1.00000000 of 2.00000000 B1 in Coinbase/Bob (lot i1/-1)")],
+            ),
+        ]
+        for name, transactions, from_date, want in cases:
+            with self.subTest(name=name):
+                self.assertEqual(self._get_reported_lots(name, transactions, from_date), want)
+
+        # The US tax report shows the same unique ids and descriptions (columns 11 and 10 of the Capital Gains sheet).
+        tax_rows = read_sheet_rows(
+            Path("output") / Path("test_per_wallet_reports") / Path("split_transfer") / Path("split_transfer_fifo_tax_report_us.ods"), "Capital Gains"
+        )
+        got_us: List[Tuple[str, str, str]] = [(row[13], row[11], row[10]) for row in tax_rows or [] if len(row) > 13 and row[1] == _ASSET]
+        want_us: List[Tuple[str, str, str]] = [
+            ("o1", "i1", "1/1: 1.00000000 of 1.00000000 B1 in Kraken/Bob (lot t1/-1)"),
+            ("o1", "i2", "1/1: 0.50000000 of 1.00000000 B1 in Kraken/Bob (lot t1/-2)"),
+        ]
+        self.assertEqual(got_us, want_us)
+
     def test_reports_with_artificial_lots(self) -> None:
         # Gain/losses on artificial lots (transfer destinations, unused basis allocation) must not break report generation, and Form 8949
         # "date acquired" must be the original acquisition date, not the transfer date.

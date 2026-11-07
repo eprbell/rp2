@@ -47,7 +47,7 @@ This report makes it possible to follow step-by-step the process RP2 uses to pro
 
 #### Hyperlinks
 The RP2 Full Report contains hyperlinks to facilitate navigation: in LibreOffice, CTRL-click (on Mac, Command-click) on a cell to jump to the target. The following content is hyperlinked:
-  * taxable events and acquired lots in *cryptocurrency* Tax sheet are hyperlinked to their definition line in the cryptocurrency* In-Out sheet;
+  * taxable events and acquired lots in *cryptocurrency* Tax sheet are hyperlinked to their definition line in the *cryptocurrency* In-Out sheet. With per-wallet application, coins that came to a wallet through transfers or the opening allocation are in a lot that RP2 creates for that wallet, which has no line: the Tax sheet shows the unique id of their original lot (the input transaction they come from) and links to its line, and the lot's description adds the wallet and RP2's lot, e.g. `1/1: 1.00000000 of 2.00000000 BTC in Kraken/Bob (lot t1/-1)`. If a date filter (`-f`, `-t`) leaves the line out of the In-Out sheet, the cells have no link;
   * summary lines in the Summary sheet are now hyperlinked to the first line of the given year in the *cryptocurrency* Tax sheet.
 
 ### Open Positions Report: Unrealized Gains
@@ -94,7 +94,7 @@ The tax_report_us.ods output file contains a legend sheet and a sheet per taxabl
 * Staking;
 * Wages.
 
-These sheets are in the format of form 8949 and are meant for tax preparers, who can use it to fill the appropriate forms. Every line corresponds to a taxable event and describes it. The left part (with white header) mimics form 8949: cost basis, capital gains, proceeds, etc. The right part (with gray header) contains additional information that can be used to identify the transactions in the user's records or in the [rp2_full_report output](#transparent-computation-rp2-full-report-output): full timestamp of date sold, capital gains type (long or short), lot fraction information, transaction type, unique_id, etc. In this sheet blue refers to taxable events and purple to in-transactions (purchased, earned, etc.).
+These sheets are in the format of form 8949 and are meant for tax preparers, who can use it to fill the appropriate forms. Every line corresponds to a taxable event and describes it. The left part (with white header) mimics form 8949: cost basis, capital gains, proceeds, etc. The right part (with gray header) contains additional information that can be used to identify the transactions in the user's records or in the [rp2_full_report output](#rp2-full-report-transparent-computation): full timestamp of date sold, capital gains type (long or short), lot fraction information, transaction type, unique_id, etc. The unique_id of a lot is the one of its original lot, as in the [rp2_full_report output](#hyperlinks). In this sheet blue refers to taxable events and purple to in-transactions (purchased, earned, etc.).
 
 Each sheet has a [specific tax treatment](https://github.com/eprbell/rp2/blob/main/docs/user_faq.md#which-crypto-tax-forms-to-file).
 

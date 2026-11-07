@@ -24,6 +24,8 @@ from rp2.abstract_report_generator import AbstractReportGenerator
 from rp2.abstract_transaction import AbstractTransaction
 from rp2.computed_data import ComputedData
 from rp2.configuration import MAX_DATE, MIN_DATE, Configuration
+from rp2.gain_loss import GainLoss
+from rp2.gain_loss_set import GainLossSet
 from rp2.in_transaction import InTransaction
 from rp2.localization import _
 from rp2.out_transaction import OutTransaction
@@ -240,3 +242,21 @@ class AbstractODSGenerator(AbstractReportGenerator):
         if isinstance(transaction, OutTransaction):
             return "OUT"
         return "INTRA"
+
+    # The description of the coins that a gain/loss took from its lot: their fraction number, their amount and the amount of the lot. With
+    # per-wallet application, coins that came to a wallet through transfers or the opening allocation are a lot of that wallet created by
+    # RP2 (an artificial lot), which has no row in the input: reports identify such coins by their original lot (the input purchase they come
+    # from, see InTransaction.original_lot), and the description adds the wallet and the id of the wallet's lot. The amounts stay those of the
+    # wallet's lot. Example: buy 2 coins on Coinbase (lot i1), send them to Kraken (Kraken's lot t1/-1) and sell 1 of them there: the sale's
+    # lot is i1, described as "1/1: 1.00000000 of 2.00000000 B1 in Kraken/Bob (lot t1/-1)".
+    @staticmethod
+    def _get_acquired_lot_description(gain_loss_set: GainLossSet, gain_loss: GainLoss) -> str:
+        acquired_lot = gain_loss.acquired_lot
+        if acquired_lot is None:
+            raise RP2RuntimeError(f"Internal error: gain/loss without an acquired lot: {gain_loss}")
+        fraction = gain_loss_set.get_acquired_lot_fraction(gain_loss) + 1
+        number_of_fractions = gain_loss_set.get_acquired_lot_number_of_fractions(acquired_lot)
+        result = f"{fraction}/{number_of_fractions}: {gain_loss.crypto_amount:.8f} of {acquired_lot.crypto_balance_change:.8f} {gain_loss.asset}"
+        if acquired_lot is not acquired_lot.original_lot:
+            result += f" in {acquired_lot.exchange}/{acquired_lot.holder} (lot {acquired_lot.unique_id})"
+        return result

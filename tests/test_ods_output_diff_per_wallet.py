@@ -21,7 +21,7 @@ from typing import Any, Dict, List, NamedTuple, Optional, Tuple
 
 import ezodf
 from abstract_test_ods_output_diff import CONFIG_PATH, INPUT_PATH, AbstractTestODSOutputDiff, OutputPlugins
-from ods_diff import ods_diff, read_sheet_rows
+from ods_diff import ReportCell, ods_diff, read_sheet_cells, read_sheet_rows
 
 ROOT_PATH: Path = Path(os.path.dirname(__file__)).parent.absolute()
 
@@ -204,8 +204,8 @@ class TestODSOutputDiffPerWallet(AbstractTestODSOutputDiff):
     # - B3: 5 coins bought on BlockFi in 2024, nothing else: automatic allocation, without later transactions;
     # - B4: bought in 2025 and moved to Kraken: nothing to allocate.
     # The reports are compared with golden files (input/golden/us/test_data_per_wallet_mixed_*.ods) and their key cells and formulas with
-    # values computed by hand (test_per_wallet_golden_cells()). The full report shows artificial lot ids for the lots of per-wallet sales
-    # (e.g. i1/-1): R17 replaces them with the original lots, and updates the golden file.
+    # values computed by hand (test_per_wallet_golden_cells()). The full report and the US tax report identify the lots of per-wallet sales by
+    # their original lots (e.g. i1 for Kraken's allocated lot i1/-1, R17).
     def test_per_wallet_golden_files(self) -> None:
         for plugin in (OutputPlugins.OPEN_POSITIONS, OutputPlugins.OPENING_ALLOCATION, OutputPlugins.RP2_FULL_REPORT, OutputPlugins.TAX_REPORT_US):
             with self.subTest(plugin=plugin.value):
@@ -339,28 +339,30 @@ class TestODSOutputDiffPerWallet(AbstractTestODSOutputDiff):
             ["Kraken", "Bob", "B1", "2.2", "2.5", "0.9", "0.6"],
         ]
         self.assertEqual(got_balances, want_balances)
-        # Gain / Loss Detail: every taxable event is a link to its row of the In-Out sheet, and every lot shows the timestamp of the original
-        # acquisition (also when the coins came from the allocation or a transfer). The links and ids of artificial lots are R17's.
-        document: Any = ezodf.opendoc(f"{prefix}rp2_full_report.ods")
-        tax_sheet = document.sheets["B1 Tax"]
-        detail_rows = [index for index in range(tax_sheet.nrows()) if tax_sheet[index, 1].value == "B1" and tax_sheet[index, 5].formula]
-        got_events: List[Tuple[str, str]] = []
-        for index in detail_rows:
-            timestamp_cell = tax_sheet[index, 12]
-            lot_timestamp = timestamp_cell.formula.split(";")[1].strip(' ")') if timestamp_cell.formula else timestamp_cell.value
-            self.assertTrue(tax_sheet[index, 5].formula.startswith('=HYPERLINK("#B1 In-Out.'), msg=f"row {index}")
-            got_events.append((tax_sheet[index, 10].formula.split(";")[1].strip(' ")'), lot_timestamp or ""))
-        want_events: List[Tuple[str, str]] = [
-            ("t1", "2024-01-10 15:00:00+00:00"),
-            ("o1", "2024-01-10 15:00:00+00:00"),
-            ("t2", "2024-01-10 15:00:00+00:00"),
-            ("s1", ""),
-            ("o2", "2024-03-15 15:00:00+00:00"),
-            ("o2", "2025-01-01 03:00:00+00:00"),
-            ("o3", "2024-01-10 15:00:00+00:00"),
-            ("o4", "2025-04-01 15:00:00+00:00"),
-            ("o4", "2024-01-10 15:00:00+00:00"),
-            ("o4", "2024-01-10 15:00:00+00:00"),
+        # Gain / Loss Detail: every taxable event links to its row of the In-Out sheet. Every lot shows the timestamp of its original
+        # acquisition and the unique id of its original lot, and links to that lot's row (R17), also when the coins came through the allocation
+        # or transfers: e.g. t2's fee and o4's last two pieces come from Kraken's lots i1/-1 and t3/-7, both from i1. o4's first lot is s1, the
+        # staking income of April 2025 (the row of s1 has no lot).
+        in_out_rows: List[List[ReportCell]] = read_sheet_cells(Path(f"{prefix}rp2_full_report.ods"), "B1 In-Out") or []
+        got_events: List[Tuple[str, str, str, Optional[str]]] = []
+        for cells in read_sheet_cells(Path(f"{prefix}rp2_full_report.ods"), "B1 Tax") or []:
+            if len(cells) < 19 or cells[1].text != "B1" or cells[5].link_sheet is None:
+                continue
+            self.assertEqual(cells[5].link_sheet, "B1 In-Out")
+            lot = cells[18]
+            linked_row = in_out_rows[lot.link_row - 1][14].text if lot.link_row is not None else None
+            got_events.append((cells[10].text, cells[12].text, lot.text, linked_row))
+        want_events: List[Tuple[str, str, str, Optional[str]]] = [
+            ("t1", "2024-01-10 15:00:00+00:00", "i1", "i1"),
+            ("o1", "2024-01-10 15:00:00+00:00", "i1", "i1"),
+            ("t2", "2024-01-10 15:00:00+00:00", "i1", "i1"),
+            ("s1", "", "", None),
+            ("o2", "2024-03-15 15:00:00+00:00", "i2", "i2"),
+            ("o2", "2025-01-01 03:00:00+00:00", "i3", "i3"),
+            ("o3", "2024-01-10 15:00:00+00:00", "i1", "i1"),
+            ("o4", "2025-04-01 15:00:00+00:00", "s1", "s1"),
+            ("o4", "2024-01-10 15:00:00+00:00", "i1", "i1"),
+            ("o4", "2024-01-10 15:00:00+00:00", "i1", "i1"),
         ]
         self.assertEqual(got_events, want_events)
 
