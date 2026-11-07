@@ -277,6 +277,7 @@ class TransferAnalyzer:
         # A datetime is also a date, but it can't be compared with the dates of the transactions.
         if not isinstance(holdings_date, date) or isinstance(holdings_date, datetime):
             raise RP2TypeError(f"Parameter 'holdings_date' is not of type date: {holdings_date}")
+        self._clear_to_lots()
         all_transactions: List[AbstractTransaction] = []
         for transaction_set in [
             self.__universal_input_data.unfiltered_in_transaction_set,
@@ -314,6 +315,19 @@ class TransferAnalyzer:
             wallet: per_wallet_transactions.to_input_data() for wallet, per_wallet_transactions in wallet_2_per_wallet_transactions.items()
         }
         return TransferAnalysisResult(wallet_2_input_data, gain_loss_list, wallet_lots)
+
+    # Empties to_lots of the lots the analysis starts from, so that it only describes this analysis. The analysis adds each lot it creates to
+    # to_lots of the lots its units come from (see _create_to_in_transaction()): the lots of the input data and, through from_lot, the lots
+    # those come from (for a lot allocated at the switch, the input lot bought before it). They are the same objects every time the asset
+    # is analyzed again (e.g. when compute_tax_per_wallet() runs twice on the same input data): without this, the lots of every analysis
+    # would add up. Example: buy 2 coins on Coinbase (lot i1) and send them to Kraken (transfer t1). The first analysis creates Kraken's lot
+    # t1/-1, a second one t1/-2: i1.to_lots is then {Kraken: [t1/-2]}, not {Kraken: [t1/-1, t1/-2]}, which links to a lot no wallet holds.
+    def _clear_to_lots(self) -> None:
+        for entry in self.__universal_input_data.unfiltered_in_transaction_set:
+            current_lot = entry if isinstance(entry, InTransaction) else None
+            while current_lot is not None:
+                current_lot.to_lots.clear()
+                current_lot = current_lot.from_lot
 
     # What each wallet holds right now: one WalletLot for every lot with units left in the wallet (sorted by wallet, then by lot order).
     @staticmethod

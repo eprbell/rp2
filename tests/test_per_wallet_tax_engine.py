@@ -846,6 +846,36 @@ class TestPerWalletTaxEngine(AbstractPerWalletTest):
                     analyzer.analyze_and_pair(holdings_date=invalid_date)  # type: ignore
         self.assertEqual(len(analyzer.analyze_and_pair(holdings_date=date(2025, 4, 30)).wallet_lots), 1)
 
+    # compute_tax_per_wallet() can run more than once on the same input data (e.g. in a program that uses RP2 as a library). Each run creates
+    # new lots for the opening allocation and the transfers, with new ids, but the input lots are the same objects: their to_lots (where
+    # their coins went) must only list the lots of the latest run, not also those of the earlier runs, which no wallet holds. The results are
+    # the same in every run. Example: 2 coins bought in 2024 (lot i1, allocated to Coinbase at the switch) and 1 coin bought in 2025 (lot i2)
+    # are all sent to Kraken, where 1 coin of i1 is sold. Without the fix, after the second run i1.to_lots listed two Kraken lots: the one of
+    # the first run and the one of the second run.
+    def test_repeated_computation_keeps_only_its_own_links(self) -> None:
+        configuration = _create_configuration()
+        transactions: List[object] = [
+            _In("i1", "2024-06-01T00:00:00+00:00", "Coinbase", "Buy", "100", "2"),
+            _In("i2", "2025-01-02T00:00:00+00:00", "Coinbase", "Buy", "150", "1"),
+            _Intra("t1", "2025-02-01T00:00:00+00:00", "Coinbase", "Kraken", "200", "3", "3"),
+            _Out("o1", "2025-03-01T00:00:00+00:00", "Kraken", "250", "1"),
+        ]
+        input_data = self._create_input_data(configuration, transactions)
+        input_lots: List[InTransaction] = [lot for lot in input_data.unfiltered_in_transaction_set if isinstance(lot, InTransaction)]
+        want_gain_losses = self._want_tuples([_GainLoss("o1", "i1", "1", "100", "150", False)])
+        for run in (1, 2):
+            with self.subTest(run=run):
+                computed_data = compute_tax_per_wallet(configuration, self._create_accounting_engine(None), input_data)
+                self.assertEqual(self._to_tuples([gain_loss for gain_loss in computed_data.gain_loss_set if isinstance(gain_loss, GainLoss)]), want_gain_losses)
+                wallet_lots = computed_data.wallet_lots
+                assert wallet_lots is not None
+                for input_lot in input_lots:
+                    # Kraken holds 1 coin of each input lot, in the lot that this run created there.
+                    kraken_lots = [wallet_lot.lot for wallet_lot in wallet_lots if wallet_lot.account == _KRAKEN and wallet_lot.original_lot is input_lot]
+                    want_to_lots: Dict[str, List[str]] = {"Kraken": [lot.unique_id for lot in kraken_lots]}
+                    got_to_lots: Dict[str, List[str]] = {account.exchange: [lot.unique_id for lot in lots] for account, lots in input_lot.to_lots.items()}
+                    self.assertEqual(got_to_lots, want_to_lots, msg=f"to_lots of {input_lot.unique_id}")
+
 
 if __name__ == "__main__":
     unittest.main()

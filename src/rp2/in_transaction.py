@@ -70,9 +70,9 @@ class InTransaction(AbstractTransaction):  # pylint: disable=too-many-public-met
         self.__fiat_fee: RP2Decimal = configuration.type_check_positive_decimal("fiat_fee", fiat_fee) if fiat_fee else ZERO
 
         # After a transfer, the per-wallet application model is populated with artificial InTransactions that model the "to" part
-        # of the transfer (these artificial InTransactions are not present in the universal application model). These fields are
-        # only populated in the artificial InTransactions of the per-wallet application model field and describes where the funds
-        # come from (due to the transfer) and go to (after the transfer).
+        # of the transfer (these artificial InTransactions are not present in the universal application model). from_lot is only
+        # populated in these artificial InTransactions and describes where the funds come from (due to the transfer). to_lots
+        # describes where the funds go to (after the transfer), in every lot they come from, input lots included (see to_lots below).
         self.__from_lot: Optional[InTransaction] = InTransaction.type_check("from_lot", from_lot) if from_lot is not None else None
         self.__to_lots: Dict[Account, List[InTransaction]] = {}
 
@@ -243,8 +243,11 @@ class InTransaction(AbstractTransaction):  # pylint: disable=too-many-public-met
     def from_lot(self) -> Optional["InTransaction"]:
         return self.__from_lot
 
-    # This is only populated in artificial InTransactions of the per-wallet application model and describes where the funds go to after
-    # transfers.
+    # Where the funds of this lot go to after transfers, in the last transfer analysis of its asset (per-wallet application): for each
+    # wallet, the artificial InTransactions created there with funds of this lot, directly or through other wallets. Unlike from_lot, it's
+    # populated in input lots too, and each analysis starts by emptying it (see TransferAnalyzer._clear_to_lots()). Example: buy 2 coins on
+    # Coinbase (lot i1), send them to Kraken (lot t1/-1 there) and then to BlockFi (lot t2/-2 there): i1.to_lots is
+    # {Kraken: [t1/-1], BlockFi: [t2/-2]} and t1/-1.to_lots is {BlockFi: [t2/-2]}.
     @property
     def to_lots(self) -> Dict[Account, List["InTransaction"]]:
         return self.__to_lots
