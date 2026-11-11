@@ -19,6 +19,7 @@
 * **[Accounting Methods](#accounting-methods)**
 * **[Countries](#countries)**
   * [Generic](#generic)
+  * [Canada](#canada)
   * [Ireland](#ireland)
   * [Japan](#japan)
   * [Spain](#Spain)
@@ -55,6 +56,15 @@ RP2 Generic supports the following features:
   * [LIFO](https://www.investopedia.com/terms/l/lifo.asp),
   * [HIFO](https://www.investopedia.com/terms/h/hifo.asp),
   * LOFO.
+* [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
+  * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
+  * [open_positions](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#open-positions-report-unrealized-gains): report on assets with non-zero crypto balance (valid for any country): unrealized gains / losses, portfolio weighting, and more.
+
+### Canada
+RP2 support for Canada includes the following features:
+* Canada-specific RP2 executable: `rp2_ca`.
+* Accounting methods (note that in Canada the prescribed method is [average cost](https://www.investopedia.com/terms/a/averagecostmethod.asp) (adjusted cost base or ACB): the cost of each unit disposed of is the average cost of all units of the same cryptocurrency held immediately before the disposition. This is **NOT** yet supported by RP2, whose accounting engine pairs acquired and disposed lots: for the time being the Canada plugin defaults to FIFO as a placeholder, so generated reports do not follow the ACB rule and must not be filed as-is):
+  * [FIFO](https://www.investopedia.com/terms/f/fifo.asp).
 * [Output generators](https://github.com/eprbell/rp2/blob/main/docs/output_files.md):
   * [rp2_full_report](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#rp2-full-report-transparent-computation): comprehensive report (valid for any country), with complete transaction history, lot relationships/fractions and computation details;
   * [open_positions](https://github.com/eprbell/rp2/blob/main/docs/output_files.md#open-positions-report-unrealized-gains): report on assets with non-zero crypto balance (valid for any country): unrealized gains / losses, portfolio weighting, and more.
